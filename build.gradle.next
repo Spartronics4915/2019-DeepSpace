@@ -1,0 +1,101 @@
+/**
+ *
+ * This is what a 2019 build.gradle might look like.
+ * If you want to use this, you will need to change
+ * frcYear in settings.gradle to 2019.
+ *
+ */
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-tomcat-plugin:2.0'
+    }
+}
+
+plugins {
+    id "java"
+    id "edu.wpi.first.GradleRIO" version "2019.1.1-beta-2a"
+    id "war"
+}
+
+// apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'com.bmuschko.tomcat'
+
+def TEAM_NUMBER = getTeamOrDefault(4915)
+def ROBOT_MAIN_CLASS = "com.team254.frc2018.Robot"
+
+// Define my targets (RoboRIO) and artifacts (deployable files)
+// This is added by GradleRIO's backing project EmbeddedTools.
+deploy {
+    targets {
+        roboRIO("roborio") {
+            // Team number is loaded either from the .wpilib/wpilib_preferences.json
+            // or from command line. If not found an exception will be thrown.
+            // You can use getTeamOrDefault(team) instead of getTeamNumber if you
+            // want to store a team number in this file.
+            team = TEAM_NUMBER
+        }
+    }
+    artifacts {
+        frcJavaArtifact('frcJava') {
+            targets << "roborio"
+            // Debug can be overridden by command line, for use with VSCode
+            debug = getDebugOrDefault(false)
+        }
+        // Built in artifact to deploy arbitrary files to the roboRIO.
+        fileTreeArtifact('frcStaticFileDeploy') {
+            // The directory below is the local directory to deploy
+            files = fileTree(dir: 'src/main/deploy')
+            // Deploy to RoboRIO target, into /home/lvuser/deploy
+            targets << "roborio"
+            directory = '/home/lvuser/deploy'
+        }
+    }
+}
+
+// Maven central needed for JUnit and JAMA
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile wpilib()
+    compile("gov.nist.math:jama:1.0.3")
+    compile javaVendorLibraries()
+
+    def tomcatVersion = '7.0.57'
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+            "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
+    tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
+        exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
+    }
+
+    compile("org.springframework:spring-webmvc:4.3.0.RELEASE")
+    compile("javax.servlet:javax.servlet-api:3.0.1")
+    compile("javax.servlet:jstl:1.2") 
+
+    nativeZip jniRoboRIOVendorLibraries()
+    nativeDesktopZip jniDesktopVendorLibraries()
+    
+    testCompile 'junit:junit:4.12'
+}
+
+// context where tomcat is deployed, by default localhost:8080/
+tomcatRun.contextPath = '/'
+tomcatRunWar.contextPath = '/'
+
+// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
+// in order to make them all available at runtime. Also adding the manifest so WPILib
+// knows where to look for our Robot Class.
+jar {
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
+}
+
+wrapper {
+    gradleVersion = '4.9'
+}
