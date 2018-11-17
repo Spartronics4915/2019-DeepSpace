@@ -48,93 +48,93 @@ The code is divided into several packages, each responsible for a different aspe
 
 - Lidar Processing
 
-	Even though this was not used on the final iteration of our robot code, we are still releasing our lidar processing code. This consisted of ICP algorithms to detect the scale within the points detected and sent by the [Slamtec RPLIDAR A2](http://www.slamtec.com/en/support#rplidar-a2) and can be found in the [`com.team254.frc2018.lidar`](src/main/java/com/team254/frc2018/lidar) package. Our RPLIDAR driver can be found [here](https://github.com/Team254/rplidar_sdk).
+	Even though this was not used on the final iteration of our robot code, we are still releasing our lidar processing code. This consisted of ICP algorithms to detect the scale within the points detected and sent by the [Slamtec RPLIDAR A2](http://www.slamtec.com/en/support#rplidar-a2) and can be found in the [`com.spartronics4915.frc2019.lidar`](src/main/java/com/team254/frc2018/lidar) package. Our RPLIDAR driver can be found [here](https://github.com/Team254/rplidar_sdk).
 
 ## Package Functions
-- com.team254.frc2018
+- com.spartronics4915.frc2019
 
 	Contains the robot's central functions and holds a file with all numerical constants used throughout the code. For example, the `Robot` class controls all routines depending on the robot state.
 
-- com.team254.frc2018.auto
+- com.spartronics4915.frc2019.auto
 
 	Handles the execution of autonomous routines and contains the `actions`, `creators`, and `modes` packages.
 	
-- com.team254.frc2018.auto.actions
+- com.spartronics4915.frc2019.auto.actions
 
 	Contains all actions used during the autonomous period, which all share a common interface, [`Action`](src/main/java/com/team254/frc2018/auto/actions/Action.java) (also in this package). Examples include shooting cubes, driving a trajectory, or moving the elevator. Routines interact with the Subsystems, which interact with the hardware.
 
-- com.team254.frc2018.auto.creators
+- com.spartronics4915.frc2019.auto.creators
 
 	Contains all the auto mode creators, which select the correct auto mode to run based on user input and FMS data.
 	
-- com.team254.frc2018.auto.modes
+- com.spartronics4915.frc2019.auto.modes
 	
 	Contains all autonomous modes. Autonomous modes consist of a list of autonomous actions executed in a certain order.
 
-- com.team254.frc2018.controlboard
+- com.spartronics4915.frc2019.controlboard
 	
 	Contains all the code for the different control boards. This allows any combination of driver station joysticks, button board, and Xbox Controllers to be used for both driving and operating. These are controlled by booleans in `Constants.java`.
 
-- com.team254.frc2018.lidar
+- com.spartronics4915.frc2019.lidar
 
 	Contains classes that are used to communicate with the Slamtec RPLIDAR A2 and to store and process points sent by the lidar.
 
-- com.team254.frc2018.lidar.icp
+- com.spartronics4915.frc2019.lidar.icp
 
 	Contains the algorithms for processing points sent by the lidar.
 	
-- com.team254.frc2018.loops
+- com.spartronics4915.frc2019.loops
 
 	Loops are routines that run periodically on the robot, such as calculating robot pose, processing vision feedback, or updating subsystems. All loops implement the `Loop` interface and are handled (started, stopped, added) by the `Looper` class, which runs at 200 Hz.
     The `Robot` class has one main looper, `mEnabledLooper`, that runs all loops when the robot is enabled.
 	
-- com.team254.frc2018.paths
+- com.spartronics4915.frc2019.paths
 
     Contains the generator for all of the trajectories that the robot drives during autonomous period.
 
-- com.team254.frc2018.planners
+- com.spartronics4915.frc2019.planners
 
 	Loops are routines that run periodically on the robot, such as calculating robot pose, processing vision feedback, or updating subsystems. All loops implement the `Loop` interface and are handled (started, stopped, added) by the `Looper` class, which runs at 200 Hz.
 	The `Robot` class has one main looper, `mEnabledLooper`, that runs all loops when the robot is enabled.
 
-- com.team254.frc2018.statemachines
+- com.spartronics4915.frc2019.statemachines
 
     Contains the state machines for the intake and overall superstructure.
 
-- com.team254.frc2018.states
+- com.spartronics4915.frc2019.states
 
     Contains states and other classes used in the subsystem and state machine classes.
 
-- com.team254.frc2018.subsystems
+- com.spartronics4915.frc2019.subsystems
 	
 	Subsystems are consolidated into one central class per subsystem, all of which extend the Subsystem abstract class. Each subsystem uses state machines for control.
 	Each subsystem is also a singleton, meaning that there is only one instance of each. To modify a subsystem, one would get the instance of the subsystem and change its state. The `Subsystem` class will work on setting the desired state.
 	
-- com.team254.lib.drivers
+- com.spartronics4915.lib.drivers
 
     Contains a set of custom classes for TalonSRXs.
 	
-- com.team254.lib.geometry
+- com.spartronics4915.lib.geometry
 
     Contains a set of classes that represent various geometric entities.
 	
-- com.team254.lib.physics
+- com.spartronics4915.lib.physics
 
     Contains classes that model DC motor transmissions and differential drive characterization.
 
-- com.team254.lib.spline
+- com.spartronics4915.lib.spline
 
     Contains the code for generating and optimizing splines.
 
-- com.team254.lib.trajectory
+- com.spartronics4915.lib.trajectory
 
     Contains classes for following and storing trajectories.
 
-- com.team254.lib.trajectory.timing
+- com.spartronics4915.lib.trajectory.timing
 
 	Contains classes for fitting trajectories with time profiles.
 
-- com.team254.lib.util
+- com.spartronics4915.lib.util
 
     A collection of assorted utilities classes used in the robot code. Check each file for more information.
 	

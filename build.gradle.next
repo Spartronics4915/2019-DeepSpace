@@ -26,7 +26,7 @@ plugins {
 apply plugin: 'com.bmuschko.tomcat'
 
 def TEAM_NUMBER = getTeamOrDefault(4915)
-def ROBOT_MAIN_CLASS = "com.team254.frc2018.Robot"
+def ROBOT_MAIN_CLASS = "com.spartronics4915.frc2019.Robot"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project EmbeddedTools.
