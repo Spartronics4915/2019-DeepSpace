@@ -32,22 +32,7 @@ public class MainDriveControlBoard implements IDriveControlBoard {
     }
 
     @Override
-    public boolean getPoopyShoot() {
-        return mThrottleStick.getRawButton(1);
-    }
-
-    @Override
     public boolean getQuickTurn() {
         return mTurnStick.getRawButton(1);
-    }
-
-    @Override
-    public boolean getOpenJaw() {
-        return mTurnStick.getRawButton(2);
-    }
-
-    @Override
-    public boolean getShoot() {
-        return mThrottleStick.getRawButton(2);
     }
 }

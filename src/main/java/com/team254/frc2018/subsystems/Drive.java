@@ -32,7 +32,7 @@ public class Drive extends Subsystem {
     private static final double DRIVE_ENCODER_PPR = 4096.;
     private static Drive mInstance = new Drive();
     // Hardware
-    private final TalonSRX mLeftMaster, mRightMaster, mLeftSlaveA, mRightSlaveA, mLeftSlaveB, mRightSlaveB;
+    private final TalonSRX mLeftMaster, mRightMaster, mLeftSlaveA, mRightSlaveA, mLeftSlaveB, mRightSlaveB; // TODO remove B slaves
     private final Solenoid mShifter;
     // Control states
     private DriveControlState mDriveControlState;

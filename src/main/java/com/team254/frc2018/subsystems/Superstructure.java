@@ -1,63 +1,138 @@
 package com.team254.frc2018.subsystems;
 
-import com.team254.frc2018.Constants;
-import com.team254.frc2018.Robot;
 import com.team254.frc2018.loops.ILooper;
 import com.team254.frc2018.loops.Loop;
-import com.team254.frc2018.statemachines.SuperstructureStateMachine;
-import com.team254.frc2018.states.IntakeState;
-import com.team254.frc2018.states.SuperstructureCommand;
-import com.team254.frc2018.states.SuperstructureConstants;
-import com.team254.frc2018.states.SuperstructureState;
-import com.team254.lib.util.Util;
-import edu.wpi.first.wpilibj.Solenoid;
+import com.team254.frc2018.loops.Looper;
+
+import edu.wpi.first.wpilibj.Timer;
 
 /**
- * The superstructure subsystem is the overarching superclass containing all components of the superstructure: the
- * intake, hopper, feeder, shooter and LEDs. The superstructure subsystem also contains some miscellaneous hardware that
- * is located in the superstructure but isn't part of any other subsystems like the compressor, pressure sensor, and
- * hopper wall pistons.
- * <p>
- * Instead of interacting with subsystems like the feeder and intake directly, the {@link Robot} class interacts with
- * the superstructure, which passes on the commands to the correct subsystem.
- * <p>
- * The superstructure also coordinates actions between different subsystems like the feeder and shooter.
- *
+ * The superstructure subsystem is the overarching superclass containing all
+ * components of the superstructure: climber, harvester, and articulated
+ * grabber, and lifter.
+ * 
+ * The superstructure subsystem also contains some miscellaneous hardware that
+ * is located in the superstructure but isn't part of any other subsystems like
+ * the compressor, pressure sensor, and hopper wall pistons.
+ * 
+ * Instead of interacting with subsystems like the feeder and intake directly,
+ * the {@link Robot} class interacts with the superstructure, which passes on
+ * the commands to the correct subsystem.
+ * 
+ * The superstructure also coordinates actions between different subsystems like
+ * the feeder and shooter.
+ * 
+ * @see LED
  * @see Subsystem
  */
 public class Superstructure extends Subsystem {
 
     static Superstructure mInstance = null;
-    private SuperstructureState mState = new SuperstructureState();
-    private Elevator mElevator = Elevator.getInstance();
-    private Wrist mWrist = Wrist.getInstance();
-    private Intake mIntake = Intake.getInstance();
-    private SuperstructureStateMachine mStateMachine = new SuperstructureStateMachine();
-    private SuperstructureStateMachine.WantedAction mWantedAction =
-            SuperstructureStateMachine.WantedAction.IDLE;
-    private Solenoid mUnlockHookSolenoid = Constants.makeSolenoidForId(Constants.kUnlockHookSolenoid);
-    private Solenoid mJazzHandsSolenoid = Constants.makeSolenoidForId(Constants.kJazzHandsSolenoid);
-    private Solenoid mKickstandSolenoid = Constants.makeSolenoidForId(Constants.kKickstandSolenoid);
 
-    private boolean isHangMode;
-    private boolean isWristJogging = false;
-    private boolean isElevatorJogging = false;
-
-    public synchronized static Superstructure getInstance() {
+    public static Superstructure getInstance() {
         if (mInstance == null) {
             mInstance = new Superstructure();
         }
         return mInstance;
     }
 
-    @Override
-    public boolean checkSystem() {
-        return false;
+    // Superstructure doesn't own the drive, but needs to access it
+    private final Drive mDrive = Drive.getInstance();
+
+    // Internal state of the system
+    public enum SystemState {
+        IDLE,
+    };
+
+    // Desired function from user
+    public enum WantedState {
+        IDLE,
     }
 
-    @Override
-    public void outputTelemetry() {
+    private SystemState mSystemState = SystemState.IDLE;
+    private WantedState mWantedState = WantedState.IDLE;
 
+    // State change timestamps are currently unused, but I'm keeping them
+    // here because they're potentially useful.
+    private double mCurrentStateStartTime;
+    private boolean mStateChanged;
+
+    private Timer mTimer = new Timer();
+
+    private Superstructure() {
+    }
+
+    private Loop mLoop = new Loop() {
+
+        // Every time we transition states, we update the current state start
+        // time and the state changed boolean (for one cycle)
+        private double mWantStateChangeStartTime;
+
+        @Override
+        public void onStart(double timestamp) {
+            synchronized (Superstructure.this) {
+                mWantedState = WantedState.IDLE;
+                mCurrentStateStartTime = timestamp;
+                mWantStateChangeStartTime = timestamp;
+                mSystemState = SystemState.IDLE;
+                mStateChanged = true;
+            }
+        }
+
+        @Override
+        public void onLoop(double timestamp) {
+            synchronized (Superstructure.this) {
+                SystemState newState = mSystemState;
+                switch (mSystemState) {
+                case IDLE:
+                    switch (mWantedState) {
+                    default: // either idle or unimplemented
+                        break;
+                    }
+                    break;
+                default:
+                    newState = defaultStateTransfer();
+                }
+                if (mSystemState != newState) {
+                    if (newState == SystemState.IDLE) {
+                        // need to reset subsystems to an idle?
+                    }
+                }
+                mSystemState = newState;
+            }
+        }
+
+        @Override
+        public void onStop(double timestamp) {
+            stop();
+        }
+    };
+
+    private SystemState defaultStateTransfer() {
+        SystemState newState = mSystemState;
+        switch (mWantedState) {
+        case IDLE:
+            newState = SystemState.IDLE;
+            break;
+        default:
+            newState = SystemState.IDLE;
+            break;
+        }
+        return newState;
+    }
+
+    public synchronized void setWantedState(WantedState wantedState) {
+        logNotice("Wanted state to " + wantedState.toString());
+        mWantedState = wantedState;
+    }
+
+    /**
+     * This is a bit like the atTarget methods of many other subsystem. It's called
+     * something different because Superstructure is fundamentally different from
+     * other subsystems.
+     */
+    public synchronized boolean isIdling() {
+        return mSystemState == SystemState.IDLE;
     }
 
     @Override
@@ -70,162 +145,19 @@ public class Superstructure extends Subsystem {
 
     }
 
-    public synchronized SuperstructureStateMachine.SystemState getSuperStructureState() {
-        return mStateMachine.getSystemState();
-    }
-
-    public synchronized SuperstructureState getObservedState() {
-        return mState;
-    }
-
-    private synchronized void updateObservedState(SuperstructureState state) {
-        state.height = mElevator.getInchesOffGround();
-        state.angle = mWrist.getAngle();
-        state.jawClamped = mIntake.getJawState() == IntakeState.JawState.CLAMPED;
-
-        state.elevatorSentLastTrajectory = mElevator.hasFinishedTrajectory();
-        state.wristSentLastTrajectory = mWrist.hasFinishedTrajectory();
-    }
-
-    // Update subsystems from planner
-    synchronized void setFromCommandState(SuperstructureCommand commandState) {
-        if (commandState.openLoopElevator) {
-            mElevator.setOpenLoop(commandState.openLoopElevatorPercent);
-        } else {
-            if (isElevatorJogging) {
-                mElevator.setPositionPID(commandState.height);
-            } else {
-                mElevator.setMotionMagicPosition(commandState.height);
-            }
-        }
-        if (commandState.elevatorLowGear) {
-            mElevator.setHangMode(true);
-        } else {
-            mElevator.setHangMode(false);
-        }
-        if (isWristJogging) {
-            mWrist.setPositionPIDAngle(commandState.wristAngle);
-        } else {
-            mWrist.setMotionProfileAngle(commandState.wristAngle);
-        }
-
-        if (!isHangMode) {
-            if (Util.epsilonEquals(mStateMachine.getScoringHeight(), SuperstructureConstants.kSwitchHeightBackwards, Constants.kJazzHandsEpsilon)
-                    && Util.epsilonEquals(mStateMachine.getScoringAngle(), SuperstructureConstants.kScoreSwitchBackwardsAngle, Constants.kJazzHandsEpsilon)) {
-                setJazzHands(true);
-            } else {
-                setJazzHands(false);
-            }
-        } else {
-            setJazzHands(false);
-        }
+    @Override
+    public void registerEnabledLoops(ILooper enabledLooper) {
+        enabledLooper.register(mLoop);
     }
 
     @Override
-    public void registerEnabledLoops(ILooper enabledLooper) {
-        enabledLooper.register(new Loop() {
-            private SuperstructureCommand mCommand;
-
-            @Override
-            public void onStart(double timestamp) {
-                mStateMachine.resetManual();
-                mStateMachine.setUpwardsSubcommandEnable(!Infrastructure.getInstance().isDuringAuto());
-            }
-
-            @Override
-            public void onLoop(double timestamp) {
-                synchronized (Superstructure.this) {
-                    updateObservedState(mState);
-
-                    if (!isKickStandEngaged()) {
-                        // Kickstand is fired, so not engaged.
-                        mStateMachine.setMaxHeight(SuperstructureConstants.kElevatorMaxHeight);
-                    } else {
-                        mStateMachine.setMaxHeight(SuperstructureConstants.kElevatorMaxHeightKickEngaged);
-                    }
-
-                    mIntake.setKickStand(isKickStandEngaged());
-
-                    mCommand = mStateMachine.update(timestamp, mWantedAction, mState);
-                    setFromCommandState(mCommand);
-                }
-            }
-
-            @Override
-            public void onStop(double timestamp) {
-
-            }
-        });
+    public boolean checkSystem() {
+        logNotice("checkSystem not implemented");
+        return false;
     }
 
-    public synchronized double getScoringAngle() {
-        return mStateMachine.getScoringAngle();
-    }
+    @Override
+    public void outputTelemetry() {
 
-    public synchronized double getScoringHeight() {
-        return mStateMachine.getScoringHeight();
-    }
-
-    public synchronized void setDesiredHeight(double height) {
-        isElevatorJogging = false;
-        mStateMachine.setScoringHeight(height);
-        mWantedAction = SuperstructureStateMachine.WantedAction.GO_TO_POSITION;
-    }
-
-    public synchronized void setDesiredAngle(double angle) {
-        isWristJogging = false;
-        mStateMachine.setScoringAngle(angle);
-        mWantedAction = SuperstructureStateMachine.WantedAction.GO_TO_POSITION;
-    }
-
-    public synchronized void setElevatorJog(double relative_inches) {
-        isElevatorJogging = true;
-        mStateMachine.jogElevator(relative_inches);
-        mWantedAction = SuperstructureStateMachine.WantedAction.GO_TO_POSITION;
-    }
-
-    public synchronized void setWristJog(double relative_degrees) {
-        isWristJogging = true;
-        mStateMachine.jogWrist(relative_degrees);
-        mWantedAction = SuperstructureStateMachine.WantedAction.GO_TO_POSITION;
-    }
-
-    public synchronized void setElevatorLowGear() {
-        mStateMachine.setManualWantsLowGear(true);
-        mWantedAction = SuperstructureStateMachine.WantedAction.WANT_MANUAL;
-    }
-
-    public synchronized void setElevatorHighGear() {
-        mStateMachine.setManualWantsLowGear(false);
-        mWantedAction = SuperstructureStateMachine.WantedAction.WANT_MANUAL;
-    }
-
-    public synchronized void setHangThrottle(double throttle) {
-        mStateMachine.setOpenLoopPower(throttle);
-        mWantedAction = SuperstructureStateMachine.WantedAction.WANT_MANUAL;
-    }
-
-    public synchronized void setWantedAction(SuperstructureStateMachine.WantedAction wantedAction) {
-        mWantedAction = wantedAction;
-    }
-
-    public synchronized void setUnlockHookSolenoid(boolean deployed) {
-        mUnlockHookSolenoid.set(deployed);
-    }
-
-    public synchronized void setJazzHands(boolean deployed) {
-        mJazzHandsSolenoid.set(deployed);
-    }
-
-    public synchronized void setHangMode(boolean activated) {
-        isHangMode = activated;
-    }
-
-    public synchronized void setKickstand(boolean engaged) {
-        mKickstandSolenoid.set(!engaged);
-    }
-
-    public synchronized boolean isKickStandEngaged() {
-        return !mKickstandSolenoid.get();
     }
 }
