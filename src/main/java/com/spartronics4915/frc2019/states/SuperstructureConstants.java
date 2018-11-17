@@ -1,6 +1,8 @@
 package com.spartronics4915.frc2019.states;
 
-public class SuperstructureConstants {
+public class SuperstructureConstants
+{
+
     public static final double kWristMinAngle = 0.0;
     public static final double kWristMaxAngle = 180.0;
     public static final double kElevatorMaxHeight = 85.0;

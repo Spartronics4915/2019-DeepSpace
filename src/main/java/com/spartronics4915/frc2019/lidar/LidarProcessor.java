@@ -32,11 +32,15 @@ import java.util.zip.GZIPOutputStream;
  * @see doICP()
  * @see getTowerPosition()
  */
-public class LidarProcessor implements Loop {
+public class LidarProcessor implements Loop
+{
+
     private static LidarProcessor mInstance = null;
 
-    public static LidarProcessor getInstance() {
-        if (mInstance == null) {
+    public static LidarProcessor getInstance()
+    {
+        if (mInstance == null)
+        {
             mInstance = new LidarProcessor();
         }
         return mInstance;
@@ -53,15 +57,19 @@ public class LidarProcessor implements Loop {
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private static FileOutputStream newLogFile() throws IOException {
+    private static FileOutputStream newLogFile() throws IOException
+    {
         // delete old files if we're over the limit
         File logDir = new File(Constants.kLidarLogDir);
         File[] logFiles = logDir.listFiles();
-        if (logFiles == null) throw new IOException("List files in " + Constants.kLidarLogDir);
-        Arrays.sort(logFiles, (f1, f2) -> {
+        if (logFiles == null)
+            throw new IOException("List files in " + Constants.kLidarLogDir);
+        Arrays.sort(logFiles, (f1, f2) ->
+        {
             return Long.compare(f1.lastModified(), f2.lastModified());
         });
-        for (int i = 0; i < logFiles.length - Constants.kNumLidarLogsToKeep + 1; i++) {
+        for (int i = 0; i < logFiles.length - Constants.kNumLidarLogsToKeep + 1; i++)
+        {
             logFiles[i].delete();
         }
 
@@ -72,36 +80,47 @@ public class LidarProcessor implements Loop {
         return new FileOutputStream(newFile, false);
     }
 
-    private LidarProcessor() {
+    private LidarProcessor()
+    {
         mScans.add(new LidarScan());
-        try {
+        try
+        {
             dataLogFile = new DataOutputStream(new GZIPOutputStream(newLogFile()));
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             System.err.println("Failed to open lidar log file:");
             e.printStackTrace();
         }
     }
 
-    private void logPoint(double angle, double dist, double x, double y) {
-        try {
+    private void logPoint(double angle, double dist, double x, double y)
+    {
+        try
+        {
             dataLogFile.writeInt((int) (angle * 100));
             dataLogFile.writeInt((int) (dist * 256));
             dataLogFile.writeInt((int) (x * 256));
             dataLogFile.writeInt((int) (y * 256));
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
-    public void addPoint(LidarPoint point, boolean newScan) {
+    public void addPoint(LidarPoint point, boolean newScan)
+    {
         SmartDashboard.putNumber("LIDAR last_angle", point.angle);
 
         Translation2d cartesian = point.toCartesian();
         logPoint(point.angle, point.distance, cartesian.x(), cartesian.y());
 
         lock.writeLock().lock();
-        try {
-            if (newScan) { // crosses the 360-0 threshold. start a new scan
+        try
+        {
+            if (newScan)
+            { // crosses the 360-0 threshold. start a new scan
                 prev_timestamp = Timer.getFPGATimestamp();
 
                 // long start = System.nanoTime();
@@ -112,15 +131,19 @@ public class LidarProcessor implements Loop {
                 // SmartDashboard.putNumber("towerPosY", towerPos.y());
 
                 mScans.add(new LidarScan());
-                if (mScans.size() > Constants.kChezyLidarNumScansToStore) {
+                if (mScans.size() > Constants.kChezyLidarNumScansToStore)
+                {
                     mScans.removeFirst();
                 }
             }
 
-            if (!excludePoint(cartesian.x(), cartesian.y())) {
+            if (!excludePoint(cartesian.x(), cartesian.y()))
+            {
                 getCurrentScan().addPoint(new Point(cartesian), point.timestamp);
             }
-        } finally {
+        }
+        finally
+        {
             lock.writeLock().unlock();
         }
     }
@@ -131,27 +154,33 @@ public class LidarProcessor implements Loop {
     private static final double RECT_X_MIN = FIELD_CX - RECT_RX, RECT_X_MAX = FIELD_CX + RECT_RX,
             RECT_Y_MIN = FIELD_CY - RECT_RY, RECT_Y_MAX = FIELD_CY + RECT_RY;
 
-    private static boolean excludePoint(double x, double y) {
+    private static boolean excludePoint(double x, double y)
+    {
         return x < RECT_X_MIN || x > RECT_X_MAX ||
                 y < RECT_Y_MIN || y > RECT_Y_MAX;
     }
 
-    private LidarScan getCurrentScan() {
+    private LidarScan getCurrentScan()
+    {
         return mScans.getLast();
     }
 
-    private ArrayList<Point> getAllPoints() {
+    private ArrayList<Point> getAllPoints()
+    {
         ArrayList<Point> list = new ArrayList<>();
-        for (LidarScan scan : mScans) {
+        for (LidarScan scan : mScans)
+        {
             list.addAll(scan.getPoints());
         }
         return list;
     }
 
-    private Point getAveragePoint() {
+    private Point getAveragePoint()
+    {
         double sumX = 0, sumY = 0;
         int n = 0;
-        for (Point p : getAllPoints()) {
+        for (Point p : getAllPoints())
+        {
             sumX += p.x;
             sumY += p.y;
             n++;
@@ -164,7 +193,8 @@ public class LidarProcessor implements Loop {
     /**
      * Cantor pairing function (to bucket & hash two doubles)
      */
-    private int getBucket(double x, double y) {
+    private int getBucket(double x, double y)
+    {
         int ix = (int) (x / BUCKET_SIZE);
         int iy = (int) (y / BUCKET_SIZE);
         int a = ix >= 0 ? 2 * ix : -2 * ix - 1;
@@ -176,74 +206,99 @@ public class LidarProcessor implements Loop {
     /**
      * Returns a list of points that have been thinned roughly uniformly.
      */
-    private ArrayList<Point> getCulledPoints() {
+    private ArrayList<Point> getCulledPoints()
+    {
         ArrayList<Point> list = new ArrayList<>();
         HashSet<Integer> buckets = new HashSet<>();
-        for (Point p : getAllPoints()) {
+        for (Point p : getAllPoints())
+        {
             if (buckets.add(getBucket(p.x, p.y)))
                 list.add(p);
         }
         return list;
     }
 
-    public Pose2d doICP() {
+    public Pose2d doICP()
+    {
         lock.readLock().lock();
-        try {
+        try
+        {
             Pose2d guess = mRobotState.getFieldToLidar(getCurrentScan().getTimestamp());
             return icp.doICP(getCulledPoints(), new Transform(guess).inverse()).inverse().toPose2d();
-        } finally {
+        }
+        finally
+        {
             lock.readLock().unlock();
         }
     }
 
-    public Translation2d getTowerPosition() {
+    public Translation2d getTowerPosition()
+    {
         lock.readLock().lock();
-        try {
+        try
+        {
             Point avg = getAveragePoint();
             Transform trans = icp.doICP(getCulledPoints(), new Transform(0, avg.x, avg.y));
             return trans.apply(icp.reference).getMidpoint().toTranslation2d();
-        } finally {
+        }
+        finally
+        {
             lock.readLock().unlock();
         }
     }
 
-    public void setPrevTimestamp(double time) {
+    public void setPrevTimestamp(double time)
+    {
         lock.writeLock().lock();
-        try {
+        try
+        {
             prev_timestamp = time;
-        } finally {
+        }
+        finally
+        {
             lock.writeLock().unlock();
         }
     }
 
-    public double getPrevTimestamp() {
+    public double getPrevTimestamp()
+    {
         lock.readLock().lock();
-        try {
+        try
+        {
             return prev_timestamp;
-        } finally {
+        }
+        finally
+        {
             lock.readLock().unlock();
         }
     }
 
     @Override
-    public void onStart(double timestamp) {
+    public void onStart(double timestamp)
+    {
         setPrevTimestamp(Double.NEGATIVE_INFINITY);
     }
 
     @Override
-    public void onLoop(double timestamp) {
+    public void onLoop(double timestamp)
+    {
         LidarServer lidarServer = LidarServer.getInstance();
-        if (timestamp - getPrevTimestamp() > Constants.kChezyLidarRestartTime) {
-            if (lidarServer.isRunning()) {
+        if (timestamp - getPrevTimestamp() > Constants.kChezyLidarRestartTime)
+        {
+            if (lidarServer.isRunning())
+            {
                 System.err.println("Lidar timed out. Restarting");
                 lidarServer.stop();
-            } else if (!lidarServer.isEnding() && lidarServer.start()) {
+            }
+            else if (!lidarServer.isEnding() && lidarServer.start())
+            {
                 setPrevTimestamp(timestamp);
             }
         }
     }
 
     @Override
-    public void onStop(double timestamp) {
+    public void onStop(double timestamp)
+    {
     }
 }

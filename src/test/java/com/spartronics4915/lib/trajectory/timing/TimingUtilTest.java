@@ -15,7 +15,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TimingUtilTest {
+public class TimingUtilTest
+{
 
     public static final double kTestEpsilon = Util.kEpsilon;
 
@@ -26,12 +27,13 @@ public class TimingUtilTest {
             new Translation2d(60.0, 12.0));
 
     public <S extends State<S>> Trajectory<TimedState<S>> buildAndCheckTrajectory(final DistanceView<S> dist_view,
-                                                                                  double step_size,
-                                                                                  List<TimingConstraint<S>> constraints,
-                                                                                  double start_vel,
-                                                                                  double end_vel,
-                                                                                  double max_vel,
-                                                                                  double max_acc) {
+            double step_size,
+            List<TimingConstraint<S>> constraints,
+            double start_vel,
+            double end_vel,
+            double max_vel,
+            double max_acc)
+    {
         Trajectory<TimedState<S>> timed_traj = TimingUtil
                 .timeParameterizeTrajectory(false, dist_view, step_size, constraints, start_vel, end_vel, max_vel, max_acc);
         checkTrajectory(timed_traj, constraints, start_vel, end_vel, max_vel, max_acc);
@@ -39,26 +41,30 @@ public class TimingUtilTest {
     }
 
     public <S extends State<S>> void checkTrajectory(final Trajectory<TimedState<S>> traj,
-                                                     List<TimingConstraint<S>> constraints,
-                                                     double start_vel,
-                                                     double end_vel,
-                                                     double max_vel,
-                                                     double max_acc) {
+            List<TimingConstraint<S>> constraints,
+            double start_vel,
+            double end_vel,
+            double max_vel,
+            double max_acc)
+    {
         assertFalse(traj.isEmpty());
         assertEquals(traj.getState(0).velocity(), start_vel, kTestEpsilon);
         assertEquals(traj.getState(traj.length() - 1).velocity(), end_vel, kTestEpsilon);
 
         // Go state by state, verifying all constraints are satisfied and integration is correct.
-        for (int i = 0; i < traj.length(); ++i) {
+        for (int i = 0; i < traj.length(); ++i)
+        {
             final TimedState<S> state = traj.getState(i);
-            for (final TimingConstraint<S> constraint : constraints) {
+            for (final TimingConstraint<S> constraint : constraints)
+            {
                 assertTrue(state.velocity() - kTestEpsilon <= constraint.getMaxVelocity(state.state()));
                 final MinMaxAcceleration accel_limits = constraint.getMinMaxAcceleration(state.state(),
                         state.velocity());
                 assertTrue(state.acceleration() - kTestEpsilon <= accel_limits.max_acceleration());
                 assertTrue(state.acceleration() + kTestEpsilon >= accel_limits.min_acceleration());
             }
-            if (i > 0) {
+            if (i > 0)
+            {
                 final TimedState<S> prev_state = traj.getState(i - 1);
                 assertEquals(state.velocity(),
                         prev_state.velocity() + (state.t() - prev_state.t()) * prev_state.acceleration(), kTestEpsilon);
@@ -67,7 +73,8 @@ public class TimingUtilTest {
     }
 
     @Test
-    public void testNoConstraints() {
+    public void testNoConstraints()
+    {
         Trajectory<Translation2d> traj = new Trajectory<>(kWaypoints);
         DistanceView<Translation2d> dist_view = new DistanceView<>(traj);
 
@@ -88,23 +95,31 @@ public class TimingUtilTest {
     }
 
     @Test
-    public void testConditionalVelocityConstraint() {
+    public void testConditionalVelocityConstraint()
+    {
         Trajectory<Translation2d> traj = new Trajectory<>(kWaypoints);
         DistanceView<Translation2d> dist_view = new DistanceView<>(traj);
 
-        class ConditionalTimingConstraint<S extends ITranslation2d<S>> implements TimingConstraint<S> {
+        class ConditionalTimingConstraint<S extends ITranslation2d<S>> implements TimingConstraint<S>
+        {
+
             @Override
-            public double getMaxVelocity(S state) {
-                if (state.getTranslation().x() >= 24.0) {
+            public double getMaxVelocity(S state)
+            {
+                if (state.getTranslation().x() >= 24.0)
+                {
                     return 5.0;
-                } else {
+                }
+                else
+                {
                     return Double.POSITIVE_INFINITY;
                 }
             }
 
             @Override
             public TimingConstraint.MinMaxAcceleration getMinMaxAcceleration(S state,
-                                                                             double velocity) {
+                    double velocity)
+            {
                 return new TimingConstraint.MinMaxAcceleration(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             }
         }
@@ -116,19 +131,24 @@ public class TimingUtilTest {
     }
 
     @Test
-    public void testConditionalAccelerationConstraint() {
+    public void testConditionalAccelerationConstraint()
+    {
         Trajectory<Translation2d> traj = new Trajectory<>(kWaypoints);
         DistanceView<Translation2d> dist_view = new DistanceView<>(traj);
 
-        class ConditionalTimingConstraint<S extends ITranslation2d<S>> implements TimingConstraint<S> {
+        class ConditionalTimingConstraint<S extends ITranslation2d<S>> implements TimingConstraint<S>
+        {
+
             @Override
-            public double getMaxVelocity(S state) {
+            public double getMaxVelocity(S state)
+            {
                 return Double.POSITIVE_INFINITY;
             }
 
             @Override
             public TimingConstraint.MinMaxAcceleration getMinMaxAcceleration(S state,
-                                                                             double velocity) {
+                    double velocity)
+            {
                 return new TimingConstraint.MinMaxAcceleration(-10.0, 10.0 / velocity);
             }
         }
@@ -140,7 +160,8 @@ public class TimingUtilTest {
     }
 
     @Test
-    public void testVelocityLimitRegionConstraint() {
+    public void testVelocityLimitRegionConstraint()
+    {
         Trajectory<Translation2d> traj = new Trajectory<>(kWaypoints);
         DistanceView<Translation2d> dist_view = new DistanceView<>(traj);
 

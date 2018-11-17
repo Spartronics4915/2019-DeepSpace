@@ -25,12 +25,15 @@ import edu.wpi.first.wpilibj.Timer;
  * @see LED
  * @see Subsystem
  */
-public class Superstructure extends Subsystem {
+public class Superstructure extends Subsystem
+{
 
     static Superstructure mInstance = null;
 
-    public static Superstructure getInstance() {
-        if (mInstance == null) {
+    public static Superstructure getInstance()
+    {
+        if (mInstance == null)
+        {
             mInstance = new Superstructure();
         }
         return mInstance;
@@ -40,12 +43,14 @@ public class Superstructure extends Subsystem {
     private final Drive mDrive = Drive.getInstance();
 
     // Internal state of the system
-    public enum SystemState {
+    public enum SystemState
+    {
         IDLE,
     };
 
     // Desired function from user
-    public enum WantedState {
+    public enum WantedState
+    {
         IDLE,
     }
 
@@ -59,18 +64,22 @@ public class Superstructure extends Subsystem {
 
     private Timer mTimer = new Timer();
 
-    private Superstructure() {
+    private Superstructure()
+    {
     }
 
-    private Loop mLoop = new Loop() {
+    private Loop mLoop = new Loop()
+    {
 
         // Every time we transition states, we update the current state start
         // time and the state changed boolean (for one cycle)
         private double mWantStateChangeStartTime;
 
         @Override
-        public void onStart(double timestamp) {
-            synchronized (Superstructure.this) {
+        public void onStart(double timestamp)
+        {
+            synchronized (Superstructure.this)
+            {
                 mWantedState = WantedState.IDLE;
                 mCurrentStateStartTime = timestamp;
                 mWantStateChangeStartTime = timestamp;
@@ -80,21 +89,27 @@ public class Superstructure extends Subsystem {
         }
 
         @Override
-        public void onLoop(double timestamp) {
-            synchronized (Superstructure.this) {
+        public void onLoop(double timestamp)
+        {
+            synchronized (Superstructure.this)
+            {
                 SystemState newState = mSystemState;
-                switch (mSystemState) {
-                case IDLE:
-                    switch (mWantedState) {
-                    default: // either idle or unimplemented
+                switch (mSystemState)
+                {
+                    case IDLE:
+                        switch (mWantedState)
+                        {
+                            default: // either idle or unimplemented
+                                break;
+                        }
                         break;
-                    }
-                    break;
-                default:
-                    newState = defaultStateTransfer();
+                    default:
+                        newState = defaultStateTransfer();
                 }
-                if (mSystemState != newState) {
-                    if (newState == SystemState.IDLE) {
+                if (mSystemState != newState)
+                {
+                    if (newState == SystemState.IDLE)
+                    {
                         // need to reset subsystems to an idle?
                     }
                 }
@@ -103,25 +118,29 @@ public class Superstructure extends Subsystem {
         }
 
         @Override
-        public void onStop(double timestamp) {
+        public void onStop(double timestamp)
+        {
             stop();
         }
     };
 
-    private SystemState defaultStateTransfer() {
+    private SystemState defaultStateTransfer()
+    {
         SystemState newState = mSystemState;
-        switch (mWantedState) {
-        case IDLE:
-            newState = SystemState.IDLE;
-            break;
-        default:
-            newState = SystemState.IDLE;
-            break;
+        switch (mWantedState)
+        {
+            case IDLE:
+                newState = SystemState.IDLE;
+                break;
+            default:
+                newState = SystemState.IDLE;
+                break;
         }
         return newState;
     }
 
-    public synchronized void setWantedState(WantedState wantedState) {
+    public synchronized void setWantedState(WantedState wantedState)
+    {
         logNotice("Wanted state to " + wantedState.toString());
         mWantedState = wantedState;
     }
@@ -131,33 +150,39 @@ public class Superstructure extends Subsystem {
      * something different because Superstructure is fundamentally different from
      * other subsystems.
      */
-    public synchronized boolean isIdling() {
+    public synchronized boolean isIdling()
+    {
         return mSystemState == SystemState.IDLE;
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
 
     }
 
     @Override
-    public void zeroSensors() {
+    public void zeroSensors()
+    {
 
     }
 
     @Override
-    public void registerEnabledLoops(ILooper enabledLooper) {
+    public void registerEnabledLoops(ILooper enabledLooper)
+    {
         enabledLooper.register(mLoop);
     }
 
     @Override
-    public boolean checkSystem() {
+    public boolean checkSystem()
+    {
         logNotice("checkSystem not implemented");
         return false;
     }
 
     @Override
-    public void outputTelemetry() {
+    public void outputTelemetry()
+    {
 
     }
 }

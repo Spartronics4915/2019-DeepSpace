@@ -1,7 +1,10 @@
 package com.spartronics4915.frc2019.states;
 
-public class IntakeState {
-    public enum JawState {
+public class IntakeState
+{
+
+    public enum JawState
+    {
         OPEN,
         CLOSED,
         CLAMPED
@@ -21,11 +24,13 @@ public class IntakeState {
 
     public TimedLEDState ledState = TimedLEDState.StaticLEDState.kStaticOff;
 
-    public void setPower(double power) {
+    public void setPower(double power)
+    {
         leftMotor = rightMotor = power;
     }
 
-    public boolean seesCube() {
+    public boolean seesCube()
+    {
         return leftCubeSensorTriggered && rightCubeSensorTriggered;
     }
 }

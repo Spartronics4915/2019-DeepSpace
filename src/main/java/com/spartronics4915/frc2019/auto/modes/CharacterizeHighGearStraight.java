@@ -10,9 +10,12 @@ import com.spartronics4915.lib.physics.DriveCharacterization;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CharacterizeHighGearStraight extends AutoModeBase {
+public class CharacterizeHighGearStraight extends AutoModeBase
+{
+
     @Override
-    protected void routine() throws AutoModeEndedException {
+    protected void routine() throws AutoModeEndedException
+    {
         List<DriveCharacterization.VelocityDataPoint> velocityData = new ArrayList<>();
         List<DriveCharacterization.AccelerationDataPoint> accelerationData = new ArrayList<>();
 

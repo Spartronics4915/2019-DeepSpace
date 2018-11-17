@@ -9,7 +9,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TrajectoryIteratorTest {
+public class TrajectoryIteratorTest
+{
+
     public static final double kTestEpsilon = Util.kEpsilon;
 
     public static final List<Translation2d> kWaypoints = Arrays.asList(
@@ -19,7 +21,8 @@ public class TrajectoryIteratorTest {
             new Translation2d(60.0, 12.0));
 
     @Test
-    public void test() {
+    public void test()
+    {
         Trajectory<Translation2d> traj = new Trajectory<>(kWaypoints);
         TrajectoryIterator<Translation2d> iterator = new TrajectoryIterator<>(traj.getIndexView());
 

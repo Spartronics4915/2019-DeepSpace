@@ -7,10 +7,13 @@ import com.spartronics4915.lib.geometry.Translation2d;
 /**
  * Temporary spline for testing
  */
-public class CubicHermiteSpline extends Spline {
+public class CubicHermiteSpline extends Spline
+{
+
     private final double ax, bx, cx, dx, ay, by, cy, dy;
 
-    public CubicHermiteSpline(Pose2d p0, Pose2d p1) {
+    public CubicHermiteSpline(Pose2d p0, Pose2d p1)
+    {
         double x0, x1, dx0, dx1, y0, y1, dy0, dy1;
         double scale = 2 * p0.getTranslation().distance(p1.getTranslation());
         x0 = p0.getTranslation().x();
@@ -32,36 +35,41 @@ public class CubicHermiteSpline extends Spline {
     }
 
     @Override
-    public Translation2d getPoint(double t) {
+    public Translation2d getPoint(double t)
+    {
         final double x = t * t * t * ax + t * t * bx + t * cx + dx;
         final double y = t * t * t * ay + t * t * by + t * cy + dy;
         return new Translation2d(x, y);
     }
 
     @Override
-    public Rotation2d getHeading(double t) {
+    public Rotation2d getHeading(double t)
+    {
         final double dx = 3 * t * t * ax + 2 * t * bx + cx;
         final double dy = 3 * t * t * ay + 2 * t * by + cy;
         return new Rotation2d(dx, dy, true);
     }
 
     @Override
-    public double getVelocity(double t) {
+    public double getVelocity(double t)
+    {
         // TODO implement this
         return 1.0;
     }
 
     @Override
-    public double getCurvature(double t) {
+    public double getCurvature(double t)
+    {
         final double dx = 3 * t * t * ax + 2 * t * bx + cx;
         final double dy = 3 * t * t * ay + 2 * t * by + cy;
         final double ddx = 6 * t * ax + 2 * bx;
         final double ddy = 6 * t * ay + 2 * by;
-        return (dx*ddy - dy*ddx) / ((dx*dx + dy*dy) * Math.sqrt(dx*dx + dy*dy));
+        return (dx * ddy - dy * ddx) / ((dx * dx + dy * dy) * Math.sqrt(dx * dx + dy * dy));
     }
 
     @Override
-    public double getDCurvature(double t) {
+    public double getDCurvature(double t)
+    {
         // TODO implement this
         return 0.0;
     }

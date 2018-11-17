@@ -5,70 +5,85 @@ import com.spartronics4915.lib.util.Util;
 
 import java.text.DecimalFormat;
 
-public class TimedState<S extends State<S>> implements State<TimedState<S>> {
+public class TimedState<S extends State<S>> implements State<TimedState<S>>
+{
+
     protected final S state_;
     protected double t_; // Time we achieve this state.
     protected double velocity_; // ds/dt
     protected double acceleration_; // d^2s/dt^2
 
-    public TimedState(final S state) {
+    public TimedState(final S state)
+    {
         state_ = state;
     }
 
-    public TimedState(final S state, double t, double velocity, double acceleration) {
+    public TimedState(final S state, double t, double velocity, double acceleration)
+    {
         state_ = state;
         t_ = t;
         velocity_ = velocity;
         acceleration_ = acceleration;
     }
 
-    public S state() {
+    public S state()
+    {
         return state_;
     }
 
-    public void set_t(double t) {
+    public void set_t(double t)
+    {
         t_ = t;
     }
 
-    public double t() {
+    public double t()
+    {
         return t_;
     }
 
-    public void set_velocity(double velocity) {
+    public void set_velocity(double velocity)
+    {
         velocity_ = velocity;
     }
 
-    public double velocity() {
+    public double velocity()
+    {
         return velocity_;
     }
 
-    public void set_acceleration(double acceleration) {
+    public void set_acceleration(double acceleration)
+    {
         acceleration_ = acceleration;
     }
 
-    public double acceleration() {
+    public double acceleration()
+    {
         return acceleration_;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         final DecimalFormat fmt = new DecimalFormat("#0.000");
         return state().toString() + ", t: " + fmt.format(t()) + ", v: " + fmt.format(velocity()) + ", a: "
                 + fmt.format(acceleration());
     }
 
     @Override
-    public String toCSV() {
+    public String toCSV()
+    {
         final DecimalFormat fmt = new DecimalFormat("#0.000");
         return state().toCSV() + "," + fmt.format(t()) + "," + fmt.format(velocity()) + ","
                 + fmt.format(acceleration());
     }
 
     @Override
-    public TimedState<S> interpolate(TimedState<S> other, double x) {
+    public TimedState<S> interpolate(TimedState<S> other, double x)
+    {
         final double new_t = Util.interpolate(t(), other.t(), x);
         final double delta_t = new_t - t();
-        if (delta_t < 0.0) {
+        if (delta_t < 0.0)
+        {
             return other.interpolate(this, 1.0 - x);
         }
         boolean reversing = velocity() < 0.0 || (Util.epsilonEquals(velocity(), 0.0) && acceleration() < 0.0);
@@ -83,13 +98,16 @@ public class TimedState<S extends State<S>> implements State<TimedState<S>> {
     }
 
     @Override
-    public double distance(TimedState<S> other) {
+    public double distance(TimedState<S> other)
+    {
         return state().distance(other.state());
     }
 
     @Override
-    public boolean equals(final Object other) {
-        if (other == null || !(other instanceof TimedState<?>)) return false;
+    public boolean equals(final Object other)
+    {
+        if (other == null || !(other instanceof TimedState<?>))
+            return false;
         TimedState<?> ts = (TimedState<?>) other;
         return state().equals(ts.state()) && Util.epsilonEquals(t(), ts.t());
     }

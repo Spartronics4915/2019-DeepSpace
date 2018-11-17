@@ -6,7 +6,9 @@ import java.util.LinkedList;
  * Implements a simple circular buffer.
  * Can be used for any class.
  */
-public class CircularBufferGeneric<E> {
+public class CircularBufferGeneric<E>
+{
+
     /**
      *
      */
@@ -14,40 +16,48 @@ public class CircularBufferGeneric<E> {
     LinkedList<E> mSamples;
     double mSum;
 
-    public CircularBufferGeneric(int window_size) {
+    public CircularBufferGeneric(int window_size)
+    {
         mWindowSize = window_size;
         mSamples = new LinkedList<E>();
         mSum = 0.0;
     }
 
-
-    public void clear() {
+    public void clear()
+    {
         mSamples.clear();
         mSum = 0.0;
     }
 
-    public void addValue(E val) {
+    public void addValue(E val)
+    {
         mSamples.addLast(val);
-        if (mSamples.size() > mWindowSize) {
+        if (mSamples.size() > mWindowSize)
+        {
             mSamples.removeFirst();
         }
     }
 
-    public int getNumValues() {
+    public int getNumValues()
+    {
         return mSamples.size();
     }
 
-    public boolean isFull() {
+    public boolean isFull()
+    {
         return mWindowSize == mSamples.size();
     }
 
-    public LinkedList<E> getLinkedList() {
+    public LinkedList<E> getLinkedList()
+    {
         /*
          * NOTE: To get an Array of the specific class type which the instance is using,
          * you have to use this specific code:
-         * specificCircularBufferGeneric.getLinkedList().toArray(new ClassThatIWant[specificCircularBufferGeneric
+         * specificCircularBufferGeneric.getLinkedList().toArray(new
+         * ClassThatIWant[specificCircularBufferGeneric
          * .getLinkedList().size()]);
-         * The reason is that for some reason an array of a generic class(i.e. E[]) cannot be created because
+         * The reason is that for some reason an array of a generic class(i.e. E[])
+         * cannot be created because
          * of some archaic data flow ambiguities
          */
 

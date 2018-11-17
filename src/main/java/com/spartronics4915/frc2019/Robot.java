@@ -18,7 +18,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Arrays;
 
-public class Robot extends IterativeRobot {
+public class Robot extends IterativeRobot
+{
+
     private Looper mEnabledLooper = new Looper();
     private Looper mDisabledLooper = new Looper();
     private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
@@ -29,21 +31,22 @@ public class Robot extends IterativeRobot {
             Arrays.asList(
                     RobotStateEstimator.getInstance(),
                     Drive.getInstance(),
-                    Superstructure.getInstance()
-            )
-    );
+                    Superstructure.getInstance()));
 
     private Drive mDrive = Drive.getInstance();
 
     private AutoModeExecutor mAutoModeExecutor;
 
-    public Robot() {
+    public Robot()
+    {
         Logger.logRobotConstruction();
     }
 
     @Override
-    public void robotInit() {
-        try {
+    public void robotInit()
+    {
+        try
+        {
             //init camera stream
             UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
             camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
@@ -57,11 +60,14 @@ public class Robot extends IterativeRobot {
 
             mEnabledLooper.register(LidarProcessor.getInstance());
 
-            try {
+            try
+            {
                 SmartDashboard.putString("LIDAR status", "starting");
                 boolean started = LidarServer.getInstance().start();
                 SmartDashboard.putString("LIDAR status", started ? "started" : "failed to start");
-            } catch (Throwable t) {
+            }
+            catch (Throwable t)
+            {
                 SmartDashboard.putString("LIDAR status", "crashed: " + t);
                 t.printStackTrace();
                 throw t;
@@ -70,20 +76,25 @@ public class Robot extends IterativeRobot {
             AutoModeSelector.updateSmartDashboard();
 
             mTrajectoryGenerator.generateTrajectories();
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void disabledInit() {
+    public void disabledInit()
+    {
         SmartDashboard.putString("Match Cycle", "DISABLED");
 
-        try {
+        try
+        {
             Logger.logDisabledInit();
             mEnabledLooper.stop();
-            if (mAutoModeExecutor != null) {
+            if (mAutoModeExecutor != null)
+            {
                 mAutoModeExecutor.stop();
             }
 
@@ -94,17 +105,21 @@ public class Robot extends IterativeRobot {
             mAutoModeExecutor = new AutoModeExecutor();
 
             mDisabledLooper.start();
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void autonomousInit() {
+    public void autonomousInit()
+    {
         SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
 
-        try {
+        try
+        {
             Logger.logAutoInit();
             mDisabledLooper.stop();
 
@@ -116,20 +131,25 @@ public class Robot extends IterativeRobot {
             mAutoModeExecutor.start();
 
             mEnabledLooper.start();
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void teleopInit() {
+    public void teleopInit()
+    {
         SmartDashboard.putString("Match Cycle", "TELEOP");
 
-        try {
+        try
+        {
             Logger.logTeleopInit();
             mDisabledLooper.stop();
-            if (mAutoModeExecutor != null) {
+            if (mAutoModeExecutor != null)
+            {
                 mAutoModeExecutor.stop();
             }
 
@@ -138,17 +158,21 @@ public class Robot extends IterativeRobot {
 
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
             mDrive.setOpenLoop(new DriveSignal(0.05, 0.05));
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void testInit() {
+    public void testInit()
+    {
         SmartDashboard.putString("Match Cycle", "TEST");
 
-        try {
+        try
+        {
             System.out.println("Starting check systems.");
 
             mDisabledLooper.stop();
@@ -156,63 +180,79 @@ public class Robot extends IterativeRobot {
 
             // Call check system methods here
 
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void disabledPeriodic() {
+    public void disabledPeriodic()
+    {
         SmartDashboard.putString("Match Cycle", "DISABLED");
 
-        try {
+        try
+        {
             outputToSmartDashboard();
 
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void autonomousPeriodic() {
+    public void autonomousPeriodic()
+    {
         SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
 
         outputToSmartDashboard();
-        try {
+        try
+        {
 
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void teleopPeriodic() {
+    public void teleopPeriodic()
+    {
         SmartDashboard.putString("Match Cycle", "TELEOP");
         double timestamp = Timer.getFPGATimestamp();
 
         double throttle = mControlBoard.getThrottle();
         double turn = mControlBoard.getTurn();
 
-        try {
+        try
+        {
             mDrive.setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(),
                     mDrive.isHighGear()));
 
             outputToSmartDashboard();
-        } catch (Throwable t) {
+        }
+        catch (Throwable t)
+        {
             Logger.logThrowableCrash(t);
             throw t;
         }
     }
 
     @Override
-    public void testPeriodic() {
+    public void testPeriodic()
+    {
         SmartDashboard.putString("Match Cycle", "TEST");
     }
 
-    public void outputToSmartDashboard() {
+    public void outputToSmartDashboard()
+    {
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToTelemetry();
         mEnabledLooper.outputToSmartDashboard();

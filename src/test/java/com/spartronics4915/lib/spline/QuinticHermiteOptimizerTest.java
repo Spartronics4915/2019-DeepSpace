@@ -12,12 +12,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+public class QuinticHermiteOptimizerTest
+{
 
-public class QuinticHermiteOptimizerTest {
     private static double kEpsilon = Util.kEpsilon;
 
     @Test
-    public void test() {
+    public void test()
+    {
         Pose2d a = new Pose2d(new Translation2d(0, 100), Rotation2d.fromDegrees(270));
         Pose2d b = new Pose2d(new Translation2d(50, 0), Rotation2d.fromDegrees(0));
         Pose2d c = new Pose2d(new Translation2d(100, 100), Rotation2d.fromDegrees(90));
@@ -43,7 +45,6 @@ public class QuinticHermiteOptimizerTest {
         startTime = System.currentTimeMillis();
         assertTrue(QuinticHermiteSpline.optimizeSpline(splines1) < 0.16);
         System.out.println("Optimization time (ms): " + (System.currentTimeMillis() - startTime));
-
 
         Pose2d h = new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0));
         Pose2d i = new Pose2d(new Translation2d(50, 0), Rotation2d.fromDegrees(0));

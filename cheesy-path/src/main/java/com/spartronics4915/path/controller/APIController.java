@@ -19,19 +19,26 @@ import com.spartronics4915.lib.spline.SplineGenerator;
 
 @RestController
 @RequestMapping("api")
-public class APIController {
-	@RequestMapping(value = "/calculate_splines", method = RequestMethod.POST)
-	public @ResponseBody String calcSplines(@RequestBody String message) {
-		message = message.substring(0, message.length() - 1);
+public class APIController
+{
 
-        try {
+    @RequestMapping(value = "/calculate_splines", method = RequestMethod.POST)
+    public @ResponseBody String calcSplines(@RequestBody String message)
+    {
+        message = message.substring(0, message.length() - 1);
+
+        try
+        {
             message = URLDecoder.decode(message, "UTF-8");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
 
         ArrayList<Pose2d> points = new ArrayList<>();
-        for (String pointString : message.split(";")) {
+        for (String pointString : message.split(";"))
+        {
             String[] pointData = pointString.split(",");
 
             int x = pointData[0].equals("NaN") ? 0 : Integer.parseInt(pointData[0]);
@@ -44,16 +51,21 @@ public class APIController {
         ArrayList<QuinticHermiteSpline> mQuinticHermiteSplines = new ArrayList<>();
         ArrayList<Spline> mSplines = new ArrayList<>();
         ArrayList<Pose2dWithCurvature> positions = new ArrayList<>();
-        if (points.size() < 2) {
+        if (points.size() < 2)
+        {
             return "no";
-        } else {
-            for (int i = 0; i < points.size() - 1; i++) {
+        }
+        else
+        {
+            for (int i = 0; i < points.size() - 1; i++)
+            {
                 mQuinticHermiteSplines.add(new QuinticHermiteSpline(points.get(i), points.get(i + 1)));
             }
 
             QuinticHermiteSpline.optimizeSpline(mQuinticHermiteSplines);
 
-            for (QuinticHermiteSpline mQuinticHermiteSpline : mQuinticHermiteSplines) {
+            for (QuinticHermiteSpline mQuinticHermiteSpline : mQuinticHermiteSplines)
+            {
                 mSplines.add(mQuinticHermiteSpline);
             }
 
@@ -61,19 +73,21 @@ public class APIController {
         }
 
         String json = "{\"points\":[";
-        for (Pose2dWithCurvature pose : positions) {
+        for (Pose2dWithCurvature pose : positions)
+        {
             json += poseToJSON(pose) + ",";
         }
 
         return json.substring(0, json.length() - 1) + "]}";
     }
 
-    private String poseToJSON(Pose2dWithCurvature pose) {
-	    double x = pose.getTranslation().x();
-	    double y = pose.getTranslation().y();
-	    double rotation = pose.getRotation().getRadians();
-	    double curvature = pose.getCurvature();
+    private String poseToJSON(Pose2dWithCurvature pose)
+    {
+        double x = pose.getTranslation().x();
+        double y = pose.getTranslation().y();
+        double rotation = pose.getRotation().getRadians();
+        double curvature = pose.getCurvature();
 
-	    return "{\"x\":" + x + ", \"y\":" + y + ", \"rotation\":" + rotation + ", \"curvature\":" + curvature + "}";
+        return "{\"x\":" + x + ", \"y\":" + y + ", \"rotation\":" + rotation + ", \"curvature\":" + curvature + "}";
     }
 }

@@ -17,22 +17,20 @@ public class Logger
 
     private static final UUID RUN_INSTANCE_UUID = UUID.randomUUID();
     public static int sVerbosity = 0; // 0: notices and above,  1: info and above, 2: all
-    private static final DateFormat s_dateFormat = new SimpleDateFormat("hh:mm:ss"); 
+    private static final DateFormat s_dateFormat = new SimpleDateFormat("hh:mm:ss");
 
     public static void setVerbosity(String nm)
     {
-        if(nm.equals("NOTICE"))
+        if (nm.equals("NOTICE"))
             sVerbosity = 0;
-        else
-        if(nm.equals("INFO"))
+        else if (nm.equals("INFO"))
             sVerbosity = 1;
-        else
-        if(nm.equals("DEBUG"))
+        else if (nm.equals("DEBUG"))
             sVerbosity = 2;
         else
             error("Logger: unknown verbosity level:" + nm);
     }
-    
+
     public static void logRobotStartup()
     {
         notice("robot startup");
@@ -47,7 +45,7 @@ public class Logger
     {
         notice("robot init");
     }
-    
+
     public static void logTeleopInit()
     {
         notice("teleop init");
@@ -72,7 +70,7 @@ public class Logger
     {
         logMarker("ERROR " + msg, throwable);
     }
-    
+
     public static void error(String m)
     {
         logMarker("ERROR   " + m);
@@ -103,7 +101,7 @@ public class Logger
             printMarker("DEBUG    " + m);
         }
     }
-    
+
     private static String getTimeStamp()
     {
         Date now = new Date();
@@ -124,7 +122,7 @@ public class Logger
     private static void logMarker(String mark, Throwable nullableException)
     {
         printMarker(mark);
-        if(nullableException != null)
+        if (nullableException != null)
             nullableException.printStackTrace();
         try (PrintWriter writer = new PrintWriter(new FileWriter("/home/lvuser/crash_tracking.txt", true)))
         {

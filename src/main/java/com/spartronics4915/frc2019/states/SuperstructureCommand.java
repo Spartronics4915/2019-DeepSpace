@@ -1,6 +1,8 @@
 package com.spartronics4915.frc2019.states;
 
-public class SuperstructureCommand {
+public class SuperstructureCommand
+{
+
     public double height = SuperstructureConstants.kElevatorMinHeight;
     public double wristAngle = SuperstructureConstants.kWristMinAngle;
 

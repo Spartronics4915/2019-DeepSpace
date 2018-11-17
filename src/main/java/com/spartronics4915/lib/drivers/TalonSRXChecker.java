@@ -9,8 +9,12 @@ import edu.wpi.first.wpilibj.Timer;
 import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 
-public class TalonSRXChecker {
-    public static class CheckerConfig {
+public class TalonSRXChecker
+{
+
+    public static class CheckerConfig
+    {
+
         public double mCurrentFloor = 5;
         public double mRPMFloor = 2000;
 
@@ -23,24 +27,30 @@ public class TalonSRXChecker {
         public double mRunOutputPercentage = 0.5;
     }
 
-    public static class TalonSRXConfig {
+    public static class TalonSRXConfig
+    {
+
         public String mName;
         public TalonSRX mTalon;
 
-        public TalonSRXConfig(String name, TalonSRX talon) {
+        public TalonSRXConfig(String name, TalonSRX talon)
+        {
             mName = name;
             mTalon = talon;
         }
     }
 
-    private static class StoredTalonSRXConfiguration {
+    private static class StoredTalonSRXConfiguration
+    {
+
         public ControlMode mMode;
         public double mSetValue;
     }
 
     public static boolean CheckTalons(Subsystem subsystem,
-                                      ArrayList<TalonSRXConfig> talonsToCheck,
-                                      CheckerConfig checkerConfig) {
+            ArrayList<TalonSRXConfig> talonsToCheck,
+            CheckerConfig checkerConfig)
+    {
         boolean failure = false;
         System.out.println("////////////////////////////////////////////////");
         System.out.println("Checking subsystem " + subsystem.getClass()
@@ -51,7 +61,8 @@ public class TalonSRXChecker {
         ArrayList<StoredTalonSRXConfiguration> storedConfigurations = new ArrayList<>();
 
         // Record previous configuration for all talons.
-        for (TalonSRXConfig config : talonsToCheck) {
+        for (TalonSRXConfig config : talonsToCheck)
+        {
             LazyTalonSRX talon = LazyTalonSRX.class.cast(config.mTalon);
 
             StoredTalonSRXConfiguration configuration = new StoredTalonSRXConfiguration();
@@ -64,7 +75,8 @@ public class TalonSRXChecker {
             talon.set(ControlMode.PercentOutput, 0.0);
         }
 
-        for (TalonSRXConfig config : talonsToCheck) {
+        for (TalonSRXConfig config : talonsToCheck)
+        {
             System.out.println("Checking: " + config.mName);
 
             config.mTalon.set(ControlMode.PercentOutput, checkerConfig.mRunOutputPercentage);
@@ -76,7 +88,8 @@ public class TalonSRXChecker {
             System.out.print("Current: " + current);
 
             double rpm = Double.NaN;
-            if (checkerConfig.mRPMSupplier != null) {
+            if (checkerConfig.mRPMSupplier != null)
+            {
                 rpm = checkerConfig.mRPMSupplier.getAsDouble();
                 rpms.add(rpm);
                 System.out.print(" RPM: " + rpm);
@@ -86,13 +99,16 @@ public class TalonSRXChecker {
             config.mTalon.set(ControlMode.PercentOutput, 0.0);
 
             // And perform checks.
-            if (current < checkerConfig.mCurrentFloor) {
+            if (current < checkerConfig.mCurrentFloor)
+            {
                 System.out.println(config.mName + " has failed current floor check vs " +
                         checkerConfig.mCurrentFloor + "!!");
                 failure = true;
             }
-            if (checkerConfig.mRPMSupplier != null) {
-                if (rpm < checkerConfig.mRPMFloor) {
+            if (checkerConfig.mRPMSupplier != null)
+            {
+                if (rpm < checkerConfig.mRPMFloor)
+                {
                     System.out.println(config.mName + " has failed rpm floor check vs " +
                             checkerConfig.mRPMFloor + "!!");
                     failure = true;
@@ -104,26 +120,31 @@ public class TalonSRXChecker {
 
         // Now run aggregate checks.
 
-        if (currents.size() > 0) {
+        if (currents.size() > 0)
+        {
             Double average = currents.stream().mapToDouble(val -> val).average().getAsDouble();
 
-            if (!Util.allCloseTo(currents, average, checkerConfig.mCurrentEpsilon)) {
+            if (!Util.allCloseTo(currents, average, checkerConfig.mCurrentEpsilon))
+            {
                 System.out.println("Currents varied!!!!!!!!!!!");
                 failure = true;
             }
         }
 
-        if (rpms.size() > 0) {
+        if (rpms.size() > 0)
+        {
             Double average = rpms.stream().mapToDouble(val -> val).average().getAsDouble();
 
-            if (!Util.allCloseTo(rpms, average, checkerConfig.mRPMEpsilon)) {
+            if (!Util.allCloseTo(rpms, average, checkerConfig.mRPMEpsilon))
+            {
                 System.out.println("RPMs varied!!!!!!!!");
                 failure = true;
             }
         }
 
         // Restore Talon configurations
-        for (int i = 0; i < talonsToCheck.size(); ++i) {
+        for (int i = 0; i < talonsToCheck.size(); ++i)
+        {
             talonsToCheck.get(i).mTalon.set(storedConfigurations.get(i).mMode,
                     storedConfigurations.get(i).mSetValue);
         }

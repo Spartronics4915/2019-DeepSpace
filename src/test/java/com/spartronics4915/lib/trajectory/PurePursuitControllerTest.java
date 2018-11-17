@@ -11,10 +11,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PurePursuitControllerTest {
+public class PurePursuitControllerTest
+{
 
     @Test
-    public void test() {
+    public void test()
+    {
         List<Translation2d> waypoints = Arrays.asList(
                 new Translation2d(0.0, 0.0),
                 new Translation2d(24.0, 0.0),
@@ -30,7 +32,8 @@ public class PurePursuitControllerTest {
         Pose2d robot_pose = new Pose2d(waypoints.get(0), Rotation2d.identity());
         final int kMaxIter = 100;
         int i = 0;
-        for (; i < kMaxIter; ++i) {
+        for (; i < kMaxIter; ++i)
+        {
             if (controller.isDone())
                 break;
             Twist2d steering_command = controller.steer(robot_pose);

@@ -7,10 +7,13 @@ import java.net.SocketException;
 import java.util.Enumeration;
 
 /**
- * A list of constants used by the rest of the robot code. This include physics constants as well as constants
+ * A list of constants used by the rest of the robot code. This include physics
+ * constants as well as constants
  * determined through calibrations.
  */
-public class Constants {
+public class Constants
+{
+
     public static final double kLooperDt = 0.01;
 
     /* ROBOT PHYSICAL CONSTANTS */
@@ -19,15 +22,15 @@ public class Constants {
     public static final double kDriveWheelTrackWidthInches = 25.54;
     public static final double kDriveWheelDiameterInches = 3.92820959548 * 0.99;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-    public static final double kTrackScrubFactor = 1.0;  // Tune me!
+    public static final double kTrackScrubFactor = 1.0; // Tune me!
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 60.0;  // kg TODO tune
-    public static final double kRobotAngularInertia = 10.0;  // kg m^2 TODO tune
-    public static final double kRobotAngularDrag = 12.0;  // N*m / (rad/sec) TODO tune
-    public static final double kDriveVIntercept = 1.055;  // V
-    public static final double kDriveKv = 0.135;  // V per rad/s
-    public static final double kDriveKa = 0.012;  // V per rad/s^2
+    public static final double kRobotLinearInertia = 60.0; // kg TODO tune
+    public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
+    public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
+    public static final double kDriveVIntercept = 1.055; // V
+    public static final double kDriveKv = 0.135; // V per rad/s
+    public static final double kDriveKa = 0.012; // V per rad/s^2
 
     // Geometry
     public static final double kCenterToFrontBumperDistance = 38.25 / 2.0;
@@ -49,7 +52,7 @@ public class Constants {
     public static final String kLidarLogDir = "/home/lvuser/lidarLogs/";
     public static final int kNumLidarLogsToKeep = 10;
     public static final double kLidarICPTranslationEpsilon = 0.01; // convergence threshold for tx,ty
-    public static final double kLidarICPAngleEpsilon = 0.01;       // convergence threshold for theta
+    public static final double kLidarICPAngleEpsilon = 0.01; // convergence threshold for theta
 
     public static final int kCameraStreamPort = 5810;
 
@@ -59,13 +62,13 @@ public class Constants {
     /* CONTROL LOOP GAINS */
 
     // Gearing and mechanical constants.
-    public static final double kDriveDownShiftVelocity = 9.5 * 12.0;  // inches per second
+    public static final double kDriveDownShiftVelocity = 9.5 * 12.0; // inches per second
     public static final double kDriveDownShiftAngularVelocity = Math.PI / 2.0; // rad/sec
-    public static final double kDriveUpShiftVelocity = 11.0 * 12.0;  // inches per second
+    public static final double kDriveUpShiftVelocity = 11.0 * 12.0; // inches per second
 
-    public static final double kPathKX = 4.0;  // units/s per unit of error
-    public static final double kPathLookaheadTime = 0.4;  // seconds to look ahead along the path for steering
-    public static final double kPathMinLookaheadDistance = 24.0;  // inches
+    public static final double kPathKX = 4.0; // units/s per unit of error
+    public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
+    public static final double kPathMinLookaheadDistance = 24.0; // inches
 
     // PID gains for drive velocity loop (LOW GEAR)
     // Units: setpoint, error, and output are in ticks per second.
@@ -163,7 +166,7 @@ public class Constants {
     public static final int kShifterSolenoidId = 12; // PCM 0, Solenoid 4
     public static final int kIntakeCloseSolenoid = 10;
     public static final int kIntakeClampSolenoid = 9;
-    public static final int kForkliftDeploySolenoid = 7;  // CURRENTLY 6 ON PRACTICE!!!
+    public static final int kForkliftDeploySolenoid = 7; // CURRENTLY 6 ON PRACTICE!!!
     public static final int kFollowerWheelSolenoid = 11;
     public static final int kElevatorShifterSolenoidId = 8;
     public static final int kUnlockHookSolenoid = 4;
@@ -203,14 +206,20 @@ public class Constants {
      *
      * @param solenoidId One of the kXyzSolenoidId constants
      */
-    public static Solenoid makeSolenoidForId(int solenoidId) {
-        if (solenoidId <= 4) {
+    public static Solenoid makeSolenoidForId(int solenoidId)
+    {
+        if (solenoidId <= 4)
+        {
             // These solenoids are on PCM 1, wired 1-4 to 7-4.
             return new Solenoid(1, 8 - solenoidId);
-        } else if (solenoidId <= 8) {
+        }
+        else if (solenoidId <= 8)
+        {
             // These solenoids are on PCM 0, wired 5-8 to 0-3.
             return new Solenoid(0, solenoidId - 5);
-        } else if (solenoidId <= 12) {
+        }
+        else if (solenoidId <= 12)
+        {
             // These solenoids are on PCM 0, wired 9-12 to 7-4.
             return new Solenoid(0, 16 - solenoidId);
         }
@@ -220,29 +229,43 @@ public class Constants {
     /**
      * @return the MAC address of the robot
      */
-    public static String getMACAddress() {
-        try {
+    public static String getMACAddress()
+    {
+        try
+        {
             Enumeration<NetworkInterface> nwInterface = NetworkInterface.getNetworkInterfaces();
             StringBuilder ret = new StringBuilder();
-            while (nwInterface.hasMoreElements()) {
+            while (nwInterface.hasMoreElements())
+            {
                 NetworkInterface nis = nwInterface.nextElement();
-                if (nis != null) {
+                if (nis != null)
+                {
                     byte[] mac = nis.getHardwareAddress();
-                    if (mac != null) {
-                        for (int i = 0; i < mac.length; i++) {
+                    if (mac != null)
+                    {
+                        for (int i = 0; i < mac.length; i++)
+                        {
                             ret.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
                         }
                         return ret.toString();
-                    } else {
+                    }
+                    else
+                    {
                         System.out.println("Address doesn't exist or is not accessible");
                     }
-                } else {
+                }
+                else
+                {
                     System.out.println("Network Interface for the specified address is not found.");
                 }
             }
-        } catch (SocketException e) {
+        }
+        catch (SocketException e)
+        {
             e.printStackTrace();
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e)
+        {
             e.printStackTrace();
         }
         return "";

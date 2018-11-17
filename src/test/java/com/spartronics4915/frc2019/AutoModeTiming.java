@@ -4,12 +4,15 @@ import com.spartronics4915.frc2019.auto.AutoConstants;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import org.junit.jupiter.api.Test;
 
-public class AutoModeTiming {
+public class AutoModeTiming
+{
+
     TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
     boolean mStartedLeft = true;
 
     @Test
-    void checkTiming() {
+    void checkTiming()
+    {
         mTrajectoryGenerator.generateTrajectories();
 
         double nearScaleDuration = mTrajectoryGenerator.getTrajectorySet().sideStartToNearScale.get(mStartedLeft).getLastState().t() +
@@ -21,7 +24,6 @@ public class AutoModeTiming {
                 mTrajectoryGenerator.getTrajectorySet().nearFence3ToNearScale.get(mStartedLeft).getLastState().t();
         double nearScaleBestCaseWait = 3 * AutoConstants.kWaitForCubeTime;
         double nearScaleWorstCaseWait = nearScaleBestCaseWait + 0.5 * 4;
-
 
         double farScaleDuration = mTrajectoryGenerator.getTrajectorySet().sideStartToFarScale.get(mStartedLeft).getLastState().t() +
                 mTrajectoryGenerator.getTrajectorySet().farScaleToFarFence.get(mStartedLeft).getLastState().t() +

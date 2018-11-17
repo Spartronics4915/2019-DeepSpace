@@ -2,11 +2,15 @@ package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.controlboard.*;
 
-public class ControlBoard implements IControlBoard {
+public class ControlBoard implements IControlBoard
+{
+
     private static ControlBoard mInstance = null;
 
-    public static ControlBoard getInstance() {
-        if (mInstance == null) {
+    public static ControlBoard getInstance()
+    {
+        if (mInstance == null)
+        {
             mInstance = new ControlBoard();
         }
         return mInstance;
@@ -15,7 +19,8 @@ public class ControlBoard implements IControlBoard {
     private IDriveControlBoard mDriveControlBoard;
     private IButtonControlBoard mButtonControlBoard;
 
-    private ControlBoard() {
+    private ControlBoard()
+    {
         // Switch between control boards here
 
         mDriveControlBoard = MainDriveControlBoard.getInstance();
@@ -24,17 +29,20 @@ public class ControlBoard implements IControlBoard {
     }
 
     @Override
-    public double getThrottle() {
+    public double getThrottle()
+    {
         return mDriveControlBoard.getThrottle();
     }
 
     @Override
-    public double getTurn() {
+    public double getTurn()
+    {
         return mDriveControlBoard.getTurn();
     }
 
     @Override
-    public boolean getQuickTurn() {
+    public boolean getQuickTurn()
+    {
         return mDriveControlBoard.getQuickTurn();
     }
 }

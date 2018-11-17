@@ -7,11 +7,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TimedStateTest {
+public class TimedStateTest
+{
+
     public static final double kTestEpsilon = Util.kEpsilon;
 
     @Test
-    public void test() {
+    public void test()
+    {
         // At (0,0,0), t=0, v=0, acceleration=1
         final TimedState<Pose2d> start_state = new TimedState<>(Pose2d.fromTranslation(new Translation2d(0.0, 0.0)),
                 0.0, 0.0, 1.0);

@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 
 import java.util.List;
 
-public class CollectCurvatureData implements Action {
+public class CollectCurvatureData implements Action
+{
+
     private static final double kMaxPower = 0.4;
     private static final double kStartPower = 0.2;
     private static final double kStartTime = 0.25;
@@ -31,7 +33,8 @@ public class CollectCurvatureData implements Action {
      * @param reverse  if true drive in reverse, if false drive normally
      */
 
-    public CollectCurvatureData(List<DriveCharacterization.CurvatureDataPoint> data, boolean highGear, boolean reverse) {
+    public CollectCurvatureData(List<DriveCharacterization.CurvatureDataPoint> data, boolean highGear, boolean reverse)
+    {
         mCurvatureData = data;
         mHighGear = highGear;
         mReverse = reverse;
@@ -40,20 +43,24 @@ public class CollectCurvatureData implements Action {
     }
 
     @Override
-    public void start() {
+    public void start()
+    {
         mDrive.setHighGear(mHighGear);
         mDrive.setOpenLoop(new DriveSignal(kStartPower, kStartPower));
         mStartTime = Timer.getFPGATimestamp();
     }
 
     @Override
-    public void update() {
+    public void update()
+    {
         double t = Timer.getFPGATimestamp() - mStartTime;
-        if (t < kStartTime) { //give the robot some time to accelerate before recording data
+        if (t < kStartTime)
+        { //give the robot some time to accelerate before recording data
             return;
         }
         double rightPower = kStartPower + (t - kStartTime) * kRampRate;
-        if (rightPower > kMaxPower) {
+        if (rightPower > kMaxPower)
+        {
             isFinished = true;
             return;
         }
@@ -62,18 +69,19 @@ public class CollectCurvatureData implements Action {
                 mRobotState.getPredictedVelocity().dx,
                 mRobotState.getPredictedVelocity().dtheta,
                 kStartPower,
-                rightPower
-        ));
+                rightPower));
         mCSVWriter.add(mCurvatureData.get(mCurvatureData.size() - 1));
     }
 
     @Override
-    public boolean isFinished() {
+    public boolean isFinished()
+    {
         return isFinished;
     }
 
     @Override
-    public void done() {
+    public void done()
+    {
         mDrive.setOpenLoop(DriveSignal.BRAKE);
         mCSVWriter.flush();
     }

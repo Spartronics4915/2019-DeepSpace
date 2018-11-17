@@ -2,33 +2,40 @@ package com.spartronics4915.frc2019.lidar.icp;
 
 import com.spartronics4915.lib.geometry.Translation2d;
 
-public class Point {
+public class Point
+{
 
     public final double x, y;
 
-    public Point(double x, double y) {
+    public Point(double x, double y)
+    {
         this.x = x;
         this.y = y;
     }
 
-    public Point(Translation2d t) {
+    public Point(Translation2d t)
+    {
         this(t.x(), t.y());
     }
 
-    public Translation2d toTranslation2d() {
+    public Translation2d toTranslation2d()
+    {
         return new Translation2d(x, y);
     }
 
-    public double getDistanceSq(Point p) {
+    public double getDistanceSq(Point p)
+    {
         double dx = x - p.x, dy = y - p.y;
         return dx * dx + dy * dy;
     }
 
-    public double getDistance(Point p) {
+    public double getDistance(Point p)
+    {
         return Math.sqrt(getDistanceSq(p));
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "(" + x + ", " + y + ")";
     }
 

@@ -1,5 +1,7 @@
 package com.spartronics4915.lib.util;
 
-public interface CSVWritable {
+public interface CSVWritable
+{
+
     String toCSV();
 }

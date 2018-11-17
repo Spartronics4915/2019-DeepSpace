@@ -2,7 +2,9 @@ package com.spartronics4915.frc2019.states;
 
 import com.spartronics4915.lib.util.Util;
 
-public class SuperstructureState {
+public class SuperstructureState
+{
+
     public double height = SuperstructureConstants.kElevatorMinHeight;
     public double angle = SuperstructureConstants.kWristMinAngle;
     public boolean jawClamped = true;
@@ -12,54 +14,64 @@ public class SuperstructureState {
     public boolean elevatorSentLastTrajectory = false;
     public boolean wristSentLastTrajectory = false;
 
-    public SuperstructureState(double height, double angle, boolean jawClamped) {
+    public SuperstructureState(double height, double angle, boolean jawClamped)
+    {
         this.height = height;
         this.angle = angle;
         this.jawClamped = jawClamped;
     }
 
-    public SuperstructureState(double height, double angle) {
+    public SuperstructureState(double height, double angle)
+    {
         this(height, angle, true);
     }
 
-    public SuperstructureState(SuperstructureState other) {
+    public SuperstructureState(SuperstructureState other)
+    {
         this.height = other.height;
         this.angle = other.angle;
         this.jawClamped = other.jawClamped;
     }
 
-    public SuperstructureState() {
+    public SuperstructureState()
+    {
         this(SuperstructureConstants.kElevatorMinHeight, SuperstructureConstants.kWristMinAngle, true);
     }
 
-    public boolean inIllegalZone(boolean allowSmallErrors) {
+    public boolean inIllegalZone(boolean allowSmallErrors)
+    {
         double kAllowableWristAngleError = allowSmallErrors ? 5.5 : 0;
         double kAllowableElevatorHeightError = allowSmallErrors ? 1 : 0;
 
         if (height >= SuperstructureConstants.kClearFirstStageMaxHeight + kAllowableElevatorHeightError &&
-                angle < SuperstructureConstants.kClearFirstStageMinWristAngle - kAllowableWristAngleError) {
+                angle < SuperstructureConstants.kClearFirstStageMinWristAngle - kAllowableWristAngleError)
+        {
             return true;
         }
 
         return false;
     }
 
-    public boolean inIllegalZone() {
+    public boolean inIllegalZone()
+    {
         return inIllegalZone(false);
     }
 
-    public boolean inIllegalJawZone() {
+    public boolean inIllegalJawZone()
+    {
         return angle < SuperstructureConstants.kAlwaysNeedsJawClampMinAngle && !jawClamped;
     }
 
-    public boolean isInRange(SuperstructureState otherState, double heightThreshold, double wristThreshold) {
+    public boolean isInRange(SuperstructureState otherState, double heightThreshold, double wristThreshold)
+    {
         return Util.epsilonEquals(otherState.height, height, heightThreshold) &&
                 Util.epsilonEquals(otherState.angle, angle, wristThreshold);
 
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "" + height + " / " + angle + " / " + jawClamped + " / " + hasCube;
     }
 

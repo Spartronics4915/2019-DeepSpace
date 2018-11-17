@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 
 import java.util.List;
 
-public class CollectAccelerationData implements Action {
+public class CollectAccelerationData implements Action
+{
+
     private static final double kPower = 0.5;
     private static final double kTotalTime = 2.0; //how long to run the test for
     private static final Drive mDrive = Drive.getInstance();
@@ -30,7 +32,8 @@ public class CollectAccelerationData implements Action {
      * @param reverse  if true drive in reverse, if false drive normally
      * @param turn     if true turn, if false drive straight
      */
-    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean highGear, boolean reverse, boolean turn) {
+    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean highGear, boolean reverse, boolean turn)
+    {
         mAccelerationData = data;
         mHighGear = highGear;
         mReverse = reverse;
@@ -39,7 +42,8 @@ public class CollectAccelerationData implements Action {
     }
 
     @Override
-    public void start() {
+    public void start()
+    {
         mDrive.setHighGear(mHighGear);
         mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
         mStartTime = Timer.getFPGATimestamp();
@@ -47,12 +51,15 @@ public class CollectAccelerationData implements Action {
     }
 
     @Override
-    public void update() {
-        double currentVelocity = (Math.abs(mDrive.getLeftVelocityNativeUnits()) + Math.abs(mDrive.getRightVelocityNativeUnits())) / 4096.0 * Math.PI * 10;
+    public void update()
+    {
+        double currentVelocity =
+                (Math.abs(mDrive.getLeftVelocityNativeUnits()) + Math.abs(mDrive.getRightVelocityNativeUnits())) / 4096.0 * Math.PI * 10;
         double currentTime = Timer.getFPGATimestamp();
 
         //don't calculate acceleration until we've populated prevTime and prevVelocity
-        if (mPrevTime == mStartTime) {
+        if (mPrevTime == mStartTime)
+        {
             mPrevTime = currentTime;
             mPrevVelocity = currentVelocity;
             return;
@@ -61,7 +68,8 @@ public class CollectAccelerationData implements Action {
         double acceleration = (currentVelocity - mPrevVelocity) / (currentTime - mPrevTime);
 
         //ignore accelerations that are too small
-        if (acceleration < Util.kEpsilon) {
+        if (acceleration < Util.kEpsilon)
+        {
             mPrevTime = currentTime;
             mPrevVelocity = currentVelocity;
             return;
@@ -70,8 +78,7 @@ public class CollectAccelerationData implements Action {
         mAccelerationData.add(new DriveCharacterization.AccelerationDataPoint(
                 currentVelocity, //convert to radians per second
                 kPower * 12.0, //convert to volts
-                acceleration
-        ));
+                acceleration));
 
         mCSVWriter.add(mAccelerationData.get(mAccelerationData.size() - 1));
 
@@ -80,12 +87,14 @@ public class CollectAccelerationData implements Action {
     }
 
     @Override
-    public boolean isFinished() {
+    public boolean isFinished()
+    {
         return Timer.getFPGATimestamp() - mStartTime > kTotalTime;
     }
 
     @Override
-    public void done() {
+    public void done()
+    {
         mDrive.setOpenLoop(DriveSignal.BRAKE);
         mCSVWriter.flush();
     }

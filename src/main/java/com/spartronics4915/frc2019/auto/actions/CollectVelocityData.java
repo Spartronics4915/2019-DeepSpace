@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj.Timer;
 
 import java.util.List;
 
-public class CollectVelocityData implements Action {
+public class CollectVelocityData implements Action
+{
+
     private static final double kMaxPower = 0.25;
     private static final double kRampRate = 0.02;
     private static final Drive mDrive = Drive.getInstance();
@@ -29,7 +31,8 @@ public class CollectVelocityData implements Action {
      * @param turn     if true turn, if false drive straight
      */
 
-    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean highGear, boolean reverse, boolean turn) {
+    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean highGear, boolean reverse, boolean turn)
+    {
         mVelocityData = data;
         mHighGear = highGear;
         mReverse = reverse;
@@ -39,15 +42,18 @@ public class CollectVelocityData implements Action {
     }
 
     @Override
-    public void start() {
+    public void start()
+    {
         mDrive.setHighGear(mHighGear);
         mStartTime = Timer.getFPGATimestamp();
     }
 
     @Override
-    public void update() {
+    public void update()
+    {
         double percentPower = kRampRate * (Timer.getFPGATimestamp() - mStartTime);
-        if (percentPower > kMaxPower) {
+        if (percentPower > kMaxPower)
+        {
             isFinished = true;
             return;
         }
@@ -61,12 +67,14 @@ public class CollectVelocityData implements Action {
     }
 
     @Override
-    public boolean isFinished() {
+    public boolean isFinished()
+    {
         return isFinished;
     }
 
     @Override
-    public void done() {
+    public void done()
+    {
         mDrive.setOpenLoop(DriveSignal.BRAKE);
         mCSVWriter.flush();
     }

@@ -9,11 +9,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DistanceViewTest {
+public class DistanceViewTest
+{
+
     public static final double kTestEpsilon = Util.kEpsilon;
 
     @Test
-    public void test() {
+    public void test()
+    {
         // Specify desired waypoints.
         List<Translation2d> waypoints = Arrays.asList(
                 new Translation2d(0.0, 0.0),

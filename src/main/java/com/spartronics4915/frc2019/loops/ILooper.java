@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019.loops;
 
-public interface ILooper {
+public interface ILooper
+{
+
     void register(Loop loop);
 }

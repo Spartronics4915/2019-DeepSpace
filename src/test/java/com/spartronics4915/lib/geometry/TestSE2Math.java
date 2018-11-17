@@ -5,11 +5,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSE2Math {
+public class TestSE2Math
+{
+
     public static final double kTestEpsilon = Util.kEpsilon;
 
     @Test
-    public void testRotation2d() {
+    public void testRotation2d()
+    {
         // Test constructors
         Rotation2d rot1 = new Rotation2d();
         assertEquals(1, rot1.cos(), kTestEpsilon);
@@ -123,7 +126,8 @@ public class TestSE2Math {
     }
 
     @Test
-    public void testTranslation2d() {
+    public void testTranslation2d()
+    {
         // Test constructors
         Translation2d pos1 = new Translation2d();
         assertEquals(0, pos1.x(), kTestEpsilon);
@@ -188,7 +192,8 @@ public class TestSE2Math {
     }
 
     @Test
-    public void testPose2d() {
+    public void testPose2d()
+    {
         // Test constructors
         Pose2d pose1 = new Pose2d();
         assertEquals(0, pose1.getTranslation().x(), kTestEpsilon);
@@ -243,7 +248,8 @@ public class TestSE2Math {
     }
 
     @Test
-    public void testTwist() {
+    public void testTwist()
+    {
         // Exponentiation (integrate twist to obtain a Pose2d)
         Twist2d twist = new Twist2d(1.0, 0.0, 0.0);
         Pose2d pose = Pose2d.exp(twist);

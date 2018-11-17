@@ -9,7 +9,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TrajectoryTest {
+public class TrajectoryTest
+{
+
     public static final double kTestEpsilon = Util.kEpsilon;
 
     public static final List<Translation2d> kWaypoints = Arrays.asList(
@@ -19,7 +21,8 @@ public class TrajectoryTest {
             new Translation2d(60.0, 12.0));
 
     @Test
-    public void testConstruction() {
+    public void testConstruction()
+    {
         // Empty constructor.
         Trajectory<Translation2d> traj = new Trajectory<>();
         assertTrue(traj.isEmpty());
@@ -36,7 +39,8 @@ public class TrajectoryTest {
     }
 
     @Test
-    public void testStateAccessors() {
+    public void testStateAccessors()
+    {
         Trajectory<Translation2d> traj = new Trajectory<>(kWaypoints);
 
         assertEquals(kWaypoints.get(0), traj.getState(0));

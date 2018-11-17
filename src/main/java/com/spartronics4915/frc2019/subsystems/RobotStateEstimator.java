@@ -7,7 +7,9 @@ import com.spartronics4915.frc2019.loops.Loop;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.geometry.Twist2d;
 
-public class RobotStateEstimator extends Subsystem {
+public class RobotStateEstimator extends Subsystem
+{
+
     static RobotStateEstimator instance_ = new RobotStateEstimator();
     private RobotState robot_state_ = RobotState.getInstance();
     private Drive drive_ = Drive.getInstance();
@@ -15,43 +17,53 @@ public class RobotStateEstimator extends Subsystem {
     private double right_encoder_prev_distance_ = 0.0;
     private double back_encoder_prev_distance_ = 0.0;
 
-    RobotStateEstimator() {
+    RobotStateEstimator()
+    {
     }
 
-    public static RobotStateEstimator getInstance() {
+    public static RobotStateEstimator getInstance()
+    {
         return instance_;
     }
 
     @Override
-    public boolean checkSystem() {
+    public boolean checkSystem()
+    {
         return false;
     }
 
     @Override
-    public void outputTelemetry() {
+    public void outputTelemetry()
+    {
         // No-op
     }
 
     @Override
-    public void stop() {
+    public void stop()
+    {
         // No-op
     }
 
     @Override
-    public void registerEnabledLoops(ILooper looper) {
+    public void registerEnabledLoops(ILooper looper)
+    {
         looper.register(new EnabledLoop());
     }
 
-    private class EnabledLoop implements Loop {
+    private class EnabledLoop implements Loop
+    {
+
         @Override
-        public synchronized void onStart(double timestamp) {
+        public synchronized void onStart(double timestamp)
+        {
             left_encoder_prev_distance_ = drive_.getLeftEncoderDistance();
             right_encoder_prev_distance_ = drive_.getRightEncoderDistance();
 
         }
 
         @Override
-        public synchronized void onLoop(double timestamp) {
+        public synchronized void onLoop(double timestamp)
+        {
             final double left_distance = drive_.getLeftEncoderDistance();
             final double right_distance = drive_.getRightEncoderDistance();
             final double delta_left = left_distance - left_encoder_prev_distance_;
@@ -68,9 +80,9 @@ public class RobotStateEstimator extends Subsystem {
         }
 
         @Override
-        public void onStop(double timestamp) {
+        public void onStop(double timestamp)
+        {
             // no-op
         }
     }
 }
-
