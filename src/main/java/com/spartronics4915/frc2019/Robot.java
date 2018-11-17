@@ -34,13 +34,10 @@ public class Robot extends IterativeRobot
     private IControlBoard mControlBoard = ControlBoard.getInstance();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
 
-    private final SubsystemManager mSubsystemManager = new SubsystemManager(
-            Arrays.asList(
-                    RobotStateEstimator.getInstance(),
-                    Drive.getInstance(),
-                    Superstructure.getInstance()));
+    private SubsystemManager mSubsystemManager = null;
 
-    private Drive mDrive = Drive.getInstance();
+    private Drive mDrive = null;
+    private Turret mTurret = null;
 
     private AutoModeExecutor mAutoModeExecutor;
 
@@ -92,8 +89,25 @@ public class Robot extends IterativeRobot
                     numDevices == Constants.kNumCANDevices ? "OK"
                             : ("" + numDevices + "/" + Constants.kNumCANDevices));
 
-            mSubsystemManager.registerEnabledLoops(mEnabledLooper);
-            mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+            try
+            {
+                mDrive = Drive.getInstance();
+                mTurret = Turret.getInstance();
+
+                mSubsystemManager = new SubsystemManager(
+                        Arrays.asList(
+                                RobotStateEstimator.getInstance(),
+                                mDrive,
+                                mTurret,
+                                Superstructure.getInstance()));
+                mSubsystemManager.registerEnabledLoops(mEnabledLooper);
+                mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+            }
+            catch (Exception e)
+            {
+                // Try to avoid "robots don't quit" if there's a bug in subsystem init
+                Logger.logThrowableCrash("ERROR Couldn't instantiate subsystems", e);
+            }
 
             try
             {
@@ -277,6 +291,10 @@ public class Robot extends IterativeRobot
         {
             mDrive.setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(),
                     false));
+
+            if (mControlBoard.getSwitchTurretMode())
+                mTurret.setWantedState(mTurret.getWantedState() == Turret.WantedState.FOLLOW_LIDAR ? Turret.WantedState.FOLLOW_ODOMETRY
+                        : Turret.WantedState.FOLLOW_LIDAR);
 
             outputToSmartDashboard();
         }

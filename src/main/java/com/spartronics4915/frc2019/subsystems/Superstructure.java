@@ -177,7 +177,7 @@ public class Superstructure extends Subsystem
     @Override
     public boolean checkSystem()
     {
-        logNotice("checkSystem not implemented");
+        logWarning("checkSystem not implemented");
         return false;
     }
 

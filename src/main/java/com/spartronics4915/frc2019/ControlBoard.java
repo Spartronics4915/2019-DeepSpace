@@ -45,4 +45,10 @@ public class ControlBoard implements IControlBoard
     {
         return mDriveControlBoard.getQuickTurn();
     }
+
+    @Override
+    public boolean getSwitchTurretMode()
+    {
+        return mDriveControlBoard.getSwitchTurretMode();
+    }
 }

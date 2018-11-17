@@ -6,6 +6,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import com.spartronics4915.lib.geometry.Translation2d;
+
 /**
  * A list of constants used by the rest of the robot code. This include physics
  * constants as well as constants
@@ -72,11 +74,6 @@ public class Constants
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
-    // Do not change anything after this line unless you rewire the robot and
-    // update the spreadsheet!
-    // Port assignments should match up with the spreadsheet here:
-    // https://docs.google.com/spreadsheets/d/179YszqnEWPWInuHUrYJnYL48LUL7LUhZrnvmNu1kujE/edit#gid=0
-
     /* I/O */
     // (Note that if multiple talons are dedicated to a mechanism, any sensors
     // are attached to the master)
@@ -97,6 +94,19 @@ public class Constants
     public static final int kRightDriveMasterId = 12;
     public static final int kRightDriveSlaveAId = 13;
     public static final int kRightDriveSlaveBId = 14;
+    public static final double kDriveEncoderPPR = 4096.0; // TODO: Check me (I think this is correct for the CTRE magnetic encoder)
+
+    // Turret
+    public static final int kTurretMotorId = 10; // TODO: Figure out the correct motor ID
+    public static final Translation2d kTurretTargetFieldPosition = new Translation2d(0, 0);
+    public static final class TurretPIDConstants {
+        public static final double kP = 1.0, kI = 0.0, kD = 0.0, kF = 0.0;
+    }; // TODO: Tune these
+    public static final Translation2d kTurretRobotCenterOffset = new Translation2d(0, 0); // TODO: Set offset
+    // We're using the CTRE Mag encoders: https://content.vexrobotics.com/vexpro/pdf/Magnetic-Encoder-User's-Guide-01282016.pdf
+    public static final double kTurretPPR = 4096.0;
+    public static final double kTurretUnitsPerRev = 13653; // 4096 Quadrature CPR * (10 / 3) Belt reduction
+    
 
     // Control Board
     public static final int kDriveJoystickPort = 0;

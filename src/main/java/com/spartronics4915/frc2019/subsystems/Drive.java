@@ -27,7 +27,6 @@ public class Drive extends Subsystem
 {
 
     private static final int kVelocityPIDSlot = 0;
-    private static final double kEncoderPPR = 4096.0; // TODO: Check me (I think this is correct for the CTRE magnetic encoder)
     private static Drive mInstance = new Drive();
     // Hardware
     // (By setting these to null, on failure, we end up with a null pointer for now, but if we need to handle hardware
@@ -91,7 +90,7 @@ public class Drive extends Subsystem
         final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 100); //primary closed-loop, 100 ms timeout
         if (sensorPresent != ErrorCode.OK)
         {
-            DriverStation.reportError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent, false);
+            logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
         talon.setSensorPhase(true);
@@ -325,12 +324,12 @@ public class Drive extends Subsystem
 
     public double getLeftEncoderRotations()
     {
-        return mPeriodicIO.left_position_ticks / kEncoderPPR;
+        return mPeriodicIO.left_position_ticks / Constants.kDriveEncoderPPR;
     }
 
     public double getRightEncoderRotations()
     {
-        return mPeriodicIO.right_position_ticks / kEncoderPPR;
+        return mPeriodicIO.right_position_ticks / Constants.kDriveEncoderPPR;
     }
 
     public double getLeftEncoderDistance()
@@ -350,7 +349,7 @@ public class Drive extends Subsystem
 
     public double getRightLinearVelocity()
     {
-        return rotationsToInches(getRightVelocityNativeUnits() * 10.0 / kEncoderPPR);
+        return rotationsToInches(getRightVelocityNativeUnits() * 10.0 / Constants.kDriveEncoderPPR);
     }
 
     public double getLeftVelocityNativeUnits()
@@ -360,7 +359,7 @@ public class Drive extends Subsystem
 
     public double getLeftLinearVelocity()
     {
-        return rotationsToInches(getLeftVelocityNativeUnits() * 10.0 / kEncoderPPR);
+        return rotationsToInches(getLeftVelocityNativeUnits() * 10.0 / Constants.kDriveEncoderPPR);
     }
 
     public double getLinearVelocity()
