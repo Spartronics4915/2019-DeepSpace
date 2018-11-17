@@ -84,6 +84,12 @@ public class Constants
     public static final int kCANTimeoutMs = 10; //use for on the fly updates
     public static final int kLongCANTimeoutMs = 100; //use for constructors
 
+    // Number of CAN devices for the CAN probe
+    public static final int kNumTalons = 5; // total talon count on robot (not testbed)
+    public static final int kNumPDPs = 1; // doesn't always show up in CANProbe
+    public static final int kNumPCMs = 1; // Pressure control module (pneumatics)
+    public static final int kNumCANDevices = kNumTalons + kNumPCMs; // don't count PDP
+
     // Drive
     public static final int kLeftDriveMasterId = 5;
     public static final int kLeftDriveSlaveAId = 6;

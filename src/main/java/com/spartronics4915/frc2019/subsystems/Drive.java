@@ -19,9 +19,7 @@ import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
 
@@ -29,10 +27,12 @@ public class Drive extends Subsystem
 {
 
     private static final int kVelocityPIDSlot = 0;
-    private static final double DRIVE_ENCODER_PPR = 4096.0; // TODO: Check me (I think this is correct for the CTRE magnetic encoder)
+    private static final double kEncoderPPR = 4096.0; // TODO: Check me (I think this is correct for the CTRE magnetic encoder)
     private static Drive mInstance = new Drive();
     // Hardware
-    private final TalonSRX mLeftMaster, mRightMaster, mLeftSlaveA, mRightSlaveA, mLeftSlaveB, mRightSlaveB; // TODO remove B slaves
+    // (By setting these to null, on failure, we end up with a null pointer for now, but if we need to handle hardware
+    // absence later we will be able to look at super.isInitialized() to know when to not consume these objects)
+    private TalonSRX mLeftMaster = null, mRightMaster = null, mLeftSlave = null, mRightSlave = null;
     private PigeonIMU mPigeon;
     // Control states
     private DriveControlState mDriveControlState;
@@ -54,7 +54,7 @@ public class Drive extends Subsystem
             {
                 setOpenLoop(new DriveSignal(0.05, 0.05));
                 setBrakeMode(false);
-                //                 startLogging();
+                // startLogging();
             }
         }
 
@@ -107,41 +107,44 @@ public class Drive extends Subsystem
     {
         mPeriodicIO = new PeriodicIO();
 
-        // Start all Talons in open loop mode.
-        mLeftMaster = TalonSRXFactory.createDefaultTalon(Constants.kLeftDriveMasterId);
-        configureMaster(mLeftMaster, true);
+        boolean success = true;
+        try
+        {
+            // Start all Talons in open loop mode.
+            mLeftMaster = TalonSRXFactory.createDefaultTalon(Constants.kLeftDriveMasterId);
+            configureMaster(mLeftMaster, true);
 
-        mLeftSlaveA = TalonSRXFactory.createPermanentSlaveTalon(Constants.kLeftDriveSlaveAId,
-                Constants.kLeftDriveMasterId);
-        mLeftSlaveA.setInverted(false);
+            mLeftSlave = TalonSRXFactory.createPermanentSlaveTalon(Constants.kLeftDriveSlaveAId,
+                    Constants.kLeftDriveMasterId);
+            mLeftSlave.setInverted(false);
 
-        mLeftSlaveB = TalonSRXFactory.createPermanentSlaveTalon(Constants.kLeftDriveSlaveBId,
-                Constants.kLeftDriveMasterId);
-        mLeftSlaveB.setInverted(false);
+            mRightMaster = TalonSRXFactory.createDefaultTalon(Constants.kRightDriveMasterId);
+            configureMaster(mRightMaster, false);
 
-        mRightMaster = TalonSRXFactory.createDefaultTalon(Constants.kRightDriveMasterId);
-        configureMaster(mRightMaster, false);
+            mRightSlave = TalonSRXFactory.createPermanentSlaveTalon(Constants.kRightDriveSlaveAId,
+                    Constants.kRightDriveMasterId);
+            mRightSlave.setInverted(true);
 
-        mRightSlaveA = TalonSRXFactory.createPermanentSlaveTalon(Constants.kRightDriveSlaveAId,
-                Constants.kRightDriveMasterId);
-        mRightSlaveA.setInverted(true);
+            reloadGains();
 
-        mRightSlaveB = TalonSRXFactory.createPermanentSlaveTalon(Constants.kRightDriveSlaveBId,
-                Constants.kRightDriveMasterId);
-        mRightSlaveB.setInverted(true);
+            mPigeon = new PigeonIMU(mLeftSlave);
+            mLeftSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
 
-        reloadGains();
+            setOpenLoop(DriveSignal.NEUTRAL);
 
-        mPigeon = new PigeonIMU(mLeftSlaveB);
-        mLeftSlaveB.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
-
-        setOpenLoop(DriveSignal.NEUTRAL);
-
-        // Force a CAN message across.
-        mIsBrakeMode = true;
-        setBrakeMode(false);
+            // Force a CAN message across.
+            mIsBrakeMode = true;
+            setBrakeMode(false);
+        }
+        catch (Exception e)
+        {
+            logException("ERROR Drive couldn't initialize hardware", e);
+            success = false;
+        }
 
         mMotionPlanner = new DriveMotionPlanner();
+
+        logInitialized(success);
     }
 
     public static Drive getInstance()
@@ -255,12 +258,10 @@ public class Drive extends Subsystem
             mIsBrakeMode = on;
             NeutralMode mode = on ? NeutralMode.Brake : NeutralMode.Coast;
             mRightMaster.setNeutralMode(mode);
-            mRightSlaveA.setNeutralMode(mode);
-            mRightSlaveB.setNeutralMode(mode);
+            mRightSlave.setNeutralMode(mode);
 
             mLeftMaster.setNeutralMode(mode);
-            mLeftSlaveA.setNeutralMode(mode);
-            mLeftSlaveB.setNeutralMode(mode);
+            mLeftSlave.setNeutralMode(mode);
         }
     }
 
@@ -324,12 +325,12 @@ public class Drive extends Subsystem
 
     public double getLeftEncoderRotations()
     {
-        return mPeriodicIO.left_position_ticks / DRIVE_ENCODER_PPR;
+        return mPeriodicIO.left_position_ticks / kEncoderPPR;
     }
 
     public double getRightEncoderRotations()
     {
-        return mPeriodicIO.right_position_ticks / DRIVE_ENCODER_PPR;
+        return mPeriodicIO.right_position_ticks / kEncoderPPR;
     }
 
     public double getLeftEncoderDistance()
@@ -349,7 +350,7 @@ public class Drive extends Subsystem
 
     public double getRightLinearVelocity()
     {
-        return rotationsToInches(getRightVelocityNativeUnits() * 10.0 / DRIVE_ENCODER_PPR);
+        return rotationsToInches(getRightVelocityNativeUnits() * 10.0 / kEncoderPPR);
     }
 
     public double getLeftVelocityNativeUnits()
@@ -359,7 +360,7 @@ public class Drive extends Subsystem
 
     public double getLeftLinearVelocity()
     {
-        return rotationsToInches(getLeftVelocityNativeUnits() * 10.0 / DRIVE_ENCODER_PPR);
+        return rotationsToInches(getLeftVelocityNativeUnits() * 10.0 / kEncoderPPR);
     }
 
     public double getLinearVelocity()
@@ -491,8 +492,7 @@ public class Drive extends Subsystem
 
                     {
                         add(new TalonSRXChecker.TalonSRXConfig("left_master", mLeftMaster));
-                        add(new TalonSRXChecker.TalonSRXConfig("left_slave", mLeftSlaveA));
-                        add(new TalonSRXChecker.TalonSRXConfig("left_slave1", mLeftSlaveB));
+                        add(new TalonSRXChecker.TalonSRXConfig("left_slave", mLeftSlave));
                     }
                 }, new TalonSRXChecker.CheckerConfig()
                 {
@@ -511,8 +511,7 @@ public class Drive extends Subsystem
 
                     {
                         add(new TalonSRXChecker.TalonSRXConfig("right_master", mRightMaster));
-                        add(new TalonSRXChecker.TalonSRXConfig("right_slave", mRightSlaveA));
-                        add(new TalonSRXChecker.TalonSRXConfig("right_slave1", mRightSlaveB));
+                        add(new TalonSRXChecker.TalonSRXConfig("right_slave", mRightSlave));
                     }
                 }, new TalonSRXChecker.CheckerConfig()
                 {

@@ -66,6 +66,7 @@ public class Superstructure extends Subsystem
 
     private Superstructure()
     {
+        logInitialized(true);
     }
 
     private Loop mLoop = new Loop()

@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat;
+import java.io.ByteArrayOutputStream;
+
 buildscript {
     repositories {
         mavenCentral()
@@ -60,6 +63,21 @@ dependencies {
 jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     manifest jaci.openrio.gradle.GradleRIOPlugin.javaManifest(ROBOT_CLASS)
+    manifest {
+        String user = System.getProperty("user.name");
+        SimpleDateFormat fmt = new SimpleDateFormat("MMMMM dd, hh:mm a");
+        ByteArrayOutputStream gitinfo = new ByteArrayOutputStream();
+        exec {
+            ignoreExitValue true
+            commandLine 'git', 'describe', "--tags", "--dirty"
+            standardOutput = gitinfo
+        }
+        attributes (
+            "Built-By": user,
+            "Built-At": fmt.format(new Date()),
+            "Code-Version": gitinfo.toString().trim()
+        )
+    }
 }
 
 junitPlatform {
