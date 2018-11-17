@@ -47,12 +47,6 @@ public class Robot extends IterativeRobot
     {
         try
         {
-            //init camera stream
-            UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-            camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
-            MjpegServer cameraServer = new MjpegServer("serve_USB Camera 0", Constants.kCameraStreamPort);
-            cameraServer.setSource(camera);
-
             Logger.logRobotInit();
 
             mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -62,14 +56,13 @@ public class Robot extends IterativeRobot
 
             try
             {
-                SmartDashboard.putString("LIDAR status", "starting");
+                Logger.debug("LIDAR starting...");
                 boolean started = LidarServer.getInstance().start();
-                SmartDashboard.putString("LIDAR status", started ? "started" : "failed to start");
+                Logger.debug("LIDAR status" + (started ? "started" : "failed to start"));
             }
             catch (Throwable t)
             {
-                SmartDashboard.putString("LIDAR status", "crashed: " + t);
-                t.printStackTrace();
+                Logger.logThrowableCrash("ERROR LIDAR crashed", t);
                 throw t;
             }
 
@@ -234,7 +227,7 @@ public class Robot extends IterativeRobot
         try
         {
             mDrive.setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(),
-                    mDrive.isHighGear()));
+                    false));
 
             outputToSmartDashboard();
         }

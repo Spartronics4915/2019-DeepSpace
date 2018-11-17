@@ -28,20 +28,16 @@ import java.util.ArrayList;
 public class Drive extends Subsystem
 {
 
-    private static final int kLowGearVelocityControlSlot = 0;
-    private static final int kHighGearVelocityControlSlot = 1;
-    private static final double DRIVE_ENCODER_PPR = 4096.;
+    private static final int kVelocityPIDSlot = 0;
+    private static final double DRIVE_ENCODER_PPR = 4096.0; // TODO: Check me (I think this is correct for the CTRE magnetic encoder)
     private static Drive mInstance = new Drive();
     // Hardware
     private final TalonSRX mLeftMaster, mRightMaster, mLeftSlaveA, mRightSlaveA, mLeftSlaveB, mRightSlaveB; // TODO remove B slaves
-    private final Solenoid mShifter;
+    private PigeonIMU mPigeon;
     // Control states
     private DriveControlState mDriveControlState;
-    private PigeonIMU mPigeon;
     // Hardware states
     private PeriodicIO mPeriodicIO;
-    private boolean mAutoShift;
-    private boolean mIsHighGear;
     private boolean mIsBrakeMode;
     private ReflectingCSVWriter<PeriodicIO> mCSVWriter = null;
     private DriveMotionPlanner mMotionPlanner;
@@ -77,15 +73,6 @@ public class Drive extends Subsystem
                     default:
                         System.out.println("Unexpected drive control state: " + mDriveControlState);
                         break;
-                }
-                /*
-                 * // TODO: fix this (tom)
-                 * if (mAutoShift) {
-                 * handleAutoShift();
-                 * } else
-                 */
-                {
-                    setHighGear(false);
                 }
             }
         }
@@ -143,16 +130,10 @@ public class Drive extends Subsystem
                 Constants.kRightDriveMasterId);
         mRightSlaveB.setInverted(true);
 
-        mShifter = Constants.makeSolenoidForId(Constants.kShifterSolenoidId);
-
         reloadGains();
 
         mPigeon = new PigeonIMU(mLeftSlaveB);
         mLeftSlaveB.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
-
-        // Force a solenoid message.
-        mIsHighGear = true;
-        setHighGear(false);
 
         setOpenLoop(DriveSignal.NEUTRAL);
 
@@ -207,7 +188,6 @@ public class Drive extends Subsystem
         if (mDriveControlState != DriveControlState.OPEN_LOOP)
         {
             setBrakeMode(false);
-            mAutoShift = true;
 
             System.out.println("Switching to open loop");
             System.out.println(signal);
@@ -230,9 +210,8 @@ public class Drive extends Subsystem
         {
             // We entered a velocity control state.
             setBrakeMode(true);
-            mAutoShift = false;
-            mLeftMaster.selectProfileSlot(kLowGearVelocityControlSlot, 0);
-            mRightMaster.selectProfileSlot(kLowGearVelocityControlSlot, 0);
+            mLeftMaster.selectProfileSlot(kVelocityPIDSlot, 0);
+            mRightMaster.selectProfileSlot(kVelocityPIDSlot, 0);
             mLeftMaster.configNeutralDeadband(0.0, 0);
             mRightMaster.configNeutralDeadband(0.0, 0);
 
@@ -262,20 +241,6 @@ public class Drive extends Subsystem
             return false;
         }
         return mMotionPlanner.isDone() || mOverrideTrajectory;
-    }
-
-    public boolean isHighGear()
-    {
-        return mIsHighGear;
-    }
-
-    public synchronized void setHighGear(boolean wantsHighGear)
-    {
-        if (wantsHighGear != mIsHighGear)
-        {
-            mIsHighGear = wantsHighGear;
-            mShifter.set(wantsHighGear);
-        }
     }
 
     public boolean isBrakeMode()
@@ -323,19 +288,19 @@ public class Drive extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        SmartDashboard.putNumber("Right Drive Distance", mPeriodicIO.right_distance);
-        SmartDashboard.putNumber("Right Drive Ticks", mPeriodicIO.right_position_ticks);
-        SmartDashboard.putNumber("Left Drive Ticks", mPeriodicIO.left_position_ticks);
-        SmartDashboard.putNumber("Left Drive Distance", mPeriodicIO.left_distance);
-        SmartDashboard.putNumber("Right Linear Velocity", getRightLinearVelocity());
-        SmartDashboard.putNumber("Left Linear Velocity", getLeftLinearVelocity());
+        dashboardPutNumber("rightDistance", mPeriodicIO.right_distance);
+        dashboardPutNumber("rightPositionTicks", mPeriodicIO.right_position_ticks);
+        dashboardPutNumber("leftPositionTicks", mPeriodicIO.left_position_ticks);
+        dashboardPutNumber("leftDistance", mPeriodicIO.left_distance);
+        dashboardPutNumber("rightSpeed", getRightLinearVelocity()); // Inches per second
+        dashboardPutNumber("leftSpeed", getLeftLinearVelocity()); // Inches per second
 
-        SmartDashboard.putNumber("x err", mPeriodicIO.error.getTranslation().x());
-        SmartDashboard.putNumber("y err", mPeriodicIO.error.getTranslation().y());
-        SmartDashboard.putNumber("theta err", mPeriodicIO.error.getRotation().getDegrees());
+        dashboardPutNumber("xError", mPeriodicIO.error.getTranslation().x());
+        dashboardPutNumber("yError", mPeriodicIO.error.getTranslation().y());
+        dashboardPutNumber("thetaError", mPeriodicIO.error.getRotation().getDegrees());
         if (getHeading() != null)
         {
-            SmartDashboard.putNumber("Gyro Heading", getHeading().getDegrees());
+            dashboardPutNumber("IMU_Heading", getHeading().getDegrees());
         }
         if (mCSVWriter != null)
         {
@@ -355,7 +320,6 @@ public class Drive extends Subsystem
     {
         setHeading(Rotation2d.identity());
         resetEncoders();
-        mAutoShift = true;
     }
 
     public double getLeftEncoderRotations()
@@ -448,33 +412,13 @@ public class Drive extends Subsystem
         }
     }
 
-    private void handleAutoShift()
-    {
-        final double linear_velocity = Math.abs(getLinearVelocity());
-        final double angular_velocity = Math.abs(getAngularVelocity());
-        if (mIsHighGear && linear_velocity < Constants.kDriveDownShiftVelocity && angular_velocity < Constants.kDriveDownShiftAngularVelocity)
-        {
-            setHighGear(false);
-        }
-        else if (!mIsHighGear && linear_velocity > Constants.kDriveUpShiftVelocity)
-        {
-            setHighGear(true);
-        }
-    }
-
     public synchronized void reloadGains()
     {
-        mLeftMaster.config_kP(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKp, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kI(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKi, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kD(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKd, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kF(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKf, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_IntegralZone(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityIZone, Constants.kLongCANTimeoutMs);
-
-        mRightMaster.config_kP(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKp, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_kI(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKi, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_kD(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKd, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_kF(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityKf, Constants.kLongCANTimeoutMs);
-        mRightMaster.config_IntegralZone(kLowGearVelocityControlSlot, Constants.kDriveLowGearVelocityIZone, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_kP(kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_kI(kVelocityPIDSlot, Constants.kDriveVelocityKi, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_kD(kVelocityPIDSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_kF(kVelocityPIDSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
+        mLeftMaster.config_IntegralZone(kVelocityPIDSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
     }
 
     @Override
@@ -532,9 +476,9 @@ public class Drive extends Subsystem
         else
         {
             mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.left_feedforward + Constants.kDriveLowGearVelocityKd * mPeriodicIO.left_accel / 1023.0);
+                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0);
             mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.right_feedforward + Constants.kDriveLowGearVelocityKd * mPeriodicIO.right_accel / 1023.0);
+                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0);
         }
     }
 

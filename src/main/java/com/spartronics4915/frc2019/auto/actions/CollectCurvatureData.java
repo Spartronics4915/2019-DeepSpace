@@ -22,7 +22,6 @@ public class CollectCurvatureData implements Action
     private final ReflectingCSVWriter<DriveCharacterization.CurvatureDataPoint> mCSVWriter;
     private final List<DriveCharacterization.CurvatureDataPoint> mCurvatureData;
     private final boolean mReverse;
-    private final boolean mHighGear;
 
     private boolean isFinished = false;
     private double mStartTime = 0.0;
@@ -33,10 +32,9 @@ public class CollectCurvatureData implements Action
      * @param reverse  if true drive in reverse, if false drive normally
      */
 
-    public CollectCurvatureData(List<DriveCharacterization.CurvatureDataPoint> data, boolean highGear, boolean reverse)
+    public CollectCurvatureData(List<DriveCharacterization.CurvatureDataPoint> data, boolean reverse)
     {
         mCurvatureData = data;
-        mHighGear = highGear;
         mReverse = reverse;
         mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/CURVATURE_DATA.csv", DriveCharacterization.CurvatureDataPoint.class);
 
@@ -45,7 +43,6 @@ public class CollectCurvatureData implements Action
     @Override
     public void start()
     {
-        mDrive.setHighGear(mHighGear);
         mDrive.setOpenLoop(new DriveSignal(kStartPower, kStartPower));
         mStartTime = Timer.getFPGATimestamp();
     }

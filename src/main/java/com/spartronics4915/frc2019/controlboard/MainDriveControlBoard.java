@@ -17,30 +17,28 @@ public class MainDriveControlBoard implements IDriveControlBoard
         return mInstance;
     }
 
-    private final Joystick mThrottleStick;
-    private final Joystick mTurnStick;
+    private final Joystick mDriveJoystick;
 
     private MainDriveControlBoard()
     {
-        mThrottleStick = new Joystick(Constants.kMainThrottleJoystickPort);
-        mTurnStick = new Joystick(Constants.kMainTurnJoystickPort);
+        mDriveJoystick = new Joystick(Constants.kDriveJoystickPort);
     }
 
     @Override
     public double getThrottle()
     {
-        return mThrottleStick.getRawAxis(1);
+        return mDriveJoystick.getY();
     }
 
     @Override
     public double getTurn()
     {
-        return -mTurnStick.getRawAxis(0);
+        return mDriveJoystick.getX();
     }
 
     @Override
     public boolean getQuickTurn()
     {
-        return mTurnStick.getRawButton(1);
+        return mDriveJoystick.getRawButtonPressed(1);
     }
 }

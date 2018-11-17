@@ -19,12 +19,9 @@ public class CharacterizeHighGearStraight extends AutoModeBase
         List<DriveCharacterization.VelocityDataPoint> velocityData = new ArrayList<>();
         List<DriveCharacterization.AccelerationDataPoint> accelerationData = new ArrayList<>();
 
-        // runAction(new ShiftHighGearAction(false));
-        // runAction(new WaitAction(10));
-
-        runAction(new CollectVelocityData(velocityData, false, false, true));
+        runAction(new CollectVelocityData(velocityData, false, true));
         runAction(new WaitAction(10));
-        runAction(new CollectAccelerationData(accelerationData, false, false, true));
+        runAction(new CollectAccelerationData(accelerationData, false, true));
 
         DriveCharacterization.CharacterizationConstants constants = DriveCharacterization.characterizeDrive(velocityData, accelerationData);
 

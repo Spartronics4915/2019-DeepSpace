@@ -19,7 +19,6 @@ public class CollectVelocityData implements Action
     private final List<DriveCharacterization.VelocityDataPoint> mVelocityData;
     private final boolean mTurn;
     private final boolean mReverse;
-    private final boolean mHighGear;
 
     private boolean isFinished = false;
     private double mStartTime = 0.0;
@@ -31,10 +30,9 @@ public class CollectVelocityData implements Action
      * @param turn     if true turn, if false drive straight
      */
 
-    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean highGear, boolean reverse, boolean turn)
+    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turn)
     {
         mVelocityData = data;
-        mHighGear = highGear;
         mReverse = reverse;
         mTurn = turn;
         mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/VELOCITY_DATA.csv", DriveCharacterization.VelocityDataPoint.class);
@@ -44,7 +42,6 @@ public class CollectVelocityData implements Action
     @Override
     public void start()
     {
-        mDrive.setHighGear(mHighGear);
         mStartTime = Timer.getFPGATimestamp();
     }
 

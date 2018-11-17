@@ -20,7 +20,6 @@ public class CollectAccelerationData implements Action
     private final List<DriveCharacterization.AccelerationDataPoint> mAccelerationData;
     private final boolean mTurn;
     private final boolean mReverse;
-    private final boolean mHighGear;
 
     private double mStartTime = 0.0;
     private double mPrevVelocity = 0.0;
@@ -32,10 +31,9 @@ public class CollectAccelerationData implements Action
      * @param reverse  if true drive in reverse, if false drive normally
      * @param turn     if true turn, if false drive straight
      */
-    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean highGear, boolean reverse, boolean turn)
+    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean reverse, boolean turn)
     {
         mAccelerationData = data;
-        mHighGear = highGear;
         mReverse = reverse;
         mTurn = turn;
         mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/ACCEL_DATA.csv", DriveCharacterization.AccelerationDataPoint.class);
@@ -44,7 +42,6 @@ public class CollectAccelerationData implements Action
     @Override
     public void start()
     {
-        mDrive.setHighGear(mHighGear);
         mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
         mStartTime = Timer.getFPGATimestamp();
         mPrevTime = mStartTime;
