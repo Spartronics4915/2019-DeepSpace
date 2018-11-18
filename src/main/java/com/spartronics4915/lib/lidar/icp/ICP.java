@@ -1,16 +1,16 @@
-package com.spartronics4915.frc2019.lidar.icp;
+package com.spartronics4915.lib.lidar.icp;
 
 import com.spartronics4915.frc2019.Constants;
 
-public class ICP {
+public class ICP
+{
 
     public static final double OUTLIER_THRESH = 1.0; // multiplier of the mean distance
 
-    public ReferenceModel reference;
     public long timeoutNs;
 
-    public ICP(ReferenceModel ref, long timeoutMs) {
-        reference = ref;
+    public ICP(long timeoutMs)
+    {
         timeoutNs = timeoutMs * 1000000;
     }
 
@@ -24,17 +24,19 @@ public class ICP {
      * it times out.
      *
      * @param points The point cloud to align
-     * @param trans  An initial guess Transform (if null, the identity is used)
+     * @param guessTrans An initial guess Transform (if null, the identity is used)
      * @return The computed Transform
      */
-    public Transform doICP(Iterable<Point> points, Transform trans) {
+    public Transform doICP(Iterable<Point> points, Transform guessTrans, IReferenceModel reference)
+    {
         long startTime = System.nanoTime();
 
         double lastMeanDist = Double.POSITIVE_INFINITY;
 
-        trans = trans == null ? new Transform() : trans;
-        while (System.nanoTime() - startTime < timeoutNs) {
-            final Transform transInv = trans.inverse();
+        guessTrans = guessTrans == null ? new Transform() : guessTrans;
+        while (System.nanoTime() - startTime < timeoutNs)
+        {
+            final Transform transInv = guessTrans.inverse();
 
             final double threshold = lastMeanDist * OUTLIER_THRESH;
             double sumDists = 0;
@@ -43,12 +45,14 @@ public class ICP {
             double SumXa = 0, SumXb = 0, SumYa = 0, SumYb = 0;
             double Sxx = 0, Sxy = 0, Syx = 0, Syy = 0;
             int N = 0;
-            for (Point p : points) {
+            for (Point p : points)
+            {
                 Point p2 = transInv.apply(p);
                 Point rp = reference.getClosestPoint(p2);
                 double dist = p2.getDistance(rp);
                 sumDists += dist;
-                if (dist > threshold) continue;
+                if (dist > threshold)
+                    continue;
                 N++;
 
                 // Compute the terms:
@@ -68,7 +72,8 @@ public class ICP {
 
             /// calculate the new transform
             // code based on http://mrpt.ual.es/reference/devel/se2__l2_8cpp_source.html#l00158
-            if (N == 0) throw new RuntimeException("ICP: no matching points"); // TODO: handle this better, or avoid it
+            if (N == 0)
+                throw new RuntimeException("ICP: no matching points"); // TODO: handle this better, or avoid it
             final double N_inv = 1.0 / N;
 
             final double mean_x_a = SumXa * N_inv;
@@ -88,17 +93,19 @@ public class ICP {
             final double tx = mean_x_a - mean_x_b * ccos + mean_y_b * csin;
             final double ty = mean_y_a - mean_x_b * csin - mean_y_b * ccos;
 
-            Transform prevTrans = trans;
-            trans = new Transform(theta, tx, ty, csin, ccos);
-            if (isConverged(prevTrans, trans)) {
+            Transform prevTrans = guessTrans;
+            guessTrans = new Transform(theta, tx, ty, csin, ccos);
+            if (isConverged(prevTrans, guessTrans))
+            {
                 break;
             }
         }
 
-        return trans;
+        return guessTrans;
     }
 
-    private boolean isConverged(Transform prev, Transform cur) {
+    private boolean isConverged(Transform prev, Transform cur)
+    {
         return Math.abs(prev.theta - cur.theta) < Constants.kLidarICPAngleEpsilon &&
                 Math.abs(prev.tx - cur.tx) < Constants.kLidarICPTranslationEpsilon &&
                 Math.abs(prev.ty - cur.ty) < Constants.kLidarICPTranslationEpsilon;
