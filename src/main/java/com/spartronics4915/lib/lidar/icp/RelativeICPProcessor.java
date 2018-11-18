@@ -1,5 +1,7 @@
 package com.spartronics4915.lib.lidar.icp;
 
+import com.spartronics4915.lib.geometry.Pose2d;
+
 public class RelativeICPProcessor
 {
 
@@ -36,11 +38,13 @@ public class RelativeICPProcessor
      * first call to this method.
      * 
      * @param pointCloud
+     * @param vehicleToLidar Pose2d that represents the vehicle to lidar transform
      * @return The robot's transform
      */
-    public Transform doRelativeICP(Iterable<Point> pointCloud)
+    public Transform doRelativeICP(Iterable<Point> pointCloud, Pose2d vehicleToLidar)
     {
-        Transform t = mLastReferenceModel == null ? new Transform() : mICP.doICP(pointCloud, mLastTransform, mLastReferenceModel);
+        Transform t = mLastReferenceModel == null ? new Transform()
+                : mICP.doICP(pointCloud, new Transform(mLastTransform.toPose2d().transformBy(vehicleToLidar)), mLastReferenceModel);
         mLastTransform = t;
         mLastReferenceModel = new PointCloudReferenceModel(pointCloud);
         return t;
@@ -53,14 +57,15 @@ public class RelativeICPProcessor
      * the robot is at 0, 0 on the first call.
      * 
      * @param pointCloud
-     * @param guess Caller-provided guess. Could be from odometry.
+     * @param guess      Caller-provided guess. Could be from odometry, but must be
+     *                   in lidar coordinates.
      * @return The robot's transform
      */
     public Transform doRelativeICP(Iterable<Point> pointCloud, Transform guess)
     {
         Transform t = mLastReferenceModel == null ? new Transform() : mICP.doICP(pointCloud, guess, mLastReferenceModel);
         mLastTransform = t;
-        mLastReferenceModel = new PointCloudReferenceModel(pointCloud);
+        mLastReferenceModel = new PointCloudReferenceModel(pointCloud); // Store this just for completeness
         return t;
     }
 }
