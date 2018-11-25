@@ -7,6 +7,7 @@ import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import com.spartronics4915.lib.util.Util;
 import edu.wpi.first.wpilibj.Timer;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 public class CollectAccelerationData implements Action
@@ -36,7 +37,7 @@ public class CollectAccelerationData implements Action
         mAccelerationData = data;
         mReverse = reverse;
         mTurn = turn;
-        mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/ACCEL_DATA.csv", DriveCharacterization.AccelerationDataPoint.class);
+        mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "ACCEL_DATA.csv").toString(), DriveCharacterization.AccelerationDataPoint.class);
     }
 
     @Override

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 
 import com.spartronics4915.lib.geometry.Translation2d;
@@ -45,7 +46,7 @@ public class Constants
     public static final String kLidarPath = "/home/root/chezy_lidar";
     public static final double kLidarRestartTime = 2.5;
 
-    public static final String kLidarLogDir = "/home/lvuser/lidarLogs/";
+    public static final String kLidarLogDir = Paths.get(System.getProperty("user.home"), "/lidarlogs/").toString();
     public static final int kNumLidarLogsToKeep = 10;
     public static final double kLidarICPTranslationEpsilon = 0.01; // convergence threshold for tx,ty
     public static final double kLidarICPAngleEpsilon = 0.01;       // convergence threshold for theta

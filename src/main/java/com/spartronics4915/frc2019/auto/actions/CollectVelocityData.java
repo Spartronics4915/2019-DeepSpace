@@ -6,6 +6,7 @@ import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.Timer;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 public class CollectVelocityData implements Action
@@ -35,7 +36,7 @@ public class CollectVelocityData implements Action
         mVelocityData = data;
         mReverse = reverse;
         mTurn = turn;
-        mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/VELOCITY_DATA.csv", DriveCharacterization.VelocityDataPoint.class);
+        mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "VELOCITY_DATA.csv").toString(), DriveCharacterization.VelocityDataPoint.class);
 
     }
 

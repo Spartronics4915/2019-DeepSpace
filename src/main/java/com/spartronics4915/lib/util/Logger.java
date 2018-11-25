@@ -3,6 +3,7 @@ package com.spartronics4915.lib.util;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -124,7 +125,7 @@ public class Logger
         printMarker(mark);
         if (nullableException != null)
             nullableException.printStackTrace();
-        try (PrintWriter writer = new PrintWriter(new FileWriter("/home/lvuser/crash_tracking.txt", true)))
+        try (PrintWriter writer = new PrintWriter(new FileWriter(Paths.get(System.getProperty("user.home"), "crash_tracking.txt").toString(), true)))
         {
             writer.print(RUN_INSTANCE_UUID.toString());
             writer.print(", ");

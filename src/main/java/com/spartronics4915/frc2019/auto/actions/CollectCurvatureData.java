@@ -7,6 +7,7 @@ import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.Timer;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 public class CollectCurvatureData implements Action
@@ -36,7 +37,7 @@ public class CollectCurvatureData implements Action
     {
         mCurvatureData = data;
         mReverse = reverse;
-        mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/CURVATURE_DATA.csv", DriveCharacterization.CurvatureDataPoint.class);
+        mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "CURVATURE_DATA.csv").toString(), DriveCharacterization.CurvatureDataPoint.class);
 
     }
 

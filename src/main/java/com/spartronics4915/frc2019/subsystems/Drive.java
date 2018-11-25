@@ -22,6 +22,7 @@ import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Drive extends Subsystem
@@ -530,7 +531,7 @@ public class Drive extends Subsystem
     {
         if (mCSVWriter == null)
         {
-            mCSVWriter = new ReflectingCSVWriter<>("/home/lvuser/DRIVE-LOGS.csv", PeriodicIO.class);
+            mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "DRIVE-LOGS.csv").toString(), PeriodicIO.class);
         }
     }
 
