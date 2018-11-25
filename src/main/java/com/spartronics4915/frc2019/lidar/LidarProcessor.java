@@ -144,8 +144,7 @@ public class LidarProcessor implements Loop
             {
                 getCurrentScan().addPoint(new Point(cartesian), point.timestamp);
 
-                // The point cloud output is relative to the robot's position, so it probably
-                // won't look to good if you move the robot around.
+                // The point cloud is in field-absolute coords, so we won't get artefacting if we move the robot around
                 SmartDashboard.putString(kPointCloudDashboardKey, cartesian.x() + " " + cartesian.y());
             }
         }

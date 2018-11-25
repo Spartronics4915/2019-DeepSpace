@@ -81,6 +81,7 @@ public class Turret extends Subsystem
         catch (Exception e)
         {
             success = false;
+            logException("Couldn't instantiate hardware", e);
         }
 
         logInitialized(success);
@@ -122,6 +123,7 @@ public class Turret extends Subsystem
                         mMotor.set(ControlMode.Position,
                                 mMotor.getSelectedSensorPosition(0) + rotationsToRawUnits((newAbsoluteAngle - mLastTurretAngle) / 360));
                         mLastTurretAngle = newAbsoluteAngle;
+                        newState = defaultStateTransfer();
                         break;
                     case DISABLING:
                         stop();
