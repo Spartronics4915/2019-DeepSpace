@@ -7,6 +7,8 @@ import com.spartronics4915.lib.trajectory.TimedView;
 import com.spartronics4915.lib.trajectory.Trajectory;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
+import com.spartronics4915.lib.util.Logger;
+
 import edu.wpi.first.wpilibj.Timer;
 
 public class DriveTrajectory implements Action
@@ -34,7 +36,7 @@ public class DriveTrajectory implements Action
     {
         if (mDrive.isDoneWithTrajectory())
         {
-            System.out.println("Trajectory finished");
+            Logger.debug("Trajectory finished");
             return true;
         }
         return false;
@@ -53,7 +55,7 @@ public class DriveTrajectory implements Action
     @Override
     public void start()
     {
-        System.out.println("Starting trajectory! (length=" + mTrajectory.getRemainingProgress() + ")");
+        Logger.debug("Starting trajectory! (length=" + mTrajectory.getRemainingProgress() + ")");
         if (mResetPose)
         {
             mRobotState.reset(Timer.getFPGATimestamp(), mTrajectory.getState().state().getPose());

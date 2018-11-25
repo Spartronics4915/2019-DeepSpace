@@ -1,5 +1,6 @@
 package com.spartronics4915.lib.physics;
 
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.PolynomialRegression;
 import com.spartronics4915.lib.util.Util;
 
@@ -76,7 +77,7 @@ public class DriveCharacterization
             return constants;
         }
         PolynomialRegression p = new PolynomialRegression(points, 1);
-        System.out.println("r^2: " + p.R2());
+        Logger.notice("r^2: " + p.R2());
         constants.ks = p.beta(0);
         constants.kv = p.beta(1);
         return constants;
@@ -90,7 +91,7 @@ public class DriveCharacterization
         }
 
         PolynomialRegression p = new PolynomialRegression(points, 1);
-        System.out.println("r^2: " + p.R2());
+        Logger.notice("r^2: " + p.R2());
         velocityChacterization.ka = p.beta(1);
         return velocityChacterization;
     }

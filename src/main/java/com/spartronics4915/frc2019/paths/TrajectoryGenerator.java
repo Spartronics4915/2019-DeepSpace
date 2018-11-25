@@ -10,6 +10,7 @@ import com.spartronics4915.lib.trajectory.TrajectoryUtil;
 import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstraint;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.trajectory.timing.TimingConstraint;
+import com.spartronics4915.lib.util.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,9 +50,9 @@ public class TrajectoryGenerator
     {
         if (mTrajectorySet == null)
         {
-            System.out.println("Generating trajectories...");
+            Logger.debug("Generating trajectories...");
             mTrajectorySet = new TrajectorySet();
-            System.out.println("Finished trajectory generation");
+            Logger.debug("Finished trajectory generation");
         }
     }
 

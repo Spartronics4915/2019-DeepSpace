@@ -2,6 +2,8 @@ package com.spartronics4915.frc2019.loops;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.CrashTrackingRunnable;
+import com.spartronics4915.lib.util.Logger;
+
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -71,7 +73,7 @@ public class Looper implements ILooper
     {
         if (!running_)
         {
-            System.out.println("Starting loops");
+            Logger.info("Starting loops");
             synchronized (taskRunningLock_)
             {
                 timestamp_ = Timer.getFPGATimestamp();
@@ -89,7 +91,7 @@ public class Looper implements ILooper
     {
         if (running_)
         {
-            System.out.println("Stopping loops");
+            Logger.info("Stopping loops");
             notifier_.stop();
             synchronized (taskRunningLock_)
             {
@@ -97,7 +99,7 @@ public class Looper implements ILooper
                 timestamp_ = Timer.getFPGATimestamp();
                 for (Loop loop : loops_)
                 {
-                    System.out.println("Stopping " + loop);
+                    Logger.info("Stopping " + loop);
                     loop.onStop(timestamp_);
                 }
             }

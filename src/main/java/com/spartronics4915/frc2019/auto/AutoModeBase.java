@@ -1,6 +1,8 @@
 package com.spartronics4915.frc2019.auto;
 
 import com.spartronics4915.frc2019.auto.actions.Action;
+import com.spartronics4915.lib.util.Logger;
+
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -35,7 +37,7 @@ public abstract class AutoModeBase
 
     public void done()
     {
-        System.out.println("Auto mode done");
+        Logger.info("Auto mode done");
     }
 
     public void stop()

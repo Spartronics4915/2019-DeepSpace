@@ -1,6 +1,8 @@
 package com.spartronics4915.frc2019.lidar;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.util.Logger;
+
 import edu.wpi.first.wpilibj.Timer;
 
 import java.io.BufferedReader;
@@ -67,25 +69,25 @@ public class LidarServer
     {
         if (!isLidarConnected())
         {
-            System.err.println("Cannot start LidarServer: not connected");
+            Logger.error("Cannot start LidarServer: not connected");
             return false;
         }
         synchronized (this)
         {
             if (mRunning)
             {
-                System.err.println("Cannot start LidarServer: already running");
+                Logger.error("Cannot start LidarServer: already running");
                 return false;
             }
             if (mEnding)
             {
-                System.err.println("Cannot start LidarServer: thread ending");
+                Logger.error("Cannot start LidarServer: thread ending");
                 return false;
             }
             mRunning = true;
         }
 
-        System.out.println("Starting lidar");
+        Logger.info("Starting lidar");
         try
         {
             mProcess = new ProcessBuilder().command(Constants.kLidarPath).start();
@@ -108,14 +110,14 @@ public class LidarServer
         {
             if (!mRunning)
             {
-                System.err.println("Cannot stop LidarServer: not running");
+                Logger.error("Cannot stop LidarServer: not running");
                 return false;
             }
             mRunning = false;
             mEnding = true;
         }
 
-        System.out.println("Stopping Lidar...");
+        Logger.info("Stopping Lidar...");
 
         try
         {
@@ -125,7 +127,7 @@ public class LidarServer
         }
         catch (InterruptedException e)
         {
-            System.err.println("Error: Interrupted while stopping lidar");
+            Logger.error("Error: Interrupted while stopping lidar");
             e.printStackTrace();
             synchronized (this)
             {
@@ -133,7 +135,7 @@ public class LidarServer
             }
             return false;
         }
-        System.out.println("Lidar Stopped");
+        Logger.info("Lidar Stopped");
         synchronized (this)
         {
             mEnding = false;
@@ -207,7 +209,7 @@ public class LidarServer
                     e.printStackTrace();
                     if (isLidarConnected())
                     {
-                        System.err.println("Lidar sensor disconnected");
+                        Logger.error("Lidar sensor disconnected");
                         stop();
                     }
                 }

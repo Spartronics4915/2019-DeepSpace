@@ -17,6 +17,7 @@ import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -70,7 +71,7 @@ public class Drive extends Subsystem
                         updatePathFollower();
                         break;
                     default:
-                        System.out.println("Unexpected drive control state: " + mDriveControlState);
+                        Logger.error("Unexpected drive control state: " + mDriveControlState);
                         break;
                 }
             }
@@ -191,8 +192,7 @@ public class Drive extends Subsystem
         {
             setBrakeMode(false);
 
-            System.out.println("Switching to open loop");
-            System.out.println(signal);
+            Logger.debug("Switching to open loop: " + signal.toString());
             mDriveControlState = DriveControlState.OPEN_LOOP;
             mLeftMaster.configNeutralDeadband(0.04, 0);
             mRightMaster.configNeutralDeadband(0.04, 0);
@@ -271,10 +271,10 @@ public class Drive extends Subsystem
 
     public synchronized void setHeading(Rotation2d heading)
     {
-        System.out.println("SET HEADING: " + heading.getDegrees());
+        Logger.debug("SET HEADING: " + heading.getDegrees());
 
         mGyroOffset = heading.rotateBy(Rotation2d.fromDegrees(mPigeon.getFusedHeading()).inverse());
-        System.out.println("Gyro offset: " + mGyroOffset.getDegrees());
+        Logger.debug("Gyro offset: " + mGyroOffset.getDegrees());
 
         mPeriodicIO.gyro_heading = heading;
     }

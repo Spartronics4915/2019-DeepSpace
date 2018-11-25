@@ -12,7 +12,6 @@ public class TestMode extends AutoModeBase
         @Override
         protected void routine() throws AutoModeEndedException
         {
-                System.out.println("Test mode");
                 Drive.getInstance().startLogging();
 
                 runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().sideStartToFarScale.get(true), true));

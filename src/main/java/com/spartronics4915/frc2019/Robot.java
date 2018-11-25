@@ -64,7 +64,7 @@ public class Robot extends IterativeRobot
                         "  on: " + attributes.getValue("Built-At") +
                         "  (" + attributes.getValue("Code-Version") + ")";
                 SmartDashboard.putString("Build", buildStr);
-                SmartDashboard.putString(kRobotLogVerbosityKey, "NOTICE"); // Verbosity level
+                SmartDashboard.putString(kRobotLogVerbosityKey, "DEBUG"); // Verbosity level
 
                 Logger.notice("=================================================");
                 Logger.notice(Instant.now().toString());
@@ -142,7 +142,7 @@ public class Robot extends IterativeRobot
         try
         {
             Logger.logDisabledInit();
-            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "NOTICE"));
+            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "DEBUG"));
 
             mEnabledLooper.stop();
             if (mAutoModeExecutor != null)
@@ -173,7 +173,7 @@ public class Robot extends IterativeRobot
         try
         {
             Logger.logAutoInit();
-            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "NOTICE"));
+            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "DEBUG"));
 
             mDisabledLooper.stop();
 
@@ -201,7 +201,7 @@ public class Robot extends IterativeRobot
         try
         {
             Logger.logTeleopInit();
-            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "NOTICE"));
+            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "DEBUG"));
 
             mDisabledLooper.stop();
             if (mAutoModeExecutor != null)
@@ -229,7 +229,7 @@ public class Robot extends IterativeRobot
 
         try
         {
-            System.out.println("Starting check systems.");
+            Logger.notice("Starting check systems.");
 
             mDisabledLooper.stop();
             mEnabledLooper.stop();
