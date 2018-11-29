@@ -64,8 +64,9 @@ public class RelativeICPProcessor
     public Transform doRelativeICP(Iterable<Point> pointCloud, Transform guess)
     {
         Transform t = mLastReferenceModel == null ? new Transform() : mICP.doICP(pointCloud, guess, mLastReferenceModel);
+        Transform newTransform = new Transform(mLastTransform.toPose2d().transformBy(t.toPose2d()));
         mLastTransform = t;
         mLastReferenceModel = new PointCloudReferenceModel(pointCloud); // Store this just for completeness
-        return t;
+        return newTransform;
     }
 }

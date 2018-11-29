@@ -169,9 +169,10 @@ public class LidarServer
         {
             try
             {
+                // It is assumed that ts is in sync with our system's clock
                 long ts = Long.parseLong(parts[0]);
-                long ms_ago = curSystemTime - ts;
-                double normalizedTs = curFPGATime - (ms_ago / 1000.0f);
+                long msAgo = curSystemTime - ts;
+                double normalizedTs = curFPGATime - (msAgo / 1000.0d);
                 double angle = Double.parseDouble(parts[1]);
                 double distance = Double.parseDouble(parts[2]);
                 if (distance != 0)

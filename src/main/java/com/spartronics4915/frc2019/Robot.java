@@ -114,7 +114,7 @@ public class Robot extends IterativeRobot
                 Logger.debug("LIDAR starting...");
                 mEnabledLooper.register(LidarProcessor.getInstance());
                 boolean started = LidarServer.getInstance().start();
-                Logger.debug("LIDAR status" + (started ? "started" : "failed to start"));
+                Logger.debug("LIDAR status " + (started ? "started" : "failed to start"));
             }
             catch (Throwable t)
             {
