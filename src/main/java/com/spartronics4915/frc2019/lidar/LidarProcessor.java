@@ -229,7 +229,7 @@ public class LidarProcessor implements Loop
         try
         {
             Pose2d guess = mRobotState.getFieldToLidar(getCurrentScan().getTimestamp());
-            Pose2d finalPose = mICP.doICP(getCulledPoints(), new Transform(guess).inverse(), ReferenceModel.TOWER).inverse().toPose2d();
+            Pose2d finalPose = mICP.doICP(getCulledPoints(), new Transform(guess).inverse(), Constants.kSegmentReferenceModel).inverse().toPose2d();
             SmartDashboard.putString("Lidar/pose", finalPose.getTranslation().x() + " " + finalPose.getTranslation().y()
                     + " " + finalPose.getRotation().getDegrees());
             // TODO: Maybe put the processing into its own looper and save past poses (like
