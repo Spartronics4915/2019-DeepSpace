@@ -1,13 +1,4 @@
-package com.team254.path.controller;
-
-import java.net.URLDecoder;
-import java.util.ArrayList;
-
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+package com.spartronics4915.path.controller;
 
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
@@ -16,29 +7,27 @@ import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.spline.QuinticHermiteSpline;
 import com.spartronics4915.lib.spline.Spline;
 import com.spartronics4915.lib.spline.SplineGenerator;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URLDecoder;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("api")
-public class APIController
-{
-
+public class APIController {
     @RequestMapping(value = "/calculate_splines", method = RequestMethod.POST)
-    public @ResponseBody String calcSplines(@RequestBody String message)
-    {
+    public @ResponseBody
+    String calcSplines(@RequestBody String message) {
         message = message.substring(0, message.length() - 1);
 
-        try
-        {
+        try {
             message = URLDecoder.decode(message, "UTF-8");
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         ArrayList<Pose2d> points = new ArrayList<>();
-        for (String pointString : message.split(";"))
-        {
+        for (String pointString : message.split(";")) {
             String[] pointData = pointString.split(",");
 
             int x = pointData[0].equals("NaN") ? 0 : Integer.parseInt(pointData[0]);
@@ -51,21 +40,16 @@ public class APIController
         ArrayList<QuinticHermiteSpline> mQuinticHermiteSplines = new ArrayList<>();
         ArrayList<Spline> mSplines = new ArrayList<>();
         ArrayList<Pose2dWithCurvature> positions = new ArrayList<>();
-        if (points.size() < 2)
-        {
+        if (points.size() < 2) {
             return "no";
-        }
-        else
-        {
-            for (int i = 0; i < points.size() - 1; i++)
-            {
+        } else {
+            for (int i = 0; i < points.size() - 1; i++) {
                 mQuinticHermiteSplines.add(new QuinticHermiteSpline(points.get(i), points.get(i + 1)));
             }
 
             QuinticHermiteSpline.optimizeSpline(mQuinticHermiteSplines);
 
-            for (QuinticHermiteSpline mQuinticHermiteSpline : mQuinticHermiteSplines)
-            {
+            for (QuinticHermiteSpline mQuinticHermiteSpline : mQuinticHermiteSplines) {
                 mSplines.add(mQuinticHermiteSpline);
             }
 
@@ -73,16 +57,14 @@ public class APIController
         }
 
         String json = "{\"points\":[";
-        for (Pose2dWithCurvature pose : positions)
-        {
+        for (Pose2dWithCurvature pose : positions) {
             json += poseToJSON(pose) + ",";
         }
 
         return json.substring(0, json.length() - 1) + "]}";
     }
 
-    private String poseToJSON(Pose2dWithCurvature pose)
-    {
+    private String poseToJSON(Pose2dWithCurvature pose) {
         double x = pose.getTranslation().x();
         double y = pose.getTranslation().y();
         double rotation = pose.getRotation().getRadians();

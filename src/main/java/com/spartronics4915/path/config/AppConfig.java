@@ -1,4 +1,4 @@
-package com.team254.path.config;
+package com.spartronics4915.path.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -12,13 +12,10 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "com.team254.path")
-public class AppConfig extends WebMvcConfigurerAdapter
-{
-
+@ComponentScan(basePackages = "com.spartronics4915.path")
+public class AppConfig extends WebMvcConfigurerAdapter {
     @Bean
-    public ViewResolver viewResolver()
-    {
+    public ViewResolver viewResolver() {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(JstlView.class);
         viewResolver.setPrefix("/WEB-INF/views/");
@@ -28,8 +25,7 @@ public class AppConfig extends WebMvcConfigurerAdapter
     }
 
     @Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer)
-    {
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
 }

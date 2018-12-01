@@ -25,12 +25,12 @@ const kEps = 1E-9;
 const pi = Math.PI;
 
 class Translation2d {
-	constructor(x, y) {
-		this.x = x;
-		this.y = y;
-	}
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
 
-	norm() {
+    norm() {
         return Math.hypot(this.x, this.y);
     }
 
@@ -51,9 +51,9 @@ class Translation2d {
     }
 
     inverse() {
-		return new Translation2d(-this.x, -this.y);
+        return new Translation2d(-this.x, -this.y);
     }
-    
+
     interpolate(other, x) {
         if (x <= 0) {
             return new Translation2d(this.x, this.y);
@@ -67,14 +67,14 @@ class Translation2d {
         return new Translation2d(x * (other.x - this.x) + this.x, x * (other.y - this.y) + this.y);
     }
 
-	scale(s) {
-		return new Translation2d(this.x * s, this.y * s);
+    scale(s) {
+        return new Translation2d(this.x * s, this.y * s);
     }
 
     static dot(a, b) {
-		return a.x * b.x + a.y * b.y;
+        return a.x * b.x + a.y * b.y;
     }
-    
+
     static getAngle(a, b) {
         let cos_angle = this.dot(a, b) / (a.norm() * b.norm());
         if (Double.isNaN(cos_angle)) {
@@ -92,28 +92,28 @@ class Translation2d {
         return this.inverse().translateBy(other).norm();
     }
 
-	draw(color, radius) {
-		color = color || "#2CFF2C";
-		ctx.beginPath();
-		ctx.arc(this.drawX, this.drawY, radius, 0, 2 * Math.PI, false);
-		ctx.fillStyle = color;
-		ctx.strokeStyle = color;
-		ctx.fill();
-		ctx.lineWidth = 0;
-		ctx.stroke();
-	}
+    draw(color, radius) {
+        color = color || "#2CFF2C";
+        ctx.beginPath();
+        ctx.arc(this.drawX, this.drawY, radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.fill();
+        ctx.lineWidth = 0;
+        ctx.stroke();
+    }
 
-	get drawX() {
-		return (this.x + xOffset) * (width / fieldWidth);
-	}
+    get drawX() {
+        return (this.x + xOffset) * (width / fieldWidth);
+    }
 
-	get drawY() {
-		return height - (this.y + yOffset) * (height / fieldHeight);
-	}
+    get drawY() {
+        return height - (this.y + yOffset) * (height / fieldHeight);
+    }
 }
 
 class Rotation2d {
-	constructor(x, y, normalize) {
+    constructor(x, y, normalize) {
         this.cos = x;
         this.sin = y;
         this.normalize = normalize;
@@ -162,7 +162,7 @@ class Rotation2d {
 
     rotateBy(other) {
         return new Rotation2d(this.cos * other.cos - this.sin * other.sin,
-                this.cos * other.sin + this.sin * other.cos, true);
+            this.cos * other.sin + this.sin * other.cos, true);
     }
 
     normal() {
@@ -189,13 +189,13 @@ class Rotation2d {
 }
 
 class Pose2d {
-	constructor(translation, rotation, comment) {
-		this.translation = translation;
-		this.rotation = rotation;
+    constructor(translation, rotation, comment) {
+        this.translation = translation;
+        this.rotation = rotation;
         this.comment = comment || "";
     }
 
-	static exp(delta) {
+    static exp(delta) {
         let sin_theta = Math.sin(delta.dtheta);
         let cos_theta = Math.cos(delta.dtheta);
         let s, c;
@@ -209,9 +209,9 @@ class Pose2d {
         }
 
         return new Pose2d(new Translation2d(delta.dx * s - delta.dy * c, delta.dx * c + delta.dy * s),
-                new Rotation2d(cos_theta, sin_theta, false));
+            new Rotation2d(cos_theta, sin_theta, false));
     }
-    
+
     static log(transform) {
         let dtheta = transform.getRotation().getRadians();
         let half_dtheta = 0.5 * dtheta;
@@ -223,7 +223,7 @@ class Pose2d {
             halftheta_by_tan_of_halfdtheta = -(half_dtheta * transform.getRotation().sin()) / cos_minus_one;
         }
         let translation_part = transform.getTranslation()
-                .rotateBy(new Rotation2d(halftheta_by_tan_of_halfdtheta, -half_dtheta, false));
+            .rotateBy(new Rotation2d(halftheta_by_tan_of_halfdtheta, -half_dtheta, false));
         return new Twist2d(translation_part.x(), translation_part.y(), dtheta);
     }
 
@@ -237,7 +237,7 @@ class Pose2d {
 
     transformBy(other) {
         return new Pose2d(this.translation.translateBy(other.translation.rotateBy(this.rotation)),
-                this.rotation.rotateBy(other.rotation));
+            this.rotation.rotateBy(other.rotation));
     }
 
     inverse() {
@@ -264,30 +264,30 @@ class Pose2d {
     }
 
     heading(other) {
-	    return Math.atan2(this.translation.y - other.translation.y, this.translation.x - other.translation.x);
+        return Math.atan2(this.translation.y - other.translation.y, this.translation.x - other.translation.x);
     }
 
     draw(drawHeading, radius) {
-		this.translation.draw(null, radius);
+        this.translation.draw(null, radius);
 
-		if (!drawHeading) {
-		    return;
+        if (!drawHeading) {
+            return;
         }
 
         let x = this.translation.drawX;
         let y = this.translation.drawY;
 
-		ctx.beginPath();
-		ctx.moveTo(x, y);
-		ctx.lineTo(x + 25 * Math.cos(-this.rotation.getRadians()), y + 25 * Math.sin(-this.rotation.getRadians()));
-		ctx.lineWidth = 3;
-		ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 25 * Math.cos(-this.rotation.getRadians()), y + 25 * Math.sin(-this.rotation.getRadians()));
+        ctx.lineWidth = 3;
+        ctx.stroke();
         ctx.closePath();
-	}
-	
-	toString() {
-		return "new Pose2d(new Translation2d(" + this.translation.x + ", " + this.translation.y + "), new Rotation2d(" + this.rotation.cos + ", " + this.rotation.sin + ", " + this.rotation.normalize + "))";
-	}
+    }
+
+    toString() {
+        return "new Pose2d(new Translation2d(" + this.translation.x + ", " + this.translation.y + "), new Rotation2d(" + this.rotation.cos + ", " + this.rotation.sin + ", " + this.rotation.normalize + "))";
+    }
 
     transform(other) {
         other.position.rotate(this.rotation);
@@ -333,7 +333,7 @@ function drawRobot(position, heading) {
 
     let points = [];
 
-    angles.forEach(function(angle) {
+    angles.forEach(function (angle) {
         let point = new Translation2d(position.translation.x + (r * Math.cos(angle)),
             position.translation.y + (r * Math.sin(angle)));
         points.push(point);
@@ -348,16 +348,16 @@ function init() {
     let widthString = (width / 1.5) + "px";
     let heightString = (height / 1.5) + "px";
 
-	field.css("width", widthString);
+    field.css("width", widthString);
     field.css("height", heightString);
     background.css("width", widthString);
     background.css("height", heightString);
     canvases.css("width", widthString);
     canvases.css("height", heightString);
 
-	ctx = document.getElementById('field').getContext('2d');
-	ctx.canvas.width = width;
-	ctx.canvas.height = height;
+    ctx = document.getElementById('field').getContext('2d');
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "#FF0000";
 
@@ -366,14 +366,14 @@ function init() {
     ctxBackground.canvas.height = height;
     ctx.clearRect(0, 0, width, height);
 
-	image = new Image();
-	image.src = '/resources/img/field.png';
-	image.onload = function() {
-		ctxBackground.drawImage(image, 0, 0, width, height);
-		update();
-	};
-	imageFlipped = new Image();
-	imageFlipped.src = '/resources/img/fieldFlipped.png';
+    image = new Image();
+    image.src = '/resources/img/field.png';
+    image.onload = function () {
+        ctxBackground.drawImage(image, 0, 0, width, height);
+        update();
+    };
+    imageFlipped = new Image();
+    imageFlipped.src = '/resources/img/fieldFlipped.png';
     rebind();
 }
 
@@ -381,7 +381,7 @@ function clear() {
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "#FF0000";
 
-	ctxBackground.clearRect(0, 0, width, height);
+    ctxBackground.clearRect(0, 0, width, height);
     ctxBackground.fillStyle = "#FF0000";
     ctxBackground.drawImage(flipped ? imageFlipped : image, 0, 0, width, height);
 }
@@ -389,27 +389,27 @@ function clear() {
 function rebind() {
     let input = $('input');
     input.unbind(change);
-    input.bind(change, function() {
+    input.bind(change, function () {
         clearTimeout(wto);
-        wto = setTimeout(function() {
+        wto = setTimeout(function () {
             update();
         }, 500);
     });
 }
 
 function addPoint() {
-	let prev;
-	if (waypoints.length > 0) prev = waypoints[waypoints.length - 1].translation;
-	else prev = new Translation2d(50, 50);
-	$("tbody").append("<tr>" + "<td class='drag-handler'></td>"
+    let prev;
+    if (waypoints.length > 0) prev = waypoints[waypoints.length - 1].translation;
+    else prev = new Translation2d(50, 50);
+    $("tbody").append("<tr>" + "<td class='drag-handler'></td>"
         + "<td class='x'><input type='number' value='" + (prev.x + 50) + "'></td>"
         + "<td class='y'><input type='number' value='" + (prev.y + 50) + "'></td>"
         + "<td class='heading'><input type='number' value='0'></td>"
         + "<td class='comments'><input type='search' placeholder='Comments'></td>"
         + "<td class='enabled'><input type='checkbox' checked></td>"
         + "<td class='delete'><button onclick='$(this).parent().parent().remove();update()'>&times;</button></td></tr>");
-	update();
-	rebind();
+    update();
+    rebind();
 }
 
 function draw(style) {
@@ -436,18 +436,18 @@ function update() {
         return;
     }
 
-	waypoints = [];
-	let data = "";
-	$('tbody').children('tr').each(function() {
-		let x = parseInt($($($(this).children()).children()[0]).val());
-		let y = parseInt($($($(this).children()).children()[1]).val());
-		let heading = parseInt($($($(this).children()).children()[2]).val());
-		if (isNaN(heading)) {
-			heading = 0;
+    waypoints = [];
+    let data = "";
+    $('tbody').children('tr').each(function () {
+        let x = parseInt($($($(this).children()).children()[0]).val());
+        let y = parseInt($($($(this).children()).children()[1]).val());
+        let heading = parseInt($($($(this).children()).children()[2]).val());
+        if (isNaN(heading)) {
+            heading = 0;
         }
-		let comment = ($($($(this).children()).children()[3]).val());
+        let comment = ($($($(this).children()).children()[3]).val());
         let enabled = ($($($(this).children()).children()[4]).prop('checked'));
-		if (enabled) {
+        if (enabled) {
             waypoints.push(new Pose2d(new Translation2d(x, y), Rotation2d.fromDegrees(heading), comment));
             data += x + "," + y + "," + heading + ";";
         }
@@ -455,38 +455,39 @@ function update() {
 
     draw(1);
 
-	$.post({
-		url: "/api/calculate_splines",
-		data: data,
-		success: function(data) {
-			if (data === "no") {
-				return;
-			}
+    $.post({
+        url: "/api/calculate_splines",
+        data: data,
+        success: function (data) {
+            if (data === "no") {
+                return;
+            }
 
-			console.log(data);
+            console.log(data);
 
-			let points = JSON.parse(data).points;
-		
-			splinePoints = [];
-			for (let i in points) {
-			    let point = points[i];
-				splinePoints.push(new Pose2d(new Translation2d(point.x, point.y), Rotation2d.fromRadians(point.rotation)));
+            let points = JSON.parse(data).points;
+
+            splinePoints = [];
+            for (let i in points) {
+                let point = points[i];
+                splinePoints.push(new Pose2d(new Translation2d(point.x, point.y), Rotation2d.fromRadians(point.rotation)));
             }
 
             draw(2);
-		}
+        }
     });
 }
 
 let flipped = false;
+
 function flipField() {
-	flipped = !flipped;
-	ctx.drawImage(flipped ? imageFlipped : image, 0, 0, width, height);
-	update();
+    flipped = !flipped;
+    ctx.drawImage(flipped ? imageFlipped : image, 0, 0, width, height);
+    update();
 }
 
 function drawWaypoints() {
-	waypoints.forEach(function(waypoint) {
+    waypoints.forEach(function (waypoint) {
         waypoint.draw(true, waypointRadius);
         drawRobot(waypoint, waypoint.rotation.getRadians());
     });
@@ -505,7 +506,7 @@ function drawSplines(fill, animate) {
     if (animate) {
         clearInterval(animation);
 
-        animation = setInterval(function() {
+        animation = setInterval(function () {
             if (i === splinePoints.length) {
                 animating = false;
                 clearInterval(animation);
@@ -525,7 +526,7 @@ function drawSplines(fill, animate) {
             ctx.globalCompositeOperation = previous;
         }, 25);
     } else {
-        splinePoints.forEach(function(splinePoint) {
+        splinePoints.forEach(function (splinePoint) {
             splinePoint.draw(false, splineWidth);
 
             if (fill) {
