@@ -34,8 +34,8 @@ public class RelativeICPProcessor
 
     /**
      * Applies ICP point registration, using the last provided point cloud as a
-     * reference field. Assumes (and will return) that the robot is at 0, 0 on the
-     * first call to this method.
+     * reference field and the last robot position as a guess. Assumes (and will
+     * return) that the robot is at 0, 0 on the first call to this method.
      * 
      * @param pointCloud
      * @param vehicleToLidar Pose2d that represents the vehicle to lidar transform
@@ -43,11 +43,7 @@ public class RelativeICPProcessor
      */
     public Transform doRelativeICP(Iterable<Point> pointCloud, Pose2d vehicleToLidar)
     {
-        Transform t = mLastReferenceModel == null ? new Transform()
-                : mICP.doICP(pointCloud, new Transform(mLastTransform.toPose2d().transformBy(vehicleToLidar)), mLastReferenceModel);
-        mLastTransform = t;
-        mLastReferenceModel = new PointCloudReferenceModel(pointCloud);
-        return t;
+        return doRelativeICP(pointCloud, new Transform(mLastTransform.toPose2d().transformBy(vehicleToLidar)));
     }
 
     /**

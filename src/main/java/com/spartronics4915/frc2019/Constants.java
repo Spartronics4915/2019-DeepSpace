@@ -8,6 +8,10 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 
 import com.spartronics4915.lib.geometry.Translation2d;
+import com.spartronics4915.lib.lidar.icp.IReferenceModel;
+import com.spartronics4915.lib.lidar.icp.Point;
+import com.spartronics4915.lib.lidar.icp.Segment;
+import com.spartronics4915.lib.lidar.icp.SegmentReferenceModel;
 
 /**
  * A list of constants used by the rest of the robot code. This include physics
@@ -50,6 +54,10 @@ public class Constants
     public static final int kNumLidarLogsToKeep = 10;
     public static final double kLidarICPTranslationEpsilon = 0.01; // convergence threshold for tx,ty
     public static final double kLidarICPAngleEpsilon = 0.01;       // convergence threshold for theta
+
+    public static final IReferenceModel kSegmentReferenceModel = new SegmentReferenceModel(
+        Segment.makeInRectangle(new Point(2, 2), new Point(0, 0))
+    );
 
     // Pose of the LIDAR frame w.r.t. the robot frame
     public static final double kLidarXOffset = -3.3211;

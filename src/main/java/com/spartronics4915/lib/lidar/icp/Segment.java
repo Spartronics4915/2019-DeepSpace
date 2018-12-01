@@ -73,4 +73,17 @@ public class Segment
         return "Segment(" + line + ", [" + tMin + ", " + tMax + "])";
     }
 
+    public static Segment[] makeInRectangle(Point cornerOne, Point cornerTwo)
+    {
+        // These may not be top or right if cornerTwo is left or higher than
+        // cornerOne but it's easier to reason about this by naming things this way.
+        Point topRight = new Point(cornerTwo.x, cornerOne.y);
+        Point bottomLeft = new Point(cornerOne.x, cornerTwo.y);
+        return new Segment[] {
+                new Segment(cornerOne, topRight),
+                new Segment(topRight, cornerTwo),
+                new Segment(cornerTwo, bottomLeft),
+                new Segment(bottomLeft, topRight),
+        };
+    }
 }
