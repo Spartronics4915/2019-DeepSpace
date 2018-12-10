@@ -37,6 +37,8 @@ public class AutoModeSelector
             new AutoModeCreator("All: Do nothing", () -> new DoNothingMode());
     private static final AutoModeCreator[] mAllModes = {
             mDefaultMode,
+            new AutoModeCreator("Test Path Mode", () -> new PathTestMode()),
+            new AutoModeCreator("Test Velocity Mode", () -> new VelocityTestMode())
 
             // e.g. new AutoModeCreator(C: Drive To Hopper", () -> new DriveToHopperMode()),
     };

@@ -8,10 +8,6 @@ import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.*;
-import edu.wpi.cscore.MjpegServer;
-import edu.wpi.cscore.UsbCamera;
-import edu.wpi.cscore.VideoMode;
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -92,13 +88,13 @@ public class Robot extends IterativeRobot
             try
             {
                 mDrive = Drive.getInstance();
-                mTurret = Turret.getInstance();
+                // mTurret = Turret.getInstance(); TODO: Uncomment when turret is added
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
                                 mDrive,
-                                mTurret,
+                                // mTurret, TODO: Uncomment when turret is added
                                 Superstructure.getInstance()));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -109,18 +105,18 @@ public class Robot extends IterativeRobot
                 Logger.logThrowableCrash("ERROR Couldn't instantiate subsystems", e);
             }
 
-            try
-            {
-                Logger.debug("LIDAR starting...");
-                mEnabledLooper.register(LidarProcessor.getInstance());
-                boolean started = LidarServer.getInstance().start();
-                Logger.debug("LIDAR status " + (started ? "started" : "failed to start"));
-            }
-            catch (Throwable t)
-            {
-                Logger.logThrowableCrash("ERROR LIDAR crashed", t);
-                throw t;
-            }
+            // try TODO: Uncomment when turret is added
+            // {
+            //     Logger.debug("LIDAR starting...");
+            //     mEnabledLooper.register(LidarProcessor.getInstance());
+            //     boolean started = LidarServer.getInstance().start();
+            //     Logger.debug("LIDAR status " + (started ? "started" : "failed to start"));
+            // }
+            // catch (Throwable t)
+            // {
+            //     Logger.logThrowableCrash("ERROR LIDAR crashed", t);
+            //     throw t;
+            // }
 
             AutoModeSelector.updateSmartDashboard();
 
@@ -292,9 +288,9 @@ public class Robot extends IterativeRobot
             mDrive.setOpenLoop(mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(),
                     false));
 
-            if (mControlBoard.getSwitchTurretMode())
-                mTurret.setWantedState(mTurret.getWantedState() == Turret.WantedState.FOLLOW_LIDAR ? Turret.WantedState.FOLLOW_ODOMETRY
-                        : Turret.WantedState.FOLLOW_LIDAR);
+            // if (mControlBoard.getSwitchTurretMode()) TODO: Uncomment when turret is finished
+            //     mTurret.setWantedState(mTurret.getWantedState() == Turret.WantedState.FOLLOW_LIDAR ? Turret.WantedState.FOLLOW_ODOMETRY
+            //             : Turret.WantedState.FOLLOW_LIDAR);
 
             outputToSmartDashboard();
         }

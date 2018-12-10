@@ -98,8 +98,8 @@ public class RobotState
             double right_encoder_delta_distance, Rotation2d current_gyro_angle)
     {
         final Pose2d last_measurement = getLatestFieldToVehicle().getValue();
-        final Twist2d delta = Kinematics.forwardKinematics(last_measurement.getRotation(), left_encoder_delta_distance,
-                right_encoder_delta_distance, current_gyro_angle);
+        final Twist2d delta = Kinematics.forwardKinematics(/*last_measurement.getRotation(),*/ left_encoder_delta_distance,
+                right_encoder_delta_distance/*, current_gyro_angle TODO Plugin in talon*/);
         distance_driven_ += delta.dx; // do we care about dy here?
         return delta;
     }

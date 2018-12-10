@@ -6,7 +6,7 @@ import com.spartronics4915.frc2019.auto.actions.DriveTrajectory;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.Drive;
 
-public class TestMode extends AutoModeBase
+public class PathTestMode extends AutoModeBase
 {
 
         @Override
@@ -14,7 +14,7 @@ public class TestMode extends AutoModeBase
         {
                 Drive.getInstance().startLogging();
 
-                runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().sideStartToFarScale.get(true), true));
+                runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().test.get(true), true));
 
                 Drive.getInstance().stopLogging();
 

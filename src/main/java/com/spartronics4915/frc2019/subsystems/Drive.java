@@ -30,6 +30,7 @@ public class Drive extends Subsystem
 
     private static final int kVelocityPIDSlot = 0;
     private static Drive mInstance = new Drive();
+
     // Hardware
     // (By setting these to null, on failure, we end up with a null pointer for now, but if we need to handle hardware
     // absence later we will be able to look at super.isInitialized() to know when to not consume these objects)
@@ -71,6 +72,8 @@ public class Drive extends Subsystem
                     case PATH_FOLLOWING:
                         updatePathFollower();
                         break;
+                    case VELOCITY:
+                        break;
                     default:
                         Logger.error("Unexpected drive control state: " + mDriveControlState);
                         break;
@@ -89,13 +92,13 @@ public class Drive extends Subsystem
     private void configureMaster(TalonSRX talon, boolean left)
     {
         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 100);
-        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 100); //primary closed-loop, 100 ms timeout
+        final ErrorCode sensorPresent = talon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100); //primary closed-loop, 100 ms timeout
         if (sensorPresent != ErrorCode.OK)
         {
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(true);
+        talon.setSensorPhase(!left);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
@@ -207,23 +210,41 @@ public class Drive extends Subsystem
     /**
      * Configures talons for velocity control
      */
-    public synchronized void setVelocity(DriveSignal signal, DriveSignal feedforward)
+    private synchronized void setPathVelocity(DriveSignal signal, DriveSignal feedforward)
     {
         if (mDriveControlState != DriveControlState.PATH_FOLLOWING)
         {
             // We entered a velocity control state.
-            setBrakeMode(true);
-            mLeftMaster.selectProfileSlot(kVelocityPIDSlot, 0);
-            mRightMaster.selectProfileSlot(kVelocityPIDSlot, 0);
-            mLeftMaster.configNeutralDeadband(0.0, 0);
-            mRightMaster.configNeutralDeadband(0.0, 0);
-
+            updateTalonsForVelocity();
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
         }
         mPeriodicIO.left_demand = signal.getLeft();
         mPeriodicIO.right_demand = signal.getRight();
         mPeriodicIO.left_feedforward = feedforward.getLeft();
         mPeriodicIO.right_feedforward = feedforward.getRight();
+    }
+
+    public synchronized void setVelocity(DriveSignal radsPerSecVelocity, DriveSignal feedforwardVoltage)
+    {
+        if (mDriveControlState != DriveControlState.VELOCITY)
+        {
+            mDriveControlState = DriveControlState.VELOCITY;
+
+            updateTalonsForVelocity();
+            mPeriodicIO.left_demand = radiansPerSecondToTicksPer100ms(radsPerSecVelocity.getLeft());
+            mPeriodicIO.right_demand = radiansPerSecondToTicksPer100ms(radsPerSecVelocity.getRight());
+            mPeriodicIO.left_feedforward = feedforwardVoltage.getLeft() / 12;
+            mPeriodicIO.right_feedforward = feedforwardVoltage.getRight() / 12;
+        }
+    }
+
+    private void updateTalonsForVelocity()
+    {
+        setBrakeMode(true);
+        mLeftMaster.selectProfileSlot(kVelocityPIDSlot, 0);
+        mRightMaster.selectProfileSlot(kVelocityPIDSlot, 0);
+        mLeftMaster.configNeutralDeadband(0.0, 0);
+        mRightMaster.configNeutralDeadband(0.0, 0);
     }
 
     public synchronized void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory)
@@ -393,7 +414,7 @@ public class Drive extends Subsystem
 
             if (!mOverrideTrajectory)
             {
-                setVelocity(
+                setPathVelocity(
                         new DriveSignal(radiansPerSecondToTicksPer100ms(output.left_velocity),
                                 radiansPerSecondToTicksPer100ms(output.right_velocity)),
                         new DriveSignal(output.left_feedforward_voltage / 12.0, output.right_feedforward_voltage / 12.0));
@@ -403,7 +424,7 @@ public class Drive extends Subsystem
             }
             else
             {
-                setVelocity(DriveSignal.BRAKE, DriveSignal.BRAKE);
+                setPathVelocity(DriveSignal.BRAKE, DriveSignal.BRAKE);
                 mPeriodicIO.left_accel = mPeriodicIO.right_accel = 0.0;
             }
         }
@@ -548,14 +569,8 @@ public class Drive extends Subsystem
     public enum DriveControlState
     {
         OPEN_LOOP, // open loop voltage control
-        PATH_FOLLOWING, // velocity PID control
-    }
-
-    public enum ShifterState
-    {
-        FORCE_LOW_GEAR,
-        FORCE_HIGH_GEAR,
-        AUTO_SHIFT
+        PATH_FOLLOWING, // velocity PID control from a path
+        VELOCITY, // constant velocity from not a path
     }
 
     public static class PeriodicIO

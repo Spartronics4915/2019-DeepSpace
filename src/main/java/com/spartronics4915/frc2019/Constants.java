@@ -12,6 +12,7 @@ import com.spartronics4915.lib.lidar.icp.IReferenceModel;
 import com.spartronics4915.lib.lidar.icp.Point;
 import com.spartronics4915.lib.lidar.icp.Segment;
 import com.spartronics4915.lib.lidar.icp.SegmentReferenceModel;
+import com.spartronics4915.lib.util.DriveSignal;
 
 /**
  * A list of constants used by the rest of the robot code. This include physics
@@ -26,10 +27,10 @@ public class Constants
     /* ROBOT PHYSICAL CONSTANTS */
 
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 25.54;
-    public static final double kDriveWheelDiameterInches = 3.92820959548 * 0.99;
+    public static final double kDriveWheelTrackWidthInches = 23.75;
+    public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-    public static final double kTrackScrubFactor = 1.0; // Tune me!
+    public static final double kTrackScrubFactor = 0.624; // Tune me!
 
     // Tuned dynamics
     public static final double kRobotLinearInertia = 60.0; // kg TODO tune
@@ -76,9 +77,9 @@ public class Constants
 
     // PID gains for drive velocity loop (LOW GEAR)
     // Units: setpoint, error, and output are in ticks per second.
-    public static final double kDriveVelocityKp = 0.9;
+    public static final double kDriveVelocityKp = 0.2;
     public static final double kDriveVelocityKi = 0.0;
-    public static final double kDriveVelocityKd = 10.0;
+    public static final double kDriveVelocityKd = 0.0;
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
@@ -97,13 +98,11 @@ public class Constants
     public static final int kNumCANDevices = kNumTalons + kNumPCMs; // don't count PDP
 
     // Drive
-    public static final int kLeftDriveMasterId = 5;
-    public static final int kLeftDriveSlaveAId = 6;
-    public static final int kLeftDriveSlaveBId = 7;
-    public static final int kRightDriveMasterId = 12;
-    public static final int kRightDriveSlaveAId = 13;
-    public static final int kRightDriveSlaveBId = 14;
-    public static final double kDriveEncoderPPR = 4096.0; // TODO: Check me (I think this is correct for the CTRE magnetic encoder)
+    public static final int kLeftDriveMasterId = 3;
+    public static final int kLeftDriveSlaveAId = 4;
+    public static final int kRightDriveMasterId = 1;
+    public static final int kRightDriveSlaveAId = 2;
+    public static final double kDriveEncoderPPR = 1440.0; // PPR (1440) = CPR (360) * 4 (because quadrature)
 
     // Turret
     public static final int kTurretMotorId = 10; // TODO: Figure out the correct motor ID
