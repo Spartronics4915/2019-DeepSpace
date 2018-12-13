@@ -237,12 +237,21 @@ RANGE_FINDING // blink the LED strip to let drivers know if they are at an optim
 
 - singleton constructed during Robot constructor (yucky-construction sequence)
 - has-a DriveMotionPlanner (separate instance from Drive's)
-- has-a TrajectorySet
 - implements generateTrajectories
   - instantiates a TrajectoryGenerator::TrajectorySet
 - implements generateTrajectory with inputs:
   - List\<Pose2d\> waypoints (no timing)
   - List\<TimingConstraint\<Pose2dWithCurvature\>\>
+  - invokes mDriveMotionPlanner.generateTrajectory
+  - returns Trajectory\<TimedState\<Pose2dWithCurvature\>\>
+- has-a TrajectorySet
+  - has-many instances of Pose2d representing important poses on the field.
+    These are useful for constructing a list of waypoints for input to
+    generateTrajectory.
+  - has-many instances of TrajectoryGenerator::MirroredTrajectories. These
+    are produced by invoking TrajectoryGenerator::generateTrajectory on named 
+    collections of Pose2d+Contraints.  NB: waypoints aren't timed. Rather, the
+    contraints determine velocity and accel along the trajectory.
 
 ### DriveMotionPlanner
 
@@ -268,7 +277,26 @@ RANGE_FINDING // blink the LED strip to let drivers know if they are at an optim
                                 List\<TimingContraint\<Pose2dWithCurvature\>\>,
                                 initialConditions...)
   - returns Trajectory\<Pose2dWithCurvature\>
-  - mVelocityController.setGoalAndConstraints
+  - creates a spline based on waypoints via `TrajectoryUtil.trajectoryFromSplineWaypoints`
+    - invokes `QuinticHermiteSpline.optimizeSpline` (still independent of timing)
+    ``` java
+    /* Finds the optimal second derivative values for a set of splines to reduce 
+     * the sum of the change in curvature squared over the path (ie: less curvy 
+     * is better) */
+    ```
+    - invokes `trajectoryFromSplines`
+    - invokes `SplineGenerator.parameterizeSplines`
+      - samples splines in dt intervals (1 unit (?)) and invokes: `getSegmentArc`
+        to produce a Pose2dWithCurvature using a binary subdivision is 
+        employed to refine the solution to within these constraints.
+        ``` java 
+        private static final double kMaxDX = 2.0; //inches
+        private static final double kMaxDY = 0.05; //inches
+        private static final double kMaxDTheta = 0.1; //radians!
+        private static final int kMinSampleSize = 1;
+        ```
+  - add `DifferentialDriveDynamicsConstraint` to incoming constraints
+  - invoke `constraintsTimingUtil.timeParameterizeTrajectory`
 
 ### TrajectoryIterator
 

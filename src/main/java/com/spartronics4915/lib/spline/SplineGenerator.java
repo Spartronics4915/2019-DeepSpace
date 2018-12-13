@@ -79,6 +79,7 @@ public class SplineGenerator
         Twist2d twist = Pose2d.log(transformation);
         if (twist.dy > maxDy || twist.dx > maxDx || twist.dtheta > maxDTheta)
         {
+            // subdivide
             getSegmentArc(s, rv, t0, (t0 + t1) / 2, maxDx, maxDy, maxDTheta);
             getSegmentArc(s, rv, (t0 + t1) / 2, t1, maxDx, maxDy, maxDTheta);
         }
