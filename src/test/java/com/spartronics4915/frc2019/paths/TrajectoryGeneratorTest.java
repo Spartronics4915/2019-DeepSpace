@@ -100,21 +100,6 @@ public class TrajectoryGeneratorTest
         {
                 TrajectoryGenerator.getInstance().generateTrajectories();
 
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().sideStartToFarScale, true);
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().sideStartToFarSwitch, true);
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().sideStartToNearScale, true);
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().sideStartToNearSwitch, true);
-
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().nearScaleToNearFence, false);
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().nearScaleToNearFence2, false);
-
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().farScaleToFarFence, false);
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().farScaleToFarFence2, false);
-
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().nearFenceToNearScale, true);
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().nearFence2ToNearScale, true);
-
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().farFenceToFarScale, true);
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().farFence2ToFarScale, true);
+                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().test, true);
         }
 }

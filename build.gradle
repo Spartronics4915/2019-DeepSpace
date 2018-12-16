@@ -36,8 +36,8 @@ deploy {
     targets {
         target("roborio", jaci.openrio.gradle.frc.RoboRIO) {
             team = TEAM
-            if (project.hasProperty("discover"))
-                addrersses = [ "10.49.15.2" ]
+            if (!project.hasProperty("discover"))
+                addresses = [ "10.49.15.2" ]
         }
     }
     artifacts {
