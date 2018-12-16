@@ -178,7 +178,7 @@ public class Drive extends Subsystem
 
     private static double radiansPerSecondToTicksPer100ms(double rad_s)
     {
-        return rad_s / (Math.PI * 2.0) * 4096.0 / 10.0;
+        return rad_s / (Math.PI * 2.0) * Constants.kDriveEncoderPPR / 10.0;
     }
 
     @Override
@@ -461,7 +461,7 @@ public class Drive extends Subsystem
         mPeriodicIO.right_velocity_ticks_per_100ms = mRightMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.gyro_heading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
 
-        double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / 4096.0) * Math.PI;
+        double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
         if (deltaLeftTicks > 0.0)
         {
             mPeriodicIO.left_distance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
@@ -471,7 +471,7 @@ public class Drive extends Subsystem
             mPeriodicIO.left_distance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
         }
 
-        double deltaRightTicks = ((mPeriodicIO.right_position_ticks - prevRightTicks) / 4096.0) * Math.PI;
+        double deltaRightTicks = ((mPeriodicIO.right_position_ticks - prevRightTicks) / Constants.kDriveEncoderPPR) * Math.PI;
         if (deltaRightTicks > 0.0)
         {
             mPeriodicIO.right_distance += deltaRightTicks * Constants.kDriveWheelDiameterInches;

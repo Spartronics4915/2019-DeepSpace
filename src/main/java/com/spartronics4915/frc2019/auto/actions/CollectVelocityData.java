@@ -1,5 +1,6 @@
 package com.spartronics4915.frc2019.auto.actions;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
@@ -57,7 +58,7 @@ public class CollectVelocityData implements Action
         }
         mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * percentPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower));
         mVelocityData.add(new DriveCharacterization.VelocityDataPoint(
-                (Math.abs(mDrive.getLeftVelocityNativeUnits()) + Math.abs(mDrive.getRightVelocityNativeUnits())) / 4096.0 * Math.PI * 10, //convert velocity to radians per second
+                (Math.abs(mDrive.getLeftVelocityNativeUnits()) + Math.abs(mDrive.getRightVelocityNativeUnits())) / Constants.kDriveEncoderPPR * Math.PI * 10, //convert velocity to radians per second
                 percentPower * 12.0 //convert to volts
         ));
         mCSVWriter.add(mVelocityData.get(mVelocityData.size() - 1));
