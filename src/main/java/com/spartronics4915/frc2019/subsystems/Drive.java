@@ -417,8 +417,10 @@ public class Drive extends Subsystem
                 setPathVelocity(
                         new DriveSignal(radiansPerSecondToTicksPer100ms(output.left_velocity),
                                 radiansPerSecondToTicksPer100ms(output.right_velocity)),
-                        new DriveSignal(output.left_feedforward_voltage / 12.0, output.right_feedforward_voltage / 12.0));
+                        new DriveSignal(output.left_feedforward_voltage / 12.0, 
+                                        output.right_feedforward_voltage / 12.0));
 
+                // if accel is rads per sec^2, why divide by 1000 (and not 100?)
                 mPeriodicIO.left_accel = radiansPerSecondToTicksPer100ms(output.left_accel) / 1000.0;
                 mPeriodicIO.right_accel = radiansPerSecondToTicksPer100ms(output.right_accel) / 1000.0;
             }
