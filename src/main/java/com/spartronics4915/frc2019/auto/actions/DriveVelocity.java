@@ -25,6 +25,7 @@ public class DriveVelocity implements Action
     @Override
     public void update()
     {
+        mDrive.setVelocity(mVelocity, mFeedforward);
     }
 
     @Override
@@ -35,6 +36,5 @@ public class DriveVelocity implements Action
     @Override
     public void start()
     {
-        mDrive.setVelocity(mVelocity, mFeedforward);
     }
 }

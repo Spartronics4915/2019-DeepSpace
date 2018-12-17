@@ -17,7 +17,6 @@ import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
-import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -75,7 +74,7 @@ public class Drive extends Subsystem
                     case VELOCITY:
                         break;
                     default:
-                        Logger.error("Unexpected drive control state: " + mDriveControlState);
+                        logError("Unexpected drive control state: " + mDriveControlState);
                         break;
                 }
             }
@@ -98,7 +97,7 @@ public class Drive extends Subsystem
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(!left);
+        talon.setSensorPhase(left);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
@@ -129,7 +128,8 @@ public class Drive extends Subsystem
                     Constants.kRightDriveMasterId);
             mRightSlave.setInverted(true);
 
-            reloadGains();
+            reloadGains(mRightMaster);
+            reloadGains(mLeftMaster);
 
             mPigeon = new PigeonIMU(mLeftSlave);
             mLeftSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
@@ -161,11 +161,6 @@ public class Drive extends Subsystem
         return rotations * (Constants.kDriveWheelDiameterInches * Math.PI);
     }
 
-    private static double rpmToInchesPerSecond(double rpm)
-    {
-        return rotationsToInches(rpm) / 60;
-    }
-
     private static double inchesToRotations(double inches)
     {
         return inches / (Constants.kDriveWheelDiameterInches * Math.PI);
@@ -174,6 +169,11 @@ public class Drive extends Subsystem
     private static double inchesPerSecondToRpm(double inches_per_second)
     {
         return inchesToRotations(inches_per_second) * 60;
+    }
+
+    private static double inchesPerSecondToTicksPer100ms(double ips)
+    {
+        return ((ips * Constants.kDriveEncoderPPR) / (Constants.kDriveWheelDiameterInches * Math.PI)) / 10;
     }
 
     private static double radiansPerSecondToTicksPer100ms(double rad_s)
@@ -196,10 +196,10 @@ public class Drive extends Subsystem
         {
             setBrakeMode(false);
 
-            Logger.debug("Switching to open loop: " + signal.toString());
-            mDriveControlState = DriveControlState.OPEN_LOOP;
+            logDebug("Switching to open loop: " + signal.toString());
             mLeftMaster.configNeutralDeadband(0.04, 0);
             mRightMaster.configNeutralDeadband(0.04, 0);
+            mDriveControlState = DriveControlState.OPEN_LOOP;
         }
         mPeriodicIO.left_demand = signal.getLeft();
         mPeriodicIO.right_demand = signal.getRight();
@@ -208,7 +208,7 @@ public class Drive extends Subsystem
     }
 
     /**
-     * Configures talons for velocity control
+     * Configures talons for velocity control with paths
      */
     private synchronized void setPathVelocity(DriveSignal signal, DriveSignal feedforward)
     {
@@ -224,18 +224,28 @@ public class Drive extends Subsystem
         mPeriodicIO.right_feedforward = feedforward.getRight();
     }
 
-    public synchronized void setVelocity(DriveSignal radsPerSecVelocity, DriveSignal feedforwardVoltage)
+    /**
+     * Configure talons for velocity control without paths
+     * 
+     * @param inchesPerSecVelocity Desired velocity in inches per second
+     * @param feedforwardVoltage Volatage (0-12) to apply arbitrarily to velocity PID output
+     */
+    public synchronized void setVelocity(DriveSignal inchesPerSecVelocity, DriveSignal feedforwardVoltage)
     {
+        logDebug("Switching to closed loop velocity. Target: " + inchesPerSecVelocity.toString() + ", Arbitrary feedforward: " + feedforwardVoltage.toString());
         if (mDriveControlState != DriveControlState.VELOCITY)
         {
-            mDriveControlState = DriveControlState.VELOCITY;
-
             updateTalonsForVelocity();
-            mPeriodicIO.left_demand = radiansPerSecondToTicksPer100ms(radsPerSecVelocity.getLeft());
-            mPeriodicIO.right_demand = radiansPerSecondToTicksPer100ms(radsPerSecVelocity.getRight());
-            mPeriodicIO.left_feedforward = feedforwardVoltage.getLeft() / 12;
-            mPeriodicIO.right_feedforward = feedforwardVoltage.getRight() / 12;
+            mDriveControlState = DriveControlState.VELOCITY;
         }
+        mPeriodicIO.left_demand = inchesPerSecondToTicksPer100ms(inchesPerSecVelocity.getLeft());
+        mPeriodicIO.right_demand = inchesPerSecondToTicksPer100ms(inchesPerSecVelocity.getRight());
+        mPeriodicIO.left_feedforward = feedforwardVoltage.getLeft() / 12;
+        mPeriodicIO.right_feedforward = feedforwardVoltage.getRight() / 12;
+        mPeriodicIO.left_accel = mPeriodicIO.left_accel = 0;
+
+        dashboardPutString("leftSpeedTarget", inchesPerSecVelocity.getLeft() + "");
+        dashboardPutString("rightSpeedTarget", inchesPerSecVelocity.getRight() + "");
     }
 
     private void updateTalonsForVelocity()
@@ -293,10 +303,10 @@ public class Drive extends Subsystem
 
     public synchronized void setHeading(Rotation2d heading)
     {
-        Logger.debug("SET HEADING: " + heading.getDegrees());
+        logDebug("SET HEADING: " + heading.getDegrees());
 
         mGyroOffset = heading.rotateBy(Rotation2d.fromDegrees(mPigeon.getFusedHeading()).inverse());
-        Logger.debug("Gyro offset: " + mGyroOffset.getDegrees());
+        logDebug("Gyro offset: " + mGyroOffset.getDegrees());
 
         mPeriodicIO.gyro_heading = heading;
     }
@@ -322,7 +332,7 @@ public class Drive extends Subsystem
         dashboardPutNumber("thetaError", mPeriodicIO.error.getRotation().getDegrees());
         if (getHeading() != null)
         {
-            dashboardPutNumber("IMU_Heading", getHeading().getDegrees());
+            dashboardPutNumber("imuHeading", getHeading().getDegrees());
         }
         if (mCSVWriter != null)
         {
@@ -364,24 +374,24 @@ public class Drive extends Subsystem
         return rotationsToInches(getRightEncoderRotations());
     }
 
-    public double getRightVelocityNativeUnits()
+    public double getRightVelocityTicksPer100ms()
     {
         return mPeriodicIO.right_velocity_ticks_per_100ms;
     }
 
     public double getRightLinearVelocity()
     {
-        return rotationsToInches(getRightVelocityNativeUnits() * 10.0 / Constants.kDriveEncoderPPR);
+        return rotationsToInches(getRightVelocityTicksPer100ms() * 10.0 / Constants.kDriveEncoderPPR);
     }
 
-    public double getLeftVelocityNativeUnits()
+    public double getLeftVelocityTicksPer100ms()
     {
         return mPeriodicIO.left_velocity_ticks_per_100ms;
     }
 
     public double getLeftLinearVelocity()
     {
-        return rotationsToInches(getLeftVelocityNativeUnits() * 10.0 / Constants.kDriveEncoderPPR);
+        return rotationsToInches(getLeftVelocityTicksPer100ms() * 10.0 / Constants.kDriveEncoderPPR);
     }
 
     public double getLinearVelocity()
@@ -436,13 +446,13 @@ public class Drive extends Subsystem
         }
     }
 
-    public synchronized void reloadGains()
+    public synchronized void reloadGains(TalonSRX talon)
     {
-        mLeftMaster.config_kP(kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kI(kVelocityPIDSlot, Constants.kDriveVelocityKi, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kD(kVelocityPIDSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_kF(kVelocityPIDSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
-        mLeftMaster.config_IntegralZone(kVelocityPIDSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
+        talon.config_kP(kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
+        talon.config_kI(kVelocityPIDSlot, Constants.kDriveVelocityKi, Constants.kLongCANTimeoutMs);
+        talon.config_kD(kVelocityPIDSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
+        talon.config_kF(kVelocityPIDSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
+        talon.config_IntegralZone(kVelocityPIDSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
     }
 
     @Override
@@ -499,11 +509,13 @@ public class Drive extends Subsystem
         }
         else
         {
-            mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0);
-            mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0);
+            mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand/*, DemandType.ArbitraryFeedForward,
+                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
+            mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand/*, DemandType.ArbitraryFeedForward,
+                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
         }
+        dashboardPutString("left_demand", mPeriodicIO.left_demand + "");
+        dashboardPutString("right_demand", mPeriodicIO.right_demand + "");
     }
 
     @Override

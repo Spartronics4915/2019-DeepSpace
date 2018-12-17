@@ -9,7 +9,7 @@ import com.spartronics4915.lib.util.DriveSignal;
 public class VelocityTestMode extends AutoModeBase
 {
 
-    private static final double kTestVelocity = Math.PI; // radians/sec
+    private static final double kTestVelocity = 3.0; // inches/sec
     private static final double kTestFeedforward = 0.0; // volts/sec
 
     @Override
