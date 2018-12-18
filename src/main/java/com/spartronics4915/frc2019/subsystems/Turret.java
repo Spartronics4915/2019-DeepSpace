@@ -8,9 +8,8 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.RobotState;
-import com.spartronics4915.frc2019.lidar.LidarProcessor;
-import com.spartronics4915.frc2019.loops.ILooper;
-import com.spartronics4915.frc2019.loops.Loop;
+import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.geometry.Pose2d;
@@ -47,16 +46,13 @@ public class Turret extends Subsystem
     private static final int kPIDSlot = 0;
 
     private TalonSRX mMotor;
-    private LidarProcessor mLidar;
     private RobotState mOdometry;
     private WantedState mWantedState = WantedState.DISABLED;
     private SystemState mSystemState = SystemState.DISABLING;
-    private boolean mUseLidar = false;
     private double mLastTurretAngle = 0;
 
     private Turret()
     {
-        mLidar = LidarProcessor.getInstance();
         mOdometry = RobotState.getInstance();
 
         boolean success = true;
@@ -87,7 +83,7 @@ public class Turret extends Subsystem
         logInitialized(success);
     }
 
-    private Loop mLoop = new Loop()
+    private ILoop mLoop = new ILoop()
     {
 
         @Override
@@ -110,15 +106,7 @@ public class Turret extends Subsystem
                 {
                     case FOLLOWING:
                         Pose2d pose;
-                        if (mUseLidar)
-                        {
-                            pose = mLidar.doICP();
-                        }
-                        else
-                        {
-                            pose = mOdometry.getFieldToVehicle(Timer.getFPGATimestamp());
-                        }
-
+                        pose = mOdometry.getFieldToVehicle(Timer.getFPGATimestamp());
                         double newAbsoluteAngle = calculateAbsoluteTurretAngle(pose, Constants.kTurretTargetFieldPosition);
                         mMotor.set(ControlMode.Position,
                                 mMotor.getSelectedSensorPosition(0) + rotationsToRawUnits((newAbsoluteAngle - mLastTurretAngle) / 360));
@@ -174,13 +162,8 @@ public class Turret extends Subsystem
             case DISABLED:
                 newState = SystemState.DISABLING;
                 break;
-            case FOLLOW_LIDAR:
-                newState = SystemState.FOLLOWING;
-                mUseLidar = true;
-                break;
             case FOLLOW_ODOMETRY:
                 newState = SystemState.FOLLOWING;
-                mUseLidar = false;
                 break;
             default:
                 newState = SystemState.DISABLING;
@@ -228,7 +211,7 @@ public class Turret extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        dashboardPutString("turretState", mSystemState.toString() + ", mUseLidar: " + mUseLidar);
+        dashboardPutString("turretState", mSystemState.toString());
     }
 
 }

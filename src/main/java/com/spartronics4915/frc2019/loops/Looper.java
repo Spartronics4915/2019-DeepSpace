@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019.loops;
 
+import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.CrashTrackingRunnable;
 import com.spartronics4915.lib.util.Logger;
@@ -24,7 +26,7 @@ public class Looper implements ILooper
     private boolean running_;
 
     private final Notifier notifier_;
-    private final List<Loop> loops_;
+    private final List<ILoop> loops_;
     private final Object taskRunningLock_ = new Object();
     private double timestamp_ = 0;
     private double dt_ = 0;
@@ -41,7 +43,7 @@ public class Looper implements ILooper
                 {
                     double now = Timer.getFPGATimestamp();
 
-                    for (Loop loop : loops_)
+                    for (ILoop loop : loops_)
                     {
                         loop.onLoop(now);
                     }
@@ -61,7 +63,7 @@ public class Looper implements ILooper
     }
 
     @Override
-    public synchronized void register(Loop loop)
+    public synchronized void register(ILoop loop)
     {
         synchronized (taskRunningLock_)
         {
@@ -77,7 +79,7 @@ public class Looper implements ILooper
             synchronized (taskRunningLock_)
             {
                 timestamp_ = Timer.getFPGATimestamp();
-                for (Loop loop : loops_)
+                for (ILoop loop : loops_)
                 {
                     loop.onStart(timestamp_);
                 }
@@ -97,7 +99,7 @@ public class Looper implements ILooper
             {
                 running_ = false;
                 timestamp_ = Timer.getFPGATimestamp();
-                for (Loop loop : loops_)
+                for (ILoop loop : loops_)
                 {
                     Logger.info("Stopping " + loop);
                     loop.onStop(timestamp_);

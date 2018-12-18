@@ -1,11 +1,10 @@
 package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.auto.AutoModeExecutor;
-import com.spartronics4915.frc2019.lidar.LidarProcessor;
-import com.spartronics4915.frc2019.lidar.LidarServer;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
+import com.spartronics4915.lib.lidar.LidarProcessor;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,13 +28,11 @@ public class Robot extends IterativeRobot
     private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
     private IControlBoard mControlBoard = ControlBoard.getInstance();
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
-
     private SubsystemManager mSubsystemManager = null;
-
     private Drive mDrive = null;
     private Turret mTurret = null;
-
     private AutoModeExecutor mAutoModeExecutor;
+    private LidarProcessor mLidarProcessor;
 
     private static final String kRobotLogVerbosityKey = "Robot/Verbosity";
 
@@ -88,6 +85,10 @@ public class Robot extends IterativeRobot
             try
             {
                 mDrive = Drive.getInstance();
+                mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunInRobot,
+                                        null,
+                                        null
+                                );
                 // mTurret = Turret.getInstance(); TODO: Uncomment when turret is added
 
                 mSubsystemManager = new SubsystemManager(

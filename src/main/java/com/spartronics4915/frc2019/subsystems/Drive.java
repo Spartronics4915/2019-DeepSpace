@@ -6,8 +6,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.RobotState;
-import com.spartronics4915.frc2019.loops.ILooper;
-import com.spartronics4915.frc2019.loops.Loop;
+import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.drivers.TalonSRXChecker;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
@@ -45,7 +45,7 @@ public class Drive extends Subsystem
     private Rotation2d mGyroOffset = Rotation2d.identity();
     private boolean mOverrideTrajectory = false;
 
-    private final Loop mLoop = new Loop()
+    private final ILoop mLoop = new ILoop()
     {
 
         @Override
@@ -502,6 +502,15 @@ public class Drive extends Subsystem
     @Override
     public synchronized void writePeriodicOutputs()
     {
+        /* NB: this is where the rubber hits the road. ie: here are direct
+            controls over the talon to power the drive train.  The rest of
+            this file orchestrates the periodic updateing of our inputs:
+
+            mDriveControlState
+            mPeriodicIO.left_demand, right_demand (pct or vel or pos)
+            mPeriodicIO.left_accel, right_accel (used with *Kd* in velocity mode)
+
+         */
         if (mDriveControlState == DriveControlState.OPEN_LOOP)
         {
             mLeftMaster.set(ControlMode.PercentOutput, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward, 0.0);

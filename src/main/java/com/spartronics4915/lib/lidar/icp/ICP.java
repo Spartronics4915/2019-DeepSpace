@@ -1,6 +1,6 @@
 package com.spartronics4915.lib.lidar.icp;
 
-import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.LibConstants;
 
 public class ICP
 {
@@ -106,9 +106,9 @@ public class ICP
 
     private boolean isConverged(Transform prev, Transform cur)
     {
-        return Math.abs(prev.theta - cur.theta) < Constants.kLidarICPAngleEpsilon &&
-                Math.abs(prev.tx - cur.tx) < Constants.kLidarICPTranslationEpsilon &&
-                Math.abs(prev.ty - cur.ty) < Constants.kLidarICPTranslationEpsilon;
+        return Math.abs(prev.theta - cur.theta) < LibConstants.kLidarICPAngleEpsilon &&
+                Math.abs(prev.tx - cur.tx) < LibConstants.kLidarICPTranslationEpsilon &&
+                Math.abs(prev.ty - cur.ty) < LibConstants.kLidarICPTranslationEpsilon;
     }
 
 }

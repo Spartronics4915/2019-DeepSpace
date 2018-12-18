@@ -1,8 +1,7 @@
 package com.spartronics4915.frc2019;
 
-import com.spartronics4915.frc2019.loops.ILooper;
-import com.spartronics4915.frc2019.loops.Loop;
-import com.spartronics4915.frc2019.loops.Looper;
+import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.subsystems.Subsystem;
 
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ public class SubsystemManager implements ILooper
 {
 
     private final List<Subsystem> mAllSubsystems;
-    private List<Loop> mLoops = new ArrayList<>();
+    private List<ILoop> mLoops = new ArrayList<>();
 
     public SubsystemManager(List<Subsystem> allSubsystems)
     {
@@ -37,13 +36,13 @@ public class SubsystemManager implements ILooper
         mAllSubsystems.forEach((s) -> s.stop());
     }
 
-    private class EnabledLoop implements Loop
+    private class EnabledLoop implements ILoop
     {
 
         @Override
         public void onStart(double timestamp)
         {
-            for (Loop l : mLoops)
+            for (ILoop l : mLoops)
             {
                 l.onStart(timestamp);
             }
@@ -56,7 +55,7 @@ public class SubsystemManager implements ILooper
             {
                 s.readPeriodicInputs();
             }
-            for (Loop l : mLoops)
+            for (ILoop l : mLoops)
             {
                 l.onLoop(timestamp);
             }
@@ -69,14 +68,14 @@ public class SubsystemManager implements ILooper
         @Override
         public void onStop(double timestamp)
         {
-            for (Loop l : mLoops)
+            for (ILoop l : mLoops)
             {
                 l.onStop(timestamp);
             }
         }
     }
 
-    private class DisabledLoop implements Loop
+    private class DisabledLoop implements ILoop
     {
 
         @Override
@@ -105,19 +104,19 @@ public class SubsystemManager implements ILooper
         }
     }
 
-    public void registerEnabledLoops(Looper enabledLooper)
+    public void registerEnabledLoops(ILooper enabledLooper)
     {
         mAllSubsystems.forEach((s) -> s.registerEnabledLoops(this));
         enabledLooper.register(new EnabledLoop());
     }
 
-    public void registerDisabledLoops(Looper disabledLooper)
+    public void registerDisabledLoops(ILooper disabledLooper)
     {
         disabledLooper.register(new DisabledLoop());
     }
 
     @Override
-    public void register(Loop loop)
+    public void register(ILoop loop)
     {
         mLoops.add(loop);
     }

@@ -1,11 +1,11 @@
-package com.spartronics4915.frc2019.loops;
+package com.spartronics4915.lib.util;
 
 /**
  * Interface for loops, which are routine that run periodically in the robot
  * code (such as periodic gyroscope
  * calibration, etc.)
  */
-public interface Loop
+public interface ILoop
 {
 
     public void onStart(double timestamp);

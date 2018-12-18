@@ -2,6 +2,7 @@ package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.geometry.Pose2d;
+import com.spartronics4915.lib.geometry.IRobotStateMap;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.geometry.Twist2d;
@@ -11,13 +12,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Map;
 
-public class RobotState
+public class RobotState implements IRobotStateMap
 {
-
-    private static RobotState instance_ = new RobotState();
+    private static RobotState instance_ = null;
 
     public static RobotState getInstance()
     {
+        if(instance_ == null)
+            instance_ = new RobotState();
         return instance_;
     }
 
@@ -54,6 +56,14 @@ public class RobotState
     public synchronized void resetDistanceDriven()
     {
         distance_driven_ = 0.0;
+    }
+
+    @Override
+    public synchronized IRobotStateMap.State get(double timestamp)
+    {
+        return new IRobotStateMap.State(
+            this.getFieldToVehicle(timestamp),
+            new Twist2d(vehicle_velocity_predicted_));
     }
 
     /**

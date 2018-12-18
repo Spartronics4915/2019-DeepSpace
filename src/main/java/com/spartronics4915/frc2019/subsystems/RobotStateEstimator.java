@@ -1,29 +1,38 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.Kinematics;
 import com.spartronics4915.frc2019.RobotState;
-import com.spartronics4915.frc2019.loops.ILooper;
-import com.spartronics4915.frc2019.loops.Loop;
+import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.geometry.Twist2d;
+import com.spartronics4915.lib.lidar.LidarProcessor;
 
 public class RobotStateEstimator extends Subsystem
 {
 
     static RobotStateEstimator instance_ = new RobotStateEstimator();
+    public static RobotStateEstimator getInstance()
+    {
+        return instance_;
+    }
+
     private RobotState robot_state_ = RobotState.getInstance();
     private Drive drive_ = Drive.getInstance();
     private double left_encoder_prev_distance_ = 0.0;
     private double right_encoder_prev_distance_ = 0.0;
     private double back_encoder_prev_distance_ = 0.0;
+    private LidarProcessor mLidarProcessor;
 
     RobotStateEstimator()
     {
-    }
-
-    public static RobotStateEstimator getInstance()
-    {
-        return instance_;
+        /* warning, this starts up the lidar server, might need to
+         * defer this til start.
+         */
+        mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunInRobot, 
+                            Constants.kSegmentReferenceModel,
+                            robot_state_/*IPose2dMap*/);
     }
 
     @Override
@@ -48,9 +57,10 @@ public class RobotStateEstimator extends Subsystem
     public void registerEnabledLoops(ILooper looper)
     {
         looper.register(new EnabledLoop());
+        looper.register(mLidarProcessor);
     }
 
-    private class EnabledLoop implements Loop
+    private class EnabledLoop implements ILoop
     {
 
         @Override

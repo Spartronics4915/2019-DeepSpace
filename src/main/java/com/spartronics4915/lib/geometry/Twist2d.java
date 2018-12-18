@@ -33,6 +33,13 @@ public class Twist2d
         this.dtheta = dtheta;
     }
 
+    public Twist2d(Twist2d src)
+    {
+        this.dx = src.dx;
+        this.dy = src.dy;
+        this.dtheta = src.dtheta;
+    }
+
     public Twist2d scaled(double scale)
     {
         return new Twist2d(dx * scale, dy * scale, dtheta * scale);

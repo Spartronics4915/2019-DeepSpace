@@ -1,14 +1,13 @@
-package com.spartronics4915.frc2019.lidar;
+package com.spartronics4915.lib.lidar;
 
-import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.LibConstants;
 import com.spartronics4915.lib.util.Logger;
-
-import edu.wpi.first.wpilibj.Timer;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.File;
 
 /**
  * Starts the <code>chezy_lidar</code> C++ program, parses its
@@ -19,50 +18,42 @@ import java.io.InputStreamReader;
  * values in each line. Each resulting {@link LidarPoint} is passed
  * to {@link LidarProcessor.addPoint(...)}.
  */
-public class LidarServer
+public class LidarServer 
 {
-
-    private static LidarServer mInstance = null;
-    private final LidarProcessor mLidarProcessor = LidarProcessor.getInstance();
+    private final LidarProcessor mLidarProcessor;
     private static BufferedReader mBufferedReader;
     private boolean mRunning = false;
     private Thread mThread;
     private Process mProcess;
     private boolean mEnding = false;
+    private File mDevFile;
 
-    public static LidarServer getInstance()
+    public LidarServer(LidarProcessor p)
     {
-        if (mInstance == null)
-        {
-            mInstance = new LidarServer();
-        }
-        return mInstance;
-    }
+        mLidarProcessor = p;
+        String os = System.getProperty("os.name").toLowerCase();
+        String dev;
+        if(os.indexOf("mac") >= 0)
+            dev = "/dev/tty.SLAB_USBtoUART";
+        else
+        if(os.indexOf("linux") >= 0)
+            dev = "/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0";
+        else
+            dev = "COM9";  // wouldn't work
+        mDevFile = new File(dev);
 
-    private LidarServer()
-    {
+        Logger.debug("LIDAR server constructed (" + os + ")");;
     }
 
     public boolean isLidarConnected()
     {
-        try
-        {
-            Runtime r = Runtime.getRuntime();
-            Process p = r.exec("/bin/ls /dev/serial/by-id/");
-            InputStreamReader reader = new InputStreamReader(p.getInputStream());
-            BufferedReader response = new BufferedReader(reader);
-            String s;
-            while ((s = response.readLine()) != null)
-            {
-                if (s.equals("usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0"))
-                    return true;
-            }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return false;
+        // premise is: if the device becomes unresponsive or disconnected
+        //   that the driver dev file disappearance.  Verified on macos and 
+        //   raspi.
+        if(mDevFile.exists())
+            return true;
+        else
+            return false;
     }
 
     public boolean start()
@@ -72,9 +63,9 @@ public class LidarServer
             Logger.error("Cannot start LidarServer: not connected");
             return false;
         }
-        synchronized (this)
+        synchronized (this) 
         {
-            if (mRunning)
+            if (mRunning) 
             {
                 Logger.error("Cannot start LidarServer: already running");
                 return false;
@@ -87,20 +78,19 @@ public class LidarServer
             mRunning = true;
         }
 
-        Logger.info("Starting lidar");
+        Logger.notice("LidarServer starting subprocess " + LibConstants.kLidarPath);
         try
         {
-            mProcess = new ProcessBuilder().command(Constants.kLidarPath).start();
+            mProcess = new ProcessBuilder().command(LibConstants.kLidarPath).start();
             mThread = new Thread(new ReaderThread());
             InputStreamReader reader = new InputStreamReader(mProcess.getInputStream());
             mBufferedReader = new BufferedReader(reader);
             mThread.start();
-        }
+        } 
         catch (Exception e)
         {
-            e.printStackTrace();
+            Logger.exception(e);
         }
-
         return true;
     }
 
@@ -117,7 +107,7 @@ public class LidarServer
             mEnding = true;
         }
 
-        Logger.info("Stopping Lidar...");
+        Logger.notice("Stopping Lidar...");
 
         try
         {
@@ -125,17 +115,17 @@ public class LidarServer
             mProcess.waitFor();
             mThread.join();
         }
-        catch (InterruptedException e)
+        catch (InterruptedException e) 
         {
             Logger.error("Error: Interrupted while stopping lidar");
-            e.printStackTrace();
+            Logger.exception(e);
             synchronized (this)
             {
                 mEnding = false;
             }
             return false;
         }
-        Logger.info("Lidar Stopped");
+        Logger.notice("Lidar Stopped");
         synchronized (this)
         {
             mEnding = false;
@@ -153,69 +143,75 @@ public class LidarServer
         return mEnding;
     }
 
-    private void handleLine(String line)
+    private void handleLine(String line) 
     {
+        // NB: this method is invoked in the ReaderThread.
         boolean isNewScan = line.substring(line.length() - 1).equals("s");
         if (isNewScan)
         {
             line = line.substring(0, line.length() - 1);
         }
-
-        long curSystemTime = System.currentTimeMillis();
-        double curFPGATime = Timer.getFPGATimestamp();
-
         String[] parts = line.split(",");
         if (parts.length == 3)
         {
-            try
+            try 
             {
                 // It is assumed that ts is in sync with our system's clock
                 long ts = Long.parseLong(parts[0]);
-                long msAgo = curSystemTime - ts;
-                double normalizedTs = curFPGATime - (msAgo / 1000.0d);
+                // Timestamps are in seconds, so we have to convert
+                // We don't need to do the msAgo thing like in the actual codebase
+                // because our timestamps use the Unix epoch, and the timestamps
+                // from the sensor also use the Unix epoch. In the actual codebase,
+                // timestamps use the system start up as an epoch.
+                double normalizedTs = ts / 1000d;
                 double angle = Double.parseDouble(parts[1]);
                 double distance = Double.parseDouble(parts[2]);
                 if (distance != 0)
-                    mLidarProcessor.addPoint(new LidarPoint(normalizedTs, angle, distance), isNewScan);
-            }
+                {
+                    mLidarProcessor.addPoint(normalizedTs, angle, distance, isNewScan);
+                }
+            } 
             catch (java.lang.NumberFormatException e)
             {
-                e.printStackTrace();
+                Logger.exception(e);
             }
         }
+        else
+            Logger.debug(line);
     }
 
     private class ReaderThread implements Runnable
     {
-
+        // This method runs in its own thread and waits for for stdout
+        // of the chezy_lidar process. Note that the handleLine method
+        // operates relative to LidarServer.
         @Override
-        public void run()
+        public void run() 
         {
             while (isRunning())
             {
-                try
+                try 
                 {
                     if (mBufferedReader.ready())
                     {
                         String line = mBufferedReader.readLine();
-                        if (line == null)
-                        { // EOF
+                        if (line == null) // EOF
+                        { 
                             throw new EOFException("End of chezy-lidar process InputStream");
                         }
                         handleLine(line);
                     }
-                }
+                } 
                 catch (IOException e)
                 {
                     e.printStackTrace();
                     if (isLidarConnected())
                     {
-                        Logger.error("Lidar sensor disconnected");
+                        System.err.println("Lidar sensor disconnected");
                         stop();
                     }
                 }
             }
         }
     }
-
 }

@@ -72,6 +72,12 @@ public class Logger
         logMarker("ERROR " + msg, throwable);
     }
 
+    public static void exception(Exception e)
+    {
+        logMarker("EXCEPT  " + e.getMessage() +
+                " trace:\n" +  e.getStackTrace());
+    }
+
     public static void error(String m)
     {
         logMarker("ERROR   " + m);

@@ -45,17 +45,7 @@ public class Constants
     public static final double kCenterToRearBumperDistance = 38.25 / 2.0;
     public static final double kCenterToSideBumperDistance = 33.75 / 2.0;
 
-    /* LIDAR CONSTANTS */
-    public static final int kLidarScanSize = 400;
-    public static final int kLidarNumScansToStore = 10;
-    public static final String kLidarPath = "/home/root/chezy_lidar";
-    public static final double kLidarRestartTime = 2.5;
-
-    public static final String kLidarLogDir = Paths.get(System.getProperty("user.home"), "/lidarlogs/").toString();
-    public static final int kNumLidarLogsToKeep = 10;
-    public static final double kLidarICPTranslationEpsilon = 0.01; // convergence threshold for tx,ty
-    public static final double kLidarICPAngleEpsilon = 0.01;       // convergence threshold for theta
-
+    // LIDAR CONSTANTS ----------------
     public static final IReferenceModel kSegmentReferenceModel = new SegmentReferenceModel(
         Segment.makeInRectangle(new Point(2, 2), new Point(0, 0))
     );

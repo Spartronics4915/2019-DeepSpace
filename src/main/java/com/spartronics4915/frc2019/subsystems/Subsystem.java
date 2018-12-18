@@ -1,10 +1,8 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.lib.util.Logger;
-
+import com.spartronics4915.lib.util.ILooper;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.spartronics4915.frc2019.loops.ILooper;
 
 /**
  * The Subsystem abstract class, which serves as a basic framework for all robot

@@ -1,7 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
-import com.spartronics4915.frc2019.loops.ILooper;
-import com.spartronics4915.frc2019.loops.Loop;
+import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.loops.Looper;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -69,7 +69,7 @@ public class Superstructure extends Subsystem
         logInitialized(true);
     }
 
-    private Loop mLoop = new Loop()
+    private ILoop mLoop = new ILoop()
     {
 
         // Every time we transition states, we update the current state start
