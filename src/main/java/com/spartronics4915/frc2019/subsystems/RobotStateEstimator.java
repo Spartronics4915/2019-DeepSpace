@@ -36,7 +36,7 @@ public class RobotStateEstimator extends Subsystem
     }
 
     @Override
-    public boolean checkSystem()
+    public boolean checkSystem(String subsystem)
     {
         return false;
     }

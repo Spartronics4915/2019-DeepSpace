@@ -132,7 +132,7 @@ public abstract class Subsystem
         Logger.debug(this.getName() + " " + msg);
     }
 
-    public abstract boolean checkSystem();
+    public abstract boolean checkSystem(String subsystem);
 
     public abstract void outputTelemetry();
 

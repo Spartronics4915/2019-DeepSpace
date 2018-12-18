@@ -528,7 +528,7 @@ public class Drive extends Subsystem
     }
 
     @Override
-    public boolean checkSystem()
+    public boolean checkSystem(String subsystem)
     {
         boolean leftSide = TalonSRXChecker.CheckTalons(this,
                 new ArrayList<TalonSRXChecker.TalonSRXConfig>()

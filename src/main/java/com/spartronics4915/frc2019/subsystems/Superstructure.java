@@ -175,7 +175,7 @@ public class Superstructure extends Subsystem
     }
 
     @Override
-    public boolean checkSystem()
+    public boolean checkSystem(String subsystem)
     {
         logWarning("checkSystem not implemented");
         return false;

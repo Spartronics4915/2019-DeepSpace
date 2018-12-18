@@ -34,7 +34,11 @@ public class Robot extends IterativeRobot
     private AutoModeExecutor mAutoModeExecutor;
     private LidarProcessor mLidarProcessor;
 
-    private static final String kRobotLogVerbosityKey = "Robot/Verbosity";
+    // smartdashboard keys
+    private static final String kRobotLogVerbosity = "Robot/Verbosity";
+    private static final String kRobotTestModeOptions = "TestModeOptions";
+    private static final String kRobotTestMode = "TestMode";
+    private static final String kRobotTestVariant = "TestVariant";
 
     public Robot()
     {
@@ -46,6 +50,7 @@ public class Robot extends IterativeRobot
     {
         try
         {
+            SmartDashboard.putString("Match Cycle", "ROBOT INIT");
             Logger.logRobotInit();
 
             try (InputStream manifest =
@@ -57,7 +62,7 @@ public class Robot extends IterativeRobot
                         "  on: " + attributes.getValue("Built-At") +
                         "  (" + attributes.getValue("Code-Version") + ")";
                 SmartDashboard.putString("Build", buildStr);
-                SmartDashboard.putString(kRobotLogVerbosityKey, "DEBUG"); // Verbosity level
+                SmartDashboard.putString(kRobotLogVerbosity, "DEBUG"); // Verbosity level
 
                 Logger.notice("=================================================");
                 Logger.notice(Instant.now().toString());
@@ -139,7 +144,7 @@ public class Robot extends IterativeRobot
         try
         {
             Logger.logDisabledInit();
-            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "DEBUG"));
+            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosity, "DEBUG"));
 
             mEnabledLooper.stop();
             if (mAutoModeExecutor != null)
@@ -170,7 +175,7 @@ public class Robot extends IterativeRobot
         try
         {
             Logger.logAutoInit();
-            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "DEBUG"));
+            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosity, "NOTICE"));
 
             mDisabledLooper.stop();
 
@@ -198,7 +203,7 @@ public class Robot extends IterativeRobot
         try
         {
             Logger.logTeleopInit();
-            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosityKey, "DEBUG"));
+            Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosity, "NOTICE"));
 
             mDisabledLooper.stop();
             if (mAutoModeExecutor != null)
@@ -223,6 +228,7 @@ public class Robot extends IterativeRobot
     public void testInit()
     {
         SmartDashboard.putString("Match Cycle", "TEST");
+        Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosity, "DEBUG"));
 
         try
         {
@@ -231,7 +237,36 @@ public class Robot extends IterativeRobot
             mDisabledLooper.stop();
             mEnabledLooper.stop();
 
-            // Call check system methods here
+            String testMode = SmartDashboard.getString(kRobotTestMode, "None");
+            String testVariant = SmartDashboard.getString(kRobotTestVariant, "");
+            if (testMode.equals("None"))
+            {
+                Logger.notice("Robot: no tests to run");
+                return;
+            }
+            else
+            {
+                Logger.notice("Robot: running test mode " + testMode +
+                        " variant:" + testVariant + " -------------------------");
+                mEnabledLooper.stop();
+            }
+            Logger.notice("Waiting 5 seconds before running test methods.");
+            Timer.delay(5);
+
+            boolean success = true;
+            if (testMode.equals("Drive") || testMode.equals("All"))
+            {
+                success &= mDrive.checkSystem(testVariant);
+            }
+
+            if (!success)
+            {
+                Logger.error("Robot: CHECK ABOVE OUTPUT SOME SYSTEMS FAILED!!!");
+            }
+            else
+            {
+                Logger.notice("Robot: ALL SYSTEMS PASSED");
+            }
 
         }
         catch (Throwable t)
@@ -306,6 +341,18 @@ public class Robot extends IterativeRobot
     public void testPeriodic()
     {
         SmartDashboard.putString("Match Cycle", "TEST");
+    }
+
+     /**
+     * Unused but required function. Plays a similar role to our
+     * allPeriodic method. Presumably the timing in IterativeRobotBase wasn't
+     * to the liking of initial designers of this system. Perhaps because
+     * we don't want it to run during testPeriodic.
+     */
+    @Override
+    public void robotPeriodic()
+    {
+        // intentionally left blank
     }
 
     public void outputToSmartDashboard()

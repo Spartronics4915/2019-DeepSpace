@@ -202,7 +202,7 @@ public class Turret extends Subsystem
     }
 
     @Override
-    public boolean checkSystem()
+    public boolean checkSystem(String subsystem)
     {
         logWarning("Check system not implemented");
         return false;
