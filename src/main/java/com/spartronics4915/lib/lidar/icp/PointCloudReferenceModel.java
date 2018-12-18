@@ -19,8 +19,12 @@ public class PointCloudReferenceModel implements IReferenceModel
         Point minPnt = null;
         for (Point testPnt : mPointCloud)
         {
-            if (refPnt.getDistanceSq(testPnt) < minDist)
+            double dist = refPnt.getDistanceSq(testPnt);
+            if (dist < minDist)
+            {
                 minPnt = testPnt;
+                minDist = dist;
+            }
         }
         return minPnt;
     }
