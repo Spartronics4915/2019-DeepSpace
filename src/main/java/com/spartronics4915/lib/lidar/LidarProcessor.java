@@ -257,7 +257,6 @@ public class LidarProcessor implements ILoop
         try
         {
             Pose2d p;
-            IRobotStateMap.State estimate = mStateMap.get(scan.getTimestamp());
             if(mMode == OperatingMode.kRelative)
             {
                 Transform xform = mRelativeICP.doRelativeICP(scan.getPoints());
@@ -269,6 +268,7 @@ public class LidarProcessor implements ILoop
             } 
             else
             {
+                IRobotStateMap.State estimate = mStateMap.get(scan.getTimestamp());
                 Transform xform = mICP.doICP(getCulledPoints(scan), 
                                 new Transform(estimate.position).inverse(), 
                                 mReferenceModel);
@@ -338,9 +338,10 @@ public class LidarProcessor implements ILoop
     {
 
         // transform by the robot's pose
-        IRobotStateMap.State robotState = null;
+        Pose2d robotLoc = null;
         if(this.mMode == OperatingMode.kAbsolute)
         {
+            IRobotStateMap.State robotState = null;
             if (sRobotStateMap.containsKey(ts)) 
             {
                 robotState = sRobotStateMap.get(ts);
@@ -351,9 +352,10 @@ public class LidarProcessor implements ILoop
                 if(robotState != null)
                     sRobotStateMap.put(ts, robotState);
             }
+            robotLoc = robotState.position;
         }
         LidarPoint lpt = new LidarPoint(ts, angle, dist); 
-        Translation2d cartesian = lpt.toCartesian(robotState.position);
+        Translation2d cartesian = lpt.toCartesian(robotLoc);
         logPoint(lpt.angle, lpt.distance, cartesian.x(), cartesian.y());
         if (newScan || mActiveScan == null) 
         { 
