@@ -78,10 +78,10 @@ public class LidarServer
             mRunning = true;
         }
 
-        Logger.notice("LidarServer starting subprocess " + LibConstants.kLidarPath);
+        Logger.notice("LidarServer starting subprocess " + LibConstants.kLidarDriverPath);
         try
         {
-            mProcess = new ProcessBuilder().command(LibConstants.kLidarPath).start();
+            mProcess = new ProcessBuilder().command(LibConstants.kLidarDriverPath).start();
             mThread = new Thread(new ReaderThread());
             InputStreamReader reader = new InputStreamReader(mProcess.getInputStream());
             mBufferedReader = new BufferedReader(reader);

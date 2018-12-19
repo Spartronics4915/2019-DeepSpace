@@ -104,6 +104,10 @@ public class Robot extends IterativeRobot
                                 Superstructure.getInstance()));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
+                SmartDashboard.putString(kRobotTestModeOptions, 
+                                         "None,Drive,All");
+                SmartDashboard.putString(kRobotTestMode, "None");
+                SmartDashboard.putString(kRobotTestVariant, "");
             }
             catch (Exception e)
             {
@@ -140,7 +144,6 @@ public class Robot extends IterativeRobot
     public void disabledInit()
     {
         SmartDashboard.putString("Match Cycle", "DISABLED");
-
         try
         {
             Logger.logDisabledInit();
@@ -232,23 +235,23 @@ public class Robot extends IterativeRobot
 
         try
         {
-            Logger.notice("Starting check systems.");
+            Logger.logTestInit();
 
             mDisabledLooper.stop();
-            mEnabledLooper.stop();
+            mEnabledLooper.start();
 
             String testMode = SmartDashboard.getString(kRobotTestMode, "None");
             String testVariant = SmartDashboard.getString(kRobotTestVariant, "");
             if (testMode.equals("None"))
             {
                 Logger.notice("Robot: no tests to run");
+                mEnabledLooper.stop();
                 return;
             }
             else
             {
                 Logger.notice("Robot: running test mode " + testMode +
                         " variant:" + testVariant + " -------------------------");
-                mEnabledLooper.stop();
             }
             Logger.notice("Waiting 5 seconds before running test methods.");
             Timer.delay(5);
@@ -267,7 +270,6 @@ public class Robot extends IterativeRobot
             {
                 Logger.notice("Robot: ALL SYSTEMS PASSED");
             }
-
         }
         catch (Throwable t)
         {
@@ -279,8 +281,6 @@ public class Robot extends IterativeRobot
     @Override
     public void disabledPeriodic()
     {
-        SmartDashboard.putString("Match Cycle", "DISABLED");
-
         try
         {
             outputToSmartDashboard();
@@ -296,12 +296,9 @@ public class Robot extends IterativeRobot
     @Override
     public void autonomousPeriodic()
     {
-        SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
-
-        outputToSmartDashboard();
         try
         {
-
+            outputToSmartDashboard();
         }
         catch (Throwable t)
         {
@@ -315,13 +312,13 @@ public class Robot extends IterativeRobot
     {
         SmartDashboard.putString("Match Cycle", "TELEOP");
         double timestamp = Timer.getFPGATimestamp();
-
         double throttle = mControlBoard.getThrottle();
         double turn = mControlBoard.getTurn();
 
         try
         {
             DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false);
+            //mDrive.setOpenLoop(new DriveSignal(command.getLeft() * 48, command.getRight() * 48), DriveSignal.NEUTRAL);
             mDrive.setVelocity(new DriveSignal(command.getLeft() * 48, command.getRight() * 48), DriveSignal.NEUTRAL);
 
             // if (mControlBoard.getSwitchTurretMode()) TODO: Uncomment when turret is finished
@@ -340,7 +337,7 @@ public class Robot extends IterativeRobot
     @Override
     public void testPeriodic()
     {
-        SmartDashboard.putString("Match Cycle", "TEST");
+        outputToSmartDashboard();
     }
 
      /**

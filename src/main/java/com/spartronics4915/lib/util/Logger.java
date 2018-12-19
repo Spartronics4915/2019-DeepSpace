@@ -62,6 +62,11 @@ public class Logger
         notice("disabled init");
     }
 
+    public static void logTestInit()
+    {
+        notice("test init");
+    }
+
     public static void logThrowableCrash(Throwable throwable)
     {
         logMarker("Exception", throwable);

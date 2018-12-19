@@ -207,7 +207,8 @@ public class LidarProcessor implements ILoop
         // we're called regularly (100hz) from the looper. 
         if (timestamp - getScanStart() > LibConstants.kLidarRestartTime) 
         {
-            if (!mLidarServer.isEnding() && !mLidarServer.isRunning()) 
+            if (!mLidarServer.isEnding() && !mLidarServer.isRunning() &&
+                mLidarServer.isLidarConnected())  
             {
                 if(!mLidarServer.start())   
                 {

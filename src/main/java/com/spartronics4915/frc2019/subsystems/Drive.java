@@ -27,7 +27,6 @@ import java.util.ArrayList;
 public class Drive extends Subsystem
 {
 
-    private static final int kVelocityPIDSlot = 0;
     private static Drive mInstance = new Drive();
 
     // Hardware
@@ -72,6 +71,7 @@ public class Drive extends Subsystem
                         updatePathFollower();
                         break;
                     case VELOCITY:
+                        updateVelocity();
                         break;
                     default:
                         logError("Unexpected drive control state: " + mDriveControlState);
@@ -228,11 +228,13 @@ public class Drive extends Subsystem
      * Configure talons for velocity control without paths
      * 
      * @param inchesPerSecVelocity Desired velocity in inches per second
-     * @param feedforwardVoltage Volatage (0-12) to apply arbitrarily to velocity PID output
+     * @param feedforwardVoltage Voltage (0-12) to apply arbitrarily to velocity PID output
      */
     public synchronized void setVelocity(DriveSignal inchesPerSecVelocity, DriveSignal feedforwardVoltage)
     {
-        logDebug("Switching to closed loop velocity. Target: " + inchesPerSecVelocity.toString() + ", Arbitrary feedforward: " + feedforwardVoltage.toString());
+        logDebug("Switching to closed loop velocity. Target: " + 
+                inchesPerSecVelocity.toString() + 
+                ", Arbitrary feedforward: " + feedforwardVoltage.toString());
         if (mDriveControlState != DriveControlState.VELOCITY)
         {
             updateTalonsForVelocity();
@@ -242,7 +244,7 @@ public class Drive extends Subsystem
         mPeriodicIO.right_demand = inchesPerSecondToTicksPer100ms(inchesPerSecVelocity.getRight());
         mPeriodicIO.left_feedforward = feedforwardVoltage.getLeft() / 12;
         mPeriodicIO.right_feedforward = feedforwardVoltage.getRight() / 12;
-        mPeriodicIO.left_accel = mPeriodicIO.left_accel = 0;
+        mPeriodicIO.left_accel = mPeriodicIO.right_accel = 0;
 
         dashboardPutString("leftSpeedTarget", inchesPerSecVelocity.getLeft() + "");
         dashboardPutString("rightSpeedTarget", inchesPerSecVelocity.getRight() + "");
@@ -251,8 +253,8 @@ public class Drive extends Subsystem
     private void updateTalonsForVelocity()
     {
         setBrakeMode(true);
-        mLeftMaster.selectProfileSlot(kVelocityPIDSlot, 0);
-        mRightMaster.selectProfileSlot(kVelocityPIDSlot, 0);
+        mLeftMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
+        mRightMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
         mLeftMaster.configNeutralDeadband(0.0, 0);
         mRightMaster.configNeutralDeadband(0.0, 0);
     }
@@ -446,13 +448,25 @@ public class Drive extends Subsystem
         }
     }
 
+    private void updateVelocity()
+    {
+        if (mDriveControlState == DriveControlState.VELOCITY)
+        {
+        }
+        else
+        {
+            DriverStation.reportError("Drive is not in velocity control state", false);
+        }
+
+    }
+
     public synchronized void reloadGains(TalonSRX talon)
     {
-        talon.config_kP(kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
-        talon.config_kI(kVelocityPIDSlot, Constants.kDriveVelocityKi, Constants.kLongCANTimeoutMs);
-        talon.config_kD(kVelocityPIDSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
-        talon.config_kF(kVelocityPIDSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
-        talon.config_IntegralZone(kVelocityPIDSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
+        talon.config_kP(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
+        talon.config_kI(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKi, Constants.kLongCANTimeoutMs);
+        talon.config_kD(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
+        talon.config_kF(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
+        talon.config_IntegralZone(Constants.kVelocityPIDSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
     }
 
     @Override
@@ -528,9 +542,120 @@ public class Drive extends Subsystem
     }
 
     @Override
-    public boolean checkSystem(String subsystem)
+    public boolean checkSystem(String variant)
     {
-        boolean leftSide = TalonSRXChecker.CheckTalons(this,
+        if(!isInitialized())
+        {
+            logWarning("can't check uninitialized system");
+            return false;
+        }
+        Boolean success = true;
+        DriveSignal zero = new DriveSignal(0,0);
+        DriveSignal feedfwd = zero;
+        logNotice("checkSystem " + variant + " ---------------");
+        if(variant.equals("velocityControl"))
+        {
+            Timer timer = new Timer();            
+            logNotice("  enter velocity control mode");            
+            logNotice("  straight: 10ips, 4 sec");
+            this.setVelocity(new DriveSignal(10, 10), feedfwd);
+            timer.reset();
+            timer.start();
+            while (!timer.hasPeriodPassed(4))
+            {                
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+            this.setVelocity(zero, zero);
+            this.outputTelemetry();
+            this.stop();
+
+            Timer.delay(2);
+            logNotice("  straight: -10ips, 4 sec");
+            this.setVelocity(new DriveSignal(-10, -10), feedfwd);
+            timer.reset();
+            timer.start();
+            while (!timer.hasPeriodPassed(4))
+            {
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+            this.setVelocity(zero, zero);
+            this.outputTelemetry();
+            this.stop();
+
+            Timer.delay(2);
+            logNotice("  curve left: 4 sec");
+            this.setVelocity(new DriveSignal(3, 5), feedfwd);
+            timer.reset();
+            timer.start();
+            while (!timer.hasPeriodPassed(4))
+            {
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+            this.setVelocity(zero, zero);
+            this.outputTelemetry();
+            this.stop();
+
+            Timer.delay(2);
+            logNotice("  curve right: 4 sec");
+            this.setVelocity(new DriveSignal(5, 3), feedfwd);
+            timer.reset();
+            timer.start();
+            while (!timer.hasPeriodPassed(4))
+            {
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+            this.setVelocity(zero, zero);
+            this.outputTelemetry();
+            this.stop();
+
+            Timer.delay(2);
+            logNotice("  mixed speeds straight: 10, 4, 20, 4");
+            this.setVelocity(new DriveSignal(10, 10), feedfwd);
+            timer.reset();
+            timer.start();
+            while (!timer.hasPeriodPassed(2))
+            {
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+
+            this.setVelocity(new DriveSignal(4, 4), feedfwd);
+            timer.reset();
+            timer.start();
+            while (!timer.hasPeriodPassed(2))
+            {
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+
+            timer.reset();
+            timer.start();
+            this.setVelocity(new DriveSignal(20, 20), feedfwd);
+            while (!timer.hasPeriodPassed(2))
+            {
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+
+            this.setVelocity(new DriveSignal(4, 4), feedfwd);
+            timer.reset();
+            timer.start();
+            while (!timer.hasPeriodPassed(2))
+            {
+                Timer.delay(.05);
+                this.outputTelemetry();
+            }
+            this.stop();
+            this.setVelocity(zero, zero);
+            this.outputTelemetry();
+        }
+        else
+        {
+            boolean leftSide = TalonSRXChecker.CheckTalons(this,
                 new ArrayList<TalonSRXChecker.TalonSRXConfig>()
                 {
 
@@ -549,7 +674,7 @@ public class Drive extends Subsystem
                         mRPMSupplier = () -> mLeftMaster.getSelectedSensorVelocity(0);
                     }
                 });
-        boolean rightSide = TalonSRXChecker.CheckTalons(this,
+            boolean rightSide = TalonSRXChecker.CheckTalons(this,
                 new ArrayList<TalonSRXChecker.TalonSRXConfig>()
                 {
 
@@ -568,7 +693,9 @@ public class Drive extends Subsystem
                         mRPMSupplier = () -> mRightMaster.getSelectedSensorVelocity(0);
                     }
                 });
-        return leftSide && rightSide;
+            success = leftSide && rightSide;
+        }
+        return success;
     }
 
     public synchronized void startLogging()
