@@ -115,7 +115,7 @@ jar {
     }
 }
 
-task LidarTest(type: Jar) {
+task lidarTest(type: Jar) {
     baseName "LidarTest"
     from configurations.lidarLibs.collect { it.isDirectory() ? it : zipTree(it) }
     manifest {
