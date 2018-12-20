@@ -8,6 +8,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
+import java.util.function.DoubleSupplier;
 import java.io.File;
 
 /**
@@ -28,10 +29,12 @@ public class LidarServer
     private Process mProcess;
     private boolean mEnding = false;
     private File mDevFile;
+    private DoubleSupplier mTimeSupplier = null;
 
-    public LidarServer(LidarProcessor p)
+    public LidarServer(LidarProcessor p, DoubleSupplier timeSupplier)
     {
         mLidarProcessor = p;
+        mTimeSupplier = timeSupplier;
         String os = System.getProperty("os.name").toLowerCase();
         String dev;
         if(os.indexOf("mac") >= 0)
@@ -112,6 +115,8 @@ public class LidarServer
 
         try
         {
+            // Sends SIGTERM on Unixes
+            // https://hg.openjdk.java.net/jdk/jdk11/file/1ddf9a99e4ad/src/java.base/unix/native/libjava/ProcessHandleImpl_unix.c#l313
             mProcess.destroy();
             mProcess.waitFor(LibConstants.kLidarShutdownTimeoutMs, TimeUnit.MILLISECONDS);
             mThread.join();
@@ -157,14 +162,21 @@ public class LidarServer
         {
             try 
             {
+                // If we're running in standalone test mode (e.g. not
+                // on a RoboRIO) then we don't need to modify the "epoch"
+                // of the recieved timestamp, because the recieved timestamp
+                // and all our other internal timestamps have the same epoch
+                // (January 1, 1970, the Unix epoch). If we are running on
+                // the RoboRIO we use getFPGATimestamp, instead of currentTimeMillis.
+                // The FGPA timestamp's epoch is robot start, so we have to convert
+                // ts to this epoch if we're not in test mode.
+
                 // It is assumed that ts is in sync with our system's clock
                 long ts = Long.parseLong(parts[0]);
-                // Timestamps are in seconds, so we have to convert
-                // We don't need to do the msAgo thing like in the actual codebase
-                // because our timestamps use the Unix epoch, and the timestamps
-                // from the sensor also use the Unix epoch. In the actual codebase,
-                // timestamps use the system start up as an epoch.
-                double normalizedTs = ts / 1000d;
+                // All timestamps are stored in seconds, so we have to convert
+                double secsAgo = (System.currentTimeMillis() - ts) / 1000d;
+                double normalizedTs = mTimeSupplier.getAsDouble() - secsAgo;
+
                 double angle = Double.parseDouble(parts[1]);
                 double distance = Double.parseDouble(parts[2]);
                 if (distance != 0)

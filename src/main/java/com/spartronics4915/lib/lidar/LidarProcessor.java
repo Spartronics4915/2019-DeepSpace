@@ -156,7 +156,7 @@ public class LidarProcessor implements ILoop
         mScanQueue = new LinkedBlockingQueue<LidarScan>();
         mRelativeICP = new RelativeICPProcessor(mICP);
         mRWLock = new ReentrantReadWriteLock();
-        mLidarServer = new LidarServer(this);
+        mLidarServer = new LidarServer(this, timeSupplier);
         mScanTime = Double.NEGATIVE_INFINITY;
         mLastScanTime = Double.NEGATIVE_INFINITY;
         mScanTimeAccum = 0;
