@@ -4,7 +4,6 @@ import com.spartronics4915.frc2019.auto.AutoModeExecutor;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
-import com.spartronics4915.lib.lidar.LidarProcessor;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -32,7 +31,6 @@ public class Robot extends IterativeRobot
     private Drive mDrive = null;
     private Turret mTurret = null;
     private AutoModeExecutor mAutoModeExecutor;
-    private LidarProcessor mLidarProcessor;
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -90,13 +88,7 @@ public class Robot extends IterativeRobot
             try
             {
                 mDrive = Drive.getInstance();
-                mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunInRobot,
-                                        null,
-                                        null,
-                                        () -> Timer.getFPGATimestamp()
-                                );
-                // mTurret = Turret.getInstance(); TODO: Uncomment when turret is added
-
+                // mTurret = Turret.getInstance(); // TODO
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
@@ -116,21 +108,7 @@ public class Robot extends IterativeRobot
                 Logger.logThrowableCrash("ERROR Couldn't instantiate subsystems", e);
             }
 
-            // try TODO: Uncomment when turret is added
-            // {
-            //     Logger.debug("LIDAR starting...");
-            //     mEnabledLooper.register(LidarProcessor.getInstance());
-            //     boolean started = LidarServer.getInstance().start();
-            //     Logger.debug("LIDAR status " + (started ? "started" : "failed to start"));
-            // }
-            // catch (Throwable t)
-            // {
-            //     Logger.logThrowableCrash("ERROR LIDAR crashed", t);
-            //     throw t;
-            // }
-
             AutoModeSelector.updateSmartDashboard();
-
             Logger.debug("Generating trajectories...");
             mTrajectoryGenerator.generateTrajectories();
         }
