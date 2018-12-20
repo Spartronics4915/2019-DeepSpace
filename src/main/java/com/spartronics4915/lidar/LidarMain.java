@@ -1,6 +1,4 @@
-package com.spartronics4915.lib.apps;
-
-import java.util.concurrent.TimeUnit;
+package com.spartronics4915.lidar;
 
 import com.spartronics4915.lib.util.Looper;
 import com.spartronics4915.lib.util.Logger;

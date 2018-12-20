@@ -68,7 +68,7 @@ dependencies {
 
     appLibs group: "org.java-websocket", name: "Java-WebSocket", version:"1.3.9"
 
-    // Path webapp: XXX: should tese be migrated outside our deployed jar?
+    // Path webapp: XXX: should these be migrated outside our deployed jar?
     def tomcatVersion = '7.0.57'
     tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
             "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
@@ -111,7 +111,7 @@ task LidarTest(type: Jar) {
     baseName "LidarTest"
     from configurations.appLibs.collect { it.isDirectory() ? it : zipTree(it) }
     manifest {
-        attributes "Main-Class": "com.spartronics4915.lib.apps.LidarMain"
+        attributes "Main-Class": "com.spartronics4915.lidar.LidarMain"
     }
     from(sourceSets.main.output) {
         exclude "com/spartronics4915/frc*/**"
