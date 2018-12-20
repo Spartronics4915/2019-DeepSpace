@@ -4,6 +4,9 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.Kinematics;
 import com.spartronics4915.frc2019.RobotState;
 import com.spartronics4915.lib.util.ILooper;
+
+import edu.wpi.first.wpilibj.Timer;
+
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.geometry.Twist2d;
@@ -32,7 +35,8 @@ public class RobotStateEstimator extends Subsystem
          */
         mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunInRobot, 
                             Constants.kSegmentReferenceModel,
-                            robot_state_/*IPose2dMap*/);
+                            robot_state_/*IRobotStateMap*/,
+                            () -> Timer.getFPGATimestamp());
     }
 
     @Override

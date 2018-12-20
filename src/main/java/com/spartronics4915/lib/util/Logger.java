@@ -3,6 +3,7 @@ package com.spartronics4915.lib.util;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -79,8 +80,10 @@ public class Logger
 
     public static void exception(Exception e)
     {
-        logMarker("EXCEPT  " + e.getMessage() +
-                " trace:\n" +  e.getStackTrace());
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        logMarker("EXCEPT  " + e.getMessage() + 
+            " trace:\n" + sw.toString());
     }
 
     public static void error(String m)

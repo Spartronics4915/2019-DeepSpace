@@ -1,8 +1,6 @@
-package com.spartronics4915.lib.apps;
+package com.spartronics4915.lidar;
 
-import java.util.concurrent.TimeUnit;
-
-import com.spartronics4915.lib.util.Looper;
+import com.spartronics4915.lidar.Looper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.InterpolatingDouble;
 import com.spartronics4915.lib.util.InterpolatingTreeMap;
@@ -23,16 +21,30 @@ public class LidarMain
 
         mLooper = new Looper();
         mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunAsTest,
-                                            null, null);
+                                null, null, () -> System.currentTimeMillis() / 1000d);
         mLooper.register(mLidarProcessor);
         boolean started = mLidarProcessor.isConnected();
         if(!started)
+        {
+            Logger.error("Lidar is not connected");
             return;
+        }
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                synchronized (mLooper) {
+                    mLooper.stop();
+                    Runtime.getRuntime().halt(0); // System::exit will wait on this thread to finish
+                }
+            }
+        });
 
         Pose2d zeroPose = new Pose2d();
         double ts = System.currentTimeMillis() / 1000d;
         sPoses.put(new InterpolatingDouble(ts), zeroPose);
         mLooper.start();
+
         while (true)
         {
             try

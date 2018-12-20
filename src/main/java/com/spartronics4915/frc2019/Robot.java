@@ -92,7 +92,8 @@ public class Robot extends IterativeRobot
                 mDrive = Drive.getInstance();
                 mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunInRobot,
                                         null,
-                                        null
+                                        null,
+                                        () -> Timer.getFPGATimestamp()
                                 );
                 // mTurret = Turret.getInstance(); TODO: Uncomment when turret is added
 

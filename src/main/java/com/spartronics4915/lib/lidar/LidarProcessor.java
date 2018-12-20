@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.DoubleSupplier;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.GZIPOutputStream;
 
@@ -127,6 +128,7 @@ public class LidarProcessor implements ILoop
     private WSClient mWSClient;
     private IReferenceModel mReferenceModel;
     private IRobotStateMap mStateMap;
+    private DoubleSupplier mTimeSupplier;
 
     // A scan is a collection of lidar points.  The scan, itself,
     // has a timestamp as does each point.  Currently, the timestamp
@@ -152,7 +154,7 @@ public class LidarProcessor implements ILoop
     };
 
     public LidarProcessor(RunMode runMode, IReferenceModel refmodel,
-        IRobotStateMap stateMap) 
+        IRobotStateMap stateMap, DoubleSupplier timeSupplier) 
     {
         Logger.debug("LidarProcessor starting...");
         mICP = new ICP(100);
@@ -167,6 +169,7 @@ public class LidarProcessor implements ILoop
         mActiveScan = null;
         mReferenceModel = refmodel; // may be null
         mStateMap = stateMap;
+        mTimeSupplier = timeSupplier;
 
         try 
         {
@@ -363,7 +366,7 @@ public class LidarProcessor implements ILoop
                 mScanQueue.add(mActiveScan); // <- send it to consumer
 
             mActiveScan  = new LidarScan();
-            startNewScan(System.currentTimeMillis() / 1000d);
+            startNewScan(mTimeSupplier.getAsDouble());
         }
         if (!excludePoint(cartesian.x(), cartesian.y())) 
         {
