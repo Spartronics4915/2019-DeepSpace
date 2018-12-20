@@ -1,25 +1,15 @@
-package com.spartronics4915.lib.util;
+package com.spartronics4915.lidar;
 
 import com.spartronics4915.lib.util.CrashTrackingRunnable;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
-import com.spartronics4915.lib.util.InterpolatingDouble;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-
-//import com.spartronics4915.lib.util.Logger;
 
 /**
  * This code runs all of the robot's loops. ILoop objects are stored in a List
@@ -104,7 +94,7 @@ public class Looper implements ILooper
         if (running_)
         {
             Logger.notice("Looper stopping subsystem loops");
-            scheduler_.shutdown();
+            scheduler_.shutdownNow();
             synchronized (taskRunningLock_)
             {
                 running_ = false;
