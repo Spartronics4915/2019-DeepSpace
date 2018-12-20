@@ -38,17 +38,6 @@ we must establish a _different_ value of Kf for each target velocity.
 So the question for us is how do we know what values of Kf to choose and
 how do we write software to deliver new Kf values "continuously".
 
-## Drive Characterization
-
-In the simplest terms, we wish to know how many volts are required
-to drive a wheel on our fully-loaded drivetrain at a particular velocity.
-We can easily imagine gathering data that captures the mapping between a
-particular velocity and the voltage required to attain it. It gets a litte
-trickier because no drive train is perfect and thus anticipate that the left
-voltage map will differ from the right voltage map.
-
-## Computing Target Velocities
-
 ## Delivering Target Velocities
 
 Here is the line in subsystems/Drive.java that makes things happen.  
@@ -75,10 +64,88 @@ indicate that the `ArbitraryFeedForward` term is expressed in motor output
 units.  This value is directly added to the value computed by the current
 PID control loop which is always in the range [-1024, 1024].  Thus it
 falls upon us to convert our feedforward term (conceptually power) into ctre
-motor output units. As discussed earlier, this value is computed by
+motor output units. As discussed below, this value is computed by
 MotionPlanner and updated frequently. Finally, notice that we apply a Kd
 multiplier to the computed acceleration term. We can think of this term
-as a sort of mini-PID that is under our direct control.  Since we are
-operating in Velocity mode, the Kd term can be applied to the _acceleration_
-(acceleration is the derivative of velocity) in order to smooth out the
+as a sort of mini-PD-controller that is under our direct control via the feedforward term.  Since we are operating in Velocity mode, the Kp term
+would to the velocity error and the Kd term can be applied to the
+_acceleration_ (derivative of velocity) in order to smooth out the
 oscillations typical of a P-only controller.
+
+## Drive Characterization
+
+In the simplest terms, we wish to know how many volts are required
+to drive a wheel on our fully-loaded drivetrain at a particular velocity.
+We can easily imagine gathering data that captures the mapping between a
+particular velocity and the voltage required to attain it. It gets a little
+trickier because no drivetrain is perfect and thus anticipate that the left
+voltage map will differ from the right voltage map. And of course, until we
+have a final robot with all subsystems mounted and operating, any
+characterization efforts will be placeholders.
+
+In our Team254-based code, we see an autonomous action `CollectVelocityData.java`.
+This action moves from 0 to 25% power and measures the velocity associated with
+each power level.  The data is written to a csv file and can be used to produce
+a polynomial that maps velocity to voltage.  Similarly the action
+`CollectAcclerationData.java` runs for a fixed time interval and samples the
+rate at which velocity changes over time. The results of these two tests are
+interpretted by another class, `DriveCharacterization.java` to produce an
+efficient approximation of this data which, in turn, is used to produce
+the demand and feedforward values for our MotionPlanner. Another action, `CollectCurvatureData`, captures the relationship between RobotState's
+measured dynamics with known (and different) left and right motor power.
+Currently, `DriveCharacterization` doesn't utilize the curvature dataset
+but it's method,  `characterizeDrive` does combine the velocity and
+acceleration samples to produce this:
+
+``` java
+class CharacterizationConstants
+{
+    public double ks; // V to break static friction
+    public double kv; // V / rad / s
+    public double ka; // V / rad / s^2
+}
+```
+
+These values, in turn, should be placed into Constants.java as
+`kDriveVIntercept`, `kDriveKv` and `kDriveKa`.  Note that these
+physical values are represented in "SI units" and that our standard
+for representing velocity is currently inches per second. _(it's currently
+my suspicion that CollectCurvatureData can be used to validate the results
+of all the characterization machinery)_
+
+### DCMotorTransmission
+
+Model of a DC motor rotating a shaft. All parameters refer to the output
+(e.g. should already consider gearing and efficiency losses). The motor
+is assumed to be symmetric forward/reverse.
+
+``` java
+double speedPerVolt = 1.0/Constants.kDriveKv; // speed_per_volt (rad/s/V no load)
+double r = Units.inches_to_meters(Constants.kDriveWheelRadiusInches);
+double rsq = r * r;
+double torquePerVolt = rsq * Constants.kRobotLinearInertia /
+                            (2.0 * Constants.kDriveKa); // N*m/V (stall)
+double frictionVoltage = Constants.kDriveIIntercept; // V
+new DCMotorTransmission(speedPerVolt, torquePerVolt, frictionVoltage);
+```
+
+### DifferentialDrive
+
+Dynamic model a differential drive robot. Note: to simplify things, this math
+assumes the center of mass is coincident with the kinematic center of rotation 
+(e.g. midpoint of the center axle).
+
+## Computing Target Velocities For a Planned Path
+
+At the heart of the system, `DriveMotionPlanner` combines pre-planned paths
+with drive characteristics as well as a selectable trajectory-following
+algorithm and the measured/estimated state of the robot to produce target
+velocities (demand) and target voltages (feedforward). Forming the basis
+of the DriveMotionPlanner is a model of the drivetrain kinematics and
+dynamics, `DifferentialDrive`.  On each update, we obtain a new target
+position, orientation and velocity from the motion trajectory based on
+the current time. This target is compared against an estimate of the current
+state to produce an error. Now depending on the follower algorithm, we produce
+our `Output` based on the current state and the dynamics (which are a function
+of our new target).
+
