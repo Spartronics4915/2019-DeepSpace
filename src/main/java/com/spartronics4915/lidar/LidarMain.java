@@ -21,7 +21,7 @@ public class LidarMain
 
         mLooper = new Looper();
         mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunAsTest,
-                                            null, null);
+                                null, null, () -> System.currentTimeMillis() / 1000d);
         mLooper.register(mLidarProcessor);
         boolean started = mLidarProcessor.isConnected();
         if(!started)
