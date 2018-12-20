@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 import java.io.File;
 
 /**
@@ -111,13 +112,13 @@ public class LidarServer
 
         try
         {
-            mProcess.destroyForcibly();
-            mProcess.waitFor();
+            mProcess.destroy();
+            mProcess.waitFor(LibConstants.kLidarShutdownTimeoutMs, TimeUnit.MILLISECONDS);
             mThread.join();
         }
-        catch (InterruptedException e) 
+        catch (Exception e) 
         {
-            Logger.error("Error: Interrupted while stopping lidar");
+            Logger.error("Error: Couldn't stop lidar");
             Logger.exception(e);
             synchronized (this)
             {
@@ -204,6 +205,8 @@ public class LidarServer
                 } 
                 catch (IOException e)
                 {
+                    if (!isRunning() && isEnding())
+                        return; // Supress spurious stack traces on exit
                     e.printStackTrace();
                     if (isLidarConnected())
                     {

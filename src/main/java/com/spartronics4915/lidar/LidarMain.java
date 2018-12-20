@@ -27,7 +27,7 @@ public class LidarMain
         if(!started)
         {
             Logger.error("Lidar is not connected");
-            return;
+            System.exit(1);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -35,7 +35,7 @@ public class LidarMain
             public void run() {
                 synchronized (mLooper) {
                     mLooper.stop();
-                    Runtime.getRuntime().halt(0); // System::exit will wait on this thread to finish
+                    Runtime.getRuntime().halt(0); // System::exit will wait on this thread to finish, which is a deadlock
                 }
             }
         });

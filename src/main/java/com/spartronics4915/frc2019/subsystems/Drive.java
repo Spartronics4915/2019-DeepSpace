@@ -549,7 +549,7 @@ public class Drive extends Subsystem
             logWarning("can't check uninitialized system");
             return false;
         }
-        Boolean success = true;
+        boolean success = true;
         DriveSignal zero = new DriveSignal(0,0);
         DriveSignal feedfwd = zero;
         logNotice("checkSystem " + variant + " ---------------");
