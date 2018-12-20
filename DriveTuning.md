@@ -86,15 +86,17 @@ characterization efforts will be placeholders.
 In our Team254-based code, we see an autonomous action `CollectVelocityData.java`.
 This action moves from 0 to 25% power and measures the velocity associated with
 each power level.  The data is written to a csv file and can be used to produce
-a polynomial that maps velocity to voltage.  Similarly the action
+a polynomial (or line) that maps velocity to voltage.  Similarly the action
 `CollectAcclerationData.java` runs for a fixed time interval and samples the
 rate at which velocity changes over time. The results of these two tests are
 interpretted by another class, `DriveCharacterization.java` to produce an
-efficient approximation of this data which, in turn, is used to produce
+efficient approximation of this data which, in turn, is used to helpl produce
 the demand and feedforward values for our MotionPlanner. Another action, `CollectCurvatureData`, captures the relationship between RobotState's
-measured dynamics with known (and different) left and right motor power.
+measured dynamics with known (and different) left and right motor power
+_(and it's my suspicion that CollectCurvatureData can be used to 
+validate the results of all the characterization machinery)_.
 Currently, `DriveCharacterization` doesn't utilize the curvature dataset
-but it's method,  `characterizeDrive` does combine the velocity and
+but its method,  `characterizeDrive` does combine the velocity and
 acceleration samples to produce this:
 
 ``` java
@@ -109,9 +111,7 @@ class CharacterizationConstants
 These values, in turn, should be placed into Constants.java as
 `kDriveVIntercept`, `kDriveKv` and `kDriveKa`.  Note that these
 physical values are represented in "SI units" and that our standard
-for representing velocity is currently inches per second. _(it's currently
-my suspicion that CollectCurvatureData can be used to validate the results
-of all the characterization machinery)_
+for representing velocity is currently inches per second. 
 
 ### DCMotorTransmission
 

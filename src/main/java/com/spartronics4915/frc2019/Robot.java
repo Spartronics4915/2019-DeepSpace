@@ -8,6 +8,7 @@ import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -336,5 +337,9 @@ public class Robot extends IterativeRobot
         RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToTelemetry();
         mEnabledLooper.outputToSmartDashboard();
+        SmartDashboard.putNumber("Robot/BatteryVoltage", 
+            RobotController.getBatteryVoltage());
+        SmartDashboard.putNumber("Robot/InputCurrent", 
+            RobotController.getInputCurrent());
     }
 }
