@@ -25,14 +25,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.DoubleSupplier;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.zip.GZIPOutputStream;
-
-import javax.print.attribute.URISyntax;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -41,7 +37,6 @@ import java.net.URISyntaxException;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-
 
 /**
  * Receives LIDAR points from the {@link LidarServer}, stores a set number of
@@ -56,7 +51,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 class WSClient extends WebSocketClient
 {
-    private Boolean isOpen;
+    private boolean isOpen;
     public WSClient() throws URISyntaxException
     {
         //super(new URI("ws://192.168.1.10:5080/webapi/_publish_"));
@@ -161,7 +156,7 @@ public class LidarProcessor implements ILoop
         mScanQueue = new LinkedBlockingQueue<LidarScan>();
         mRelativeICP = new RelativeICPProcessor(mICP);
         mRWLock = new ReentrantReadWriteLock();
-        mLidarServer = new LidarServer(this);
+        mLidarServer = new LidarServer(this, timeSupplier);
         mScanTime = Double.NEGATIVE_INFINITY;
         mLastScanTime = Double.NEGATIVE_INFINITY;
         mScanTimeAccum = 0;
