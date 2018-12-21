@@ -179,7 +179,7 @@ public class LidarServer
 
                 double angle = Double.parseDouble(parts[1]);
                 double distance = Double.parseDouble(parts[2]);
-                if (distance != 0)
+                if (distance != 0 || isNewScan)
                 {
                     mLidarProcessor.addPoint(normalizedTs, angle, distance, isNewScan);
                 }

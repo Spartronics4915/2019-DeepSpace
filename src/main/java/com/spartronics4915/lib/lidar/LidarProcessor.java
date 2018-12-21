@@ -202,7 +202,6 @@ public class LidarProcessor implements ILoop
     @Override
     public void onLoop(double timestamp) 
     {
-        System.out.println(timestamp);
         // we're called regularly (100hz) from the looper. 
         if (timestamp - getScanStart() > LibConstants.kLidarRestartTime) 
         {
