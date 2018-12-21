@@ -49,7 +49,7 @@ public class Robot extends IterativeRobot
     {
         try
         {
-            SmartDashboard.putString("Match Cycle", "ROBOT INIT");
+            SmartDashboard.putString("Robot/GamePhase", "ROBOT INIT");
             Logger.logRobotInit();
 
             try (InputStream manifest =
@@ -123,7 +123,7 @@ public class Robot extends IterativeRobot
     @Override
     public void disabledInit()
     {
-        SmartDashboard.putString("Match Cycle", "DISABLED");
+        SmartDashboard.putString("Robot/GamePhase", "DISABLED");
         try
         {
             Logger.logDisabledInit();
@@ -153,7 +153,7 @@ public class Robot extends IterativeRobot
     @Override
     public void autonomousInit()
     {
-        SmartDashboard.putString("Match Cycle", "AUTONOMOUS");
+        SmartDashboard.putString("Robot/GamePhase", "AUTONOMOUS");
 
         try
         {
@@ -181,7 +181,7 @@ public class Robot extends IterativeRobot
     @Override
     public void teleopInit()
     {
-        SmartDashboard.putString("Match Cycle", "TELEOP");
+        SmartDashboard.putString("Robot/GamePhase", "TELEOP");
 
         try
         {
@@ -210,7 +210,7 @@ public class Robot extends IterativeRobot
     @Override
     public void testInit()
     {
-        SmartDashboard.putString("Match Cycle", "TEST");
+        SmartDashboard.putString("Robot/GamePhase", "TEST");
         Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosity, "DEBUG"));
 
         try
@@ -290,7 +290,7 @@ public class Robot extends IterativeRobot
     @Override
     public void teleopPeriodic()
     {
-        SmartDashboard.putString("Match Cycle", "TELEOP");
+        SmartDashboard.putString("Robot/GamePhase", "TELEOP");
         double timestamp = Timer.getFPGATimestamp();
         double throttle = mControlBoard.getThrottle();
         double turn = mControlBoard.getTurn();
