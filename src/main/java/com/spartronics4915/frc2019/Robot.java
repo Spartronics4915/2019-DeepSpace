@@ -298,8 +298,8 @@ public class Robot extends IterativeRobot
         try
         {
             DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false);
-            //mDrive.setOpenLoop(new DriveSignal(command.getLeft() * 48, command.getRight() * 48), DriveSignal.NEUTRAL);
-            mDrive.setVelocity(new DriveSignal(command.getLeft() * 48, command.getRight() * 48), DriveSignal.NEUTRAL);
+            //mDrive.setOpenLoop(command.scale(48), DriveSignal.NEUTRAL);
+            mDrive.setVelocity(command.scale(48), DriveSignal.NEUTRAL);
 
             // if (mControlBoard.getSwitchTurretMode()) TODO: Uncomment when turret is finished
             //     mTurret.setWantedState(mTurret.getWantedState() == Turret.WantedState.FOLLOW_LIDAR ? Turret.WantedState.FOLLOW_ODOMETRY

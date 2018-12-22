@@ -85,10 +85,15 @@
 > in a file named `FRCUserProgram.jar`. This file and associated
 > runtime libraries are copied down to the robot (to /home/lvuser and
 > to /usr/local/frc/lib).
-> Another file, `robotCommand` (or `robotDebugCommand`) is also copied. This
-> file is **NOT** a shell script but rather a command file that is parsed by
-> `/usr/local/frc/bin/frcRunRobot.sh` and ultimately passed to
-> `/sbin/start-stop-daemon` whose job is to 'watch over'
+> Another file, `robotCommand` (or `robotDebugCommand`) is also copied.
+
+``` java
+/usr/local/frc/JRE/bin/java -Djava.library.path=/usr/local/frc/lib/ -jar /home/lvuser/FRCUserProgram.jar
+```
+
+> This file is **NOT** a shell script but rather a command file that 
+> is parsed by > `/usr/local/frc/bin/frcRunRobot.sh` and ultimately passed 
+> to `/sbin/start-stop-daemon` whose job is to 'watch over'
 > the robot process - to restart it if it crashes, to start it on robot
 > reboot, etc.  When we deploy a robot-program that crashes, the start-stop-daemon
 > can produce an annoying and confusing flurry of program restarts.  The only
