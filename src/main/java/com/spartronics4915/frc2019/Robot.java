@@ -136,7 +136,7 @@ public class Robot extends IterativeRobot
             }
 
             Drive.getInstance().zeroSensors();
-            RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+            resetRobotStateMaps(Timer.getFPGATimestamp());
 
             // Reset all auto mode state.
             mAutoModeExecutor = new AutoModeExecutor();
@@ -162,8 +162,7 @@ public class Robot extends IterativeRobot
 
             mDisabledLooper.stop();
 
-            RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
-
+            resetRobotStateMaps(Timer.getFPGATimestamp());
             Drive.getInstance().zeroSensors();
 
             mAutoModeExecutor.setAutoMode(AutoModeSelector.getSelectedAutoMode());
@@ -194,7 +193,7 @@ public class Robot extends IterativeRobot
                 mAutoModeExecutor.stop();
             }
 
-            RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity());
+            // RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity()); Do not do this here 
             mEnabledLooper.start();
 
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
@@ -334,12 +333,18 @@ public class Robot extends IterativeRobot
 
     public void outputToSmartDashboard()
     {
-        RobotState.getInstance().outputToSmartDashboard();
         mSubsystemManager.outputToTelemetry();
         mEnabledLooper.outputToSmartDashboard();
         SmartDashboard.putNumber("Robot/BatteryVoltage", 
             RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("Robot/InputCurrent", 
             RobotController.getInputCurrent());
+    }
+
+    private void resetRobotStateMaps(double timestamp)
+    {
+        RobotStateEstimator rsi = RobotStateEstimator.getInstance();
+        rsi.getEncoderRobotStateMap().reset(timestamp, Pose2d.identity());
+        rsi.getLidarRobotStateMap().reset(timestamp, Pose2d.identity());
     }
 }

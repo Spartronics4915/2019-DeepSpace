@@ -2,10 +2,12 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.Kinematics;
-import com.spartronics4915.frc2019.RobotState;
+import com.spartronics4915.lib.geometry.Pose2d;
+import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.geometry.Rotation2d;
@@ -15,28 +17,52 @@ import com.spartronics4915.lib.lidar.LidarProcessor;
 public class RobotStateEstimator extends Subsystem
 {
 
-    static RobotStateEstimator instance_ = new RobotStateEstimator();
+    private static RobotStateEstimator sInstance = new RobotStateEstimator();
     public static RobotStateEstimator getInstance()
     {
-        return instance_;
+        return sInstance;
     }
 
-    private RobotState robot_state_ = RobotState.getInstance();
-    private Drive drive_ = Drive.getInstance();
-    private double left_encoder_prev_distance_ = 0.0;
-    private double right_encoder_prev_distance_ = 0.0;
-    private double back_encoder_prev_distance_ = 0.0;
+    /**
+     * The LIDAR/encoder RobotStateMap objects represent two views
+     * of the robot's current state (state is pose, velocity, 
+     * and distance driven).
+     */
+    private RobotStateMap mEncoderRobotState = new RobotStateMap();
+    private RobotStateMap mLidarRobotState = new RobotStateMap();
+    private Drive mDrive;
     private LidarProcessor mLidarProcessor;
+    private double mLeftEncoderPrevDistance = 0.0;
+    private double mRightEncoderPrevDistance = 0.0;
 
     RobotStateEstimator()
     {
-        /* warning, this starts up the lidar server, might need to
-         * defer this til start.
-         */
+        mDrive = Drive.getInstance();
+        /*
+            Warning: This starts the LIDAR server on robot boot.
+            This may need to be deferred until autonomousInit or
+            something (because of the rules).
+        */
+        final Pose2d vehicleToLidar = new Pose2d(
+            Constants.kLidarXOffset, Constants.kLidarYOffset,
+            Rotation2d.fromDegrees(Constants.kLidarYawAngleDegrees)
+        );
         mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunInRobot, 
                             Constants.kSegmentReferenceModel,
-                            robot_state_/*IRobotStateMap*/,
+                            mEncoderRobotState,
+                            mLidarRobotState,
+                            vehicleToLidar,
                             () -> Timer.getFPGATimestamp());
+    }
+
+    public RobotStateMap getEncoderRobotStateMap()
+    {
+        return mEncoderRobotState;
+    }
+
+    public RobotStateMap getLidarRobotStateMap()
+    {
+        return mLidarRobotState;
     }
 
     @Override
@@ -48,7 +74,14 @@ public class RobotStateEstimator extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        // No-op
+        Pose2d odometry = mEncoderRobotState.getLatestFieldToVehicle().getValue();
+        SmartDashboard.putString("RobotState/pose",
+                odometry.getTranslation().x() +
+                        " " + odometry.getTranslation().y() +
+                        " " + odometry.getRotation().getDegrees());
+        Twist2d measuredVelocity = mEncoderRobotState.getMeasuredVelocity().getValue();
+        SmartDashboard.putNumber("RobotState/velocity", measuredVelocity.dx);
+        SmartDashboard.putNumber("RobotState/field_degrees", mEncoderRobotState.getLatestFieldToVehicle().getValue().getRotation().getDegrees());
     }
 
     @Override
@@ -70,27 +103,31 @@ public class RobotStateEstimator extends Subsystem
         @Override
         public synchronized void onStart(double timestamp)
         {
-            left_encoder_prev_distance_ = drive_.getLeftEncoderDistance();
-            right_encoder_prev_distance_ = drive_.getRightEncoderDistance();
+            mLeftEncoderPrevDistance = mDrive.getLeftEncoderDistance();
+            mRightEncoderPrevDistance = mDrive.getRightEncoderDistance();
 
         }
 
         @Override
         public synchronized void onLoop(double timestamp)
         {
-            final double left_distance = drive_.getLeftEncoderDistance();
-            final double right_distance = drive_.getRightEncoderDistance();
-            final double delta_left = left_distance - left_encoder_prev_distance_;
-            final double delta_right = right_distance - right_encoder_prev_distance_;
-            final Rotation2d gyro_angle = drive_.getHeading();
-            final Twist2d odometry_velocity = robot_state_.generateOdometryFromSensors(
-                    delta_left, delta_right, gyro_angle);
-            final Twist2d predicted_velocity = Kinematics.forwardKinematics(drive_.getLeftLinearVelocity(),
-                    drive_.getRightLinearVelocity());
-            robot_state_.addObservations(timestamp, odometry_velocity,
-                    predicted_velocity);
-            left_encoder_prev_distance_ = left_distance;
-            right_encoder_prev_distance_ = right_distance;
+            final double leftDistance = mDrive.getLeftEncoderDistance();
+            final double rightDistance = mDrive.getRightEncoderDistance();
+            final double leftDelta = leftDistance - mLeftEncoderPrevDistance;
+            final double rightDelta = rightDistance - mRightEncoderPrevDistance;
+            final Rotation2d gyroAngle = mDrive.getHeading();
+
+            mLeftEncoderPrevDistance = leftDistance;
+            mRightEncoderPrevDistance = rightDistance;
+
+            final Twist2d measured_velocity = getVelocityFromDeltas(
+                    leftDelta, rightDelta, gyroAngle);
+            final Twist2d predicted_velocity = Kinematics.forwardKinematics(mDrive.getLeftLinearVelocity(),
+                    mDrive.getRightLinearVelocity());
+
+            mEncoderRobotState.addObservations(timestamp,
+                Kinematics.integrateForwardKinematics(mEncoderRobotState.getLatestFieldToVehicle().getValue(), measured_velocity),
+                measured_velocity, predicted_velocity);
         }
 
         @Override
@@ -98,5 +135,13 @@ public class RobotStateEstimator extends Subsystem
         {
             // no-op
         }
+    }
+
+    private Twist2d getVelocityFromDeltas(double leftEncoderDelta,
+            double rightEncoderDelta, Rotation2d currentGyroAngle)
+    {
+        final Pose2d last_measurement = mEncoderRobotState.getLatestFieldToVehicle().getValue();
+        return Kinematics.forwardKinematics(last_measurement.getRotation(), leftEncoderDelta,
+                rightEncoderDelta, currentGyroAngle);
     }
 }

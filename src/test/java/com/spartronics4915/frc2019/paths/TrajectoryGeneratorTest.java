@@ -100,6 +100,6 @@ public class TrajectoryGeneratorTest
         {
                 TrajectoryGenerator.getInstance().generateTrajectories();
 
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().test, true);
+                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().test, false);
         }
 }

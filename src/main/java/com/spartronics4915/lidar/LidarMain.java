@@ -2,16 +2,13 @@ package com.spartronics4915.lidar;
 
 import com.spartronics4915.lidar.Looper;
 import com.spartronics4915.lib.util.Logger;
-import com.spartronics4915.lib.util.InterpolatingDouble;
-import com.spartronics4915.lib.util.InterpolatingTreeMap;
+import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.lidar.LidarProcessor;
 
 public class LidarMain
 {
-    private static final int kPoseMapSize = 100;
-    private static InterpolatingTreeMap<InterpolatingDouble, Pose2d> sPoses =
-            new InterpolatingTreeMap<InterpolatingDouble, Pose2d>(kPoseMapSize);
+    public static final RobotStateMap sRobotStateMap = new RobotStateMap();
 
     public static void main(String[] args)
     {
@@ -20,8 +17,8 @@ public class LidarMain
         Logger.setVerbosity("DEBUG");
 
         mLooper = new Looper();
-        mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunAsTest,
-                                null, null, () -> System.currentTimeMillis() / 1000d);
+        mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunAsTest, null,
+                sRobotStateMap, sRobotStateMap, new Pose2d(), () -> System.currentTimeMillis() / 1000d);
         mLooper.register(mLidarProcessor);
         boolean started = mLidarProcessor.isConnected();
         if(!started)
@@ -40,11 +37,7 @@ public class LidarMain
             }
         });
 
-        Pose2d zeroPose = new Pose2d();
-        double ts = System.currentTimeMillis() / 1000d;
-        sPoses.put(new InterpolatingDouble(ts), zeroPose);
         mLooper.start();
-
         while (true)
         {
             try
@@ -57,10 +50,5 @@ public class LidarMain
                 Logger.exception(e);
             }
         }
-    }
-
-    public static Pose2d getRobotPose(double timestamp)
-    {
-        return sPoses.get(new InterpolatingDouble(timestamp));
     }
 }

@@ -7,10 +7,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.RobotState;
+import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
-import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
@@ -46,15 +45,13 @@ public class Turret extends Subsystem
     private static final int kPIDSlot = 0;
 
     private TalonSRX mMotor;
-    private RobotState mOdometry;
+    private RobotStateMap mRobotStateMap;
     private WantedState mWantedState = WantedState.DISABLED;
     private SystemState mSystemState = SystemState.DISABLING;
     private double mLastTurretAngle = 0;
 
     private Turret()
     {
-        mOdometry = RobotState.getInstance();
-
         boolean success = true;
         try
         {
@@ -106,7 +103,7 @@ public class Turret extends Subsystem
                 {
                     case FOLLOWING:
                         Pose2d pose;
-                        pose = mOdometry.getFieldToVehicle(Timer.getFPGATimestamp());
+                        pose = mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp());
                         double newAbsoluteAngle = calculateAbsoluteTurretAngle(pose, Constants.kTurretTargetFieldPosition);
                         mMotor.set(ControlMode.Position,
                                 mMotor.getSelectedSensorPosition(0) + rotationsToRawUnits((newAbsoluteAngle - mLastTurretAngle) / 360));
@@ -164,6 +161,11 @@ public class Turret extends Subsystem
                 break;
             case FOLLOW_ODOMETRY:
                 newState = SystemState.FOLLOWING;
+                mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+                break;
+            case FOLLOW_LIDAR:
+                newState = SystemState.FOLLOWING;
+                mRobotStateMap = RobotStateEstimator.getInstance().getLidarRobotStateMap();
                 break;
             default:
                 newState = SystemState.DISABLING;
