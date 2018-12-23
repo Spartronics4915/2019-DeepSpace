@@ -79,7 +79,7 @@ public class RobotStateEstimator extends Subsystem
                 odometry.getTranslation().x() +
                         " " + odometry.getTranslation().y() +
                         " " + odometry.getRotation().getDegrees());
-        Twist2d measuredVelocity = mEncoderRobotState.getMeasuredVelocity().getValue();
+        Twist2d measuredVelocity = mEncoderRobotState.getPredictedVelocity().getValue();
         SmartDashboard.putNumber("RobotState/velocity", measuredVelocity.dx);
         SmartDashboard.putNumber("RobotState/field_degrees", mEncoderRobotState.getLatestFieldToVehicle().getValue().getRotation().getDegrees());
     }

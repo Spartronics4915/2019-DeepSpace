@@ -122,7 +122,7 @@ public class LidarProcessor implements ILoop
     private final ReadWriteLock mRWLock; 
     private LinkedBlockingQueue<LidarScan> mScanQueue;
     private LidarScan mActiveScan;
-    private final OperatingMode mMode = OperatingMode.kRelative;
+    private final OperatingMode mMode = OperatingMode.kAbsolute;
     private WSClient mWSClient;
     private IReferenceModel mReferenceModel;
     private RobotStateMap mEncoderStateMap;
@@ -155,7 +155,7 @@ public class LidarProcessor implements ILoop
         RobotStateMap encoderStateMap, RobotStateMap lidarStateMap, Pose2d vehicleToLidar, DoubleSupplier timeSupplier) 
     {
         Logger.debug("LidarProcessor starting...");
-        mICP = new ICP(100);
+        mICP = new ICP(LibConstants.kICPTimeoutMs);
         mScanQueue = new LinkedBlockingQueue<LidarScan>();
         mRelativeICP = new RelativeICPProcessor(mICP);
         mRWLock = new ReentrantReadWriteLock();
@@ -259,7 +259,6 @@ public class LidarProcessor implements ILoop
     {
         try
         {
-            Pose2d lastPose = mLidarStateMap.getLatestFieldToVehicle().getValue();
             Pose2d p = null;
             if(mMode == OperatingMode.kRelative)
             {
@@ -267,8 +266,8 @@ public class LidarProcessor implements ILoop
                 if(xform != null)
                 {
                     p = xform.inverse().toPose2d();
-                    p = p.transformBy(lastPose);
-                    Logger.debug("relativeICP: " + p.toString());
+                    p = p.transformBy(mLidarStateMap.getLatestFieldToVehicle().getValue());
+                    // Logger.debug("relativeICP: " + p.toString());
                 }
                 else Logger.warning("Relative ICP returned a null transform!");
             } 
@@ -279,13 +278,14 @@ public class LidarProcessor implements ILoop
                                 new Transform(estimate).inverse(), 
                                 mReferenceModel);
                 p  = xform.inverse().toPose2d();
-                Logger.debug("absoluteICP: " + p.toString());
+                // Logger.debug("absoluteICP: " + p.toString());
             }
 
             if (p != null)
             {
+                Pose2d pose1SecBeforeScan = mLidarStateMap.getFieldToVehicle(scan.getTimestamp() - 1000);
                 mLidarStateMap.addObservations(scan.getTimestamp(), p,
-                    new Twist2d(p.distance(lastPose), 0, p.getRotation().distance(lastPose.getRotation())),
+                    new Twist2d(p.distance(pose1SecBeforeScan), 0, p.getRotation().distance(pose1SecBeforeScan.getRotation())),
                     Twist2d.identity() /* No good way to get predicted velocity */);
             }
         }

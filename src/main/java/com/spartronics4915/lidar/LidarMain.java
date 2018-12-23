@@ -3,12 +3,32 @@ package com.spartronics4915.lidar;
 import com.spartronics4915.lidar.Looper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.RobotStateMap;
+import com.spartronics4915.lib.util.SegmentBuilder;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.lidar.LidarProcessor;
+import com.spartronics4915.lib.lidar.icp.Point;
+import com.spartronics4915.lib.lidar.icp.SegmentReferenceModel;
 
 public class LidarMain
 {
     public static final RobotStateMap sRobotStateMap = new RobotStateMap();
+    public static final SegmentReferenceModel sReferenceModel = new SegmentReferenceModel(
+        new SegmentBuilder(new Point(53, 0)).
+        verticalBy(30).
+        horizontalBy(18).
+        verticalBy(45).
+        horizontalBy(-26).
+        verticalBy(94).
+        horizontalBy(-61.5).
+        verticalBy(-49.5).
+        horizontalBy(13.5).
+        verticalBy(-39).
+        horizontalBy(3.5).
+        verticalBy(-35).
+        horizontalBy(-3.5).
+        verticalBy(-43).
+        getSegments()
+    );
 
     public static void main(String[] args)
     {
@@ -17,7 +37,7 @@ public class LidarMain
         Logger.setVerbosity("DEBUG");
 
         mLooper = new Looper();
-        mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunAsTest, null,
+        mLidarProcessor = new LidarProcessor(LidarProcessor.RunMode.kRunAsTest, sReferenceModel,
                 sRobotStateMap, sRobotStateMap, new Pose2d(), () -> System.currentTimeMillis() / 1000d);
         mLooper.register(mLidarProcessor);
         boolean started = mLidarProcessor.isConnected();
@@ -43,7 +63,9 @@ public class LidarMain
             try
             {
                 // Lidar Processing occurs in LidarProcessor
-                Thread.sleep(200);
+                Thread.sleep(1000);
+                Logger.debug("Pose (in from origin): " + sRobotStateMap.getLatestFieldToVehicle().getValue().toString());
+                Logger.debug("Velocity (in/sec): " + sRobotStateMap.getPredictedVelocity().getValue().toString());
             }
             catch(Exception e)
             {

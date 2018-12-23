@@ -2,17 +2,11 @@ package com.spartronics4915.frc2019;
 
 import edu.wpi.first.wpilibj.Solenoid;
 
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.nio.file.Paths;
-import java.util.Enumeration;
-
 import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.lidar.icp.IReferenceModel;
 import com.spartronics4915.lib.lidar.icp.Point;
 import com.spartronics4915.lib.lidar.icp.Segment;
 import com.spartronics4915.lib.lidar.icp.SegmentReferenceModel;
-import com.spartronics4915.lib.util.DriveSignal;
 
 /**
  * A list of constants used by the rest of the robot code. This include physics
