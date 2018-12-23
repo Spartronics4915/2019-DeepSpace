@@ -67,15 +67,25 @@ public class RobotStateMap
     public synchronized Pose2d getPredictedFieldToVehicle(double lookahead_time)
     {
         return getLatestFieldToVehicle().getValue()
-                .transformBy(Pose2d.exp(getPredictedVelocity().getValue().scaled(lookahead_time)));
+                .transformBy(Pose2d.exp(getLatestPredictedVelocity().getValue().scaled(lookahead_time)));
     }
 
-    public synchronized Map.Entry<InterpolatingDouble, Twist2d> getPredictedVelocity()
+    public synchronized Twist2d getPredictedVelocity(double timestamp)
+    {
+        return mPredictedVelocity.getInterpolated(new InterpolatingDouble(timestamp));
+    }
+
+    public synchronized Map.Entry<InterpolatingDouble, Twist2d> getLatestPredictedVelocity()
     {
         return mPredictedVelocity.lastEntry();
     }
 
-    public synchronized Map.Entry<InterpolatingDouble, Twist2d> getMeasuredVelocity()
+    public synchronized Twist2d getMeasuredVelocity(double timestamp)
+    {
+        return mMeasuredVelocity.getInterpolated(new InterpolatingDouble(timestamp));
+    }
+
+    public synchronized Map.Entry<InterpolatingDouble, Twist2d> getLatestMeasuredVelocity()
     {
         return mMeasuredVelocity.lastEntry();
     }

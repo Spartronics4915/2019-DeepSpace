@@ -65,8 +65,8 @@ public class CollectCurvatureData implements Action
         }
         mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kStartPower, (mReverse ? -1.0 : 1.0) * rightPower));
         mCurvatureData.add(new DriveCharacterization.CurvatureDataPoint(
-                mRobotStateMap.getPredictedVelocity().getValue().dx,
-                mRobotStateMap.getPredictedVelocity().getValue().dtheta,
+                mRobotStateMap.getLatestPredictedVelocity().getValue().dx,
+                mRobotStateMap.getLatestPredictedVelocity().getValue().dtheta,
                 kStartPower,
                 rightPower));
         mCSVWriter.add(mCurvatureData.get(mCurvatureData.size() - 1));
