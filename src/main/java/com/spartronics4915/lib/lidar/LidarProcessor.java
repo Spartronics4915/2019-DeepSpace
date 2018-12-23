@@ -259,6 +259,7 @@ public class LidarProcessor implements ILoop
     {
         try
         {
+            Pose2d lastPose = mLidarStateMap.getLatestFieldToVehicle().getValue();
             Pose2d p = null;
             if(mMode == OperatingMode.kRelative)
             {
@@ -266,6 +267,7 @@ public class LidarProcessor implements ILoop
                 if(xform != null)
                 {
                     p = xform.inverse().toPose2d();
+                    p = p.transformBy(lastPose);
                     Logger.debug("relativeICP: " + p.toString());
                 }
                 else Logger.warning("Relative ICP returned a null transform!");
@@ -282,7 +284,6 @@ public class LidarProcessor implements ILoop
 
             if (p != null)
             {
-                Pose2d lastPose = mLidarStateMap.getLatestFieldToVehicle().getValue();
                 mLidarStateMap.addObservations(scan.getTimestamp(), p,
                     new Twist2d(p.distance(lastPose), 0, p.getRotation().distance(lastPose.getRotation())),
                     Twist2d.identity() /* No good way to get predicted velocity */);
