@@ -41,6 +41,12 @@ public class DriveSignal
         return mBrakeMode;
     }
 
+    public DriveSignal scale(double s)
+    {
+        return new DriveSignal(this.mLeftMotor*s, this.mRightMotor*s,
+                            this.mBrakeMode);
+    }
+
     @Override
     public String toString()
     {

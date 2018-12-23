@@ -3,6 +3,18 @@
 Wherein we discuss the murky business of getting the robot to move where we 
 want and at the speed we want.
 
+<!-- TOC depthFrom:2 depthTo:6 orderedList:false updateOnSave:true withLinks:true -->
+
+- [Velocity Control Mode](#velocity-control-mode)
+- [Delivering Target Velocities](#delivering-target-velocities)
+- [Drive Characterization](#drive-characterization)
+    - [DCMotorTransmission](#dcmotortransmission)
+    - [DifferentialDrive](#differentialdrive)
+- [Computing Target Velocities For a Planned Path](#computing-target-velocities-for-a-planned-path)
+
+<!-- /TOC -->
+
+
 ## Velocity Control Mode
 
 Our CANTalons can be operated in a confusing variety of modes.  Central to
@@ -23,8 +35,8 @@ So we must take some care is selecting values for Kf that make the PID tuning
 more efficient and reliable. We now consider _what are the units of Kf_?  
 We know that PID values are multipliers for the error terms but
 since Kf is independent of the error, it makes sense that its meaning (and units)
-are different. CTRE docs, [Feed Forward, Kf](https://github.com/CrossTheRoadElec/Phoenix-Documentation/blob/master/README.md#feed-forward-kf), provide the following
-formula for selecting Kf.
+are different. CTRE docs, [Feed Forward, Kf](https://github.com/CrossTheRoadElec/Phoenix-Documentation/blob/master/README.md#feed-forward-kf),
+provide the following formula for selecting Kf.
 
     Kf = ([Percent Output] x 1023) / [Velocity]
 
