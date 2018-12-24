@@ -65,7 +65,7 @@ public class LidarMain
                 // Lidar Processing occurs in LidarProcessor
                 Thread.sleep(1000);
                 Logger.debug("Pose (in from origin): " + sRobotStateMap.getLatestFieldToVehicle().getValue().toString());
-                Logger.debug("Velocity (in/sec): " + sRobotStateMap.getLatestPredictedVelocity().getValue().toString());
+                // Logger.debug("Measured velocity (in/sec): " + sRobotStateMap.getLatestMeasuredVelocity().getValue().toString());
             }
             catch(Exception e)
             {

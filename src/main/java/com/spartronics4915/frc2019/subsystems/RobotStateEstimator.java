@@ -35,6 +35,8 @@ public class RobotStateEstimator extends Subsystem
     private double mLeftEncoderPrevDistance = 0.0;
     private double mRightEncoderPrevDistance = 0.0;
 
+    private static final Pose2d kZeroPose = Pose2d.identity();
+
     RobotStateEstimator()
     {
         mDrive = Drive.getInstance();
@@ -63,6 +65,12 @@ public class RobotStateEstimator extends Subsystem
     public RobotStateMap getLidarRobotStateMap()
     {
         return mLidarRobotState;
+    }
+
+    public void resetRobotStateMaps(double timestamp)
+    {
+        mEncoderRobotState.reset(timestamp, kZeroPose);
+        mLidarRobotState.reset(timestamp, kZeroPose);
     }
 
     @Override

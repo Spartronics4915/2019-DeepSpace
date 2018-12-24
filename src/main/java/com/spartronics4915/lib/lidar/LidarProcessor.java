@@ -122,7 +122,7 @@ public class LidarProcessor implements ILoop
     private final ReadWriteLock mRWLock; 
     private LinkedBlockingQueue<LidarScan> mScanQueue;
     private LidarScan mActiveScan;
-    private final OperatingMode mMode = OperatingMode.kAbsolute;
+    private final OperatingMode mMode = OperatingMode.kRelative;
     private WSClient mWSClient;
     private IReferenceModel mReferenceModel;
     private RobotStateMap mEncoderStateMap;

@@ -136,7 +136,7 @@ public class Robot extends IterativeRobot
             }
 
             Drive.getInstance().zeroSensors();
-            resetRobotStateMaps(Timer.getFPGATimestamp());
+            RobotStateEstimator.getInstance().resetRobotStateMaps(Timer.getFPGATimestamp());
 
             // Reset all auto mode state.
             mAutoModeExecutor = new AutoModeExecutor();
@@ -162,7 +162,7 @@ public class Robot extends IterativeRobot
 
             mDisabledLooper.stop();
 
-            resetRobotStateMaps(Timer.getFPGATimestamp());
+            RobotStateEstimator.getInstance().resetRobotStateMaps(Timer.getFPGATimestamp());
             Drive.getInstance().zeroSensors();
 
             mAutoModeExecutor.setAutoMode(AutoModeSelector.getSelectedAutoMode());
@@ -339,12 +339,5 @@ public class Robot extends IterativeRobot
             RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("Robot/InputCurrent", 
             RobotController.getInputCurrent());
-    }
-
-    private void resetRobotStateMaps(double timestamp)
-    {
-        RobotStateEstimator rsi = RobotStateEstimator.getInstance();
-        rsi.getEncoderRobotStateMap().reset(timestamp, Pose2d.identity());
-        rsi.getLidarRobotStateMap().reset(timestamp, Pose2d.identity());
     }
 }

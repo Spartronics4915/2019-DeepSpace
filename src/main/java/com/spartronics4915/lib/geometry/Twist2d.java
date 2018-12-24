@@ -68,7 +68,11 @@ public class Twist2d implements Interpolable<Twist2d>
             return new Twist2d(this);
         else if (x >= 1)
             return new Twist2d(other);
-        final Twist2d t = new Twist2d(other.dx - this.dx, other.dy - this.dy, other.dtheta - this.dtheta);
+        final Twist2d t = new Twist2d(
+            this.dx + x*(other.dx - this.dx),
+            this.dy + x*(other.dy - this.dy),
+            this.dtheta + x*(other.dtheta - this.dtheta
+            ));
         return t.scaled(x);
     }
 
