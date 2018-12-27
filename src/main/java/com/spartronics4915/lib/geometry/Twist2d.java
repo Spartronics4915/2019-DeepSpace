@@ -73,6 +73,7 @@ public class Twist2d implements Interpolable<Twist2d>
             this.dy + x*(other.dy - this.dy),
             this.dtheta + x*(other.dtheta - this.dtheta
             ));
+        // should just return t, no need for scaled
         return t.scaled(x);
     }
 
