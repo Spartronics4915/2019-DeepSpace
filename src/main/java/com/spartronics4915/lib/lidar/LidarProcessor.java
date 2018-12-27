@@ -12,9 +12,10 @@ import com.spartronics4915.lib.lidar.icp.Transform;
 import com.spartronics4915.lib.util.ILoop;
 
 import com.spartronics4915.lib.geometry.Translation2d;
+import com.spartronics4915.lib.geometry.Twist2d;
 import com.spartronics4915.lib.geometry.Pose2d;
-import com.spartronics4915.lib.geometry.IRobotStateMap;
 import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.lib.util.RobotStateMap;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -107,7 +108,9 @@ public class LidarProcessor implements ILoop
         kAbsolute
     };
 
-    private static boolean sDebugPoints=false;
+    private static boolean sDebugPoints = false;
+    private final Pose2d kVehicleToLidar;
+
     private LidarServer mLidarServer;
     private double mScanTime;
     private double mLastScanTime;
@@ -122,7 +125,8 @@ public class LidarProcessor implements ILoop
     private final OperatingMode mMode = OperatingMode.kRelative;
     private WSClient mWSClient;
     private IReferenceModel mReferenceModel;
-    private IRobotStateMap mStateMap;
+    private RobotStateMap mEncoderStateMap;
+    private RobotStateMap mLidarStateMap;
     private DoubleSupplier mTimeSupplier;
 
     // A scan is a collection of lidar points.  The scan, itself,
@@ -133,26 +137,25 @@ public class LidarProcessor implements ILoop
     // time a point is acquired by interpolating known robot poses to
     // the requested time.  Since this operation is non-trivial and since
     // we assume that multiple LidarPoints are acquired at the "same time",
-    // we employ a local cache that maps timestamp to robot pose.  This
-    // cache is a "class variable" - ie it's shared across all points.
+    // we employ a local cache that maps timestamp to robot pose.
     private final static int MAX_ENTRIES = 10;
-    private final static LinkedHashMap<Double, IRobotStateMap.State> sRobotStateMap = 
-        new LinkedHashMap<Double, IRobotStateMap.State>() 
+    private final static LinkedHashMap<Double, Pose2d> sLidarPoseCache = 
+        new LinkedHashMap<Double, Pose2d>() 
     {
         private static final long serialVersionUID = 1L;
 
         @Override
-        protected boolean removeEldestEntry(Map.Entry<Double,IRobotStateMap.State> eldest)
+        protected boolean removeEldestEntry(Map.Entry<Double, Pose2d> eldest)
         {
             return this.size() > MAX_ENTRIES;
         }
     };
 
     public LidarProcessor(RunMode runMode, IReferenceModel refmodel,
-        IRobotStateMap stateMap, DoubleSupplier timeSupplier) 
+        RobotStateMap encoderStateMap, RobotStateMap lidarStateMap, Pose2d vehicleToLidar, DoubleSupplier timeSupplier) 
     {
         Logger.debug("LidarProcessor starting...");
-        mICP = new ICP(100);
+        mICP = new ICP(LibConstants.kICPTimeoutMs);
         mScanQueue = new LinkedBlockingQueue<LidarScan>();
         mRelativeICP = new RelativeICPProcessor(mICP);
         mRWLock = new ReentrantReadWriteLock();
@@ -163,8 +166,10 @@ public class LidarProcessor implements ILoop
         mScanCount = 0;
         mActiveScan = null;
         mReferenceModel = refmodel; // may be null
-        mStateMap = stateMap;
+        mEncoderStateMap = encoderStateMap;
+        mLidarStateMap = lidarStateMap; // This could be the same object as above
         mTimeSupplier = timeSupplier;
+        kVehicleToLidar = vehicleToLidar;
 
         try 
         {
@@ -254,29 +259,35 @@ public class LidarProcessor implements ILoop
     {
         try
         {
-            Pose2d p;
+            Pose2d p = null;
             if(mMode == OperatingMode.kRelative)
             {
                 Transform xform = mRelativeICP.doRelativeICP(scan.getPoints());
                 if(xform != null)
                 {
                     p = xform.inverse().toPose2d();
-                    Logger.debug("relativeICP: " + p.toString());
+                    p = p.transformBy(mLidarStateMap.getLatestFieldToVehicle().getValue());
+                    // Logger.debug("relativeICP: " + p.toString());
                 }
+                else Logger.warning("Relative ICP returned a null transform!");
             } 
             else
             {
-                IRobotStateMap.State estimate = mStateMap.get(scan.getTimestamp());
+                Pose2d estimate = mEncoderStateMap.getFieldToVehicle(scan.getTimestamp());
                 Transform xform = mICP.doICP(getCulledPoints(scan), 
-                                new Transform(estimate.position).inverse(), 
+                                new Transform(estimate).inverse(), 
                                 mReferenceModel);
                 p  = xform.inverse().toPose2d();
-                Logger.debug("absoluteICP: " + p.toString());
+                // Logger.debug("absoluteICP: " + p.toString());
             }
-            // until robot is actually moving, we don't want
-            // to update robot pose. That is, we expect the
-            // "same" point cloud each iteration.
-            // sPoses.put(new InterpolatingDouble(ts), zeroPose);
+
+            if (p != null)
+            {
+                Pose2d pose1SecBeforeScan = mLidarStateMap.getFieldToVehicle(scan.getTimestamp() - 1000);
+                mLidarStateMap.addObservations(scan.getTimestamp(), p,
+                    new Twist2d(p.distance(pose1SecBeforeScan), 0, p.getRotation().distance(pose1SecBeforeScan.getRotation())),
+                    Twist2d.identity() /* No good way to get predicted velocity */);
+            }
         }
         catch(Exception e)
         {
@@ -339,18 +350,19 @@ public class LidarProcessor implements ILoop
         Pose2d robotLoc = null;
         if(this.mMode == OperatingMode.kAbsolute)
         {
-            IRobotStateMap.State robotState = null;
-            if (sRobotStateMap.containsKey(ts)) 
+            Pose2d robotPose = null;
+            if (sLidarPoseCache.containsKey(ts)) 
             {
-                robotState = sRobotStateMap.get(ts);
+                robotPose = sLidarPoseCache.get(ts);
             } 
             else
             {
-                robotState = sRobotStateMap.get(ts);
-                if(robotState != null)
-                    sRobotStateMap.put(ts, robotState);
+                // This is to correct for time smear
+                robotPose = mEncoderStateMap.getFieldToVehicle(ts).transformBy(kVehicleToLidar);
+                if(robotPose != null)
+                    sLidarPoseCache.put(ts, robotPose);
             }
-            robotLoc = robotState.position;
+            robotLoc = robotPose;
         }
         LidarPoint lpt = new LidarPoint(ts, angle, dist); 
         Translation2d cartesian = lpt.toCartesian(robotLoc);
@@ -369,6 +381,7 @@ public class LidarProcessor implements ILoop
         }
     }
 
+    // TODO: Pass this from frc2019.Constants
     private static final double FIELD_WIDTH = 27 * 12, FIELD_HEIGHT = 54 * 12;
     private static final double RECT_RX = FIELD_WIDTH / 5, RECT_RY = FIELD_HEIGHT / 2;
     private static final double FIELD_CX = FIELD_WIDTH / 2, FIELD_CY = FIELD_HEIGHT / 2;

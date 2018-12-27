@@ -5,7 +5,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.RobotState;
+import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
@@ -381,6 +381,7 @@ public class Drive extends Subsystem
         return mPeriodicIO.right_velocity_ticks_per_100ms;
     }
 
+    // in/sec
     public double getRightLinearVelocity()
     {
         return rotationsToInches(getRightVelocityTicksPer100ms() * 10.0 / Constants.kDriveEncoderPPR);
@@ -391,6 +392,7 @@ public class Drive extends Subsystem
         return mPeriodicIO.left_velocity_ticks_per_100ms;
     }
 
+    // in/sec
     public double getLeftLinearVelocity()
     {
         return rotationsToInches(getLeftVelocityTicksPer100ms() * 10.0 / Constants.kDriveEncoderPPR);
@@ -417,7 +419,8 @@ public class Drive extends Subsystem
         {
             final double now = Timer.getFPGATimestamp();
 
-            DriveMotionPlanner.Output output = mMotionPlanner.update(now, RobotState.getInstance().getFieldToVehicle(now));
+            DriveMotionPlanner.Output output =
+                mMotionPlanner.update(now, RobotStateEstimator.getInstance().getEncoderRobotStateMap().getFieldToVehicle(now));
 
             // DriveSignal signal = new DriveSignal(demand.left_feedforward_voltage / 12.0, demand.right_feedforward_voltage / 12.0);
 

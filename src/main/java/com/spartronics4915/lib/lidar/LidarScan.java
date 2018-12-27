@@ -2,7 +2,6 @@ package com.spartronics4915.lib.lidar;
 
 import com.spartronics4915.lib.LibConstants;
 import com.spartronics4915.lib.lidar.icp.Point;
-import com.spartronics4915.lib.util.Logger;
 import java.text.NumberFormat;
 
 import java.util.ArrayList;

@@ -1,7 +1,8 @@
 package com.spartronics4915.frc2019.auto.actions;
 
-import com.spartronics4915.frc2019.RobotState;
+import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.frc2019.subsystems.Drive;
+import com.spartronics4915.frc2019.subsystems.RobotStateEstimator;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.trajectory.TimedView;
 import com.spartronics4915.lib.trajectory.Trajectory;
@@ -15,7 +16,7 @@ public class DriveTrajectory implements Action
 {
 
     private static final Drive mDrive = Drive.getInstance();
-    private static final RobotState mRobotState = RobotState.getInstance();
+    private static final RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
 
     private final TrajectoryIterator<TimedState<Pose2dWithCurvature>> mTrajectory;
     private final boolean mResetPose;
@@ -58,7 +59,7 @@ public class DriveTrajectory implements Action
         Logger.debug("Starting trajectory! (length=" + mTrajectory.getRemainingProgress() + ")");
         if (mResetPose)
         {
-            mRobotState.reset(Timer.getFPGATimestamp(), mTrajectory.getState().state().getPose());
+            mRobotStateMap.reset(Timer.getFPGATimestamp(), mTrajectory.getState().state().getPose());
         }
         mDrive.setTrajectory(mTrajectory);
     }

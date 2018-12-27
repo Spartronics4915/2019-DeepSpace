@@ -1,5 +1,6 @@
 package com.spartronics4915.lib.geometry;
 
+import com.spartronics4915.lib.util.Interpolable;
 import com.spartronics4915.lib.util.Util;
 
 import java.text.DecimalFormat;
@@ -7,12 +8,12 @@ import java.text.DecimalFormat;
 /**
  * A movement along an arc at constant curvature and velocity. We can use ideas
  * from "differential calculus" to create
- * new RigidTransform2d's from a Twist2d and visa versa.
+ * new Pose2ds from a Twist2d and visa versa.
  * <p>
  * A Twist can be used to represent a difference between two poses, a velocity,
  * an acceleration, etc.
  */
-public class Twist2d
+public class Twist2d implements Interpolable<Twist2d>
 {
 
     protected static final Twist2d kIdentity = new Twist2d(0.0, 0.0, 0.0);
@@ -58,6 +59,21 @@ public class Twist2d
         if (Math.abs(dtheta) < Util.kEpsilon && norm() < Util.kEpsilon)
             return 0.0;
         return dtheta / norm();
+    }
+
+    @Override
+    public Twist2d interpolate(final Twist2d other, double x)
+    {
+        if (x <= 0)
+            return new Twist2d(this);
+        else if (x >= 1)
+            return new Twist2d(other);
+        final Twist2d t = new Twist2d(
+            this.dx + x*(other.dx - this.dx),
+            this.dy + x*(other.dy - this.dy),
+            this.dtheta + x*(other.dtheta - this.dtheta
+            ));
+        return t.scaled(x);
     }
 
     @Override

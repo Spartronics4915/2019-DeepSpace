@@ -1,7 +1,8 @@
 package com.spartronics4915.frc2019.auto.actions;
 
-import com.spartronics4915.frc2019.RobotState;
+import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.frc2019.subsystems.Drive;
+import com.spartronics4915.frc2019.subsystems.RobotStateEstimator;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
@@ -18,7 +19,7 @@ public class CollectCurvatureData implements Action
     private static final double kStartTime = 0.25;
     private static final double kRampRate = 0.02;
     private static final Drive mDrive = Drive.getInstance();
-    private static final RobotState mRobotState = RobotState.getInstance();
+    private static final RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
 
     private final ReflectingCSVWriter<DriveCharacterization.CurvatureDataPoint> mCSVWriter;
     private final List<DriveCharacterization.CurvatureDataPoint> mCurvatureData;
@@ -64,8 +65,8 @@ public class CollectCurvatureData implements Action
         }
         mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kStartPower, (mReverse ? -1.0 : 1.0) * rightPower));
         mCurvatureData.add(new DriveCharacterization.CurvatureDataPoint(
-                mRobotState.getPredictedVelocity().dx,
-                mRobotState.getPredictedVelocity().dtheta,
+                mRobotStateMap.getLatestPredictedVelocity().getValue().dx,
+                mRobotStateMap.getLatestPredictedVelocity().getValue().dtheta,
                 kStartPower,
                 rightPower));
         mCSVWriter.add(mCurvatureData.get(mCurvatureData.size() - 1));

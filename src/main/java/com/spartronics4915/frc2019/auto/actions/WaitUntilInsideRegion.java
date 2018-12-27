@@ -1,12 +1,13 @@
 package com.spartronics4915.frc2019.auto.actions;
 
-import com.spartronics4915.frc2019.RobotState;
+import com.spartronics4915.lib.util.RobotStateMap;
+import com.spartronics4915.frc2019.subsystems.RobotStateEstimator;
 import com.spartronics4915.lib.geometry.Translation2d;
 
 public class WaitUntilInsideRegion implements Action
 {
 
-    private final static RobotState mRobotState = RobotState.getInstance();
+    private final static RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
 
     private final Translation2d mBottomLeft;
     private final Translation2d mTopRight;
@@ -28,7 +29,7 @@ public class WaitUntilInsideRegion implements Action
     @Override
     public boolean isFinished()
     {
-        Translation2d position = mRobotState.getLatestFieldToVehicle().getValue().getTranslation();
+        Translation2d position = mRobotStateMap.getLatestFieldToVehicle().getValue().getTranslation();
         return position.x() > mBottomLeft.x() && position.x() < mTopRight.x()
                 && position.y() > mBottomLeft.y() && position.y() < mTopRight.y();
     }

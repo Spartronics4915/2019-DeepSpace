@@ -17,5 +17,6 @@ public class LibConstants
     public static final double kLidarICPTranslationEpsilon = 0.01; // convergence threshold for tx,ty
     public static final double kLidarICPAngleEpsilon = 0.01;       // convergence threshold for theta
     public static final int kLidarShutdownTimeoutMs = 3000;
+    public static final int kICPTimeoutMs = 100;
 
 };

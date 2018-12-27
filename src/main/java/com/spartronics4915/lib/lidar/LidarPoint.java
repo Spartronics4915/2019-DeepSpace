@@ -24,7 +24,7 @@ class LidarPoint
 
     /**
      * Convert this point into a {@link Translation2d} in cartesian (x, y)
-     * coordinates. The point's timestamp is used along with the {@link RobotState}
+     * coordinates. The point's timestamp is used along with the {@link RobotStateMap}
      * to take into account the robot's pose at the time the point was detected.
      * 
      * @param robotPose: optional robotPose, used to transform lidar points
