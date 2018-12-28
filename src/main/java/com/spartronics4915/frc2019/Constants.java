@@ -30,9 +30,9 @@ public class Constants
     public static final double kRobotLinearInertia = 60.0; // kg TODO tune
     public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
-    public static final double kDriveVIntercept = 1.055; // V
-    public static final double kDriveKv = 0.135; // V per rad/s
-    public static final double kDriveKa = 0.012; // V per rad/s^2
+    public static final double kDriveVIntercept = 1.115; // V
+    public static final double kDriveKv = 0.244; // V per rad/s
+    public static final double kDriveKa = 0.025; // V per rad/s^2
 
     // Geometry
     public static final double kCenterToFrontBumperDistance = 38.25 / 2.0;
@@ -63,10 +63,10 @@ public class Constants
     // Units: setpoint, error, and output are in ticks per second.
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
-    public static final double kDriveVelocityKp = 1;
+    public static final double kDriveVelocityKp = 1.0;
     public static final double kDriveVelocityKi = 0.0;
     public static final double kDriveVelocityKd = 0.0;
-    public static final double kDriveVelocityKf = 0.5;
+    public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 

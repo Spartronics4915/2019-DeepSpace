@@ -4,6 +4,7 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class CollectVelocityData implements Action
 {
 
-    private static final double kMaxPower = 0.25;
+    private static final double kMaxPower = 0.5;
     private static final double kRampRate = 0.02;
     private static final Drive mDrive = Drive.getInstance();
 
@@ -45,6 +46,7 @@ public class CollectVelocityData implements Action
     public void start()
     {
         mStartTime = Timer.getFPGATimestamp();
+        Logger.debug("Collecting velocity data");
     }
 
     @Override

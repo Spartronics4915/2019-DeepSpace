@@ -19,8 +19,8 @@ import java.util.List;
 public class TrajectoryGenerator
 {
 
-    private static final double kMaxVelocity = 130.0;
-    private static final double kMaxAccel = 130.0;
+    private static final double kMaxVelocity = 24.0;
+    private static final double kMaxAccel = 24.0;
     private static final double kMaxCentripetalAccel = 100.0;
     private static final double kMaxVoltage = 9.0;
 
@@ -115,7 +115,7 @@ public class TrajectoryGenerator
         {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
-            waypoints.add(new Pose2d(24d, 0d, Rotation2d.identity()));
+            waypoints.add(new Pose2d(60d, 0d, Rotation2d.identity()));
             return generateTrajectory(false, waypoints, 
                 Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
                 kMaxVelocity, kMaxAccel, kMaxVoltage);

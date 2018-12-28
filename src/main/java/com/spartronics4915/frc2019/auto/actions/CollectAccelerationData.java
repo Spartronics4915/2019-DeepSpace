@@ -4,6 +4,7 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import com.spartronics4915.lib.util.Util;
 import edu.wpi.first.wpilibj.Timer;
@@ -47,6 +48,7 @@ public class CollectAccelerationData implements Action
         mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
         mStartTime = Timer.getFPGATimestamp();
         mPrevTime = mStartTime;
+        Logger.debug("Collecting acceleration data");
     }
 
     @Override

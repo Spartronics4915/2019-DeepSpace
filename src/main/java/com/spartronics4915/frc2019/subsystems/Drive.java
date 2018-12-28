@@ -181,6 +181,11 @@ public class Drive extends Subsystem
         return rad_s / (Math.PI * 2.0) * Constants.kDriveEncoderPPR / 10.0;
     }
 
+    private static double ticksPer100msToInchesPerSecond(double t)
+    {
+        return t /  Constants.kDriveEncoderPPR * 10 * (Constants.kDriveWheelDiameterInches * Math.PI);
+    }
+
     @Override
     public void registerEnabledLoops(ILooper in)
     {
@@ -222,6 +227,11 @@ public class Drive extends Subsystem
         mPeriodicIO.right_demand = signal.getRight();
         mPeriodicIO.left_feedforward = feedforward.getLeft();
         mPeriodicIO.right_feedforward = feedforward.getRight();
+
+        dashboardPutString("leftSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.left_demand) + "");
+        dashboardPutString("rightSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.right_demand) + "");
+        dashboardPutString("leftSpeedFeedforward", mPeriodicIO.left_feedforward + "");
+        dashboardPutString("rightSpeedFeedforward", mPeriodicIO.right_feedforward + "");
     }
 
     /**
@@ -232,11 +242,11 @@ public class Drive extends Subsystem
      */
     public synchronized void setVelocity(DriveSignal inchesPerSecVelocity, DriveSignal feedforwardVoltage)
     {
-        logDebug("Switching to closed loop velocity. Target: " + 
-                inchesPerSecVelocity.toString() + 
-                ", Arbitrary feedforward: " + feedforwardVoltage.toString());
         if (mDriveControlState != DriveControlState.VELOCITY)
         {
+            logDebug("Switching to closed loop velocity. Target: " + 
+            inchesPerSecVelocity.toString() + 
+                ", Arbitrary feedforward: " + feedforwardVoltage.toString());
             updateTalonsForVelocity();
             mDriveControlState = DriveControlState.VELOCITY;
         }
