@@ -183,7 +183,9 @@ public class Drive extends Subsystem
 
     private static double ticksPer100msToInchesPerSecond(double t)
     {
-        return t /  Constants.kDriveEncoderPPR * 10 * (Constants.kDriveWheelDiameterInches * Math.PI);
+        double ret = (t /  Constants.kDriveEncoderPPR) * (1/10) * (Constants.kDriveWheelDiameterInches * Math.PI);
+        System.out.println(ret + "");
+        return ret;
     }
 
     @Override
