@@ -11,6 +11,23 @@ public class RobotStateMap
 {
     private static final int kObservationBufferSize = 100;
 
+    // XXX: instead of three maps we could have only one.  Then
+    // we would have less memory and lookup time overhead.  
+    //      class State implements Interpolable 
+    //      { 
+    //          public Pose2d pose;  
+    //          public Twist2d measured; 
+    //          public Twist2d predicted; 
+    //          ... constructors ...
+    //          @Override
+    //          State interpolate(State other, double pct)
+    //          {
+    //              return new State(pose.interplate(other.pose, pct),
+    //                               measured.interpolate(other.measured, pct),      
+    //                               predicted.interpolate(other.predicted, pct),      
+    //                              );
+    //          }
+    //      }
     private InterpolatingTreeMap<InterpolatingDouble, Pose2d> mFieldToVehicle;
     private InterpolatingTreeMap<InterpolatingDouble, Twist2d> mPredictedVelocity;
     private InterpolatingTreeMap<InterpolatingDouble, Twist2d> mMeasuredVelocity;

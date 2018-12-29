@@ -288,8 +288,9 @@ public class LidarProcessor implements ILoop
             else
             {
                 Pose2d estimate = mEncoderStateMap.getFieldToVehicle(scan.getTimestamp());
+                // need to invoke getFieldToLidar, not getFieldToVehicle
                 Transform xform = mICP.doICP(getCulledPoints(scan), 
-                                new Transform(estimate).inverse(), 
+                                new Transform(estimate).inverse(),  // ie: LidarToField
                                 mReferenceModel);
                 pose  = xform.inverse().toPose2d();
 
