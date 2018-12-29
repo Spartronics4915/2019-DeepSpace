@@ -229,11 +229,6 @@ public class Drive extends Subsystem
         mPeriodicIO.right_demand = signal.getRight();
         mPeriodicIO.left_feedforward = feedforward.getLeft();
         mPeriodicIO.right_feedforward = feedforward.getRight();
-
-        dashboardPutString("leftSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.left_demand) + "");
-        dashboardPutString("rightSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.right_demand) + "");
-        dashboardPutString("leftSpeedFeedforward", mPeriodicIO.left_feedforward + "");
-        dashboardPutString("rightSpeedFeedforward", mPeriodicIO.right_feedforward + "");
     }
 
     /**
@@ -257,9 +252,6 @@ public class Drive extends Subsystem
         mPeriodicIO.left_feedforward = feedforwardVoltage.getLeft() / 12;
         mPeriodicIO.right_feedforward = feedforwardVoltage.getRight() / 12;
         mPeriodicIO.left_accel = mPeriodicIO.right_accel = 0;
-
-        dashboardPutString("leftSpeedTarget", inchesPerSecVelocity.getLeft() + "");
-        dashboardPutString("rightSpeedTarget", inchesPerSecVelocity.getRight() + "");
     }
 
     private void updateTalonsForVelocity()
@@ -351,6 +343,16 @@ public class Drive extends Subsystem
         if (mCSVWriter != null)
         {
             mCSVWriter.write();
+        }
+
+        dashboardPutString("leftDemand", mPeriodicIO.left_demand + "");
+        dashboardPutString("rightDemand", mPeriodicIO.right_demand + "");
+        if (mDriveControlState == DriveControlState.VELOCITY || mDriveControlState == DriveControlState.PATH_FOLLOWING)
+        {
+            dashboardPutString("leftSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.left_demand) + "");
+            dashboardPutString("rightSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.right_demand) + "");
+            dashboardPutString("leftSpeedFeedforward", mPeriodicIO.left_feedforward + "");
+            dashboardPutString("rightSpeedFeedforward", mPeriodicIO.right_feedforward + "");
         }
     }
 
@@ -552,8 +554,6 @@ public class Drive extends Subsystem
             mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand/*, DemandType.ArbitraryFeedForward,
                     mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
         }
-        dashboardPutString("left_demand", mPeriodicIO.left_demand + "");
-        dashboardPutString("right_demand", mPeriodicIO.right_demand + "");
     }
 
     @Override

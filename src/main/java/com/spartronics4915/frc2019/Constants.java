@@ -45,9 +45,9 @@ public class Constants
     );
 
     // Pose of the LIDAR frame w.r.t. the robot frame
-    public static final double kLidarXOffset = -3.3211;
-    public static final double kLidarYOffset = 0.0;
-    public static final double kLidarYawAngleDegrees = 0.0;
+    public static final double kLidarXOffset = -11;
+    public static final double kLidarYOffset = -6;
+    public static final double kLidarYawAngleDegrees = -90;
 
     /* CONTROL LOOP GAINS */
     // Gearing and mechanical constants.
