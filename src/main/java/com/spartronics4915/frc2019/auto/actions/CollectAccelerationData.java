@@ -1,6 +1,7 @@
 package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.auto.modes.CharacterizeDrive.SideToCharacterize;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
@@ -23,6 +24,7 @@ public class CollectAccelerationData implements Action
     private final List<DriveCharacterization.AccelerationDataPoint> mAccelerationData;
     private final boolean mTurn;
     private final boolean mReverse;
+    private final SideToCharacterize mSide;
 
     private double mStartTime = 0.0;
     private double mPrevVelocity = 0.0;
@@ -33,12 +35,14 @@ public class CollectAccelerationData implements Action
      * @param highGear use high gear or low
      * @param reverse  if true drive in reverse, if false drive normally
      * @param turn     if true turn, if false drive straight
+     * @param side     the side to collect data for (motors will be run for all sides regardless of this setting)
      */
-    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean reverse, boolean turn)
+    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean reverse, boolean turn, SideToCharacterize side)
     {
         mAccelerationData = data;
         mReverse = reverse;
         mTurn = turn;
+        mSide = side;
         mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "ACCEL_DATA.csv").toString(), DriveCharacterization.AccelerationDataPoint.class);
     }
 
@@ -55,7 +59,7 @@ public class CollectAccelerationData implements Action
     public void update()
     {
         double currentVelocity =
-                (Math.abs(mDrive.getLeftVelocityTicksPer100ms()) + Math.abs(mDrive.getRightVelocityTicksPer100ms())) / Constants.kDriveEncoderPPR * Math.PI * 10;
+                mSide.getVelocitiesFromDrive(mDrive) / Constants.kDriveEncoderPPR * Math.PI * 10;
         double currentTime = Timer.getFPGATimestamp();
 
         //don't calculate acceleration until we've populated prevTime and prevVelocity

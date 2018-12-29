@@ -104,18 +104,30 @@ public class TrajectoryGenerator
             public final Trajectory<TimedState<Pose2dWithCurvature>> right;
         }
 
-        public final MirroredTrajectory test;
+        public final MirroredTrajectory straightTest;
+        public final MirroredTrajectory curvedTest;
 
         private TrajectorySet()
         {
-            test = new MirroredTrajectory(getTest());
+            straightTest = new MirroredTrajectory(getStraightTest());
+            curvedTest = new MirroredTrajectory(getCurvedTest());
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getTest()
+        private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
         {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
             waypoints.add(new Pose2d(60d, 0d, Rotation2d.identity()));
+            return generateTrajectory(false, waypoints, 
+                Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
+                kMaxVelocity, kMaxAccel, kMaxVoltage);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getCurvedTest()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
+            waypoints.add(new Pose2d(60d, 12d, Rotation2d.identity()));
             return generateTrajectory(false, waypoints, 
                 Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
                 kMaxVelocity, kMaxAccel, kMaxVoltage);

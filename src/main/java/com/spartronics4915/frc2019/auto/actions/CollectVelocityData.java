@@ -1,6 +1,7 @@
 package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.auto.modes.CharacterizeDrive.SideToCharacterize;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
@@ -22,6 +23,7 @@ public class CollectVelocityData implements Action
     private final List<DriveCharacterization.VelocityDataPoint> mVelocityData;
     private final boolean mTurn;
     private final boolean mReverse;
+    private final SideToCharacterize mSide;
 
     private boolean isFinished = false;
     private double mStartTime = 0.0;
@@ -33,11 +35,12 @@ public class CollectVelocityData implements Action
      * @param turn     if true turn, if false drive straight
      */
 
-    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turn)
+    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turn, SideToCharacterize side)
     {
         mVelocityData = data;
         mReverse = reverse;
         mTurn = turn;
+        mSide = side;
         mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "VELOCITY_DATA.csv").toString(), DriveCharacterization.VelocityDataPoint.class);
 
     }
@@ -60,7 +63,7 @@ public class CollectVelocityData implements Action
         }
         mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * percentPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower));
         mVelocityData.add(new DriveCharacterization.VelocityDataPoint(
-                (Math.abs(mDrive.getLeftVelocityTicksPer100ms()) + Math.abs(mDrive.getRightVelocityTicksPer100ms())) / Constants.kDriveEncoderPPR * Math.PI * 10, //convert velocity to radians per second
+                mSide.getVelocitiesFromDrive(mDrive) / Constants.kDriveEncoderPPR * Math.PI * 10, //convert velocity to radians per second
                 percentPower * 12.0 //convert to volts
         ));
         mCSVWriter.add(mVelocityData.get(mVelocityData.size() - 1));
