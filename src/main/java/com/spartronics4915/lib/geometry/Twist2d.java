@@ -61,6 +61,11 @@ public class Twist2d implements Interpolable<Twist2d>
         return dtheta / norm();
     }
 
+    /**
+     * for some applications interpolating a Twist2d may be fraught with peril. 
+     * If you are trying to move from a Pose2d according to a Twist2d
+     * consider using Pose2d.interpolate
+     */
     @Override
     public Twist2d interpolate(final Twist2d other, double x)
     {
