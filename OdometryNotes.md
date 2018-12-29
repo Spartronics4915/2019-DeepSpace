@@ -406,15 +406,22 @@ sensor.  It purports to sample up to 8000 times per second and can sense objects
 up to 12m away with an accuracy of .2cm.  There are number of applications
 for range sensing and so far we've been focused on odometry applications.
 The basic idea is to measure all the visible object around the robot, then
-compare how this "map" changes as the robot moves.  Lidar works best on
-objects that reflect _diffusely_.  Since the technology is based on light
-any transparent surface is appoximately invisible to lidar.  Since there is
-a lot of glass/acrylic on the FRC field this represents a concern. Similarly
-mirror-like reflective surfaces aren't easy to capture since the range of
-angles that reflect light back to the sensor is very small (and within the
+compare how this "map" changes as the robot moves.  This approach is of
+the relative variety.  There is also an absolute sensing approach where we
+compare a bunch of lidar samples against a known field map. In this approach
+we can theoretically know our Pose on the field without the integration 
+inaccuracies associated with integrating relative samples. 
+
+Lidar works best on objects that reflect _diffusely_.  Since the technology
+is based on light any transparent surface is appoximately invisible to lidar.
+Since there is a lot of glass/acrylic on the FRC field this represents a concern.
+Similarly mirror-like reflective surfaces aren't easy to capture since the range
+of angles that reflect light back to the sensor is very small (and within the
 nearly perpendicular angle range).  Another challenge will be to figure out
 where we can mount a lidar since it needs a clear line of sight in
-"most directions".
+"most directions" in order to be useful.  In addition to applications for
+odometry (still under investigation) it seems clear that Lidar is an excellent
+sensor for measuring distances accurately.  
 
 See also:
     [Wikipedia](https://en.wikipedia.org/wiki/Lidar),
@@ -423,5 +430,26 @@ See also:
 
 ### Camera
 
-* optical flow
-* stereo cross-correlation (Microsoft Kinect)
+The Camera is the most unimposing of sensors. We're so used to the cameras in
+our phones that we don't really even consider them sensors. Like Lidar, cameras
+sense light in a range of directions.  But rather than measure distance they
+measure the reflectivity of all the light impinging upon the photographic
+subject.  Cameras have obvious sensor applications in _vision_.  Here the
+higher-order understanding of shape and size is possible because we capture an
+entire two-dimensional field of data. Recall that Lidar captures 8000 samples
+per second, consider the amount of data a camera can capture. A low-res image
+suitable for robot-vision applications captures 2.3 million monochrome samples/sec
+(320x240x30). The extra data contains a lot more information and therefore it
+possible to infer much more about a robot's environment. But the cost of aquiring 
+and analyzing all this data is likely too large to burden our underpowered
+roborio processor with.  This leads to the use of external cameras and image
+processing equipment. Some vision problems can even be solved by the driver
+station equiped with a camera.  In the context of odometry if we could mount
+our camera 50 feet above the field pointing down, we could have a very accurate
+understanding of not only our robot but all the robots on the field through 
+straightforward image tracking algorithms.
+
+There are a number of vision algorithms applicable to odometry and they can
+be categorized as _relative_ when the camera is physically mounted on the
+robot. [Wikipedia](https://en.wikipedia.org/wiki/Visual_odometry) presents
+an overview of visual odometry algorithms.
