@@ -272,8 +272,8 @@ public class LidarProcessor implements ILoop
                     // Assumes that timestamps are in seconds
                     double conversion = mLastScanTime - mScanTime;
                     vel = new Twist2d(
-                        pose.getTranslation().x() / conversion,
-                        pose.getTranslation().y() / conversion,
+                        (pose.getTranslation().x() / conversion + pose.getTranslation().y() / conversion) / 2,
+                        0.0,
                         pose.getRotation().getRadians() / conversion
                         );
 
