@@ -218,6 +218,8 @@ public class Drive extends Subsystem
     {
         if (mDriveControlState != DriveControlState.PATH_FOLLOWING)
         {
+            // This branch is never entered because the control state should already be set by setTrajectory
+
             logDebug("Switching to path following");
             // We entered a velocity control state.
             updateTalonsForVelocity();
@@ -254,7 +256,6 @@ public class Drive extends Subsystem
 
     private void updateTalonsForVelocity()
     {
-        logDebug("Updating talons for velocity mode");
         setBrakeMode(true);
         mLeftMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
         mRightMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
@@ -270,6 +271,7 @@ public class Drive extends Subsystem
             mMotionPlanner.reset();
             mMotionPlanner.setTrajectory(trajectory);
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
+            updateTalonsForVelocity();
         }
     }
 

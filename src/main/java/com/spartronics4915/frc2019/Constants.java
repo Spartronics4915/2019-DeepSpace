@@ -27,8 +27,8 @@ public class Constants
     public static final double kTrackScrubFactor = 0.624; // Tune me!
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 60.0; // kg TODO tune
-    public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
+    public static final double kRobotLinearInertia = 22.7; // kg (robot's mass, guessed to be 50 lbs == 22.7 kg) TODO tune
+    public static final double kRobotAngularInertia = 384.2 ; // kg m^2 (from an online calculator) TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
     // Left
     public static final double kDriveLeftVIntercept = 0.9935653543781685; // V
@@ -68,9 +68,9 @@ public class Constants
     // Units: setpoint, error, and output are in ticks per second.
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
-    public static final double kDriveVelocityKp = 1.0;
+    public static final double kDriveVelocityKp = 7.0;
     public static final double kDriveVelocityKi = 0.0;
-    public static final double kDriveVelocityKd = 0.0;
+    public static final double kDriveVelocityKd = 50.0;
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
