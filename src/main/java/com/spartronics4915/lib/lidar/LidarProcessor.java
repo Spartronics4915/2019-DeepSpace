@@ -272,10 +272,10 @@ public class LidarProcessor implements ILoop
                     // Assumes that timestamps are in seconds
                     double conversion = mLastScanTime - mScanTime;
                     vel = new Twist2d(
-                        (pose.getTranslation().x() / conversion + pose.getTranslation().y() / conversion) / 2,
-                        0.0,
+                        pose.getTranslation().x() / conversion,
+                        pose.getTranslation().y() / conversion,
                         pose.getRotation().getRadians() / conversion
-                        );
+                    );
 
                     pose = pose.transformBy(mLidarStateMap.getLatestFieldToVehicle().getValue());
                 }
@@ -294,11 +294,11 @@ public class LidarProcessor implements ILoop
                                 mReferenceModel);
                 pose  = xform.inverse().toPose2d();
 
-                Pose2d pose1SecBeforeScan = mLidarStateMap.getFieldToVehicle(scan.getTimestamp() - 1);
+                Pose2d distFrom1SecBeforescan = mLidarStateMap.getFieldToVehicle(scan.getTimestamp() - 1).inverse().transformBy(pose);
                 vel = new Twist2d(
-                    pose.distance(pose1SecBeforeScan),
-                    0,
-                    pose.getRotation().distance(pose1SecBeforeScan.getRotation()));
+                    distFrom1SecBeforescan.getTranslation().x(),
+                    distFrom1SecBeforescan.getTranslation().y(),
+                    distFrom1SecBeforescan.getRotation().getRadians());
             }
 
             mLidarStateMap.addObservations(scan.getTimestamp(), pose, vel,
