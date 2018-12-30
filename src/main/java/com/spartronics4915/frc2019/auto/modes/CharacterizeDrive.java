@@ -19,18 +19,19 @@ public class CharacterizeDrive extends AutoModeBase
     {
         BOTH, LEFT, RIGHT;
 
-        public double getVelocitiesFromDrive(Drive drive)
+        public double getVelocityTicksPer100ms(Drive drive)
         {
             switch (this)
             {
                 case BOTH:
-                    return
+                    return (
                         Math.abs(drive.getLeftVelocityTicksPer100ms()) +
-                        Math.abs(drive.getRightVelocityTicksPer100ms());
+                        Math.abs(drive.getRightVelocityTicksPer100ms())
+                    ) / 2;
                 case LEFT:
-                    return drive.getLeftVelocityTicksPer100ms();
+                    return Math.abs(drive.getLeftVelocityTicksPer100ms());
                 case RIGHT:
-                    return drive.getRightVelocityTicksPer100ms();
+                    return Math.abs(drive.getRightVelocityTicksPer100ms());
                 default:
                     Logger.warning("Invalid side to characterize " + this);
                     return 0.0;
@@ -48,6 +49,8 @@ public class CharacterizeDrive extends AutoModeBase
     @Override
     protected void routine() throws AutoModeEndedException
     {
+        Logger.debug("Characterizing drivetrain: " + mSide);
+
         List<DriveCharacterization.VelocityDataPoint> velocityData = new ArrayList<>();
         List<DriveCharacterization.AccelerationDataPoint> accelerationData = new ArrayList<>();
 

@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
@@ -183,9 +182,7 @@ public class Drive extends Subsystem
 
     private static double ticksPer100msToInchesPerSecond(double t)
     {
-        double ret = (t /  Constants.kDriveEncoderPPR) * (1/10) * (Constants.kDriveWheelDiameterInches * Math.PI);
-        System.out.println(ret + "");
-        return ret;
+        return (t /  Constants.kDriveEncoderPPR) * 10 * (Constants.kDriveWheelDiameterInches * Math.PI);
     }
 
     @Override
@@ -221,6 +218,7 @@ public class Drive extends Subsystem
     {
         if (mDriveControlState != DriveControlState.PATH_FOLLOWING)
         {
+            logDebug("Switching to path following");
             // We entered a velocity control state.
             updateTalonsForVelocity();
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
@@ -256,6 +254,7 @@ public class Drive extends Subsystem
 
     private void updateTalonsForVelocity()
     {
+        logDebug("Updating talons for velocity mode");
         setBrakeMode(true);
         mLeftMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
         mRightMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
@@ -345,15 +344,17 @@ public class Drive extends Subsystem
             mCSVWriter.write();
         }
 
-        dashboardPutString("leftDemand", mPeriodicIO.left_demand + "");
-        dashboardPutString("rightDemand", mPeriodicIO.right_demand + "");
+        dashboardPutNumber("leftDemand", mPeriodicIO.left_demand);
+        dashboardPutNumber("rightDemand", mPeriodicIO.right_demand);
         if (mDriveControlState == DriveControlState.VELOCITY || mDriveControlState == DriveControlState.PATH_FOLLOWING)
         {
-            dashboardPutString("leftSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.left_demand) + "");
-            dashboardPutString("rightSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.right_demand) + "");
-            dashboardPutString("leftSpeedFeedforward", mPeriodicIO.left_feedforward + "");
-            dashboardPutString("rightSpeedFeedforward", mPeriodicIO.right_feedforward + "");
+            dashboardPutNumber("leftSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.left_demand));
+            dashboardPutNumber("rightSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.right_demand));
+            dashboardPutNumber("leftFeedforward", mPeriodicIO.left_feedforward);
+            dashboardPutNumber("rightFeedforward", mPeriodicIO.right_feedforward);
         }
+
+        dashboardPutState(mDriveControlState.toString());
     }
 
     public synchronized void resetEncoders()
@@ -503,7 +504,7 @@ public class Drive extends Subsystem
         mPeriodicIO.gyro_heading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
 
         double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
-        if (deltaLeftTicks > 0.0)
+        if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
         {
             mPeriodicIO.left_distance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
         }
@@ -549,10 +550,10 @@ public class Drive extends Subsystem
         }
         else
         {
-            mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand/*, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
-            mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand/*, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
+            mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward,
+                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0);
+            mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
+                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0);
         }
     }
 

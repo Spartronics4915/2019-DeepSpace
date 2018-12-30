@@ -56,18 +56,24 @@ public class DriveMotionPlanner implements CSVWritable
 
     public DriveMotionPlanner()
     {
-        final DCMotorTransmission transmission = new DCMotorTransmission(
-                1.0 / Constants.kDriveKv,
-                Units.inches_to_meters(Constants.kDriveWheelRadiusInches) * Units.inches_to_meters(Constants.kDriveWheelRadiusInches)
-                        * Constants.kRobotLinearInertia / (2.0 * Constants.kDriveKa),
-                Constants.kDriveVIntercept);
+        final DCMotorTransmission transmissionLeft = makeTransmission(Constants.kDriveLeftVIntercept, Constants.kDriveLeftKv, Constants.kDriveLeftKa);
+        final DCMotorTransmission transmissionRight = makeTransmission(Constants.kDriveRightVIntercept, Constants.kDriveRightKv, Constants.kDriveRightKa);
         mModel = new DifferentialDrive(
                 Constants.kRobotLinearInertia,
                 Constants.kRobotAngularInertia,
                 Constants.kRobotAngularDrag,
                 Units.inches_to_meters(Constants.kDriveWheelDiameterInches / 2.0),
                 Units.inches_to_meters(Constants.kDriveWheelTrackWidthInches / 2.0 * Constants.kTrackScrubFactor),
-                transmission, transmission);
+                transmissionLeft, transmissionRight);
+    }
+    
+    private DCMotorTransmission makeTransmission(double vIntercept, double kv, double ka)
+    {
+        return new DCMotorTransmission(
+            1.0 / kv,
+            Units.inches_to_meters(Constants.kDriveWheelRadiusInches) * Units.inches_to_meters(Constants.kDriveWheelRadiusInches)
+                    * Constants.kRobotLinearInertia / (2.0 * ka),
+            vIntercept);
     }
 
     public void setTrajectory(final TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory)
