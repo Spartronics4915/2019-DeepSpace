@@ -29,7 +29,7 @@ If you want to shoot balls into a boiler, drop off gears at the airship
 or drop a cube into the switch on the opposite side of the field, accurate
 odometry and careful path-planning are the keys to success.
 
-Most frc robot tracking solutions start with a represention of the robot's
+Most FRC robot tracking solutions start with a represention of the robot's
 current _pose_ or _state_.  These terms convey the notion that accurate
 awareness of the _position_ of the robot (or robot joints) is central to the
 quest for effective robot control.  These terms also suggest that position
@@ -45,20 +45,22 @@ In a perfect world, the force that we deliver to our motors would have a direct
 correspondance with the motion of the robot.  In that case the problem of
 odometry would be rather trivial.  We'd simply track all the commands that
 we issue to our motors over time and compute the robot's current state.
+This approach is called [dead reckoning](https://en.wikipedia.org/wiki/Dead_reckoning).
 In the real world, this correspondance between request and response is
-approximate so the accuracy of our tracking decreases with time. To
+_approximate_ so the accuracy of our tracking decreases with time. To
 improve tracking accuracy we must employ sensors. A variety of sensor types
 can be employed to measure a variety of physical conditions and these
-measurements can be _fused_ to improve our robot state estimate. Our challenge
-as robot designers is to select an efficient/appropriate combination of
-motors, sensors, calibration techniques and software algorithms to deliver
-the level of speed and accuracy we need to accomplish the FRC tasks for
-a given challenge.  Fortunately for us, the FRC community is extremely
-collaborative and the wealth of solutions and experiences produced by the
-community is readily available.  We've relied on the Team254's code base
-and their prior robot designs to learn how to implement an odometry
-solution. We'll use their software classes as a guide to understanding
-both our current codebase and the details of an actual odometry implementation.
+measurements can be [fused](https://en.wikipedia.org/wiki/Sensor_fusion) to
+improve our robot state estimate. Our challenge as robot designers is to
+select an efficient/appropriate combination of motors, sensors, calibration
+techniques and software algorithms to deliver the level of speed and accuracy
+we need to accomplish the FRC tasks for a given challenge.  Fortunately for us,
+the FRC community is extremely collaborative and the wealth of solutions and
+experiences produced by the community is readily available.  We've relied on
+Team254's code base and their prior robot designs to learn how to implement
+an odometry solution. We'll use their software classes as a guide to 
+understanding both our current codebase and the details of an actual odometry
+implementation.
 
 ## Software Components for Odometry
 
@@ -136,18 +138,18 @@ orientation.  This is where the Twist2d gets interesting.  If we think
 of a Twist2d as representing a movement along an arc at constant curvature
 and velocity, we can use ideas from [differential calculus](https://en.wikipedia.org/wiki/Differential_calculus) to create a new Pose2d
 from a Twist2d and visa versa.  In essence, this is equivalent to drawing
-a portion of a circle (aka _arc_) that connects the two poses.
+a portion of a circle, an _arc_, that connects the two poses.
 
 #### Notes On Curvature
 
-The design of Twist2d is closely related to the dynamics of a differential
-drive robot.  When we command different rpm to left and right motors
-we end up driving in a circle whose radius is determined by the difference
-between left and right rpm. The speed we drive is approximated by the
-average of the two rpm. So the circular arc is a fundamental incremental
-unit of travel for a differential drive robot.  We can decompose a
-complex robot trajectory into a series of small, connected arcs by
-selecting a new Twist2d on each timestep.
+The design of Twist2d is closely related to the dynamics of a [differential
+drive](http://rossum.sourceforge.net/papers/DiffSteer) robot.  When we command
+different rpm to left and right motors we end up driving in a circle whose
+radius is determined by the difference between left and right rpm. The speed
+we drive is approximated by the average of the two rpm. This makes the circular
+arc a fundamental incremental unit of travel for a differential drive robot.
+We can decompose a complex robot trajectory into a series of small, connected
+arcs by selecting a new Twist2d on each timestep.
 
 From [Mathworld](http://mathworld.wolfram.com/Curvature.html):
 
@@ -185,17 +187,17 @@ Since we're dealing with the tangent(dx,dy) and angular velocity (dtheta),
 the computation takes on the form of eq. 4, [here](http://mathworld.wolfram.com/Curvature.html).
 
 For our purposes curvature is valuable only in the context of path-planning
-which is separate a topic unto itself. In that context, curvature is a measure
+which is a separate topic unto itself. In that context, curvature is a measure
 of how much we're currently turning and its derivative conveys the rate at which
-we're the turn amount changes.
+the turn amount changes.
 
 ### RobotStateMap (oh, the places we've been)
 
-Now that we see that the combinatation Pose2d and Twist2d captures the
+Now that we see that the combination of Pose2d and Twist2d captures the
 most salient aspects of our robot's state, we move the question of how
 to keep track of the places we've been or, more accurately, the states we've
 been in.  For this purpose we employ a RobotStateMap to associate a time
-with a Pose2d and Twist2d.
+with a Pose2d and Twist2d. 
 
 ``` java
 public class RobotStateMap
@@ -224,9 +226,9 @@ relies on some _secret sauce_ in our Pose2d implementation.
 
 Pulling it all together, the RobotStateEstimator is a special _subsystem_
 in our code that feeds and grooms our RobotStateMap(s). Since we can estimate
-the robot state via a number of methods we may track these multiple states
-separately and later either _fuse_ their results or simply learn which approach
-delivers superior results.  
+the robot state via a number of strategies, we may elect to track these diverse
+estimated states separately. Then later we can either _fuse_ their results or 
+simply learn which strategy delivers superior results.  
 
 ``` java
 class RobotStateEstimator extends Subsystem
@@ -236,7 +238,7 @@ class RobotStateEstimator extends Subsystem
 }
 ```
 
-As with any subsystem RobotStateEstimator implements a custome _Looper_
+As with any subsystem `RobotStateEstimator` implements a custom `Looper`
 that periodically updates its estimate of the robot state and stores
 it into the RobotStateMap.
 
@@ -248,7 +250,12 @@ public synchronized void onLoop(double timestamp)
     /* method 1:  
      * Look at the distance traveled since last measurement, consider
      *   current gyro heading rather than our stored state
-     * Divide by delta time to produce a velocity.
+     * Divide by delta time to produce a velocity. Note that
+     * 254's implementation doesn't include time computations explicitly.
+     * In method 1, the implicit time is the time between samples which relates
+     * to the looper time interval.  Thus: leftDelta is measured in
+     * inches/loopinterval. To the degree that the loop interval isn't a
+     * constant the result will be noisy.
      */
     final double leftDist = mDrive.getLeftEncoderDistance();
     final double rightDist = mDrive.getRightEncoderDistance();
@@ -260,8 +267,15 @@ public synchronized void onLoop(double timestamp)
     final Twist2d velocityD = getVelocityFromDeltas(leftDelta, rightDelta, heading);
 
     /* method 2:
-     *  Directly sample the current wheel velocities. 
-     *  Convert to a central-axis velocity.
+     *  Directly sample the current wheel velocities. Here, linear velocities
+     *  are measured in inches/sec. Since the integration step below expects
+     *  velocity to be measured in inches/loopinterval, this version of velocity
+     *  can't be used directly. Moreover, the velocity we obtain from the wheel
+     *  encoders is integrated over a different time interval than one
+     *  loop-interval.  It's not clear which estimation technique would deliver
+     *  a better result. For visualization purposes velocityK (in inches/sec)
+     *  is in the standard human-readable form. Also of note, this variant
+     *  doesn't include the gyro heading in its calculation.
      */
     final Twist2d velocityK = Kinematics.forwardKinematics(
                                 mDrive.getLeftLinearVelocity(),

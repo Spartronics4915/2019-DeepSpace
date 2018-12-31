@@ -27,6 +27,13 @@ public class Twist2d implements Interpolable<Twist2d>
     public final double dy;
     public final double dtheta; // Radians!
 
+    public Twist2d()
+    {
+        this.dx = 0;
+        this.dy = 0;
+        this.dtheta = 0;
+    }
+
     public Twist2d(double dx, double dy, double dtheta)
     {
         this.dx = dx;

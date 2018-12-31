@@ -11,24 +11,54 @@ public class RobotStateMap
 {
     private static final int kObservationBufferSize = 100;
 
-    // XXX: instead of three maps we could have only one.  Then
-    // we would have less memory and lookup time overhead.  
-    //      class State implements Interpolable 
-    //      { 
-    //          public Pose2d pose;  
-    //          public Twist2d measured; 
-    //          public Twist2d predicted; 
-    //          ... constructors ...
-    //          @Override
-    //          State interpolate(State other, double pct)
-    //          {
-    //              return new State(pose.interplate(other.pose, pct),
-    //                               measured.interpolate(other.measured, pct),      
-    //                               predicted.interpolate(other.predicted, pct),      
-    //                              );
-    //          }
-    //      }
-    private InterpolatingTreeMap<InterpolatingDouble, Pose2d> mFieldToVehicle;
+    public class State implements Interpolable<State>
+    {
+        public Pose2d pose;
+        public Twist2d velocity;
+        public double timestamp;
+
+        State()
+        {
+            this.pose = new Pose2d();
+            this.velocity = new Twist2d();
+            this.timestamp =  0;
+        }
+
+        State(State other)
+        {
+            this.pose = other.pose;
+            this.velocity = other.velocity;
+            this.timestamp = other.timestamp;
+        }
+
+        State(Pose2d p, Twist2d v, double ts)
+        {
+            this.pose = p;
+            this.velocity = v;
+            this.timestamp = ts;
+        }
+
+        @Override
+        public State interpolate(final State other, double pct)
+        {
+            if(pct <= 0)
+                return new State(this);
+            else
+            if(pct >= 0)
+                return new State(other);
+            else
+            {
+                final State s = new State(
+                    this.pose.interpolate(other.pose, pct),
+                    this.velocity.interpolate(other.velocity, pct),
+                    this.timestamp + pct*(other.timestamp - this.timestamp)
+                );
+                return s;
+            }
+        }
+    }
+
+    private InterpolatingTreeMap<InterpolatingDouble, State> mFieldToVehicle;
     private InterpolatingTreeMap<InterpolatingDouble, Twist2d> mPredictedVelocity;
     private InterpolatingTreeMap<InterpolatingDouble, Twist2d> mMeasuredVelocity;
     private double mDistanceDriven;

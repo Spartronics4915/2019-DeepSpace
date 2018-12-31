@@ -32,8 +32,8 @@ public class RobotStateEstimator extends Subsystem
     private RobotStateMap mLidarRobotState = new RobotStateMap();
     private Drive mDrive;
     private LidarProcessor mLidarProcessor;
-    private double mLeftEncoderPrevDistance = 0.0;
-    private double mRightEncoderPrevDistance = 0.0;
+    private double mLeftPrevDist = 0.0;
+    private double mRightPrevDist = 0.0;
 
     private static final Pose2d kZeroPose = Pose2d.identity();
 
@@ -111,31 +111,58 @@ public class RobotStateEstimator extends Subsystem
         @Override
         public synchronized void onStart(double timestamp)
         {
-            mLeftEncoderPrevDistance = mDrive.getLeftEncoderDistance();
-            mRightEncoderPrevDistance = mDrive.getRightEncoderDistance();
-
+            mLeftPrevDist = mDrive.getLeftEncoderDistance();
+            mRightPrevDist = mDrive.getRightEncoderDistance();
         }
 
         @Override
         public synchronized void onLoop(double timestamp)
         {
-            final double leftDistance = mDrive.getLeftEncoderDistance();
-            final double rightDistance = mDrive.getRightEncoderDistance();
-            final double leftDelta = leftDistance - mLeftEncoderPrevDistance;
-            final double rightDelta = rightDistance - mRightEncoderPrevDistance;
-            final Rotation2d gyroAngle = mDrive.getHeading();
+            /* two ways to measure current velocity, not sure which is better */
 
-            mLeftEncoderPrevDistance = leftDistance;
-            mRightEncoderPrevDistance = rightDistance;
+            /* method 1:  
+            * Look at the distance traveled since last measurement, consider
+            *   current gyro heading rather than our stored state
+            * Divide by delta time to produce a velocity. Note that
+            * 254's implementation doesn't include time computations explicitly.
+            * In method 1, the implicit time is the time between samples which relates
+            * to the looper time interval.  Thus: leftDelta is measured in
+            * inches/loopinterval. To the degree that the loop interval isn't a
+            * constant the result will be noisy.
+            */
+            final double leftDist = mDrive.getLeftEncoderDistance();
+            final double rightDist = mDrive.getRightEncoderDistance();
+            final double leftDelta = leftDist - mLeftPrevDist;
+            final double rightDelta = rightDist - mRightPrevDist;
+            final Rotation2d heading = mDrive.getHeading();
+            mLeftPrevDist = leftDist;
+            mRightPrevDist = rightDist;
+            final Twist2d velocity1 = getVelocityFromDeltas(leftDelta, rightDelta, heading);
 
-            final Twist2d measured_velocity = getVelocityFromDeltas(
-                    leftDelta, rightDelta, gyroAngle);
-            final Twist2d predicted_velocity = Kinematics.forwardKinematics(mDrive.getLeftLinearVelocity(),
-                    mDrive.getRightLinearVelocity());
+            /* method 2:
+            *  Directly sample the current wheel velocities. Here, linear velocities
+            *  are measured in inches/sec. Since the integration step below expects
+            *  velocity to be measured in inches/loopinterval, this version of velocity
+            *  can't be used directly. Moreover, the velocity we obtain from the wheel
+            *  encoders is integrated over a different time interval than one
+            *  loop-interval.  It's not clear which estimation technique would deliver
+            *  a better result. For visualization purposes velocityK (in inches/sec)
+            *  is in the standard human-readable form. Also of note, this variant
+            *  doesn't include the gyro heading in its calculation.
+            */
+            final Twist2d velocity2 = Kinematics.forwardKinematics(
+                                        mDrive.getLeftLinearVelocity(),
+                                        mDrive.getRightLinearVelocity());
+            final RobotStateMap.State lastState, nextState;
+            lastState = mEncoderRobotState.getLatest();
 
-            mEncoderRobotState.addObservations(timestamp,
-                Kinematics.integrateForwardKinematics(mEncoderRobotState.getLatestFieldToVehicle().getValue(), measured_velocity),
-                measured_velocity, predicted_velocity);
+            /* integrateForward: given a last state and a current velocity,
+            *  estimate a new state (P2 = P1 + dPdt * dt)
+            */
+            nextState = Kinematics.integrateForwardKinematics(lastState, velocity1);
+
+            /* record the new state estimate */
+            mEncoderRobotState.addObservations(timestamp, nextState);
         }
 
         @Override
