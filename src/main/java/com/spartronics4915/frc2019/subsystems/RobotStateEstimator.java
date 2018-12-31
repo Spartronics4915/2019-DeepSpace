@@ -90,6 +90,12 @@ public class RobotStateEstimator extends Subsystem
         Twist2d measuredVelocity = mEncoderRobotState.getLatestPredictedVelocity().getValue();
         SmartDashboard.putNumber("RobotState/velocity", measuredVelocity.dx);
         SmartDashboard.putNumber("RobotState/field_degrees", mEncoderRobotState.getLatestFieldToVehicle().getValue().getRotation().getDegrees());
+
+        Pose2d lidarPose = mLidarRobotState.getLatestFieldToVehicle().getValue();
+        SmartDashboard.putString("Lidar/pose",
+                lidarPose.getTranslation().x() +
+                        " " + lidarPose.getTranslation().y() +
+                        " " + lidarPose.getRotation().getDegrees());
     }
 
     @Override

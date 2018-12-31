@@ -1,7 +1,5 @@
 package com.spartronics4915.frc2019;
 
-import edu.wpi.first.wpilibj.Solenoid;
-
 import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.lidar.icp.IReferenceModel;
 import com.spartronics4915.lib.lidar.icp.Point;
@@ -27,12 +25,31 @@ public class Constants
     public static final double kTrackScrubFactor = 0.624; // Tune me!
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 60.0; // kg TODO tune
-    public static final double kRobotAngularInertia = 10.0; // kg m^2 TODO tune
+    public static final double kRobotLinearInertia = 27.22; // kg (robot's mass, guessed to be 60 lbs == 27.22 kg) TODO tune
+    public static final double kRobotAngularInertia = 461; // kg m^2 (from an online calculator) TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
-    public static final double kDriveVIntercept = 1.055; // V
-    public static final double kDriveKv = 0.135; // V per rad/s
-    public static final double kDriveKa = 0.012; // V per rad/s^2
+    
+    // Uncomment for per-wheel constants
+    // // Left
+    // public static final double kDriveLeftVIntercept = 0.6806717258105043; // V
+    // public static final double kDriveLeftKv = 0.27817287970276816; // V per rad/s
+    // public static final double kDriveLeftKa = 0.01561261448817294; // V per rad/s^2
+    // // Right
+    // public static final double kDriveRightVIntercept = 0.921925703056741; // V
+    // public static final double kDriveRightKv = 0.22982332117199153; // V per rad/s
+    // public static final double kDriveRightKa = 0.020857218537664493; // V per rad/s^2
+
+    // Left
+    public static final double kDriveLeftVIntercept = 0.704; // V
+    public static final double kDriveLeftKv = 0.22843468990226345; // V per rad/s
+    public static final double kDriveLeftKa = 0.0161909446494603; // V per rad/s^2
+    // Right
+    public static final double kDriveRightVIntercept = 0.836; // V
+    public static final double kDriveRightKv = kDriveLeftKv; // V per rad/s
+    public static final double kDriveRightKa = kDriveLeftKa; // V per rad/s^2
+
+    public static final double kDriveLeftDeadband = 0.078;
+    public static final double kDriveRightDeadband = 0.068; 
 
     // Geometry
     public static final double kCenterToFrontBumperDistance = 38.25 / 2.0;
@@ -45,9 +62,9 @@ public class Constants
     );
 
     // Pose of the LIDAR frame w.r.t. the robot frame
-    public static final double kLidarXOffset = -3.3211;
-    public static final double kLidarYOffset = 0.0;
-    public static final double kLidarYawAngleDegrees = 0.0;
+    public static final double kLidarXOffset = -11;
+    public static final double kLidarYOffset = -6;
+    public static final double kLidarYawAngleDegrees = -90;
 
     /* CONTROL LOOP GAINS */
     // Gearing and mechanical constants.
@@ -63,10 +80,11 @@ public class Constants
     // Units: setpoint, error, and output are in ticks per second.
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
-    public static final double kDriveVelocityKp = 1;
+    public static final double kDriveVelocityKp = 7.0;
     public static final double kDriveVelocityKi = 0.0;
-    public static final double kDriveVelocityKd = 0.0;
-    public static final double kDriveVelocityKf = 0.5;
+    public static final double kDriveVelocityKd = 50.0;
+    // The below should always be zero, because feedforward is dynamically produced by DriveMotionPlanner
+    public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
 
@@ -105,35 +123,4 @@ public class Constants
     // Control Board
     public static final int kDriveJoystickPort = 0;
     public static final double kJoystickThreshold = 0.5;
-
-    /**
-     * Make an {@link Solenoid} instance for the single-number ID of the solenoid
-     * <p>
-     * Solenoids were wired in an inane method and also not labeled zero indexed.
-     * <p>
-     * Solenoids 1-4 are on PCM 1, Solenoids 7-4.
-     * Solenoids 5-8 are on PCM 0, Solenoids 0-3.
-     * Solenoids 9-12 are on PCM 0, Solenoids 7-4.
-     *
-     * @param solenoidId One of the kXyzSolenoidId constants
-     */
-    public static Solenoid makeSolenoidForId(int solenoidId)
-    {
-        if (solenoidId <= 4)
-        {
-            // These solenoids are on PCM 1, wired 1-4 to 7-4.
-            return new Solenoid(1, 8 - solenoidId);
-        }
-        else if (solenoidId <= 8)
-        {
-            // These solenoids are on PCM 0, wired 5-8 to 0-3.
-            return new Solenoid(0, solenoidId - 5);
-        }
-        else if (solenoidId <= 12)
-        {
-            // These solenoids are on PCM 0, wired 9-12 to 7-4.
-            return new Solenoid(0, 16 - solenoidId);
-        }
-        throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
-    }
 }

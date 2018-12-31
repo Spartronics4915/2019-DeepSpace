@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.lib.util.RobotStateMap;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
@@ -131,6 +130,9 @@ public class Drive extends Subsystem
             reloadGains(mRightMaster);
             reloadGains(mLeftMaster);
 
+            mLeftMaster.configNeutralDeadband(Constants.kDriveLeftDeadband, 0);
+            mRightMaster.configNeutralDeadband(Constants.kDriveRightDeadband, 0);
+
             mPigeon = new PigeonIMU(mLeftSlave);
             mLeftSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
 
@@ -181,6 +183,11 @@ public class Drive extends Subsystem
         return rad_s / (Math.PI * 2.0) * Constants.kDriveEncoderPPR / 10.0;
     }
 
+    private static double ticksPer100msToInchesPerSecond(double t)
+    {
+        return (t /  Constants.kDriveEncoderPPR) * 10 * (Constants.kDriveWheelDiameterInches * Math.PI);
+    }
+
     @Override
     public void registerEnabledLoops(ILooper in)
     {
@@ -197,8 +204,6 @@ public class Drive extends Subsystem
             setBrakeMode(false);
 
             logDebug("Switching to open loop: " + signal.toString());
-            mLeftMaster.configNeutralDeadband(0.04, 0);
-            mRightMaster.configNeutralDeadband(0.04, 0);
             mDriveControlState = DriveControlState.OPEN_LOOP;
         }
         mPeriodicIO.left_demand = signal.getLeft();
@@ -214,6 +219,9 @@ public class Drive extends Subsystem
     {
         if (mDriveControlState != DriveControlState.PATH_FOLLOWING)
         {
+            // This branch is never entered because the control state should already be set by setTrajectory
+
+            logDebug("Switching to path following");
             // We entered a velocity control state.
             updateTalonsForVelocity();
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
@@ -232,11 +240,11 @@ public class Drive extends Subsystem
      */
     public synchronized void setVelocity(DriveSignal inchesPerSecVelocity, DriveSignal feedforwardVoltage)
     {
-        logDebug("Switching to closed loop velocity. Target: " + 
-                inchesPerSecVelocity.toString() + 
-                ", Arbitrary feedforward: " + feedforwardVoltage.toString());
         if (mDriveControlState != DriveControlState.VELOCITY)
         {
+            logDebug("Switching to closed loop velocity. Target: " + 
+            inchesPerSecVelocity.toString() + 
+                ", Arbitrary feedforward: " + feedforwardVoltage.toString());
             updateTalonsForVelocity();
             mDriveControlState = DriveControlState.VELOCITY;
         }
@@ -245,9 +253,6 @@ public class Drive extends Subsystem
         mPeriodicIO.left_feedforward = feedforwardVoltage.getLeft() / 12;
         mPeriodicIO.right_feedforward = feedforwardVoltage.getRight() / 12;
         mPeriodicIO.left_accel = mPeriodicIO.right_accel = 0;
-
-        dashboardPutString("leftSpeedTarget", inchesPerSecVelocity.getLeft() + "");
-        dashboardPutString("rightSpeedTarget", inchesPerSecVelocity.getRight() + "");
     }
 
     private void updateTalonsForVelocity()
@@ -255,8 +260,6 @@ public class Drive extends Subsystem
         setBrakeMode(true);
         mLeftMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
         mRightMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
-        mLeftMaster.configNeutralDeadband(0.0, 0);
-        mRightMaster.configNeutralDeadband(0.0, 0);
     }
 
     public synchronized void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory)
@@ -267,6 +270,7 @@ public class Drive extends Subsystem
             mMotionPlanner.reset();
             mMotionPlanner.setTrajectory(trajectory);
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
+            updateTalonsForVelocity();
         }
     }
 
@@ -340,6 +344,18 @@ public class Drive extends Subsystem
         {
             mCSVWriter.write();
         }
+
+        dashboardPutNumber("leftDemand", mPeriodicIO.left_demand);
+        dashboardPutNumber("rightDemand", mPeriodicIO.right_demand);
+        if (mDriveControlState == DriveControlState.VELOCITY || mDriveControlState == DriveControlState.PATH_FOLLOWING)
+        {
+            dashboardPutNumber("leftSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.left_demand));
+            dashboardPutNumber("rightSpeedTarget", ticksPer100msToInchesPerSecond(mPeriodicIO.right_demand));
+            dashboardPutNumber("leftFeedforward", mPeriodicIO.left_feedforward);
+            dashboardPutNumber("rightFeedforward", mPeriodicIO.right_feedforward);
+        }
+
+        dashboardPutState(mDriveControlState.toString());
     }
 
     public synchronized void resetEncoders()
@@ -489,7 +505,7 @@ public class Drive extends Subsystem
         mPeriodicIO.gyro_heading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
 
         double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
-        if (deltaLeftTicks > 0.0)
+        if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
         {
             mPeriodicIO.left_distance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
         }
@@ -535,13 +551,11 @@ public class Drive extends Subsystem
         }
         else
         {
-            mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand/*, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
-            mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand/*, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
+            mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward,
+                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0);
+            mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
+                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0);
         }
-        dashboardPutString("left_demand", mPeriodicIO.left_demand + "");
-        dashboardPutString("right_demand", mPeriodicIO.right_demand + "");
     }
 
     @Override

@@ -259,25 +259,31 @@ public class LidarProcessor implements ILoop
     {
         try
         {
-            Pose2d p = null;
+            Pose2d pose;
+            Twist2d vel;
             if(mMode == OperatingMode.kRelative)
             {
                 Transform xform = mRelativeICP.doRelativeICP(scan.getPoints());
                 if(xform != null)
                 {
-                    p = xform.inverse().toPose2d(); // is inverse needed?
-                    // p is a relative pose, in other words, it is a Twist2d.
-                    // To compute a final p we must "add" it to the last-known 
-                    // vehicle pose (the lidar-to-field might be necessary 
-                    // to reduce errors in rotational movement).
-                    // Pose2d.exp performs this function and probably should
-                    // be favored.  As discussed below, we must account for time
-                    // variation and ensure that our Twist2d is normalized by our
-                    // standard unit of time. ()
-                    p = p.transformBy(mLidarStateMap.getLatestFieldToVehicle().getValue());
-                    // Logger.debug("relativeICP: " + p.toString());
+                    pose = xform.inverse().toPose2d();
+
+                    // in (or radians) / time between scans -> in (or radians) / seconds
+                    // Assumes that timestamps are in seconds
+                    double conversion = mLastScanTime - mScanTime;
+                    vel = new Twist2d(
+                        pose.getTranslation().x() / conversion,
+                        pose.getTranslation().y() / conversion,
+                        pose.getRotation().getRadians() / conversion
+                    );
+
+                    pose = pose.transformBy(mLidarStateMap.getLatestFieldToVehicle().getValue());
                 }
-                else Logger.warning("Relative ICP returned a null transform!");
+                else
+                {
+                    Logger.warning("Relative ICP returned a null transform!");
+                    return;
+                }
             } 
             else
             {
@@ -286,28 +292,20 @@ public class LidarProcessor implements ILoop
                 Transform xform = mICP.doICP(getCulledPoints(scan), 
                                 new Transform(estimate).inverse(),  // ie: LidarToField
                                 mReferenceModel);
-                p  = xform.inverse().toPose2d();
-                // Logger.debug("absoluteICP: " + p.toString());
+                pose  = xform.inverse().toPose2d();
+
+                Pose2d distFrom1SecBeforescan = mLidarStateMap.getFieldToVehicle(scan.getTimestamp() - 1).inverse().transformBy(pose);
+                vel = new Twist2d(
+                    distFrom1SecBeforescan.getTranslation().x(),
+                    distFrom1SecBeforescan.getTranslation().y(),
+                    distFrom1SecBeforescan.getRotation().getRadians());
             }
 
-            if (p != null)
-            {
-                // To compute and compare velocities, we need a standard unit 
-                // of time.  The implicit unit of time, 1 scan (1 loop, etc)
-                // isn't guaranteed to be a constant so we 1st adopt some form
-                // of clock-time (seconds, 100ms). Since velocity is dP/dt, we
-                // must divide by dt to ensure that variations in scan time
-                // are accounted for.
-                // 
-                // In relative mode, we'd like to compare times of two scans.
-                // Thus we need some notion of scan time for old and new.
-                // We can record this herein or rely on RobotStateMap for
-                // this info (Perhaps by adding time to RobotStateMap.State).
-                Pose2d pose1SecBeforeScan = mLidarStateMap.getFieldToVehicle(scan.getTimestamp() - 1000);
-                mLidarStateMap.addObservations(scan.getTimestamp(), p,
-                    new Twist2d(p.distance(pose1SecBeforeScan), 0, p.getRotation().distance(pose1SecBeforeScan.getRotation())),
-                    Twist2d.identity() /* No good way to get predicted velocity */);
-            }
+            mLidarStateMap.addObservations(scan.getTimestamp(), pose, vel,
+                    Twist2d.identity() /*
+                        Predicted velocity is acutually just encoder velocity sampled over
+                        a longer time period, and there isn't really an analogue for LIDAR.
+                        */);
         }
         catch(Exception e)
         {

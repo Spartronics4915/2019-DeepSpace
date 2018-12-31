@@ -1,9 +1,11 @@
 package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.auto.modes.CharacterizeDrive.SideToCharacterize;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -13,7 +15,7 @@ import java.util.List;
 public class CollectVelocityData implements Action
 {
 
-    private static final double kMaxPower = 0.25;
+    private static final double kMaxPower = 0.5;
     private static final double kRampRate = 0.02;
     private static final Drive mDrive = Drive.getInstance();
 
@@ -21,6 +23,7 @@ public class CollectVelocityData implements Action
     private final List<DriveCharacterization.VelocityDataPoint> mVelocityData;
     private final boolean mTurn;
     private final boolean mReverse;
+    private final SideToCharacterize mSide;
 
     private boolean isFinished = false;
     private double mStartTime = 0.0;
@@ -32,11 +35,12 @@ public class CollectVelocityData implements Action
      * @param turn     if true turn, if false drive straight
      */
 
-    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turn)
+    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turn, SideToCharacterize side)
     {
         mVelocityData = data;
         mReverse = reverse;
         mTurn = turn;
+        mSide = side;
         mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "VELOCITY_DATA.csv").toString(), DriveCharacterization.VelocityDataPoint.class);
 
     }
@@ -45,6 +49,7 @@ public class CollectVelocityData implements Action
     public void start()
     {
         mStartTime = Timer.getFPGATimestamp();
+        Logger.debug("Collecting velocity data");
     }
 
     @Override
@@ -56,9 +61,12 @@ public class CollectVelocityData implements Action
             isFinished = true;
             return;
         }
-        mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * percentPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower));
+        mDrive.setOpenLoop(new DriveSignal(
+            (mSide.shouldRunLeft() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * percentPower,
+            (mSide.shouldRunRight() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower)
+        );
         mVelocityData.add(new DriveCharacterization.VelocityDataPoint(
-                (Math.abs(mDrive.getLeftVelocityTicksPer100ms()) + Math.abs(mDrive.getRightVelocityTicksPer100ms())) / Constants.kDriveEncoderPPR * Math.PI * 10, //convert velocity to radians per second
+                mSide.getVelocityTicksPer100ms(mDrive) / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10, //convert velocity to radians per second
                 percentPower * 12.0 //convert to volts
         ));
         mCSVWriter.add(mVelocityData.get(mVelocityData.size() - 1));

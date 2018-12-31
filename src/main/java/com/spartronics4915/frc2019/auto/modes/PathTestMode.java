@@ -5,16 +5,28 @@ import com.spartronics4915.frc2019.auto.AutoModeEndedException;
 import com.spartronics4915.frc2019.auto.actions.DriveTrajectory;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.Drive;
+import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
+import com.spartronics4915.lib.trajectory.Trajectory;
+import com.spartronics4915.lib.trajectory.timing.TimedState;
 
 public class PathTestMode extends AutoModeBase
 {
+        private boolean mCurved;
+
+        public PathTestMode(boolean curved)
+        {
+                mCurved = curved;
+        }
 
         @Override
         protected void routine() throws AutoModeEndedException
         {
                 Drive.getInstance().startLogging();
 
-                runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().test.get(true), true));
+                Trajectory<TimedState<Pose2dWithCurvature>> t = mCurved ?
+                        TrajectoryGenerator.getInstance().getTrajectorySet().curvedTest.get(true) :
+                        TrajectoryGenerator.getInstance().getTrajectorySet().straightTest.get(true);
+                runAction(new DriveTrajectory(t, true));
 
                 Drive.getInstance().stopLogging();
 
