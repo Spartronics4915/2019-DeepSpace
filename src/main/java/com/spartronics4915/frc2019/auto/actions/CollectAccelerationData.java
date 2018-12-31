@@ -1,9 +1,11 @@
 package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.auto.modes.CharacterizeDrive.SideToCharacterize;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import com.spartronics4915.lib.util.Util;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,6 +24,7 @@ public class CollectAccelerationData implements Action
     private final List<DriveCharacterization.AccelerationDataPoint> mAccelerationData;
     private final boolean mTurn;
     private final boolean mReverse;
+    private final SideToCharacterize mSide;
 
     private double mStartTime = 0.0;
     private double mPrevVelocity = 0.0;
@@ -32,28 +35,34 @@ public class CollectAccelerationData implements Action
      * @param highGear use high gear or low
      * @param reverse  if true drive in reverse, if false drive normally
      * @param turn     if true turn, if false drive straight
+     * @param side     the side to collect data for (motors will be run for all sides regardless of this setting)
      */
-    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean reverse, boolean turn)
+    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean reverse, boolean turn, SideToCharacterize side)
     {
         mAccelerationData = data;
         mReverse = reverse;
         mTurn = turn;
+        mSide = side;
         mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "ACCEL_DATA.csv").toString(), DriveCharacterization.AccelerationDataPoint.class);
     }
 
     @Override
     public void start()
     {
-        mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * kPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
+        mDrive.setOpenLoop(new DriveSignal(
+            (mSide.shouldRunLeft() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * kPower,
+            (mSide.shouldRunRight() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower)
+        );
         mStartTime = Timer.getFPGATimestamp();
         mPrevTime = mStartTime;
+        Logger.debug("Collecting acceleration data");
     }
 
     @Override
     public void update()
     {
         double currentVelocity =
-                (Math.abs(mDrive.getLeftVelocityTicksPer100ms()) + Math.abs(mDrive.getRightVelocityTicksPer100ms())) / Constants.kDriveEncoderPPR * Math.PI * 10;
+                mSide.getVelocityTicksPer100ms(mDrive) / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
         double currentTime = Timer.getFPGATimestamp();
 
         //don't calculate acceleration until we've populated prevTime and prevVelocity

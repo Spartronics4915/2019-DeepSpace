@@ -77,7 +77,7 @@ public class DriveCharacterization
             return constants;
         }
         PolynomialRegression p = new PolynomialRegression(points, 1);
-        Logger.notice("r^2: " + p.R2());
+        Logger.notice("Velocity r^2: " + p.R2());
         constants.ks = p.beta(0);
         constants.kv = p.beta(1);
         return constants;
@@ -91,7 +91,7 @@ public class DriveCharacterization
         }
 
         PolynomialRegression p = new PolynomialRegression(points, 1);
-        Logger.notice("r^2: " + p.R2());
+        Logger.notice("Acceleration r^2: " + p.R2());
         velocityChacterization.ka = p.beta(1);
         return velocityChacterization;
     }
