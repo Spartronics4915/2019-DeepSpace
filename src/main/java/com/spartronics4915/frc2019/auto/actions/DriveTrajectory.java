@@ -59,7 +59,8 @@ public class DriveTrajectory implements Action
         Logger.debug("Starting trajectory! (length=" + mTrajectory.getRemainingProgress() + ")");
         if (mResetPose)
         {
-            mRobotStateMap.reset(Timer.getFPGATimestamp(), mTrajectory.getState().state().getPose());
+            mRobotStateMap.reset(Timer.getFPGATimestamp(), 
+                mTrajectory.getState().state().getPose());
         }
         mDrive.setTrajectory(mTrajectory);
     }

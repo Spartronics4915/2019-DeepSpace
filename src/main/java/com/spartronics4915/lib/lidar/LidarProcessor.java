@@ -259,25 +259,29 @@ public class LidarProcessor implements ILoop
     {
         try
         {
-            Pose2d pose;
-            Twist2d vel;
-            if(mMode == OperatingMode.kRelative)
+            final RobotStateMap.State lastState = mLidarStateMap.getLatestState();
+            final Pose2d lastPose = lastState.pose;
+            double dt = scan.getTimestamp() - lastState.timestamp;
+            Pose2d poseEstimate;
+            Twist2d velPredicted, velMeasured;
+            if(mMode == OperatingMode.kRelative) // no reliance on Encoder
             {
                 Transform xform = mRelativeICP.doRelativeICP(scan.getPoints());
                 if(xform != null)
                 {
-                    pose = xform.inverse().toPose2d();
+                    // XXX: is xform.inverse correct?
+                    Twist2d fwdK = Pose2d.log(xform.inverse().toPose2d());
+                    // fwdK represents the change between scans
+                    // we can directly "add" this to the last post estimate.
+                    poseEstimate = lastPose.transformBy(Pose2d.exp(fwdK));
 
                     // in (or radians) / time between scans -> in (or radians) / seconds
                     // Assumes that timestamps are in seconds
-                    double conversion = mLastScanTime - mScanTime;
-                    vel = new Twist2d(
-                        pose.getTranslation().x() / conversion,
-                        pose.getTranslation().y() / conversion,
-                        pose.getRotation().getRadians() / conversion
-                    );
+                    velMeasured = fwdK;
 
-                    pose = pose.transformBy(mLidarStateMap.getLatestFieldToVehicle().getValue());
+                    velPredicted = new Twist2d(velMeasured.dx / dt,
+                                               velMeasured.dy / dt,
+                                               velMeasured.dtheta / dt);
                 }
                 else
                 {
@@ -287,25 +291,20 @@ public class LidarProcessor implements ILoop
             } 
             else
             {
-                Pose2d estimate = mEncoderStateMap.getFieldToVehicle(scan.getTimestamp());
-                // need to invoke getFieldToLidar, not getFieldToVehicle
+                // XXX: this needs validation
+                // XXX: need to invoke getFieldToLidar, not getFieldToVehicle
                 Transform xform = mICP.doICP(getCulledPoints(scan), 
-                                new Transform(estimate).inverse(),  // ie: LidarToField
-                                mReferenceModel);
-                pose  = xform.inverse().toPose2d();
-
-                Pose2d distFrom1SecBeforescan = mLidarStateMap.getFieldToVehicle(scan.getTimestamp() - 1).inverse().transformBy(pose);
-                vel = new Twist2d(
-                    distFrom1SecBeforescan.getTranslation().x(),
-                    distFrom1SecBeforescan.getTranslation().y(),
-                    distFrom1SecBeforescan.getRotation().getRadians());
+                                new Transform(lastPose).inverse(),  // ie: LidarToField
+                                mReferenceModel); // mReferenceMode in field coords
+                Twist2d fwdK = Pose2d.log(xform.inverse().toPose2d());
+                poseEstimate = lastPose.transformBy(Pose2d.exp(fwdK));
+                velMeasured = fwdK;
+                velPredicted = new Twist2d(velMeasured.dx / dt,
+                                            velMeasured.dy / dt,
+                                            velMeasured.dtheta / dt);
             }
-
-            mLidarStateMap.addObservations(scan.getTimestamp(), pose, vel,
-                    Twist2d.identity() /*
-                        Predicted velocity is acutually just encoder velocity sampled over
-                        a longer time period, and there isn't really an analogue for LIDAR.
-                        */);
+            mLidarStateMap.addObservations(scan.getTimestamp(), 
+                                poseEstimate, velMeasured, velPredicted);
         }
         catch(Exception e)
         {
