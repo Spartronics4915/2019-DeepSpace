@@ -130,6 +130,9 @@ public class Drive extends Subsystem
             reloadGains(mRightMaster);
             reloadGains(mLeftMaster);
 
+            mLeftMaster.configNeutralDeadband(Constants.kDriveLeftDeadband, 0);
+            mRightMaster.configNeutralDeadband(Constants.kDriveRightDeadband, 0);
+
             mPigeon = new PigeonIMU(mLeftSlave);
             mLeftSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
 
@@ -201,8 +204,6 @@ public class Drive extends Subsystem
             setBrakeMode(false);
 
             logDebug("Switching to open loop: " + signal.toString());
-            mLeftMaster.configNeutralDeadband(0.04, 0);
-            mRightMaster.configNeutralDeadband(0.04, 0);
             mDriveControlState = DriveControlState.OPEN_LOOP;
         }
         mPeriodicIO.left_demand = signal.getLeft();
@@ -259,8 +260,6 @@ public class Drive extends Subsystem
         setBrakeMode(true);
         mLeftMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
         mRightMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
-        mLeftMaster.configNeutralDeadband(0.0, 0);
-        mRightMaster.configNeutralDeadband(0.0, 0);
     }
 
     public synchronized void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory)

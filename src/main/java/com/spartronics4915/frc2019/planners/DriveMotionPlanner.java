@@ -16,6 +16,8 @@ import com.spartronics4915.lib.util.CSVWritable;
 import com.spartronics4915.lib.util.Units;
 import com.spartronics4915.lib.util.Util;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -358,6 +360,9 @@ public class DriveMotionPlanner implements CSVWritable
                     new DifferentialDrive.ChassisState(acceleration_m,
                             acceleration_m * curvature_m + velocity_m * velocity_m * dcurvature_ds_m));
             mError = current_state.inverse().transformBy(mSetpoint.state().getPose());
+
+            SmartDashboard.putString("DriveMotionPlanner/trajectorySetpoints", mSetpoint.velocity() + " " + acceleration_m + " " + curvature_m);
+            SmartDashboard.putString("DriveMotionPlanner/dynamicsSetpoints", dynamics.chassis_velocity + " " + dynamics.chassis_acceleration);
 
             if (mFollowerType == FollowerType.FEEDFORWARD_ONLY)
             {

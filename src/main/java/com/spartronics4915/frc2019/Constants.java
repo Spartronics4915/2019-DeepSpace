@@ -27,17 +27,31 @@ public class Constants
     public static final double kTrackScrubFactor = 0.624; // Tune me!
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 22.7; // kg (robot's mass, guessed to be 50 lbs == 22.7 kg) TODO tune
-    public static final double kRobotAngularInertia = 384.2 ; // kg m^2 (from an online calculator) TODO tune
+    public static final double kRobotLinearInertia = 27.22; // kg (robot's mass, guessed to be 60 lbs == 27.22 kg) TODO tune
+    public static final double kRobotAngularInertia = 461; // kg m^2 (from an online calculator) TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
+    
+    // Uncomment for per-wheel constants
+    // // Left
+    // public static final double kDriveLeftVIntercept = 0.6806717258105043; // V
+    // public static final double kDriveLeftKv = 0.27817287970276816; // V per rad/s
+    // public static final double kDriveLeftKa = 0.01561261448817294; // V per rad/s^2
+    // // Right
+    // public static final double kDriveRightVIntercept = 0.921925703056741; // V
+    // public static final double kDriveRightKv = 0.22982332117199153; // V per rad/s
+    // public static final double kDriveRightKa = 0.020857218537664493; // V per rad/s^2
+
     // Left
-    public static final double kDriveLeftVIntercept = 0.9935653543781685; // V
-    public static final double kDriveLeftKv = 0.2614994443463397; // V per rad/s
-    public static final double kDriveLeftKa = 0.02056545255077003; // V per rad/s^2
+    public static final double kDriveLeftVIntercept = 0.704; // V
+    public static final double kDriveLeftKv = 0.22843468990226345; // V per rad/s
+    public static final double kDriveLeftKa = 0.0161909446494603; // V per rad/s^2
     // Right
-    public static final double kDriveRightVIntercept = 0.9751140926716296; // V
-    public static final double kDriveRightKv = 0.23387823311499184; // V per rad/s
-    public static final double kDriveRightKa = 0.019137691305547246; // V per rad/s^2
+    public static final double kDriveRightVIntercept = 0.836; // V
+    public static final double kDriveRightKv = kDriveLeftKv; // V per rad/s
+    public static final double kDriveRightKa = kDriveLeftKa; // V per rad/s^2
+
+    public static final double kDriveLeftDeadband = 0.078;
+    public static final double kDriveRightDeadband = 0.068; 
 
     // Geometry
     public static final double kCenterToFrontBumperDistance = 38.25 / 2.0;

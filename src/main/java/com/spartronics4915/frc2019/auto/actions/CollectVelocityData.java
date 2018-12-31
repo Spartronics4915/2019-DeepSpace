@@ -61,7 +61,10 @@ public class CollectVelocityData implements Action
             isFinished = true;
             return;
         }
-        mDrive.setOpenLoop(new DriveSignal((mReverse ? -1.0 : 1.0) * percentPower, (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower));
+        mDrive.setOpenLoop(new DriveSignal(
+            (mSide.shouldRunLeft() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * percentPower,
+            (mSide.shouldRunRight() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower)
+        );
         mVelocityData.add(new DriveCharacterization.VelocityDataPoint(
                 mSide.getVelocityTicksPer100ms(mDrive) / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10, //convert velocity to radians per second
                 percentPower * 12.0 //convert to volts

@@ -15,6 +15,8 @@ import java.util.List;
 public class CharacterizeDrive extends AutoModeBase
 {
 
+    private static final boolean kAlwaysRunBothMotors = true;
+
     public enum SideToCharacterize
     {
         BOTH, LEFT, RIGHT;
@@ -36,6 +38,16 @@ public class CharacterizeDrive extends AutoModeBase
                     Logger.warning("Invalid side to characterize " + this);
                     return 0.0;
             }
+        }
+
+        public boolean shouldRunRight()
+        {
+            return this == RIGHT || kAlwaysRunBothMotors || this == BOTH;
+        }
+
+        public boolean shouldRunLeft()
+        {
+            return this == LEFT || kAlwaysRunBothMotors || this == BOTH;
         }
     }
     
