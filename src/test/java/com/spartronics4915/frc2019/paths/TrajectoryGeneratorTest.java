@@ -17,7 +17,7 @@ public class TrajectoryGeneratorTest
 
         public static final double kTestEpsilon = 1e-5;
 
-        public void verifyMirroredTrajectories(final TrajectoryGenerator.TrajectorySet.MirroredTrajectory mirrored,
+        public void verifyMirroredTrajectories(final TrajectoryGenerator.TrajectorySet.MirrorableTrajectory mirrored,
                         boolean shouldBeReversed)
         {
                 assertEquals(mirrored.left.length(), mirrored.right.length());

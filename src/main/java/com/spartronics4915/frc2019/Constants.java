@@ -1,7 +1,5 @@
 package com.spartronics4915.frc2019;
 
-import edu.wpi.first.wpilibj.Solenoid;
-
 import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.lidar.icp.IReferenceModel;
 import com.spartronics4915.lib.lidar.icp.Point;
@@ -85,6 +83,7 @@ public class Constants
     public static final double kDriveVelocityKp = 7.0;
     public static final double kDriveVelocityKi = 0.0;
     public static final double kDriveVelocityKd = 50.0;
+    // The below should always be zero, because feedforward is dynamically produced by DriveMotionPlanner
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
     public static final double kDriveVoltageRampRate = 0.0;
@@ -124,35 +123,4 @@ public class Constants
     // Control Board
     public static final int kDriveJoystickPort = 0;
     public static final double kJoystickThreshold = 0.5;
-
-    /**
-     * Make an {@link Solenoid} instance for the single-number ID of the solenoid
-     * <p>
-     * Solenoids were wired in an inane method and also not labeled zero indexed.
-     * <p>
-     * Solenoids 1-4 are on PCM 1, Solenoids 7-4.
-     * Solenoids 5-8 are on PCM 0, Solenoids 0-3.
-     * Solenoids 9-12 are on PCM 0, Solenoids 7-4.
-     *
-     * @param solenoidId One of the kXyzSolenoidId constants
-     */
-    public static Solenoid makeSolenoidForId(int solenoidId)
-    {
-        if (solenoidId <= 4)
-        {
-            // These solenoids are on PCM 1, wired 1-4 to 7-4.
-            return new Solenoid(1, 8 - solenoidId);
-        }
-        else if (solenoidId <= 8)
-        {
-            // These solenoids are on PCM 0, wired 5-8 to 0-3.
-            return new Solenoid(0, solenoidId - 5);
-        }
-        else if (solenoidId <= 12)
-        {
-            // These solenoids are on PCM 0, wired 9-12 to 7-4.
-            return new Solenoid(0, 16 - solenoidId);
-        }
-        throw new IllegalArgumentException("Solenoid ID not valid: " + solenoidId);
-    }
 }

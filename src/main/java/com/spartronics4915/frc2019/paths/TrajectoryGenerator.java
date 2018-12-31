@@ -87,9 +87,9 @@ public class TrajectoryGenerator
     public class TrajectorySet
     {
 
-        public class MirroredTrajectory
+        public class MirrorableTrajectory
         {
-            public MirroredTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> right)
+            public MirrorableTrajectory(Trajectory<TimedState<Pose2dWithCurvature>> right)
             {
                 this.right = right;
                 this.left = TrajectoryUtil.mirrorTimed(right);
@@ -104,13 +104,13 @@ public class TrajectoryGenerator
             public final Trajectory<TimedState<Pose2dWithCurvature>> right;
         }
 
-        public final MirroredTrajectory straightTest;
-        public final MirroredTrajectory curvedTest;
+        public final MirrorableTrajectory straightTest;
+        public final MirrorableTrajectory curvedTest;
 
         private TrajectorySet()
         {
-            straightTest = new MirroredTrajectory(getStraightTest());
-            curvedTest = new MirroredTrajectory(getCurvedTest());
+            straightTest = new MirrorableTrajectory(getStraightTest());
+            curvedTest = new MirrorableTrajectory(getCurvedTest());
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
