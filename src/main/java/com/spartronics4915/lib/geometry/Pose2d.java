@@ -60,6 +60,9 @@ public class Pose2d implements IPose2d<Pose2d>
     /**
      * Obtain a new Pose2d from a (constant curvature) velocity. See:
      * https://github.com/strasdat/Sophus/blob/master/sophus/se2.hpp
+     * 
+     * See also ch 9 of:
+     * http://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf
      */
     public static Pose2d exp(final Twist2d delta)
     {

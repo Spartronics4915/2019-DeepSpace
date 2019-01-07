@@ -94,6 +94,16 @@ and a robot (r2) oriented at 90 degrees will point toward the "right" end.
                             |
                             v
 
+As an aside, we've seen that Pose2d can express the _relative_ relationship
+of the robot to the field.  It turns out that we can also use Pose2d to
+capture the relationship between robot and its own components.  If we're
+interested in the view of the field relative to the robot, we may need
+to consider the location of the camera on the robot to accurately convert
+the geometry understood relative to the camera to a form that makes sense
+relative to the robot.  We can _chain_ relative Pose2ds or their inverse
+to convert geometry by combining multiple relative poses with each other.  
+More on this topic can be found [here](https://www.mrpt.org/tutorials/programming/maths-and-geometry/2d_3d_geometry).
+
 ### Twist2d
 
 ``` java
