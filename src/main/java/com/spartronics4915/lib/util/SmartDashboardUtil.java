@@ -10,22 +10,20 @@ public class SmartDashboardUtil
 
     public static void deletePersistentKeys()
     {
-        SmartDashboard smartDashboard = new SmartDashboard();
-        for (String key : smartDashboard.getKeys())
+        for (String key : SmartDashboard.getKeys())
         {
-            if (smartDashboard.isPersistent(key))
+            if (SmartDashboard.isPersistent(key))
             {
-                smartDashboard.delete(key);
+                SmartDashboard.delete(key);
             }
         }
     }
 
     public static void deleteAllKeys()
     {
-        SmartDashboard smartDashboard = new SmartDashboard();
-        for (String key : smartDashboard.getKeys())
+        for (String key : SmartDashboard.getKeys())
         {
-            smartDashboard.delete(key);
+            SmartDashboard.delete(key);
         }
     }
 }

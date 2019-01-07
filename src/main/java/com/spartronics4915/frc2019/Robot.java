@@ -7,7 +7,7 @@ import com.spartronics4915.frc2019.subsystems.*;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,9 +20,8 @@ import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-public class Robot extends IterativeRobot
+public class Robot extends TimedRobot
 {
-
     private Looper mEnabledLooper = new Looper();
     private Looper mDisabledLooper = new Looper();
     private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
