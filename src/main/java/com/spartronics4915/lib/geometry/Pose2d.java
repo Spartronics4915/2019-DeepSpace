@@ -60,6 +60,9 @@ public class Pose2d implements IPose2d<Pose2d>
     /**
      * Obtain a new Pose2d from a (constant curvature) velocity. See:
      * https://github.com/strasdat/Sophus/blob/master/sophus/se2.hpp
+     * 
+     * See also ch 9 of:
+     * http://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf
      */
     public static Pose2d exp(final Twist2d delta)
     {
@@ -91,17 +94,17 @@ public class Pose2d implements IPose2d<Pose2d>
         final double dtheta = dPose.getRotation().getRadians();
         final double half_dtheta = 0.5 * dtheta;
         final double cos_minus_one = dPose.getRotation().cos() - 1.0;
-        double aa; // halftheta_by_tan_of_halfdtheta;
+        double halfCos; // halftheta_by_tan_of_halfdtheta;
         if (Math.abs(cos_minus_one) < kEps)
         {
-            aa = 1.0 - 1.0 / 12.0 * dtheta * dtheta;
+            halfCos = 1.0 - 1.0 / 12.0 * dtheta * dtheta;
         }
         else
         {
-            aa = -(half_dtheta * dPose.getRotation().sin()) / cos_minus_one;
+            halfCos = -(half_dtheta * dPose.getRotation().sin()) / cos_minus_one;
         }
         final Translation2d transPart = dPose.getTranslation()
-                .rotateBy(new Rotation2d(aa, -half_dtheta, false));
+                .rotateBy(new Rotation2d(halfCos, -half_dtheta, false));
         return new Twist2d(transPart.x(), transPart.y(), dtheta);
     }
 

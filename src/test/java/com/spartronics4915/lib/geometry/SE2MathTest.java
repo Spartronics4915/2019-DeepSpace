@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSE2Math
+public class SE2MathTest
 {
 
     public static final double kTestEpsilon = Util.kEpsilon;
@@ -14,6 +14,7 @@ public class TestSE2Math
     public void testRotation2d()
     {
         // Test constructors
+        //System.out.println("{testRotation2d begin-----------------");
         Rotation2d rot1 = new Rotation2d();
         assertEquals(1, rot1.cos(), kTestEpsilon);
         assertEquals(0, rot1.sin(), kTestEpsilon);
@@ -38,7 +39,6 @@ public class TestSE2Math
         rot1 = Rotation2d.fromDegrees(270);
         assertEquals(0, rot1.cos(), kTestEpsilon);
         assertEquals(-1, rot1.sin(), kTestEpsilon);
-        System.out.println(rot1.tan());
         assertTrue(-1 / kTestEpsilon > rot1.tan());
         assertEquals(-90, rot1.getDegrees(), kTestEpsilon);
         assertEquals(-Math.PI / 2, rot1.getRadians(), kTestEpsilon);
@@ -123,12 +123,14 @@ public class TestSE2Math
         rot1 = Rotation2d.fromDegrees(45);
         rot2 = Rotation2d.fromDegrees(-135);
         assertTrue(rot1.isParallel(rot2));
+        // System.out.println("testRotation2d end------------------}");
     }
 
     @Test
     public void testTranslation2d()
     {
         // Test constructors
+        // System.out.println("{testTranslation2d begin------------------");
         Translation2d pos1 = new Translation2d();
         assertEquals(0, pos1.x(), kTestEpsilon);
         assertEquals(0, pos1.y(), kTestEpsilon);
@@ -189,11 +191,13 @@ public class TestSE2Math
         pos3 = pos1.interpolate(pos2, .75);
         assertEquals(7.5, pos3.x(), kTestEpsilon);
         assertEquals(-.5, pos3.y(), kTestEpsilon);
+        // System.out.println("testTranslation2d end------------------}");
     }
 
     @Test
     public void testPose2d()
     {
+        // System.out.println("{ testPose begin------------------");
         // Test constructors
         Pose2d pose1 = new Pose2d();
         assertEquals(0, pose1.getTranslation().x(), kTestEpsilon);
@@ -245,12 +249,14 @@ public class TestSE2Math
         assertEquals(3.0 + 10.0 * Math.cos(expected_angle_rads), pose3.getTranslation().x(), kTestEpsilon);
         assertEquals(-6.0 + 10.0 * Math.sin(expected_angle_rads), pose3.getTranslation().y(), kTestEpsilon);
         assertEquals(expected_angle_rads, pose3.getRotation().getRadians(), kTestEpsilon);
+        // System.out.println("testPose end------------------}");
     }
 
     @Test
     public void testTwist()
     {
         // Exponentiation (integrate twist to obtain a Pose2d)
+        // System.out.println("{ testTwist begin------------------");
         Twist2d twist = new Twist2d(1.0, 0.0, 0.0);
         Pose2d pose = Pose2d.exp(twist);
         assertEquals(1.0, pose.getTranslation().x(), kTestEpsilon);
@@ -276,5 +282,6 @@ public class TestSE2Math
         assertEquals(new_pose.getTranslation().x(), pose.getTranslation().x(), kTestEpsilon);
         assertEquals(new_pose.getTranslation().y(), pose.getTranslation().y(), kTestEpsilon);
         assertEquals(new_pose.getRotation().getDegrees(), pose.getRotation().getDegrees(), kTestEpsilon);
+        // System.out.println("testTwist end------------------}");
     }
 }

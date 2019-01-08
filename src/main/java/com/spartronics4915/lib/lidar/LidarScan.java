@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Holds a single 360 degree scan from the lidar.  The timestamp
  * for the scan is that of the first point.
  */
-class LidarScan 
+public class LidarScan 
 {
     private ArrayList<Point> mPoints = new ArrayList<>(LibConstants.kLidarScanSize);
     private double mTimestamp = 0;
