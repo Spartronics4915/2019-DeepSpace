@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Main",
+            "request": "launch",
+            "mainClass": "com.spartronics4915.frc2019.Main",
+            "projectName": "2019-DeepSpace"
+        }
+    ]
+}
