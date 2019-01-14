@@ -4,9 +4,9 @@ import com.spartronics4915.frc2019.auto.AutoModeExecutor;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
-import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -30,6 +30,8 @@ public class Robot extends TimedRobot
     private SubsystemManager mSubsystemManager = null;
     private Drive mDrive = null;
     private Turret mTurret = null;
+    private Joystick mLearningJoystick = new Joystick(1); // TODO: Remove me when we're done learning
+    private LearningSubsystem mLearningSubsystem = null;
     private AutoModeExecutor mAutoModeExecutor;
 
     // smartdashboard keys
@@ -88,11 +90,13 @@ public class Robot extends TimedRobot
             try
             {
                 mDrive = Drive.getInstance();
+                mLearningSubsystem = LearningSubsystem.getInstance();
                 // mTurret = Turret.getInstance(); // TODO
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
                                 mDrive,
+                                mLearningSubsystem,
                                 // mTurret, TODO: Uncomment when turret is added
                                 Superstructure.getInstance()));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
@@ -297,6 +301,15 @@ public class Robot extends TimedRobot
         {
             DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false)/*.scale(12)*/;
             mDrive.setOpenLoop(command);
+
+            if (mLearningJoystick.getRawButtonPressed(1))
+            {
+                mLearningSubsystem.setWantedState(LearningSubsystem.WantedState.INTAKE);
+            }
+            else if (mLearningJoystick.getRawButtonPressed(2))
+            {
+                mLearningSubsystem.setWantedState(LearningSubsystem.WantedState.CLOSED);
+            }
             // mDrive.setVelocity(command, new DriveSignal(
             //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
             //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
