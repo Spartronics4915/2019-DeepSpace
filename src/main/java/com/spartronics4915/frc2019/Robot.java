@@ -30,8 +30,10 @@ public class Robot extends TimedRobot
     private SubsystemManager mSubsystemManager = null;
     private Drive mDrive = null;
     private Turret mTurret = null;
-    private Joystick mLearningJoystick = new Joystick(1); // TODO: Remove me when we're done learning
-    private LearningSubsystem mLearningSubsystem = null;
+    private PanelHandler mPanelHandler = null;
+    private CargoHandler mCargoHandler = null;
+    private Climber mClimber = null;
+    private LED mLED = null;
     private AutoModeExecutor mAutoModeExecutor;
 
     // smartdashboard keys
@@ -90,14 +92,21 @@ public class Robot extends TimedRobot
             try
             {
                 mDrive = Drive.getInstance();
-                mLearningSubsystem = LearningSubsystem.getInstance();
-                // mTurret = Turret.getInstance(); // TODO
+                Turret mTurret = Turret.getInstance();
+                PanelHandler mPanelHandler = PanelHandler.getInstance();
+                CargoHandler mCargoHandler = CargoHandler.getInstance();
+                Climber mClimber = Climber.getInstance();
+                LED mLED = LED.getInstance();
+
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
                                 mDrive,
-                                mLearningSubsystem,
-                                // mTurret, TODO: Uncomment when turret is added
+                                mTurret,
+                                mPanelHandler,
+                                mCargoHandler,
+                                mClimber,
+                                mLED,
                                 Superstructure.getInstance()));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -302,14 +311,6 @@ public class Robot extends TimedRobot
             DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false)/*.scale(12)*/;
             mDrive.setOpenLoop(command);
 
-            if (mLearningJoystick.getRawButtonPressed(1))
-            {
-                mLearningSubsystem.setWantedState(LearningSubsystem.WantedState.INTAKE);
-            }
-            else if (mLearningJoystick.getRawButtonPressed(2))
-            {
-                mLearningSubsystem.setWantedState(LearningSubsystem.WantedState.CLOSED);
-            }
             // mDrive.setVelocity(command, new DriveSignal(
             //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
             //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
