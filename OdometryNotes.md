@@ -338,7 +338,7 @@ the __error__ between expected state and measured state is simply to read our
 Easy peasey.  This error is the input to our _feedback control system_ which
 we must carefully tune to ensure reliable results.  Clearly the effectiveness
 of our Path Follower is highly dependant upon the accuracy of our state
-estimation and this is why its worth our time to both measure its accuracy
+estimation and this is why it's worth our time to both measure its accuracy
 in real-world setting and to continue to try to improve it by exploring
 alternate sensor modalities.
 
@@ -411,8 +411,8 @@ it doesn't suffer from wheel-slip inaccuracies.  The accelerometer could, in
 theory be integrated into our odometry implementation but currently we haven't
 investigated this potential.  One of the problems with the use of the
 accelerometer is that it must be calibrated in a manner that is inconvenient
-for use in robot competitions.  The gyro and magnetometer must also be calibrated
-but this occurs automatically during its startup.
+for use in robot competitions.  The gyro and magnetometer must also be 
+calibrated but this occurs automatically during its startup.
 
 See also:
     [Wikipedia](https://en.wikipedia.org/wiki/Inertial_measurement_unit),
@@ -425,24 +425,24 @@ and high-speed method for measuring distance commercially available and can
 be found in a variety of consumer products including digital tape measures.
 It has been used extensively in autonomous driving applications where it is
 used to continuously _scan_ the environment around a vehicle. We have been
-exploring the SlamTech A1 which has a scanning motor integrated with the distance
-sensor.  It purports to sample up to 8000 times per second and can sense objects
-up to 12m away with an accuracy of .2cm.  There are number of applications
-for range sensing and so far we've been focused on odometry applications.
-The basic idea is to measure all the visible object around the robot, then
-compare how this "map" changes as the robot moves.  This approach is of
-the relative variety.  There is also an absolute sensing approach where we
+exploring the SlamTech A1 which has a scanning motor integrated with the o
+distance sensor.  It purports to sample up to 8000 times per second and can 
+sense objects up to 12m away with an accuracy of .2cm.  There are number of 
+applications for range sensing and so far we've been focused on odometry 
+applications.  The basic idea is to measure all the visible object around the 
+robot, then compare how this "map" changes as the robot moves.  This approach 
+is of the relative variety.  There is also an absolute sensing approach where we
 compare a bunch of lidar samples against a known field map. In this approach
 we can theoretically know our Pose on the field without the integration 
 inaccuracies associated with integrating relative samples. 
 
 Lidar works best on objects that reflect _diffusely_.  Since the technology
 is based on light any transparent surface is appoximately invisible to lidar.
-Since there is a lot of glass/acrylic on the FRC field this represents a concern.
-Similarly mirror-like reflective surfaces aren't easy to capture since the range
-of angles that reflect light back to the sensor is very small (and within the
-nearly perpendicular angle range).  Another challenge will be to figure out
-where we can mount a lidar since it needs a clear line of sight in
+Since there is a lot of glass/acrylic on the FRC field this represents a 
+concern.  Similarly mirror-like reflective surfaces aren't easy to capture 
+since the range of angles that reflect light back to the sensor is very small 
+(and within the nearly perpendicular angle range).  Another challenge will be 
+to figure out where we can mount a lidar since it needs a clear line of sight in
 "most directions" in order to be useful.  In addition to applications for
 odometry (still under investigation) it seems clear that Lidar is an excellent
 sensor for measuring distances accurately.  
