@@ -311,8 +311,7 @@ public class Robot extends TimedRobot
             DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false)/*.scale(12)*/;
             mDrive.setOpenLoop(command);
 
-            if(mControlBoard.getTestButtonOne()) 
-            {
+            if(mControlBoard.getTestButtonOne()) {
                 mCargoHandler.setWantedState(CargoHandler.WantedState.INTAKE);
             }
 

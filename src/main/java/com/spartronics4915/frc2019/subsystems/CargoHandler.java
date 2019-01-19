@@ -81,20 +81,19 @@ public class CargoHandler extends Subsystem
                 switch (mSystemState)
                 {
                     case INTAKING:
-
-                        mMotor.set(ControlMode.PercentOutput, 1.0)
+                        mMotor.set(ControlMode.PercentOutput, 1.0);
                         break;
+
                     case ASCENDING:
-
-                        mMotor.set(ControlMode.PercentOutput, 1.0)
+                        mMotor.set(ControlMode.PercentOutput, 1.0);
                         break;
+
                     case DESCENDING:
-                        
-                        mMotor.set(ControlMode.PercentOutput, -1.0)
+                        mMotor.set(ControlMode.PercentOutput, -1.0);
                         break;
-                    case HOLDING:
 
-                        mMotor.set(ControlMode.PercentOutput, 0.0)
+                    case HOLDING:
+                        mMotor.set(ControlMode.PercentOutput, 0.0);
                         break;
                     default:
                         logError("Unhandled system state!");
