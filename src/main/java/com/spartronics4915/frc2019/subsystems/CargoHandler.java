@@ -1,5 +1,10 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
@@ -34,11 +39,15 @@ public class CargoHandler extends Subsystem
     private WantedState mWantedState = WantedState.HOLD;
     private SystemState mSystemState = SystemState.HOLDING;
 
+    private TalonSRX mMotor = null;
+
     private CargoHandler()
     {
         boolean success = true;
         try
         {
+            mMotor = TalonSRXFactory.createDefaultTalon(Constants.kTurretMotorId);
+            mMotor.setNeutralMode(NeutralMode.Brake);
             // Instantiate your hardware here
         }
         catch (Exception e)
@@ -72,12 +81,20 @@ public class CargoHandler extends Subsystem
                 switch (mSystemState)
                 {
                     case INTAKING:
+
+                        mMotor.set(ControlMode.PercentOutput, 1.0)
                         break;
                     case ASCENDING:
+
+                        mMotor.set(ControlMode.PercentOutput, 1.0)
                         break;
                     case DESCENDING:
+                        
+                        mMotor.set(ControlMode.PercentOutput, -1.0)
                         break;
                     case HOLDING:
+
+                        mMotor.set(ControlMode.PercentOutput, 0.0)
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -140,13 +157,10 @@ public class CargoHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
-<<<<<<< HEAD
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
         
 
-=======
->>>>>>> f0f56739cdc68286d9940d44a59ccd9fda8f2011
     }
 
     @Override
