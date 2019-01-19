@@ -2,6 +2,9 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.Logger;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CargoHandler extends Subsystem
 {
@@ -137,10 +140,16 @@ public class CargoHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
+<<<<<<< HEAD
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
         
 
+=======
+        SmartDashboard.putString("CargoHandler/SystemState", mSystemState.toString());
+        dashboardPutString("SystemState", mSystemState.toString());
+        dashboardPutState(mSystemState.toString());
+>>>>>>> 1590e236f5597d12d3eee3577288992b2b8a4ed1
     }
 
     @Override
