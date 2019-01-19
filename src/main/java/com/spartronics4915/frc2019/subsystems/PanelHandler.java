@@ -56,7 +56,8 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
-                mWantedState = WantedState.DEACTIVATED;
+                //mWantedState = WantedState.DEACTIVATED;
+                mWantedState = WantedState.EJECT;
                 mSystemState = SystemState.DEACTIVATING;
             }
         }
@@ -66,6 +67,7 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
+                outputTelemetry();
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
@@ -135,8 +137,8 @@ public class PanelHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        //outputToSmartDashboard("PanelHandler's WantedState is " + mSystemState);
-        //outputToSmartDashboard("PanelHandler's WantedState is " + mWantedState);
+        dashboardPutState(mSystemState.toString());
+        dashboardPutWantedState(mWantedState.toString());
     }
 
     @Override
