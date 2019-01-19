@@ -19,16 +19,17 @@ public class CargoHandler extends Subsystem
 
     public enum WantedState
     {
-        CLOSED, INTAKE,
+        INTAKE, RELEASE_ROCKET, RELEASE_SHIP, HOLD,
     }
 
     private enum SystemState
     {
-        CLOSING, INTAKING,
+        INTAKING, ASCENDING, DESCENDING, HOLDING,
+
     }
 
-    private WantedState mWantedState = WantedState.CLOSED;
-    private SystemState mSystemState = SystemState.CLOSING;
+    private WantedState mWantedState = WantedState.HOLD;
+    private SystemState mSystemState = SystemState.HOLDING;
 
     private CargoHandler()
     {
@@ -54,8 +55,8 @@ public class CargoHandler extends Subsystem
         {
             synchronized (CargoHandler.this)
             {
-                mWantedState = WantedState.CLOSED;
-                mSystemState = SystemState.CLOSING;
+                mWantedState = WantedState.HOLD;
+                mSystemState = SystemState.HOLDING;
             }
         }
 
@@ -69,8 +70,11 @@ public class CargoHandler extends Subsystem
                 {
                     case INTAKING:
                         break;
-                    case CLOSING:
-                        stop();
+                    case ASCENDING:
+                        break;
+                    case DESCENDING:
+                        break;
+                    case HOLDING:
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -94,14 +98,20 @@ public class CargoHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case CLOSED:
-                newState = SystemState.CLOSING;
+            case HOLD:
+                newState = SystemState.HOLDING;
                 break;
             case INTAKE:
                 newState = SystemState.INTAKING;
                 break;
+            case RELEASE_ROCKET:
+                newState = SystemState.ASCENDING;
+                break;
+            case RELEASE_SHIP:
+                newState = SystemState.DESCENDING;
+                break;    
             default:
-                newState = SystemState.CLOSING;
+                newState = SystemState.HOLDING;
                 break;
         }
         return newState;
@@ -127,6 +137,9 @@ public class CargoHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
+        dashboardPutState(mSystemState.toString());
+        dashboardPutWantedState(mWantedState.toString());
+        
 
     }
 

@@ -208,6 +208,8 @@ public class Robot extends TimedRobot
             // RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity()); Do not do this here 
             mEnabledLooper.start();
 
+            Logger.debug((mCargoHandler == null) + "");
+
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
             mDrive.setOpenLoop(new DriveSignal(0.05, 0.05));
         }
@@ -306,10 +308,13 @@ public class Robot extends TimedRobot
         double throttle = mControlBoard.getThrottle();
         double turn = mControlBoard.getTurn();
 
+
         try
         {
             DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false)/*.scale(12)*/;
             mDrive.setOpenLoop(command);
+
+            mCargoHandler.setWantedState(CargoHandler.WantedState.INTAKE);
 
             // mDrive.setVelocity(command, new DriveSignal(
             //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
