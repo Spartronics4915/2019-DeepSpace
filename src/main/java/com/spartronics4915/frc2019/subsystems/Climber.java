@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import javax.lang.model.util.ElementScanner6;
+
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
@@ -19,16 +21,16 @@ public class Climber extends Subsystem
 
     public enum WantedState
     {
-        CLOSED, INTAKE,
+        DEACTIVATED, FRONT1CLIMB, BACK1CLIMB, FRONT2CLIMB, BACK2CLIMB,
     }
 
     private enum SystemState
     {
-        CLOSING, INTAKING,
+        DEACTIVATING, FRONT1CLIMBING, BACK1CLIMBING, FRONT2CLIMBING, BACK2CLIMBING,
     }
 
-    private WantedState mWantedState = WantedState.CLOSED;
-    private SystemState mSystemState = SystemState.CLOSING;
+    private WantedState mWantedState = WantedState.DEACTIVATED;
+    private SystemState mSystemState = SystemState.DEACTIVATING;
 
     private Climber()
     {
@@ -54,8 +56,8 @@ public class Climber extends Subsystem
         {
             synchronized (Climber.this)
             {
-                mWantedState = WantedState.CLOSED;
-                mSystemState = SystemState.CLOSING;
+                mWantedState = WantedState.DEACTIVATED;
+                mSystemState = SystemState.DEACTIVATING;
             }
         }
 
@@ -67,9 +69,15 @@ public class Climber extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case INTAKING:
+                    case FRONT1CLIMBING:
                         break;
-                    case CLOSING:
+                    case BACK1CLIMBING:
+                        break;
+                    case FRONT2CLIMBING:
+                        break;
+                    case BACK2CLIMBING:
+                        break;
+                    case DEACTIVATING:
                         stop();
                         break;
                     default:
@@ -94,14 +102,40 @@ public class Climber extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case CLOSED:
-                newState = SystemState.CLOSING;
+            case DEACTIVATED:
+                if(mWantedState == WantedState.FRONT1CLIMB)
+                    newState = SystemState.FRONT1CLIMBING;
+                if(mWantedState == WantedState.FRONT2CLIMB)
+                    newState = SystemState.FRONT1CLIMBING;
+                else
+                    newState = SystemState.DEACTIVATING;
                 break;
-            case INTAKE:
-                newState = SystemState.INTAKING;
+            case FRONT1CLIMB:
+                if(mWantedState == WantedState.BACK1CLIMB)
+                    newState = SystemState.BACK1CLIMBING;
+                else
+                    newState = SystemState.FRONT1CLIMBING;
+                break;
+            case BACK1CLIMB:
+                if(mWantedState == WantedState.DEACTIVATED)
+                    newState = SystemState.DEACTIVATING;
+                else
+                    newState = SystemState.BACK1CLIMBING;
+                break;
+            case FRONT2CLIMB:
+                if(mWantedState == WantedState.BACK2CLIMB)
+                    newState = SystemState.BACK2CLIMBING;
+                else
+                    newState = SystemState.FRONT2CLIMBING;
+                break;
+            case BACK2CLIMB:
+                if(mWantedState == WantedState.DEACTIVATED)
+                    newState = SystemState.DEACTIVATING;
+                else
+                    newState = SystemState.BACK1CLIMBING;
                 break;
             default:
-                newState = SystemState.CLOSING;
+                newState = SystemState.DEACTIVATING;
                 break;
         }
         return newState;
