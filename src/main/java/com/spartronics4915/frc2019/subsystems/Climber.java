@@ -83,7 +83,7 @@ public class Climber extends Subsystem
                 {
                     case LEVEL2ING:
                         //Solenoids will get the robot to the point where it can climb to Level 2
-                        mMotor.set(ControlMode.PercentOutput, 0.5);
+                        mMotor.set(ControlMode.PercentOutput, 0.4);
                         break;
                     case TURNEDOFF:
                         //Climber is disabled
@@ -91,11 +91,11 @@ public class Climber extends Subsystem
                         stop();
                         break;
                     case LEVEL3ING:
-                    mMotor.set(ControlMode.PercentOutput, 1.0);
                         //Solenoids will rasie the robot to the angle required to get to Level 3
+                        mMotor.set(ControlMode.PercentOutput, 0.8);
                         break;
                     case BACKRAISING:
-                    mMotor.set(ControlMode.PercentOutput, -1.0);
+                        mMotor.set(ControlMode.PercentOutput, -0.7);
                         //In case the robot requires just the back to be raised, this System State is here
                         break;
                     default:
