@@ -319,7 +319,7 @@ public class Robot extends TimedRobot
             // if (mControlBoard.getSwitchTurretMode()) TODO: Uncomment when turret is finished
             //     mTurret.setWantedState(mTurret.getWantedState() == Turret.WantedState.FOLLOW_LIDAR ? Turret.WantedState.FOLLOW_ODOMETRY
             //             : Turret.WantedState.FOLLOW_LIDAR);
-
+            mClimber.setWantedState(Climber.WantedState.OFF);
             outputToSmartDashboard();
         }
         catch (Throwable t)

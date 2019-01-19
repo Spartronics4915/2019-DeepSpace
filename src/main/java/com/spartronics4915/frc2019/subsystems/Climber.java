@@ -19,16 +19,22 @@ public class Climber extends Subsystem
 
     public enum WantedState
     {
-        CLOSED, INTAKE,
+        OFF, 
+        LEVEL2,
+        LEVEL3,
+        BACKRISE,
     }
 
     private enum SystemState
     {
-        CLOSING, INTAKING,
+        TURNEDOFF, 
+        LEVEL2ING,
+        LEVEL3ING,
+        BACKRAISING,
     }
 
-    private WantedState mWantedState = WantedState.CLOSED;
-    private SystemState mSystemState = SystemState.CLOSING;
+    private WantedState mWantedState = WantedState.OFF;
+    private SystemState mSystemState = SystemState.TURNEDOFF;
 
     private Climber()
     {
@@ -54,8 +60,8 @@ public class Climber extends Subsystem
         {
             synchronized (Climber.this)
             {
-                mWantedState = WantedState.CLOSED;
-                mSystemState = SystemState.CLOSING;
+                mWantedState = WantedState.OFF;
+                mSystemState = SystemState.TURNEDOFF;
             }
         }
 
@@ -67,10 +73,18 @@ public class Climber extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case INTAKING:
+                    case LEVEL2ING:
+                        //Solenoids will get the robot to the point where it can climb to Level 2
                         break;
-                    case CLOSING:
+                    case TURNEDOFF:
+                        //Climber is disabled
                         stop();
+                        break;
+                    case LEVEL3ING:
+                        //Solenoids will rasie the robot to the angle required to get to Level 3
+                        break;
+                    case BACKRAISING:
+                        //In case the robot requires just the back to be raised, this System State is here
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -94,14 +108,20 @@ public class Climber extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case CLOSED:
-                newState = SystemState.CLOSING;
+            case OFF:
+                newState = SystemState.TURNEDOFF;
                 break;
-            case INTAKE:
-                newState = SystemState.INTAKING;
+            case LEVEL2:
+                newState = SystemState.LEVEL2ING;
+                break;
+            case LEVEL3:
+                newState = SystemState.LEVEL3ING;
+                break;
+            case BACKRISE:
+                newState = SystemState.BACKRAISING;
                 break;
             default:
-                newState = SystemState.CLOSING;
+                newState = SystemState.TURNEDOFF;
                 break;
         }
         return newState;
@@ -127,7 +147,8 @@ public class Climber extends Subsystem
     @Override
     public void outputTelemetry()
     {
-
+        dashboardPutState(mSystemState.toString());
+        dashboardPutWantedState(mWantedState.toString());
     }
 
     @Override
