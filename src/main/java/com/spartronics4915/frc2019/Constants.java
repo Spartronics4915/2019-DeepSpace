@@ -109,7 +109,7 @@ public class Constants
     public static final double kDriveEncoderPPR = 1440.0; // PPR (1440) = CPR (360) * 4 (because quadrature)
 
     // Turret
-    public static final int kTurretMotorId = 10; // TODO: Figure out the correct motor ID
+    public static final int kTurretMotorId = 5; // TODO: Figure out the correct motor ID
     public static final Translation2d kTurretTargetFieldPosition = new Translation2d(0, 0);
     public static final class TurretPIDConstants {
         public static final double kP = 1.0, kI = 0.0, kD = 0.0, kF = 0.0;
