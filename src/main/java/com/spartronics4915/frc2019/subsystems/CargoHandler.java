@@ -130,9 +130,6 @@ public class CargoHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        SmartDashboard.putString("CargoHandler/SystemState", mSystemState.toString());
-        dashboardPutString("SystemState", mSystemState.toString());
-        dashboardPutState(mSystemState.toString());
     }
 
     @Override

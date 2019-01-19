@@ -91,10 +91,10 @@ public class Robot extends TimedRobot
             try
             {
                 mDrive = Drive.getInstance();
-                PanelHandler mPanelHandler = PanelHandler.getInstance();
-                CargoHandler mCargoHandler = CargoHandler.getInstance();
-                Climber mClimber = Climber.getInstance();
-                LED mLED = LED.getInstance();
+                mPanelHandler = PanelHandler.getInstance();
+                mCargoHandler = CargoHandler.getInstance();
+                mClimber = Climber.getInstance();
+                mLED = LED.getInstance();
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
