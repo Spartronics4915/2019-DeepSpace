@@ -29,7 +29,6 @@ public class Robot extends TimedRobot
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
     private SubsystemManager mSubsystemManager = null;
     private Drive mDrive = null;
-    private Turret mTurret = null;
     private PanelHandler mPanelHandler = null;
     private CargoHandler mCargoHandler = null;
     private Climber mClimber = null;
@@ -92,7 +91,6 @@ public class Robot extends TimedRobot
             try
             {
                 mDrive = Drive.getInstance();
-                Turret mTurret = Turret.getInstance();
                 PanelHandler mPanelHandler = PanelHandler.getInstance();
                 CargoHandler mCargoHandler = CargoHandler.getInstance();
                 Climber mClimber = Climber.getInstance();
@@ -102,7 +100,6 @@ public class Robot extends TimedRobot
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
                                 mDrive,
-                                mTurret,
                                 mPanelHandler,
                                 mCargoHandler,
                                 mClimber,
