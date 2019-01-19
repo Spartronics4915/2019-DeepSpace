@@ -140,10 +140,13 @@ public class CargoHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
+<<<<<<< HEAD
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
         
 
+=======
+>>>>>>> f0f56739cdc68286d9940d44a59ccd9fda8f2011
     }
 
     @Override
