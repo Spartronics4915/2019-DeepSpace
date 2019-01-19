@@ -3,6 +3,8 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
+//import com.spartronics4915.frc2019.Robot;
+
 public class PanelHandler extends Subsystem
 {
 
@@ -19,16 +21,16 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        CLOSED, INTAKE,
+        DEACTIVATED, EJECT,
     }
 
     private enum SystemState
     {
-        CLOSING, INTAKING,
+        DEACTIVATING, EJECTING,
     }
 
-    private WantedState mWantedState = WantedState.CLOSED;
-    private SystemState mSystemState = SystemState.CLOSING;
+    private WantedState mWantedState = WantedState.DEACTIVATED;
+    private SystemState mSystemState = SystemState.DEACTIVATING;
 
     private PanelHandler()
     {
@@ -54,8 +56,8 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
-                mWantedState = WantedState.CLOSED;
-                mSystemState = SystemState.CLOSING;
+                mWantedState = WantedState.DEACTIVATED;
+                mSystemState = SystemState.DEACTIVATING;
             }
         }
 
@@ -67,9 +69,9 @@ public class PanelHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case INTAKING:
+                    case EJECTING:
                         break;
-                    case CLOSING:
+                    case DEACTIVATING:
                         stop();
                         break;
                     default:
@@ -94,14 +96,20 @@ public class PanelHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case CLOSED:
-                newState = SystemState.CLOSING;
-                break;
-            case INTAKE:
-                newState = SystemState.INTAKING;
-                break;
+            case DEACTIVATED:
+                if(mWantedState == WantedState.EJECT)
+                    newState = SystemState.EJECTING;
+                else
+                    newState = SystemState.DEACTIVATING;
+                    break;
+            case EJECT:
+                if(mWantedState == WantedState.DEACTIVATED)
+                    newState = SystemState.DEACTIVATING;
+                else
+                    newState = SystemState.EJECTING;
+                    break;
             default:
-                newState = SystemState.CLOSING;
+                newState = SystemState.DEACTIVATING;
                 break;
         }
         return newState;
@@ -127,7 +135,8 @@ public class PanelHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
-
+        //outputToSmartDashboard("PanelHandler's WantedState is " + mSystemState);
+        //outputToSmartDashboard("PanelHandler's WantedState is " + mWantedState);
     }
 
     @Override
