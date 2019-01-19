@@ -51,4 +51,19 @@ public class ControlBoard implements IControlBoard
     {
         return mDriveControlBoard.getSwitchTurretMode();
     }
+
+    @Override
+    public boolean getTestButtonOne() {
+        return mDriveControlBoard.getTestButtonOne();
+    }
+
+    @Override
+    public boolean getTestButtonTwo() {
+        return mDriveControlBoard.getTestButtonTwo();
+    }
+
+    @Override
+    public boolean getTestButtonThree() {
+        return mDriveControlBoard.getTestButtonThree();
+    }
 }

@@ -47,4 +47,19 @@ public class MainDriveControlBoard implements IDriveControlBoard
     {
         return mDriveJoystick.getRawButtonReleased(2);
     }
+
+    @Override
+    public boolean getTestButtonOne() {
+        return mDriveJoystick.getRawButtonReleased(3);
+    }
+
+    @Override
+    public boolean getTestButtonTwo() {
+        return mDriveJoystick.getRawButtonReleased(4);
+    }
+
+    @Override
+    public boolean getTestButtonThree() {
+        return mDriveJoystick.getRawButtonReleased(5);
+    }
 }
