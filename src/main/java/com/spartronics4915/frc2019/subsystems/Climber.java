@@ -1,5 +1,10 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
@@ -35,13 +40,16 @@ public class Climber extends Subsystem
 
     private WantedState mWantedState = WantedState.OFF;
     private SystemState mSystemState = SystemState.TURNEDOFF;
+    private TalonSRX mMotor = null;
 
     private Climber()
+    
     {
         boolean success = true;
         try
         {
-            // Instantiate your hardware here
+            mMotor = TalonSRXFactory.createDefaultTalon(Constants.kTurretMotorId);
+            mMotor.setNeutralMode(NeutralMode.Brake);       
         }
         catch (Exception e)
         {
@@ -75,15 +83,19 @@ public class Climber extends Subsystem
                 {
                     case LEVEL2ING:
                         //Solenoids will get the robot to the point where it can climb to Level 2
+                        mMotor.set(ControlMode.PercentOutput, 0.5);
                         break;
                     case TURNEDOFF:
                         //Climber is disabled
+                        mMotor.set(ControlMode.PercentOutput, 0.0);
                         stop();
                         break;
                     case LEVEL3ING:
+                    mMotor.set(ControlMode.PercentOutput, 1.0);
                         //Solenoids will rasie the robot to the angle required to get to Level 3
                         break;
                     case BACKRAISING:
+                    mMotor.set(ControlMode.PercentOutput, -1.0);
                         //In case the robot requires just the back to be raised, this System State is here
                         break;
                     default:

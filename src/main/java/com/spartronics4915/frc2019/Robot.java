@@ -91,19 +91,11 @@ public class Robot extends TimedRobot
             try
             {
                 mDrive = Drive.getInstance();
-<<<<<<< HEAD
-                PanelHandler mPanelHandler = PanelHandler.getInstance();
-                CargoHandler mCargoHandler = CargoHandler.getInstance();
-                Climber mClimber = Climber.getInstance();
-                LED mLED = LED.getInstance();
-                Logger.debug("CargoHandler is " + mCargoHandler);
-=======
                 mPanelHandler = PanelHandler.getInstance();
                 mCargoHandler = CargoHandler.getInstance();
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
 
->>>>>>> f0f56739cdc68286d9940d44a59ccd9fda8f2011
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
