@@ -95,7 +95,7 @@ public class Robot extends TimedRobot
                 CargoHandler mCargoHandler = CargoHandler.getInstance();
                 Climber mClimber = Climber.getInstance();
                 LED mLED = LED.getInstance();
-
+                Logger.debug("CargoHandler is " + mCargoHandler);
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
@@ -124,6 +124,7 @@ public class Robot extends TimedRobot
         }
         catch (Throwable t)
         {
+            Logger.debug("foo");
             Logger.logThrowableCrash(t);
             throw t;
         }
