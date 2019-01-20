@@ -1,8 +1,8 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ILoop;
-import com.spartronics4915.frc2019.loops.Looper;
 
 import edu.wpi.first.wpilibj.Timer;
 
@@ -39,30 +39,70 @@ public class Superstructure extends Subsystem
         return mInstance;
     }
 
-    // Superstructure doesn't own the drive, but needs to access it
-    private final Drive mDrive = Drive.getInstance();
+    // Desired function from user
+    public enum WantedState
+    {
+        // Regular driver control
+        DRIVER_CONTROL,
+        // Alignment and intake/place using vision
+        ALIGN_AND_INTAKE_CARGO,
+        ALIGN_AND_INTAKE_PANEL,
+        ALIGN_AND_EJECT_CARGO,
+        ALIGN_AND_EJECT_PANEL,
+        // Climb
+        // TODO: Can we do a climb to level two?
+        CLIMB_TO_THREE,
+    };
 
     // Internal state of the system
     public enum SystemState
     {
-        IDLE,
-    };
+        /* Regular driver control */
+        // All other states ingore driver input
+        DRIVER_CONTROLLING,
 
-    // Desired function from user
-    public enum WantedState
-    {
-        IDLE,
+        /* Climbing */
+        // TODO: We could add align to climb and mount hab platform states, if the drivers want auto align for climbing
+        LIFTING_TO_THREE,
+        DRIVING_UNTIL_PLATFORM_CONTACT, // TODO: Is this going to be a mechanism that deploys and pulls us forward ("the cheetos")?
+        RETRACTING_FORWARD_STRUTS,
+        DRIVING_UNTIL_PLATFORM_FULL_SUPPORT,
+        RETRACTING_REAR_STRUTS,
+        // TODO: Should we have a "drive fully onto the platform"?
+
+        /* Placing/intaking game pieces */
+        // Alignment using vision+odometry (step 1)
+        // TODO: Ensure that forward only has cargo intake on it, and that reverse has cargo out+hatch panel (this is currently assumed below)
+        ALIGNING_CLOSEST_FORWARD_TARGET,
+        ALIGNING_CLOSEST_REVERSE_TARGET,
+        // Intaking (step 2)
+        INTAKING_CARGO,
+        INTAKING_PANEL,
+        // Placing (could also be step 2)
+        EJECTING_PANEL,
+        MOVING_CARGO_EJECTOR, // There are two eject heights (step 2.1)
+        EJECTING_CARGO, // (step 2.2)
+        // Backing out and turning (step 3, PANEL panels only)
+        BACKING_OUT_FROM_LOADING,
+        TURNING_AROUND,
     }
 
-    private SystemState mSystemState = SystemState.IDLE;
-    private WantedState mWantedState = WantedState.IDLE;
+    // Superstructure doesn't own the drive, but needs to access it
+    private final Drive mDrive = Drive.getInstance();
+    private final CargoHandler mCargoHandler = CargoHandler.getInstance();
+    private final Climber mClimber = Climber.getInstance();
+    private final PanelHandler mPanelHandler = PanelHandler.getInstance();
 
-    // State change timestamps are currently unused, but I'm keeping them
-    // here because they're potentially useful.
-    private double mCurrentStateStartTime;
-    private boolean mStateChanged;
+    private final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
+    private final double kDriveUntilPlatformContactDuration = 1; // Seconds TODO: Tune me
+    private final double kDriveUntilPlatformFullSupportDuration = 1; // Seconds TODO: Tune me
 
-    private Timer mTimer = new Timer();
+    private final DriveSignal kPlatformDriveSpeed = new DriveSignal(1, 1);
+
+    private WantedState mWantedState = WantedState.DRIVER_CONTROL;
+    private SystemState mSystemState = SystemState.DRIVER_CONTROLLING;
+    // We don't have a DRIVER_CONTROL_FORWARD and ..._REVERSE becase we need to persist driving direction across state changes
+    private boolean mIsReversed = false;
 
     private Superstructure()
     {
@@ -72,19 +112,19 @@ public class Superstructure extends Subsystem
     private ILoop mLoop = new ILoop()
     {
 
-        // Every time we transition states, we update the current state start
-        // time and the state changed boolean (for one cycle)
-        private double mWantStateChangeStartTime;
+        // State change timestamps are currently unused, but I'm keeping them
+        // here because they're potentially useful.
+        private double mCurrentStateStartTime;
+        private boolean mStateChanged;
 
         @Override
         public void onStart(double timestamp)
         {
             synchronized (Superstructure.this)
             {
-                mWantedState = WantedState.IDLE;
+                mWantedState = WantedState.DRIVER_CONTROL;
                 mCurrentStateStartTime = timestamp;
-                mWantStateChangeStartTime = timestamp;
-                mSystemState = SystemState.IDLE;
+                mSystemState = SystemState.DRIVER_CONTROLLING;
                 mStateChanged = true;
             }
         }
@@ -94,26 +134,109 @@ public class Superstructure extends Subsystem
         {
             synchronized (Superstructure.this)
             {
-                SystemState newState = mSystemState;
+                SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case IDLE:
-                        switch (mWantedState)
+                    // TODO: We have to call mSubsystem.setWantedState in basically all of these branches
+
+                    /* Regular driver control */
+                    case DRIVER_CONTROLLING:
+                        // Driver control doesn't really go through us, except for getDirectionMultiplier
+                        break;
+
+                    /* Climbing */
+                    case LIFTING_TO_THREE:
+                        // XXX: Climb sequence is currently uninterruptable (that's why there's no newState == mSystemState)
+                        if (mClimber.atTarget())
+                            newState = SystemState.DRIVING_UNTIL_PLATFORM_CONTACT;
+                        break;
+                    case DRIVING_UNTIL_PLATFORM_CONTACT:
+                        mDrive.setOpenLoop(kPlatformDriveSpeed);
+                        if (Timer.getFPGATimestamp() - mCurrentStateStartTime > kDriveUntilPlatformContactDuration)
+                            newState = SystemState.RETRACTING_FORWARD_STRUTS;
+                        break;
+                    case RETRACTING_FORWARD_STRUTS:
+                        if (mClimber.atTarget())
+                            newState = SystemState.DRIVING_UNTIL_PLATFORM_FULL_SUPPORT;
+                        break;
+                    case DRIVING_UNTIL_PLATFORM_FULL_SUPPORT:
+                        mDrive.setOpenLoop(kPlatformDriveSpeed);
+                        if (Timer.getFPGATimestamp() - mCurrentStateStartTime > kDriveUntilPlatformFullSupportDuration)
+                            newState = SystemState.RETRACTING_REAR_STRUTS;
+                        break;
+                    case RETRACTING_REAR_STRUTS:
+                        if (mWantedState == WantedState.CLIMB_TO_THREE && mClimber.atTarget())
                         {
-                            default: // either idle or unimplemented
-                                break;
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
+                        break;
+
+                    /* Placing/intaking game pieces */
+                    case ALIGNING_CLOSEST_FORWARD_TARGET:
+                        // TODO: Put in paths
+                        if (newState == mSystemState && mDrive.isDoneWithTrajectory())
+                            newState = SystemState.INTAKING_CARGO;
+                        break;
+                    case ALIGNING_CLOSEST_REVERSE_TARGET:
+                        // TODO: Put in paths
+                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO)
+                            newState = SystemState.MOVING_CARGO_EJECTOR;
+                        else if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
+                            newState = SystemState.EJECTING_PANEL;
+                        break;
+                    case INTAKING_CARGO:
+                        // TODO: Should this be isCargoHeld() or a timer?
+                        if (mWantedState == WantedState.ALIGN_AND_INTAKE_CARGO)
+                        {
+                            mWantedState = WantedState.DRIVER_CONTROL; // XXX: Bad?
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
+                        break;
+                    case INTAKING_PANEL:
+                        if (mWantedState == WantedState.ALIGN_AND_INTAKE_PANEL
+                                && Timer.getFPGATimestamp() - mCurrentStateStartTime > kPanelHandlingDuration)
+                        {
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
+                        break;
+                    case EJECTING_PANEL:
+                        if (newState == mSystemState && Timer.getFPGATimestamp() - mCurrentStateStartTime > kPanelHandlingDuration)
+                            newState = SystemState.BACKING_OUT_FROM_LOADING;
+                        break;
+                    case MOVING_CARGO_EJECTOR:
+                        if (newState == mSystemState && mCargoHandler.atTarget())
+                            newState = SystemState.EJECTING_CARGO;
+                        break;
+                    case EJECTING_CARGO:
+                        // TODO: Should this be isCargoEjected(), atTarget(), or a timer?
+                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO)
+                        {
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
+                        break;
+                    case BACKING_OUT_FROM_LOADING:
+                        // TODO: Put in paths
+                        if (newState == mSystemState && mDrive.isDoneWithTrajectory())
+                            newState = SystemState.TURNING_AROUND;
+                        break;
+                    case TURNING_AROUND:
+                        // TODO: Implement drive quick turn
+                        if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
+                        {
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
                         }
                         break;
                     default:
-                        newState = defaultStateTransfer();
+                        logError("Unhandled system state!");
+                        break;
                 }
-                if (mSystemState != newState)
-                {
-                    if (newState == SystemState.IDLE)
-                    {
-                        // need to reset subsystems to an idle?
-                    }
-                }
+
+                if (newState != mSystemState)
+                    mStateChanged = true;
                 mSystemState = newState;
             }
         }
@@ -130,11 +253,50 @@ public class Superstructure extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case IDLE:
-                newState = SystemState.IDLE;
+            case DRIVER_CONTROL:
+                newState = SystemState.DRIVER_CONTROLLING;
+                break;
+            case ALIGN_AND_INTAKE_CARGO:
+                // Assumes cargo is on the forward side
+                if (mSystemState == SystemState.ALIGNING_CLOSEST_FORWARD_TARGET ||
+                        mSystemState == SystemState.INTAKING_CARGO)
+                    break;
+                newState = SystemState.ALIGNING_CLOSEST_FORWARD_TARGET;
+                break;
+            case ALIGN_AND_INTAKE_PANEL:
+                // Assumes PANEL intake is on the reverse side
+                if (mSystemState == SystemState.ALIGNING_CLOSEST_REVERSE_TARGET ||
+                        mSystemState == SystemState.INTAKING_PANEL)
+                    break;
+                newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
+                break;
+            case ALIGN_AND_EJECT_CARGO:
+                if (mSystemState == SystemState.ALIGNING_CLOSEST_FORWARD_TARGET ||
+                        mSystemState == SystemState.MOVING_CARGO_EJECTOR ||
+                        mSystemState == SystemState.EJECTING_CARGO)
+                    break;
+                newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
+                break;
+            case ALIGN_AND_EJECT_PANEL:
+                if (mSystemState == SystemState.ALIGNING_CLOSEST_REVERSE_TARGET ||
+                        mSystemState == SystemState.EJECTING_PANEL ||
+                        mSystemState == SystemState.BACKING_OUT_FROM_LOADING ||
+                        mSystemState == SystemState.TURNING_AROUND)
+                    break;
+                newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
+                break;
+            case CLIMB_TO_THREE:
+                if (mSystemState == SystemState.LIFTING_TO_THREE ||
+                        mSystemState == SystemState.DRIVING_UNTIL_PLATFORM_CONTACT ||
+                        mSystemState == SystemState.RETRACTING_FORWARD_STRUTS ||
+                        mSystemState == SystemState.DRIVING_UNTIL_PLATFORM_FULL_SUPPORT ||
+                        mSystemState == SystemState.RETRACTING_REAR_STRUTS)
+                    break;
+                newState = SystemState.LIFTING_TO_THREE;
                 break;
             default:
-                newState = SystemState.IDLE;
+                logError("Unhandled wanted state in default state transfer!");
+                newState = SystemState.DRIVER_CONTROLLING;
                 break;
         }
         return newState;
@@ -146,20 +308,25 @@ public class Superstructure extends Subsystem
         mWantedState = wantedState;
     }
 
-    /**
-     * This is a bit like the atTarget methods of many other subsystem. It's called
-     * something different because Superstructure is fundamentally different from
-     * other subsystems.
-     */
-    public synchronized boolean isIdling()
+    public synchronized void reverseDrivingDirection()
     {
-        return mSystemState == SystemState.IDLE;
+        mIsReversed = !mIsReversed;
+    }
+
+    public synchronized boolean isDrivingReversed()
+    {
+        return mIsReversed;
+    }
+
+    public synchronized boolean isDriverControlled()
+    {
+        return mSystemState == SystemState.DRIVER_CONTROLLING;
     }
 
     @Override
     public void stop()
     {
-
+        // TODO: Figure out all the "stopped" states of the subsystems and set them here
     }
 
     @Override
@@ -184,6 +351,7 @@ public class Superstructure extends Subsystem
     @Override
     public void outputTelemetry()
     {
-
+        dashboardPutState(mSystemState.toString());
+        dashboardPutWantedState(mWantedState.toString());
     }
 }

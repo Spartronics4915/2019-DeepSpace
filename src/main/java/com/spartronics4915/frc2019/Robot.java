@@ -6,7 +6,6 @@ import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
@@ -33,6 +32,7 @@ public class Robot extends TimedRobot
     private CargoHandler mCargoHandler = null;
     private Climber mClimber = null;
     private LED mLED = null;
+    private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
 
     // smartdashboard keys
@@ -95,6 +95,7 @@ public class Robot extends TimedRobot
                 mCargoHandler = CargoHandler.getInstance();
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
+                mSuperstructure = Superstructure.getInstance();
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
@@ -104,7 +105,7 @@ public class Robot extends TimedRobot
                                 mCargoHandler,
                                 mClimber,
                                 mLED,
-                                Superstructure.getInstance()));
+                                mSuperstructure));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
                 SmartDashboard.putString(kRobotTestModeOptions, 
@@ -306,26 +307,40 @@ public class Robot extends TimedRobot
 
         try
         {
-            DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false)/*.scale(12)*/;
-            mDrive.setOpenLoop(command);
+            if (mSuperstructure.isDriverControlled())
+            {
+                DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false)/*.scale(12)*/;
+                mDrive.setOpenLoop(command.scale(
+                    mSuperstructure.isDrivingReversed() ? -1 : 1
+                ));
 
-            // mDrive.setVelocity(command, new DriveSignal(
-            //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-            //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
-            // ));
+                // mDrive.setVelocity(command, new DriveSignal(
+                //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
+                //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
+                // ));
 
-            // if (mControlBoard.getSwitchTurretMode()) TODO: Uncomment when turret is finished
-            //     mTurret.setWantedState(mTurret.getWantedState() == Turret.WantedState.FOLLOW_LIDAR ? Turret.WantedState.FOLLOW_ODOMETRY
-            //             : Turret.WantedState.FOLLOW_LIDAR);
-            outputToSmartDashboard();
-            if (mControlBoard.getTestButtonOne()) {
-                mClimber.setWantedState(Climber.WantedState.LEVEL2);
+                if (mControlBoard.getTestButtonOne())
+                {
+                    mClimber.setWantedState(Climber.WantedState.LEVEL2);
+                }
+                else if (mControlBoard.getTestButtonTwo())
+                {
+                    mClimber.setWantedState(Climber.WantedState.OFF);
+                }
+                else if (mControlBoard.getTestButtonThree())
+                {
+                    mClimber.setWantedState(Climber.WantedState.LEVEL3);
+                }
+
+                if (mControlBoard.getReverseDirection())
+                {
+                    mSuperstructure.reverseDrivingDirection();
+                }
+                // TODO (for button person): add buttons for all superstructure wanted states
             }
-            if (mControlBoard.getTestButtonTwo()) {
-                mClimber.setWantedState(Climber.WantedState.OFF);
-            }
-            if (mControlBoard.getTestButtonThree()) {
-                mClimber.setWantedState(Climber.WantedState.LEVEL3);
+            else if (mControlBoard.getReturnToDriverControl())
+            {
+                mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
             }
         }
         catch (Throwable t)
@@ -333,6 +348,8 @@ public class Robot extends TimedRobot
             Logger.logThrowableCrash(t);
             throw t;
         }
+
+        outputToSmartDashboard();
     }
 
     @Override
