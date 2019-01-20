@@ -109,7 +109,7 @@ public class Constants
     public static final double kDriveEncoderPPR = 1440.0; // PPR (1440) = CPR (360) * 4 (because quadrature)
 
     // Turret
-    public static final int kTurretMotorId = 10; // TODO: Figure out the correct motor ID
+    public static final int kTurretMotorId = 5; // TODO: Figure out the correct motor ID
     // We're using the CTRE Mag encoders: https://content.vexrobotics.com/vexpro/pdf/Magnetic-Encoder-User's-Guide-01282016.pdf
     public static final double kTurretPPR = 4096.0;
     public static final double kTurretUnitsPerRev = 13653; // 4096 Quadrature CPR * (10 / 3) Belt reduction
