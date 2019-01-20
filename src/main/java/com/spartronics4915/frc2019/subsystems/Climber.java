@@ -27,7 +27,8 @@ public class Climber extends Subsystem
         DISABLED, 
         CLIMB_TO_TWO,
         CLIMB_TO_THREE,
-        BACKRISE,
+        RETRACT_FRONT_STRUTS,
+        RETRACT_REAR_STRUTS,
     }
 
     private enum SystemState
@@ -35,7 +36,8 @@ public class Climber extends Subsystem
         DISABLING, 
         CLIMBING_TO_TWO,
         CLIMBING_TO_THREE,
-        BACKRAISING,
+        RETRACTING_FRONT_STRUTS,
+        RETRACTING_REAR_STRUTS,
     }
 
     private WantedState mWantedState = WantedState.DISABLED;
@@ -94,9 +96,12 @@ public class Climber extends Subsystem
                         //Solenoids will rasie the robot to the angle required to get to Level 3
                         mMotor.set(ControlMode.PercentOutput, 0.8);
                         break;
-                    case BACKRAISING:
+                    case RETRACTING_FRONT_STRUTS:
+                        //Robot retracts the front 2 struts for when we reach the level we need to climb to
                         mMotor.set(ControlMode.PercentOutput, -0.7);
-                        //In case the robot requires just the back to be raised, this System State is here
+                        break;
+                    case RETRACTING_REAR_STRUTS:
+                        //Robot retracts the rear 2 struts when it is fully supported by the platform of level 3
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -129,8 +134,8 @@ public class Climber extends Subsystem
             case CLIMB_TO_THREE:
                 newState = SystemState.CLIMBING_TO_THREE;
                 break;
-            case BACKRISE:
-                newState = SystemState.BACKRAISING;
+            case RETRACT_FRONT_STRUTS:
+                newState = SystemState.RETRACTING_FRONT_STRUTS;
                 break;
             default:
                 newState = SystemState.DISABLING;
