@@ -112,6 +112,11 @@ public class PanelHandler extends Subsystem
         mWantedState = wantedState;
     }
 
+    public synchronized boolean atTarget()
+    {
+        return true;
+    }
+
     @Override
     public void registerEnabledLoops(ILooper enabledLooper)
     {
