@@ -43,9 +43,15 @@ public class MainDriveControlBoard implements IDriveControlBoard
     }
 
     @Override
-    public boolean getSwitchTurretMode()
+    public boolean getReturnToDriverControl()
     {
         return mDriveJoystick.getRawButtonReleased(2);
+    }
+
+    @Override
+    public boolean getReverseDirection()
+    {
+        return mDriveJoystick.getRawButtonReleased(6);
     }
 
     @Override

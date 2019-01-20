@@ -47,9 +47,15 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getSwitchTurretMode()
+    public boolean getReturnToDriverControl()
     {
-        return mDriveControlBoard.getSwitchTurretMode();
+        return mDriveControlBoard.getReturnToDriverControl();
+    }
+
+    @Override
+    public boolean getReverseDirection()
+    {
+        return mDriveControlBoard.getReverseDirection();
     }
 
     @Override
