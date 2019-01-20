@@ -125,7 +125,6 @@ public class Robot extends TimedRobot
         }
         catch (Throwable t)
         {
-            Logger.debug("foo");
             Logger.logThrowableCrash(t);
             throw t;
         }
@@ -321,15 +320,15 @@ public class Robot extends TimedRobot
 
                 if (mControlBoard.getTestButtonOne())
                 {
-                    mClimber.setWantedState(Climber.WantedState.LEVEL2);
+                    mClimber.setWantedState(Climber.WantedState.CLIMB_TO_TWO);
                 }
                 else if (mControlBoard.getTestButtonTwo())
                 {
-                    mClimber.setWantedState(Climber.WantedState.OFF);
+                    mClimber.setWantedState(Climber.WantedState.DISABLED);
                 }
                 else if (mControlBoard.getTestButtonThree())
                 {
-                    mClimber.setWantedState(Climber.WantedState.LEVEL3);
+                    mClimber.setWantedState(Climber.WantedState.CLIMB_TO_THREE);
                 }
 
                 if (mControlBoard.getReverseDirection())

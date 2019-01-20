@@ -24,22 +24,22 @@ public class Climber extends Subsystem
 
     public enum WantedState
     {
-        OFF, 
-        LEVEL2,
-        LEVEL3,
+        DISABLED, 
+        CLIMB_TO_TWO,
+        CLIMB_TO_THREE,
         BACKRISE,
     }
 
     private enum SystemState
     {
-        TURNEDOFF, 
-        LEVEL2ING,
-        LEVEL3ING,
+        DISABLED, 
+        CLIMBING_TO_TWO,
+        CLIMBING_TO_THREE,
         BACKRAISING,
     }
 
-    private WantedState mWantedState = WantedState.OFF;
-    private SystemState mSystemState = SystemState.TURNEDOFF;
+    private WantedState mWantedState = WantedState.DISABLED;
+    private SystemState mSystemState = SystemState.DISABLED;
     private TalonSRX mMotor = null;
 
     private Climber()
@@ -68,8 +68,8 @@ public class Climber extends Subsystem
         {
             synchronized (Climber.this)
             {
-                mWantedState = WantedState.OFF;
-                mSystemState = SystemState.TURNEDOFF;
+                mWantedState = WantedState.DISABLED;
+                mSystemState = SystemState.DISABLED;
             }
         }
 
@@ -81,16 +81,16 @@ public class Climber extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case LEVEL2ING:
+                    case CLIMBING_TO_TWO:
                         //Solenoids will get the robot to the point where it can climb to Level 2
                         mMotor.set(ControlMode.PercentOutput, 0.4);
                         break;
-                    case TURNEDOFF:
+                    case DISABLED:
                         //Climber is disabled
                         mMotor.set(ControlMode.PercentOutput, 0.0);
                         stop();
                         break;
-                    case LEVEL3ING:
+                    case CLIMBING_TO_THREE:
                         //Solenoids will rasie the robot to the angle required to get to Level 3
                         mMotor.set(ControlMode.PercentOutput, 0.8);
                         break;
@@ -120,20 +120,20 @@ public class Climber extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case OFF:
-                newState = SystemState.TURNEDOFF;
+            case DISABLED:
+                newState = SystemState.DISABLED;
                 break;
-            case LEVEL2:
-                newState = SystemState.LEVEL2ING;
+            case CLIMB_TO_TWO:
+                newState = SystemState.CLIMBING_TO_TWO;
                 break;
-            case LEVEL3:
-                newState = SystemState.LEVEL3ING;
+            case CLIMB_TO_THREE:
+                newState = SystemState.CLIMBING_TO_THREE;
                 break;
             case BACKRISE:
                 newState = SystemState.BACKRAISING;
                 break;
             default:
-                newState = SystemState.TURNEDOFF;
+                newState = SystemState.DISABLED;
                 break;
         }
         return newState;
