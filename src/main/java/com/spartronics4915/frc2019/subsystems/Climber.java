@@ -32,14 +32,14 @@ public class Climber extends Subsystem
 
     private enum SystemState
     {
-        DISABLED, 
+        DISABLING, 
         CLIMBING_TO_TWO,
         CLIMBING_TO_THREE,
         BACKRAISING,
     }
 
     private WantedState mWantedState = WantedState.DISABLED;
-    private SystemState mSystemState = SystemState.DISABLED;
+    private SystemState mSystemState = SystemState.DISABLING;
     private TalonSRX mMotor = null;
 
     private Climber()
@@ -69,7 +69,7 @@ public class Climber extends Subsystem
             synchronized (Climber.this)
             {
                 mWantedState = WantedState.DISABLED;
-                mSystemState = SystemState.DISABLED;
+                mSystemState = SystemState.DISABLING;
             }
         }
 
@@ -85,7 +85,7 @@ public class Climber extends Subsystem
                         //Solenoids will get the robot to the point where it can climb to Level 2
                         mMotor.set(ControlMode.PercentOutput, 0.4);
                         break;
-                    case DISABLED:
+                    case DISABLING:
                         //Climber is disabled
                         mMotor.set(ControlMode.PercentOutput, 0.0);
                         stop();
@@ -121,7 +121,7 @@ public class Climber extends Subsystem
         switch (mWantedState)
         {
             case DISABLED:
-                newState = SystemState.DISABLED;
+                newState = SystemState.DISABLING;
                 break;
             case CLIMB_TO_TWO:
                 newState = SystemState.CLIMBING_TO_TWO;
@@ -133,7 +133,8 @@ public class Climber extends Subsystem
                 newState = SystemState.BACKRAISING;
                 break;
             default:
-                newState = SystemState.DISABLED;
+                newState = SystemState.DISABLING;
+                logNotice("Robot is in an Unhandled System State!");
                 break;
         }
         return newState;
