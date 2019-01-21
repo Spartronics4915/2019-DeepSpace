@@ -1,8 +1,10 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
+import edu.wpi.first.wpilibj.Solenoid;
 //import com.spartronics4915.frc2019.Robot;
 
 public class PanelHandler extends Subsystem
@@ -21,23 +23,31 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        DEACTIVATED, EJECT,
+        RETRACT, AQUIRE,
     }
 
     private enum SystemState
     {
-        DEACTIVATING, EJECTING,
+        RETRACTING, AQUIRING,
     }
 
-    private WantedState mWantedState = WantedState.DEACTIVATED;
-    private SystemState mSystemState = SystemState.DEACTIVATING;
+    private WantedState mWantedState = WantedState.RETRACT;
+    private SystemState mSystemState = SystemState.RETRACTING;
+
+    private TalonSRX mMotor = null;
+
+    private static final boolean kSolenoidIntake = true;
+    private static final boolean kSolenoidRelease = false;
+
+    private Solenoid mSolenoid = null;
 
     private PanelHandler()
     {
         boolean success = true;
         try
         {
-            // Instantiate your hardware here
+            mMotor = new TalonSRX(1);
+            mSolenoid = new Solenoid(1);
         }
         catch (Exception e)
         {
@@ -56,9 +66,8 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
-                //mWantedState = WantedState.DEACTIVATED;
-                mWantedState = WantedState.EJECT;
-                mSystemState = SystemState.DEACTIVATING;
+                mWantedState = WantedState.RETRACT;
+                mSystemState = SystemState.RETRACTING;
             }
         }
 
@@ -71,9 +80,11 @@ public class PanelHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case EJECTING:
+                    case AQUIRING:
+                        //newState = handleAquire();
                         break;
-                    case DEACTIVATING:
+                    case RETRACTING:
+                        //newState = handleRetract();
                         stop();
                         break;
                     default:
@@ -98,24 +109,43 @@ public class PanelHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case DEACTIVATED:
-                if(mWantedState == WantedState.EJECT)
-                    newState = SystemState.EJECTING;
+            case RETRACT:
+                if(mWantedState == WantedState.AQUIRE)
+                    newState = SystemState.AQUIRING;
                 else
-                    newState = SystemState.DEACTIVATING;
+                    newState = SystemState.RETRACTING;
                     break;
-            case EJECT:
-                if(mWantedState == WantedState.DEACTIVATED)
-                    newState = SystemState.DEACTIVATING;
+            case AQUIRE:
+                if(mWantedState == WantedState.RETRACT)
+                    newState = SystemState.RETRACTING;
                 else
-                    newState = SystemState.EJECTING;
+                    newState = SystemState.AQUIRING;
                     break;
             default:
-                newState = SystemState.DEACTIVATING;
+                newState = SystemState.RETRACTING;
                 break;
         }
         return newState;
     }
+
+    /*private SystemState handleAquire()
+    {
+        mSolenoid.set(kSolenoidIntake);
+        if (mWantedState == WantedState.RETRACT)
+        {
+            return defaultStateTransfer();
+        }
+        return SystemState.AQUIRING;
+    }
+    private SystemState handleRetract()
+    {
+        mSolenoid.set(kSolenoidRelease);
+        if (mWantedState == WantedState.AQUIRE)
+        {
+            return defaultStateTransfer();
+        }
+        return SystemState.RETRACTING;
+    }*/
 
     public synchronized void setWantedState(WantedState wantedState)
     {
@@ -149,6 +179,6 @@ public class PanelHandler extends Subsystem
     @Override
     public void stop()
     {
-        // Stop your hardware here
+        mSolenoid.set(kSolenoidRelease);
     }
 }

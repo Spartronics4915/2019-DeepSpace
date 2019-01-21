@@ -5,6 +5,8 @@ import javax.lang.model.util.ElementScanner6;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
+import edu.wpi.first.wpilibj.Solenoid;
+
 public class Climber extends Subsystem
 {
 
@@ -21,23 +23,31 @@ public class Climber extends Subsystem
 
     public enum WantedState
     {
-        DEACTIVATED, FRONT1CLIMB, BACK1CLIMB, FRONT2CLIMB, BACK2CLIMB,
+        RETRACTED, FRONTCLIMB, BACKCLIMB,// FRONT2CLIMB, BACK2CLIMB,
     }
 
     private enum SystemState
     {
-        DEACTIVATING, FRONT1CLIMBING, BACK1CLIMBING, FRONT2CLIMBING, BACK2CLIMBING,
+        RETRACTING, FRONTCLIMBING, BACKCLIMBING,// FRONT2CLIMBING, BACK2CLIMBING,
     }
 
-    private WantedState mWantedState = WantedState.DEACTIVATED;
-    private SystemState mSystemState = SystemState.DEACTIVATING;
+    private WantedState mWantedState = WantedState.RETRACTED;
+    private SystemState mSystemState = SystemState.RETRACTING;
+
+    private static final boolean kSolenoidLift = true;
+    private static final boolean kSolenoidRetract = false;
+
+    private Solenoid mSolenoid1 = null;
+    private Solenoid mSolenoid2 = null;
+    private Solenoid mSolenoid3 = null;
+    private Solenoid mSolenoid4 = null;
 
     private Climber()
     {
         boolean success = true;
         try
         {
-            // Instantiate your hardware here
+            //mSolenoid1 = new Solenoid(1);
         }
         catch (Exception e)
         {
@@ -56,8 +66,8 @@ public class Climber extends Subsystem
         {
             synchronized (Climber.this)
             {
-                mWantedState = WantedState.DEACTIVATED;
-                mSystemState = SystemState.DEACTIVATING;
+                mWantedState = WantedState.RETRACTED;
+                mSystemState = SystemState.RETRACTING;
             }
         }
 
@@ -66,18 +76,27 @@ public class Climber extends Subsystem
         {
             synchronized (Climber.this)
             {
+                outputTelemetry();
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case FRONT1CLIMBING:
+                    case FRONTCLIMBING:
+                        mSolenoid1.set(kSolenoidLift);
+                        mSolenoid2.set(kSolenoidLift);
+                        mSolenoid3.set(kSolenoidRetract);
+                        mSolenoid4.set(kSolenoidRetract);
                         break;
-                    case BACK1CLIMBING:
+                    case BACKCLIMBING:
+                    mSolenoid1.set(kSolenoidRetract);
+                    mSolenoid2.set(kSolenoidRetract);
+                    mSolenoid3.set(kSolenoidLift);
+                    mSolenoid4.set(kSolenoidLift);
                         break;
-                    case FRONT2CLIMBING:
+                    /*case FRONT2CLIMBING:
                         break;
                     case BACK2CLIMBING:
-                        break;
-                    case DEACTIVATING:
+                        break;*/
+                    case RETRACTING:
                         stop();
                         break;
                     default:
@@ -102,40 +121,40 @@ public class Climber extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case DEACTIVATED:
-                if(mWantedState == WantedState.FRONT1CLIMB)
-                    newState = SystemState.FRONT1CLIMBING;
-                if(mWantedState == WantedState.FRONT2CLIMB)
-                    newState = SystemState.FRONT1CLIMBING;
+            case RETRACTED:
+                if(mWantedState == WantedState.FRONTCLIMB)
+                    newState = SystemState.FRONTCLIMBING;
+                //if(mWantedState == WantedState.FRONT2CLIMB)
+                //    newState = SystemState.FRONT2CLIMBING;
                 else
-                    newState = SystemState.DEACTIVATING;
+                    newState = SystemState.RETRACTING;
                 break;
-            case FRONT1CLIMB:
-                if(mWantedState == WantedState.BACK1CLIMB)
-                    newState = SystemState.BACK1CLIMBING;
+            case FRONTCLIMB:
+                if(mWantedState == WantedState.BACKCLIMB)
+                    newState = SystemState.BACKCLIMBING;
                 else
-                    newState = SystemState.FRONT1CLIMBING;
+                    newState = SystemState.FRONTCLIMBING;
                 break;
-            case BACK1CLIMB:
-                if(mWantedState == WantedState.DEACTIVATED)
-                    newState = SystemState.DEACTIVATING;
+            case BACKCLIMB:
+                if(mWantedState == WantedState.RETRACTED)
+                    newState = SystemState.RETRACTING;
                 else
-                    newState = SystemState.BACK1CLIMBING;
+                    newState = SystemState.BACKCLIMBING;
                 break;
-            case FRONT2CLIMB:
+            /*case FRONT2CLIMB:
                 if(mWantedState == WantedState.BACK2CLIMB)
                     newState = SystemState.BACK2CLIMBING;
                 else
                     newState = SystemState.FRONT2CLIMBING;
                 break;
             case BACK2CLIMB:
-                if(mWantedState == WantedState.DEACTIVATED)
-                    newState = SystemState.DEACTIVATING;
+                if(mWantedState == WantedState.RETRACTED)
+                    newState = SystemState.RETRACTING;
                 else
-                    newState = SystemState.BACK1CLIMBING;
-                break;
+                    newState = SystemState.BACKCLIMBING;
+                break;*/
             default:
-                newState = SystemState.DEACTIVATING;
+                newState = SystemState.RETRACTING;
                 break;
         }
         return newState;
@@ -166,12 +185,16 @@ public class Climber extends Subsystem
     @Override
     public void outputTelemetry()
     {
-
+        dashboardPutState(mSystemState.toString());
+        dashboardPutWantedState(mWantedState.toString());
     }
 
     @Override
     public void stop()
     {
-        // Stop your hardware here
+        mSolenoid1.set(kSolenoidRetract);
+        mSolenoid2.set(kSolenoidRetract);
+        mSolenoid3.set(kSolenoidRetract);
+        mSolenoid4.set(kSolenoidRetract);
     }
 }
