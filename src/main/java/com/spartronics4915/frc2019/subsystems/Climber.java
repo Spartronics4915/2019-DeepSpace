@@ -8,7 +8,9 @@ import com.spartronics4915.lib.util.ILooper;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class Climber extends Subsystem
-{
+{ //no climb until last 30 sec, 2 DISTANCE SENSORS on diff sides, back-up: check if motor isn't running,
+ //double solenoids, 2 seperate solenoids(4 total), auto & slow (superstructure), 16 in gap, tanks,
+// disabling the robot - solenoid on/off,
 
     private static Climber mInstance = null;
 
@@ -23,12 +25,12 @@ public class Climber extends Subsystem
 
     public enum WantedState
     {
-        RETRACTED, FRONTCLIMB, BACKCLIMB,// FRONT2CLIMB, BACK2CLIMB,
+        RETRACTED, FRONTCLIMB, BACKCLIMB,
     }
 
     private enum SystemState
     {
-        RETRACTING, FRONTCLIMBING, BACKCLIMBING,// FRONT2CLIMBING, BACK2CLIMBING,
+        RETRACTING, FRONTCLIMBING, BACKCLIMBING,
     }
 
     private WantedState mWantedState = WantedState.RETRACTED;
@@ -87,15 +89,11 @@ public class Climber extends Subsystem
                         mSolenoid4.set(kSolenoidRetract);
                         break;
                     case BACKCLIMBING:
-                    mSolenoid1.set(kSolenoidRetract);
-                    mSolenoid2.set(kSolenoidRetract);
-                    mSolenoid3.set(kSolenoidLift);
-                    mSolenoid4.set(kSolenoidLift);
+                        mSolenoid1.set(kSolenoidRetract);
+                        mSolenoid2.set(kSolenoidRetract);
+                        mSolenoid3.set(kSolenoidLift);
+                        mSolenoid4.set(kSolenoidLift);
                         break;
-                    /*case FRONT2CLIMBING:
-                        break;
-                    case BACK2CLIMBING:
-                        break;*/
                     case RETRACTING:
                         stop();
                         break;
@@ -124,8 +122,6 @@ public class Climber extends Subsystem
             case RETRACTED:
                 if(mWantedState == WantedState.FRONTCLIMB)
                     newState = SystemState.FRONTCLIMBING;
-                //if(mWantedState == WantedState.FRONT2CLIMB)
-                //    newState = SystemState.FRONT2CLIMBING;
                 else
                     newState = SystemState.RETRACTING;
                 break;
@@ -141,24 +137,16 @@ public class Climber extends Subsystem
                 else
                     newState = SystemState.BACKCLIMBING;
                 break;
-            /*case FRONT2CLIMB:
-                if(mWantedState == WantedState.BACK2CLIMB)
-                    newState = SystemState.BACK2CLIMBING;
-                else
-                    newState = SystemState.FRONT2CLIMBING;
-                break;
-            case BACK2CLIMB:
-                if(mWantedState == WantedState.RETRACTED)
-                    newState = SystemState.RETRACTING;
-                else
-                    newState = SystemState.BACKCLIMBING;
-                break;*/
             default:
                 newState = SystemState.RETRACTING;
                 break;
         }
         return newState;
     }
+    /*What we need each state to do:
+    Retract: double solenoids retracted, used when driving or staying on a platform, if disabled 
+    Frontclimb: Front double solenoids extended, make sure happens only when distance sensors are in range & within area of HAB,
+    motors are not running, in last 30 sec, */
 
     public synchronized void setWantedState(WantedState wantedState)
     {

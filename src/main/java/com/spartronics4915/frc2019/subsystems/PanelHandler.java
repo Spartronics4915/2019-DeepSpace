@@ -1,15 +1,14 @@
 package com.spartronics4915.frc2019.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.Solenoid;
-//import com.spartronics4915.frc2019.Robot;
 
 public class PanelHandler extends Subsystem
-{
-
+{ //Current Idea: 1 Pneumatic to control arm, integrate cargo intake to flick off the panel, limit switch to sense pneumatic is on/off
+ //Back-up Idea(Velcro): 2 Pneumatics, 1 to push intake forward, 1 to eject panel, 
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -34,10 +33,10 @@ public class PanelHandler extends Subsystem
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
-    private TalonSRX mMotor = null;
+    //private TalonSRX mMotor = null;
 
-    private static final boolean kSolenoidIntake = true;
-    private static final boolean kSolenoidRelease = false;
+    private static final boolean kSolenoidExtend = true;
+    private static final boolean kSolenoidRetract = false;
 
     private Solenoid mSolenoid = null;
 
@@ -46,7 +45,7 @@ public class PanelHandler extends Subsystem
         boolean success = true;
         try
         {
-            mMotor = new TalonSRX(1);
+            //mMotor = new TalonSRX(1);
             mSolenoid = new Solenoid(1);
         }
         catch (Exception e)
@@ -108,19 +107,21 @@ public class PanelHandler extends Subsystem
     {
         SystemState newState = mSystemState;
         switch (mWantedState)
-        {
+        {//ask what "switch (mWantedState)" is
             case RETRACT:
+                mSolenoid.set(kSolenoidRetract);
                 if(mWantedState == WantedState.AQUIRE)
                     newState = SystemState.AQUIRING;
                 else
                     newState = SystemState.RETRACTING;
-                    break;
+                break;
             case AQUIRE:
+                mSolenoid.set(kSolenoidExtend);
                 if(mWantedState == WantedState.RETRACT)
                     newState = SystemState.RETRACTING;
                 else
                     newState = SystemState.AQUIRING;
-                    break;
+                break;
             default:
                 newState = SystemState.RETRACTING;
                 break;
@@ -130,7 +131,6 @@ public class PanelHandler extends Subsystem
 
     /*private SystemState handleAquire()
     {
-        mSolenoid.set(kSolenoidIntake);
         if (mWantedState == WantedState.RETRACT)
         {
             return defaultStateTransfer();
@@ -139,7 +139,6 @@ public class PanelHandler extends Subsystem
     }
     private SystemState handleRetract()
     {
-        mSolenoid.set(kSolenoidRelease);
         if (mWantedState == WantedState.AQUIRE)
         {
             return defaultStateTransfer();
@@ -179,6 +178,6 @@ public class PanelHandler extends Subsystem
     @Override
     public void stop()
     {
-        mSolenoid.set(kSolenoidRelease);
+        mSolenoid.set(kSolenoidRetract);
     }
 }
