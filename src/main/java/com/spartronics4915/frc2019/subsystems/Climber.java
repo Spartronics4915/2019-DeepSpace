@@ -25,8 +25,7 @@ public class Climber extends Subsystem
     public enum WantedState
     {
         DISABLED, 
-        CLIMB_TO_TWO,
-        CLIMB_TO_THREE,
+        CLIMB,
         RETRACT_FRONT_STRUTS,
         RETRACT_REAR_STRUTS,
     }
@@ -34,8 +33,7 @@ public class Climber extends Subsystem
     private enum SystemState
     {
         DISABLING, 
-        CLIMBING_TO_TWO,
-        CLIMBING_TO_THREE,
+        CLIMBING,
         RETRACTING_FRONT_STRUTS,
         RETRACTING_REAR_STRUTS,
     }
@@ -83,16 +81,12 @@ public class Climber extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case CLIMBING_TO_TWO:
-                        //Solenoids will get the robot to the point where it can climb to Level 2
-                        mMotor.set(ControlMode.PercentOutput, 0.4);
-                        break;
                     case DISABLING:
                         //Climber is disabled
                         mMotor.set(ControlMode.PercentOutput, 0.0);
                         stop();
                         break;
-                    case CLIMBING_TO_THREE:
+                    case CLIMBING:
                         //Solenoids will rasie the robot to the angle required to get to Level 3
                         mMotor.set(ControlMode.PercentOutput, 0.8);
                         break;
@@ -128,18 +122,15 @@ public class Climber extends Subsystem
             case DISABLED:
                 newState = SystemState.DISABLING;
                 break;
-            case CLIMB_TO_TWO:
-                newState = SystemState.CLIMBING_TO_TWO;
-                break;
-            case CLIMB_TO_THREE:
-                newState = SystemState.CLIMBING_TO_THREE;
+            case CLIMB:
+                newState = SystemState.CLIMBING;
                 break;
             case RETRACT_FRONT_STRUTS:
                 newState = SystemState.RETRACTING_FRONT_STRUTS;
                 break;
             default:
                 newState = SystemState.DISABLING;
-                logNotice("Robot is in an Unhandled System State!");
+                logNotice("Robot is in an Unhandled Wanted State!");
                 break;
         }
         return newState;
