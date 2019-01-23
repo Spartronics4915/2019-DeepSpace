@@ -551,6 +551,10 @@ public class Drive extends Subsystem
         }
         else
         {
+            // mLeftMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
+            //      mPeriodicIO.left_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
+            // mRightMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
+            //      mPeriodicIO.right_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
             mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward,
                     mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0);
             mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,

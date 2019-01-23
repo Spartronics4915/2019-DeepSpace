@@ -40,11 +40,14 @@ public class Constants
     // public static final double kDriveRightKa = 0.020857218537664493; // V per rad/s^2
 
     // Left
-    public static final double kDriveLeftVIntercept = 0.704; // V
-    public static final double kDriveLeftKv = 0.22843468990226345; // V per rad/s
-    public static final double kDriveLeftKa = 0.0161909446494603; // V per rad/s^2
+    // public static final double kDriveLeftVIntercept = 1.59634357933506; // V
+    // public static final double kDriveLeftKv = 0.199070536239607; // V per rad/s
+    // public static final double kDriveLeftKa = 0.001200902662294194; // V per rad/s^2
+    public static final double kDriveLeftVIntercept = 0.8029026946682132 ; // V
+    public static final double kDriveLeftKv = 0.1880282238461718; // V per rad/s
+    public static final double kDriveLeftKa = 0.002200902662294194; // V per rad/s^2
     // Right
-    public static final double kDriveRightVIntercept = 0.836; // V
+    public static final double kDriveRightVIntercept = kDriveLeftVIntercept; // V
     public static final double kDriveRightKv = kDriveLeftKv; // V per rad/s
     public static final double kDriveRightKa = kDriveLeftKa; // V per rad/s^2
 
@@ -80,7 +83,7 @@ public class Constants
     // Units: setpoint, error, and output are in ticks per second.
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
-    public static final double kDriveVelocityKp = 7.0;
+    public static final double kDriveVelocityKp = 4.0;
     public static final double kDriveVelocityKi = 0.0;
     public static final double kDriveVelocityKd = 50.0;
     // The below should always be zero, because feedforward is dynamically produced by DriveMotionPlanner

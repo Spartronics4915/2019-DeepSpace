@@ -19,10 +19,10 @@ import java.util.List;
 public class TrajectoryGenerator
 {
 
-    private static final double kMaxVelocity = 24.0; // inches/s
-    private static final double kMaxAccel = 24.0; // inches/s
-    private static final double kMaxCentripetalAccel = 100.0; // inches/s
-    private static final double kMaxVoltage = 9.0; // volts
+    private static final double kMaxVelocity = 240.0; // inches/s
+    private static final double kMaxAccel = 90.0; // inches/s
+    private static final double kMaxCentripetalAccel = 50.0; // inches/s
+    private static final double kMaxVoltage = 10.0; // volts
 
     private static TrajectoryGenerator mInstance = new TrajectoryGenerator();
     private final DriveMotionPlanner mMotionPlanner;
