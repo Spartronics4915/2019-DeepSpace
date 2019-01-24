@@ -103,12 +103,13 @@ public class Drive extends Subsystem
         talon.configVelocityMeasurementWindow(1, Constants.kLongCANTimeoutMs);
         talon.configClosedloopRamp(Constants.kDriveVoltageRampRate, Constants.kLongCANTimeoutMs);
         talon.configNeutralDeadband(0.04, 0);
+        
     }
 
     private Drive()
     {
         mPeriodicIO = new PeriodicIO();
-
+        
         boolean success = true;
         try
         {
@@ -478,7 +479,10 @@ public class Drive extends Subsystem
         }
 
     }
-
+    public Rotation2d getPitch()
+    {
+        return mPeriodicIO.gyro_pitch;
+    }
     public synchronized void reloadGains(TalonSRX talon)
     {
         talon.config_kP(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
@@ -496,6 +500,7 @@ public class Drive extends Subsystem
     @Override
     public synchronized void readPeriodicInputs()
     {
+        mPigeon.getRawGyro(mPeriodicIO.yawPitchRoll);
         double prevLeftTicks = mPeriodicIO.left_position_ticks;
         double prevRightTicks = mPeriodicIO.right_position_ticks;
         mPeriodicIO.left_position_ticks = mLeftMaster.getSelectedSensorPosition(0);
@@ -503,8 +508,9 @@ public class Drive extends Subsystem
         mPeriodicIO.left_velocity_ticks_per_100ms = mLeftMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.right_velocity_ticks_per_100ms = mRightMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.gyro_heading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
-
+        mPeriodicIO.gyro_pitch = Rotation2d.fromDegrees(mPeriodicIO.yawPitchRoll[1]);
         double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
+        
         if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
         {
             mPeriodicIO.left_distance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
@@ -523,11 +529,12 @@ public class Drive extends Subsystem
         {
             mPeriodicIO.right_distance += deltaRightTicks * Constants.kDriveWheelDiameterInches;
         }
-
+        
         if (mCSVWriter != null)
         {
             mCSVWriter.add(mPeriodicIO);
         }
+        
 
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
     }
@@ -756,7 +763,8 @@ public class Drive extends Subsystem
         public int right_velocity_ticks_per_100ms;
         public Rotation2d gyro_heading = Rotation2d.identity();
         public Pose2d error = Pose2d.identity();
-
+        public Rotation2d gyro_pitch = Rotation2d.identity();
+        public double[] yawPitchRoll = new double[3];
         // OUTPUTS
         public double left_demand;
         public double right_demand;
