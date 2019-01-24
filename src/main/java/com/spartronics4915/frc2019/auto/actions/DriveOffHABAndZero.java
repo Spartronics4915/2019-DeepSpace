@@ -22,7 +22,7 @@ public class DriveOffHABAndZero implements Action {
     private final double mVelocity;
     private final double mFeedforward;
     private int mNumBumps = 0;
-
+    private boolean onSlope = false;
     public DriveOffHABAndZero(double velocity, double feedforward, HABLevel startingLevel)
     {
         mVelocity = velocity;
@@ -39,6 +39,20 @@ public class DriveOffHABAndZero implements Action {
     @Override
     public void update()
     {
+        if (!onSlope)
+        {
+            if (mDrive.getPitch().getDegrees() > kBumpEpsilon)
+            {
+                mNumBumps++;
+                onSlope = true;
+
+            }
+        }
+        else if (mDrive.getPitch().getDegrees() < kBumpEpsilon)
+        {
+            onSlope = false;
+        }
+       
     }
 
     @Override
