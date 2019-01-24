@@ -7,6 +7,9 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
+//import com.spartronics4915.
+
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 public class Climber extends Subsystem
 {
@@ -40,7 +43,10 @@ public class Climber extends Subsystem
 
     private WantedState mWantedState = WantedState.DISABLED;
     private SystemState mSystemState = SystemState.DISABLING;
-    private TalonSRX mMotor = null;
+    private DoubleSolenoid mFrontClimberSolenoid1 = null;
+    private DoubleSolenoid mFrontClimberSolenoid2 = null;
+    private DoubleSolenoid mRearClimberSolenoid1 = null;
+    private DoubleSolenoid mRearClimberSolenoid2 = null;
 
     private Climber()
     
@@ -48,8 +54,7 @@ public class Climber extends Subsystem
         boolean success = true;
         try
         {
-            mMotor = TalonSRXFactory.createDefaultTalon(Constants.kTurretMotorId);
-            mMotor.setNeutralMode(NeutralMode.Brake);       
+            
         }
         catch (Exception e)
         {
@@ -82,20 +87,20 @@ public class Climber extends Subsystem
                 switch (mSystemState)
                 {
                     case DISABLING:
-                        //Climber is disabled
-                        mMotor.set(ControlMode.PercentOutput, 0.0);
-                        stop();
+                        //Climber is disabled (Will be like this until the last 30 seconds of the match)
+                        //Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
                         break;
                     case CLIMBING:
-                        //Solenoids will rasie the robot to the angle required to get to Level 3
-                        mMotor.set(ControlMode.PercentOutput, 0.8);
+                        //Struts will extend from their dormant position to allow the robot to reach the height required to get to L3
+                        //Must be done when robot is flushed with L3 (Done with distance sensors and a backup encoder reading)
                         break;
                     case RETRACTING_FRONT_STRUTS:
-                        //Robot retracts the front 2 struts for when we reach the level we need to climb to
-                        mMotor.set(ControlMode.PercentOutput, -0.7);
+                        //Solenoids from the front struts will retract when they become flushed with L3
+                        //Done with distance sensors and backup driver vision
                         break;
                     case RETRACTING_REAR_STRUTS:
-                        //Robot retracts the rear 2 struts when it is fully supported by the platform of level 3
+                        //Solenoids from the rear struts will retract when the robot can support its own weight on L3
+                        //Done primarily with driver vision, but distance sensor might be used
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -127,6 +132,9 @@ public class Climber extends Subsystem
                 break;
             case RETRACT_FRONT_STRUTS:
                 newState = SystemState.RETRACTING_FRONT_STRUTS;
+                break;
+            case RETRACT_REAR_STRUTS:
+                newState = SystemState.RETRACTING_REAR_STRUTS;
                 break;
             default:
                 newState = SystemState.DISABLING;

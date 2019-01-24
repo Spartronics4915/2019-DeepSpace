@@ -320,7 +320,7 @@ public class Robot extends TimedRobot
 
                 if (mControlBoard.getTestButtonOne())
                 {
-                    mClimber.setWantedState(Climber.WantedState.CLIMB_TO_TWO);
+                    mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
                 }
                 else if (mControlBoard.getTestButtonTwo())
                 {
@@ -328,7 +328,7 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getTestButtonThree())
                 {
-                    mClimber.setWantedState(Climber.WantedState.CLIMB_TO_THREE);
+                    mClimber.setWantedState(Climber.WantedState.CLIMB);
                 }
 
                 if (mControlBoard.getReverseDirection())
