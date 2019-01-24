@@ -31,6 +31,7 @@ public class Climber extends Subsystem
         CLIMB,
         RETRACT_FRONT_STRUTS,
         RETRACT_REAR_STRUTS,
+        STOP,
     }
 
     private enum SystemState
@@ -39,6 +40,7 @@ public class Climber extends Subsystem
         CLIMBING,
         RETRACTING_FRONT_STRUTS,
         RETRACTING_REAR_STRUTS,
+        STOPPING,
     }
 
     private WantedState mWantedState = WantedState.DISABLED;
@@ -47,6 +49,8 @@ public class Climber extends Subsystem
     private DoubleSolenoid mFrontClimberSolenoid2 = null;
     private DoubleSolenoid mRearClimberSolenoid1 = null;
     private DoubleSolenoid mRearClimberSolenoid2 = null;
+    //private 
+
 
     private Climber()
     
@@ -89,6 +93,7 @@ public class Climber extends Subsystem
                     case DISABLING:
                         //Climber is disabled (Will be like this until the last 30 seconds of the match)
                         //Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
+                        
                         break;
                     case CLIMBING:
                         //Struts will extend from their dormant position to allow the robot to reach the height required to get to L3
@@ -102,6 +107,10 @@ public class Climber extends Subsystem
                         //Solenoids from the rear struts will retract when the robot can support its own weight on L3
                         //Done primarily with driver vision, but distance sensor might be used
                         break;
+                    case STOPPING:
+                        //Intake arm will STOP rolling and the robot will not be able to continue climbing, only used in emergencies
+                        stop();    
+                    break;
                     default:
                         logError("Unhandled system state!");
                 }
