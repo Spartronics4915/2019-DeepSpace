@@ -325,19 +325,6 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
                 // ));
 
-                if (mControlBoard.getTestButtonOne())
-                {
-                    mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
-                }
-                else if (mControlBoard.getTestButtonTwo())
-                {
-                    mClimber.setWantedState(Climber.WantedState.DISABLED);
-                }
-                else if (mControlBoard.getTestButtonThree())
-                {
-                    mClimber.setWantedState(Climber.WantedState.CLIMB);
-                }
-
                 if (mControlBoard.getReverseDirection())
                 {
                     mSuperstructure.reverseDrivingDirection();
