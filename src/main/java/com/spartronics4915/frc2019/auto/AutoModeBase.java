@@ -28,6 +28,7 @@ public abstract class AutoModeBase
         }
         catch (AutoModeEndedException e)
         {
+            mActive = false;
             DriverStation.reportError("AUTO MODE DONE!!!! ENDED EARLY!!!!", false);
             return;
         }
@@ -37,6 +38,7 @@ public abstract class AutoModeBase
 
     public void done()
     {
+        mActive = false;
         Logger.info("Auto mode done");
     }
 

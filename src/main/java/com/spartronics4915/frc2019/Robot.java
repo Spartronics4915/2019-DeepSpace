@@ -1,6 +1,8 @@
 package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.auto.AutoModeExecutor;
+import com.spartronics4915.frc2019.controlboard.IDriveControlBoard;
+import com.spartronics4915.frc2019.controlboard.MainDriveControlBoard;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
@@ -287,6 +289,11 @@ public class Robot extends TimedRobot
     {
         try
         {
+            if (mControlBoard.getReturnToDriverControl() && mAutoModeExecutor.getAutoMode().isActive())
+                mAutoModeExecutor.stop(); // Careful! Teleop init doesn't get called until teleop actually starts
+            else if (!mAutoModeExecutor.getAutoMode().isActive())
+                teleopPeriodic();
+
             outputToSmartDashboard();
         }
         catch (Throwable t)
