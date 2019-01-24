@@ -1,14 +1,13 @@
 package com.spartronics4915.frc2019.subsystems;
 
-//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 public class PanelHandler extends Subsystem
-{ //Current Idea: 1 Pneumatic to control arm, integrate cargo intake to flick off the panel, limit switch to sense pneumatic is on/off
- //Back-up Idea(Velcro): 2 Pneumatics, 1 to push intake forward, 1 to eject panel, 
+{ 
+//2 solenoid pincers to secure panels in, 2 to eject panels, also panels held on by velcro
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -22,23 +21,25 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        RETRACT, AQUIRE,
+        RETRACT, EJECT, OPEN, CLOSE
     }
 
     private enum SystemState
     {
-        RETRACTING, AQUIRING,
+        RETRACTING, EJECTING, OPENING, CLOSING
     }
 
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
-    //private TalonSRX mMotor = null;
+    private static final DoubleSolenoid.Value kSolenoidExtend = DoubleSolenoid.Value.kForward;
+    private static final DoubleSolenoid.Value kSolenoidRetract = DoubleSolenoid.Value.kReverse;
 
-    private static final boolean kSolenoidExtend = true;
-    private static final boolean kSolenoidRetract = false;
-
-    private Solenoid mSolenoid = null;
+    private DoubleSolenoid mSolenoid1 = null;
+    private DoubleSolenoid mSolenoid2 = null;
+    private DoubleSolenoid mSolenoid3 = null;
+    private DoubleSolenoid mSolenoid4 = null;
+    //Add Timer
 
     private PanelHandler()
     {
@@ -46,7 +47,10 @@ public class PanelHandler extends Subsystem
         try
         {
             //mMotor = new TalonSRX(1);
-            mSolenoid = new Solenoid(1);
+            mSolenoid1 = new DoubleSolenoid(1, 2);
+            mSolenoid2 = new DoubleSolenoid(3, 4);
+            mSolenoid3 = new DoubleSolenoid(5, 6);
+            mSolenoid4 = new DoubleSolenoid(7, 8);
         }
         catch (Exception e)
         {
@@ -79,12 +83,33 @@ public class PanelHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case AQUIRING:
-                        if (newState != mSystemState) mSolenoid.set(kSolenoidExtend);
-                        break;
                     case RETRACTING:
-                        if (newState != mSystemState) mSolenoid.set(kSolenoidRetract);
-                        stop();
+                        if (newState != mSystemState)
+                        {
+                            mSolenoid1.set(kSolenoidRetract);
+                            mSolenoid2.set(kSolenoidRetract);
+                        }
+                        break;
+                    case EJECTING:
+                        if (newState != mSystemState)
+                        {
+                            mSolenoid1.set(kSolenoidExtend);
+                            mSolenoid2.set(kSolenoidExtend);
+                        }
+                        break;
+                    case OPENING:
+                        if (newState != mSystemState)
+                        {
+                            mSolenoid3.set(kSolenoidRetract);
+                            mSolenoid4.set(kSolenoidRetract);
+                        }
+                        break;
+                    case CLOSING:
+                        if (newState != mSystemState)
+                        {
+                            mSolenoid3.set(kSolenoidExtend);
+                            mSolenoid4.set(kSolenoidExtend);
+                        }
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -103,16 +128,23 @@ public class PanelHandler extends Subsystem
         }
     };
 
-    private SystemState defaultStateTransfer()
+    private SystemState defaultStateTransfer() //Open -timer-> Eject -timer-> Retract
     {
         SystemState newState = mSystemState;
         switch (mWantedState)
-        {//ask what "switch (mWantedState)" is
+        {
             case RETRACT:
                 newState = SystemState.RETRACTING;
                 break;
-            case AQUIRE:
-                newState = SystemState.AQUIRING;
+            case EJECT:
+                if (mSystemState != SystemState.CLOSING)
+                    newState = SystemState.EJECTING;
+                break;
+            case OPEN:
+                newState = SystemState.OPENING;
+                break;
+            case CLOSE:
+                newState = SystemState.CLOSING;
                 break;
             default:
                 newState = SystemState.RETRACTING;
@@ -121,22 +153,14 @@ public class PanelHandler extends Subsystem
         return newState;
     }
 
-    /*private SystemState handleAquire()
+    public void automate()
     {
-        if (mWantedState == WantedState.RETRACT)
-        {
-            return defaultStateTransfer();
-        }
-        return SystemState.AQUIRING;
+        setWantedState(WantedState.OPEN);
+        //Wait
+        setWantedState(WantedState.EJECT);
+        //Wait
+        setWantedState(WantedState.RETRACT);
     }
-    private SystemState handleRetract()
-    {
-        if (mWantedState == WantedState.AQUIRE)
-        {
-            return defaultStateTransfer();
-        }
-        return SystemState.RETRACTING;
-    }*/
 
     public synchronized void setWantedState(WantedState wantedState)
     {
@@ -157,6 +181,8 @@ public class PanelHandler extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
+        //Ensure solenoids are functioning, and State Transitions
+
         return false;
     }
 
@@ -170,6 +196,9 @@ public class PanelHandler extends Subsystem
     @Override
     public void stop()
     {
-        mSolenoid.set(kSolenoidRetract);
+        mSolenoid1.set(kSolenoidRetract);
+        mSolenoid2.set(kSolenoidRetract);
+        mSolenoid3.set(kSolenoidRetract);
+        mSolenoid4.set(kSolenoidRetract);
     }
 }
