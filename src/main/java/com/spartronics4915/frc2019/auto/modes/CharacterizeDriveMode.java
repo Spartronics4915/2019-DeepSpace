@@ -12,7 +12,7 @@ import com.spartronics4915.lib.util.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CharacterizeDrive extends AutoModeBase
+public class CharacterizeDriveMode extends AutoModeBase
 {
 
     private static final boolean kAlwaysRunBothMotors = true;
@@ -53,7 +53,7 @@ public class CharacterizeDrive extends AutoModeBase
     
     private final SideToCharacterize mSide;
 
-    public CharacterizeDrive(SideToCharacterize side)
+    public CharacterizeDriveMode(SideToCharacterize side)
     {
         mSide = side;
     }
