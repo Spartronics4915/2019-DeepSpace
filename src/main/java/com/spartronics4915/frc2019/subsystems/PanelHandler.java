@@ -80,10 +80,10 @@ public class PanelHandler extends Subsystem
                 switch (mSystemState)
                 {
                     case AQUIRING:
-                        //newState = handleAquire();
+                        if (newState != mSystemState) mSolenoid.set(kSolenoidExtend);
                         break;
                     case RETRACTING:
-                        //newState = handleRetract();
+                        if (newState != mSystemState) mSolenoid.set(kSolenoidRetract);
                         stop();
                         break;
                     default:
@@ -109,18 +109,10 @@ public class PanelHandler extends Subsystem
         switch (mWantedState)
         {//ask what "switch (mWantedState)" is
             case RETRACT:
-                mSolenoid.set(kSolenoidRetract);
-                if(mWantedState == WantedState.AQUIRE)
-                    newState = SystemState.AQUIRING;
-                else
-                    newState = SystemState.RETRACTING;
+                newState = SystemState.RETRACTING;
                 break;
             case AQUIRE:
-                mSolenoid.set(kSolenoidExtend);
-                if(mWantedState == WantedState.RETRACT)
-                    newState = SystemState.RETRACTING;
-                else
-                    newState = SystemState.AQUIRING;
+                newState = SystemState.AQUIRING;
                 break;
             default:
                 newState = SystemState.RETRACTING;
