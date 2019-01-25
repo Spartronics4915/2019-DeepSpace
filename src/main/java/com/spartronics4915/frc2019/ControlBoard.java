@@ -59,6 +59,12 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
+    public boolean getDriveToSelectedTarget()
+    {
+        return mDriveControlBoard.getDriveToSelectedTarget();
+    }
+
+    @Override
     public boolean getTestButtonOne() {
         return mDriveControlBoard.getTestButtonOne();
     }

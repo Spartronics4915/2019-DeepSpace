@@ -13,6 +13,8 @@ public interface IDriveControlBoard
 
     boolean getReverseDirection();
 
+    boolean getDriveToSelectedTarget();
+
     boolean getTestButtonOne();
 
     boolean getTestButtonTwo();

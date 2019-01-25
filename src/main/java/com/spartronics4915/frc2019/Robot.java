@@ -329,6 +329,10 @@ public class Robot extends TimedRobot
                 {
                     mSuperstructure.reverseDrivingDirection();
                 }
+                else if (mControlBoard.getDriveToSelectedTarget())
+                {
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO);
+                }
                 // TODO (for button person): add buttons for all superstructure wanted states
             }
             else if (mControlBoard.getReturnToDriverControl())

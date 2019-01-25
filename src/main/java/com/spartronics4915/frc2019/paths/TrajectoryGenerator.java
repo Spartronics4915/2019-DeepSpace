@@ -54,6 +54,14 @@ public class TrajectoryGenerator
     }
 
     public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
+        boolean reversed,
+        final List<Pose2d> waypoints)
+    {
+        return mMotionPlanner.generateTrajectory(reversed, waypoints,
+            Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel, kMaxVoltage);
+    }
+
+    public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
             boolean reversed,
             final List<Pose2d> waypoints,
             final List<TimingConstraint<Pose2dWithCurvature>> constraints,

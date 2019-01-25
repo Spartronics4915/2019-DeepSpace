@@ -49,6 +49,12 @@ public class MainDriveControlBoard implements IDriveControlBoard
     }
 
     @Override
+    public boolean getDriveToSelectedTarget()
+    {
+        return mDriveJoystick.getRawButtonReleased(7);
+    }
+
+    @Override
     public boolean getReverseDirection()
     {
         return mDriveJoystick.getRawButtonReleased(6);
