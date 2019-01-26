@@ -12,7 +12,7 @@ public class ControlBoard implements IControlBoard
     private IDriveControlBoard mDriveControlBoard;
     private IButtonControlBoard mButtonControlBoard;
 
-    private ControlBoard()
+    public ControlBoard()
     {
         // Possibly use Joystick::getType instead of Joystick::getName
         String joyName = new Joystick(Constants.kDriveJoystickPort).getName();
@@ -29,6 +29,8 @@ public class ControlBoard implements IControlBoard
                 break;
         }
         Logger.debug("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
+
+        mDriveControlBoard = new OneJoystickControlBoard();
 
         mButtonControlBoard = new MainButtonBoard();
     }

@@ -51,17 +51,20 @@ public class OneJoystickControlBoard implements IDriveControlBoard
     }
 
     @Override
-    public boolean getTestButtonOne() {
+    public boolean getTestButtonOne()
+    {
         return mJoystick.getRawButtonReleased(3);
     }
 
     @Override
-    public boolean getTestButtonTwo() {
+    public boolean getTestButtonTwo()
+    {
         return mJoystick.getRawButtonReleased(4);
     }
 
     @Override
-    public boolean getTestButtonThree() {
+    public boolean getTestButtonThree()
+    {
         return mJoystick.getRawButtonReleased(5);
     }
 }

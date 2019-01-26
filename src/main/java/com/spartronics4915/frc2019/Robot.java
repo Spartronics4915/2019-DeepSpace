@@ -1,8 +1,6 @@
 package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.auto.AutoModeExecutor;
-import com.spartronics4915.frc2019.controlboard.IDriveControlBoard;
-import com.spartronics4915.frc2019.controlboard.OneJoystickControlBoard;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
@@ -114,6 +112,8 @@ public class Robot extends TimedRobot
                                          "None,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
+
+                mControlBoard = new ControlBoard();
             }
             catch (Exception e)
             {
@@ -331,7 +331,7 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
                 }
                 // TODO (for button person): add buttons for all superstructure wanted states
             }
