@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;

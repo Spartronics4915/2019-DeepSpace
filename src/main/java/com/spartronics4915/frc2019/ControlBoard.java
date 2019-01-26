@@ -1,31 +1,36 @@
 package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.controlboard.*;
+import com.spartronics4915.lib.util.Logger;
+
+import edu.wpi.first.wpilibj.GenericHID.HIDType;
+import edu.wpi.first.wpilibj.Joystick;
 
 public class ControlBoard implements IControlBoard
 {
-
-    private static ControlBoard mInstance = null;
-
-    public static ControlBoard getInstance()
-    {
-        if (mInstance == null)
-        {
-            mInstance = new ControlBoard();
-        }
-        return mInstance;
-    }
 
     private IDriveControlBoard mDriveControlBoard;
     private IButtonControlBoard mButtonControlBoard;
 
     private ControlBoard()
     {
-        // Switch between control boards here
+        // Possibly use Joystick::getType instead of Joystick::getName
+        String joyName = new Joystick(Constants.kDriveJoystickPort).getName();
+        switch (joyName)
+        {
+            case "Xbox": // TODO: Figure out these names
+                mDriveControlBoard = new XboxSplitControlBoard();
+                break;
+            case "Joystick":
+                if (new Joystick(3).getType() != HIDType.kUnknown)
+                    mDriveControlBoard = new TwoJoystickSplitControlBoard();
+                else
+                    mDriveControlBoard = new OneJoystickControlBoard();
+                break;
+        }
+        Logger.debug("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
 
-        mDriveControlBoard = MainDriveControlBoard.getInstance();
-
-        mButtonControlBoard = MainButtonBoard.getInstance();
+        mButtonControlBoard = new MainButtonBoard();
     }
 
     @Override
@@ -59,17 +64,26 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getTestButtonOne() {
+    public boolean getDriveToSelectedTarget()
+    {
+        return mDriveControlBoard.getDriveToSelectedTarget();
+    }
+
+    @Override
+    public boolean getTestButtonOne()
+    {
         return mDriveControlBoard.getTestButtonOne();
     }
 
     @Override
-    public boolean getTestButtonTwo() {
+    public boolean getTestButtonTwo()
+    {
         return mDriveControlBoard.getTestButtonTwo();
     }
 
     @Override
-    public boolean getTestButtonThree() {
+    public boolean getTestButtonThree()
+    {
         return mDriveControlBoard.getTestButtonThree();
     }
 }
