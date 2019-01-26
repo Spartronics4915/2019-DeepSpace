@@ -1,9 +1,24 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.lib.util.ILooper;
+import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.lib.util.RobotStateMap;
+
+import java.util.ArrayList;
+
+import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
+import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
+import com.spartronics4915.lib.geometry.Pose2d;
+import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
+import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.trajectory.TimedView;
+import com.spartronics4915.lib.trajectory.Trajectory;
+import com.spartronics4915.lib.trajectory.TrajectoryIterator;
+import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ILoop;
 
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 
 /**
@@ -93,6 +108,9 @@ public class Superstructure extends Subsystem
     private final Climber mClimber = Climber.getInstance();
     private final PanelHandler mPanelHandler = PanelHandler.getInstance();
 
+    private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
+    private RobotStateMap mRobotStateEstimator = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+
     private final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
     private final double kDriveUntilPlatformContactDuration = 1; // Seconds TODO: Tune me
     private final double kDriveUntilPlatformFullSupportDuration = 1; // Seconds TODO: Tune me
@@ -175,6 +193,19 @@ public class Superstructure extends Subsystem
                     /* Placing/intaking game pieces */
                     case ALIGNING_CLOSEST_FORWARD_TARGET:
                         // TODO: Put in paths
+                        if (newState == mSystemState)
+                        {
+                            ArrayList<Pose2d> waypoints = new ArrayList<>();
+                            waypoints.add(mRobotStateEstimator.getFieldToVehicle(Timer.getFPGATimestamp()));
+                            waypoints.add(Pose2d.identity());
+
+                            double startTime = Timer.getFPGATimestamp();
+                            TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
+                                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(false, waypoints)))));
+                            Logger.debug("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
+                            mDrive.setTrajectory(t);
+                        }
+
                         if (newState == mSystemState && mDrive.isDoneWithTrajectory())
                             newState = SystemState.INTAKING_CARGO;
                         break;
