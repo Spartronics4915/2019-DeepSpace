@@ -1,7 +1,7 @@
 package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.auto.modes.CharacterizeDrive.SideToCharacterize;
+import com.spartronics4915.frc2019.auto.modes.CharacterizeDriveMode.SideToCharacterize;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;

@@ -1,6 +1,8 @@
 package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.auto.AutoModeExecutor;
+import com.spartronics4915.frc2019.controlboard.IDriveControlBoard;
+import com.spartronics4915.frc2019.controlboard.OneJoystickControlBoard;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
@@ -24,7 +26,7 @@ public class Robot extends TimedRobot
     private Looper mEnabledLooper = new Looper();
     private Looper mDisabledLooper = new Looper();
     private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
-    private IControlBoard mControlBoard = ControlBoard.getInstance();
+    private IControlBoard mControlBoard = null;
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
     private SubsystemManager mSubsystemManager = null;
     private Drive mDrive = null;
@@ -287,6 +289,11 @@ public class Robot extends TimedRobot
     {
         try
         {
+            if (mControlBoard.getReturnToDriverControl() && mAutoModeExecutor.getAutoMode().isActive())
+                mAutoModeExecutor.stop(); // Careful! Teleop init doesn't get called until teleop actually starts
+            else if (!mAutoModeExecutor.getAutoMode().isActive())
+                teleopPeriodic();
+
             outputToSmartDashboard();
         }
         catch (Throwable t)
@@ -321,6 +328,10 @@ public class Robot extends TimedRobot
                 if (mControlBoard.getReverseDirection())
                 {
                     mSuperstructure.reverseDrivingDirection();
+                }
+                else if (mControlBoard.getDriveToSelectedTarget())
+                {
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO);
                 }
                 // TODO (for button person): add buttons for all superstructure wanted states
             }
