@@ -1,15 +1,9 @@
 package com.spartronics4915.frc2019.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
-//import com.spartronics4915.
-
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Climber extends Subsystem
 {
@@ -49,7 +43,6 @@ public class Climber extends Subsystem
     private DoubleSolenoid mFrontClimberSolenoid2 = null;
     private DoubleSolenoid mRearClimberSolenoid1 = null;
     private DoubleSolenoid mRearClimberSolenoid2 = null;
-    //private 
 
 
     private Climber()
@@ -72,6 +65,8 @@ public class Climber extends Subsystem
     private final ILoop mLoop = new ILoop()
     {
 
+        private boolean stateChanged = true;
+        
         @Override
         public void onStart(double timestamp)
         {
@@ -93,27 +88,59 @@ public class Climber extends Subsystem
                     case DISABLING:
                         //Climber is disabled (Will be like this until the last 30 seconds of the match)
                         //Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
+                       
+                        mFrontClimberSolenoid1.set(Value.kOff);
+                        mFrontClimberSolenoid2.set(Value.kOff);
+                        mRearClimberSolenoid1.set(Value.kOff);
+                        mRearClimberSolenoid2.set(Value.kOff);
                         break;
+
                     case CLIMBING:
                         //Struts will extend from their dormant position to allow the robot to reach the height required to get to L3
                         //Must be done when robot is flushed with L3 (Done with distance sensors and a backup encoder reading)
+                       
+                        mFrontClimberSolenoid1.set(Value.kForward);
+                        mFrontClimberSolenoid2.set(Value.kForward);
+                        mRearClimberSolenoid1.set(Value.kForward);
+                        mRearClimberSolenoid2.set(Value.kForward);
                         break;
+                    
                     case RETRACTING_FRONT_STRUTS:
                         //Solenoids from the front struts will retract when they become flushed with L3
                         //Done with distance sensors and backup driver vision
+                    
+                        mFrontClimberSolenoid1.set(Value.kReverse);
+                        mFrontClimberSolenoid1.set(Value.kReverse);
+
                         break;
                     case RETRACTING_REAR_STRUTS:
                         //Solenoids from the rear struts will retract when the robot can support its own weight on L3
                         //Done primarily with driver vision, but distance sensor might be used
+                    
+                        mRearClimberSolenoid1.set(Value.kReverse);
+                        mRearClimberSolenoid2.set(Value.kReverse);
                         break;
+
                     case STOPPING:
                         //Intake arm will STOP rolling and the robot will not be able to continue climbing, only used in emergencies
+                        
                         stop();    
-                    break;
+                        break;
+
                     default:
                         logError("Unhandled system state!");
                 }
                 mSystemState = newState;
+                if (newState != mSystemState)
+                {
+                    stateChanged = false;
+                    logError("Climber System State has NOT changed!");
+                }
+                else
+                {
+                    stateChanged = true;
+                    logInfo("Climber System State has changed!");
+                }
             }
         }
 
@@ -133,17 +160,30 @@ public class Climber extends Subsystem
         switch (mWantedState)
         {
             case DISABLED:
+
                 newState = SystemState.DISABLING;
                 break;
+
             case CLIMB:
+
                 newState = SystemState.CLIMBING;
                 break;
+
             case RETRACT_FRONT_STRUTS:
+
                 newState = SystemState.RETRACTING_FRONT_STRUTS;
                 break;
+
             case RETRACT_REAR_STRUTS:
+                
                 newState = SystemState.RETRACTING_REAR_STRUTS;
                 break;
+            
+            case STOP:
+
+                newState = SystemState.STOPPING;
+                break;
+
             default:
                 newState = SystemState.DISABLING;
                 logNotice("Robot is in an Unhandled Wanted State!");
