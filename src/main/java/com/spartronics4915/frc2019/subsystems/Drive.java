@@ -43,7 +43,7 @@ public class Drive extends Subsystem
     private DriveMotionPlanner mMotionPlanner;
     private Rotation2d mGyroOffset = Rotation2d.identity();
     private boolean mOverrideTrajectory = false;
-    private double[] YawPitchRoll = new double[3];
+    private double[] mYawPitchRoll = new double[3];
 
 
 
@@ -506,7 +506,7 @@ public class Drive extends Subsystem
     @Override
     public synchronized void readPeriodicInputs()
     {
-        mPigeon.getRawGyro(YawPitchRoll);
+        mPigeon.getRawGyro(mYawPitchRoll);
         double prevLeftTicks = mPeriodicIO.left_position_ticks;
         double prevRightTicks = mPeriodicIO.right_position_ticks;
         mPeriodicIO.left_position_ticks = mLeftMaster.getSelectedSensorPosition(0);
@@ -514,7 +514,7 @@ public class Drive extends Subsystem
         mPeriodicIO.left_velocity_ticks_per_100ms = mLeftMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.right_velocity_ticks_per_100ms = mRightMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.gyro_heading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
-        mPeriodicIO.gyro_pitch = Rotation2d.fromDegrees(YawPitchRoll[1]);
+        mPeriodicIO.gyro_pitch = Rotation2d.fromDegrees(mYawPitchRoll[1]);
         double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
         
         if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
