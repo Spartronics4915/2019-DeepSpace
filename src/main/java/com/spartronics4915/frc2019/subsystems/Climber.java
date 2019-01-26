@@ -93,7 +93,6 @@ public class Climber extends Subsystem
                     case DISABLING:
                         //Climber is disabled (Will be like this until the last 30 seconds of the match)
                         //Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
-                        
                         break;
                     case CLIMBING:
                         //Struts will extend from their dormant position to allow the robot to reach the height required to get to L3
