@@ -6,8 +6,6 @@ import com.spartronics4915.lib.util.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 public class CargoHandler extends Subsystem
 {
 
@@ -24,16 +22,16 @@ public class CargoHandler extends Subsystem
 
     public enum WantedState
     {
-        DEACTIVATED, EJECT,
+        CLOSED, INTAKE,
     }
 
     private enum SystemState
     {
-        DEACTIVATING, EJECTING,
+        CLOSING, INTAKING,
     }
 
-    private WantedState mWantedState = WantedState.DEACTIVATED;
-    private SystemState mSystemState = SystemState.DEACTIVATING;
+    private WantedState mWantedState = WantedState.CLOSED;
+    private SystemState mSystemState = SystemState.CLOSING;
 
     private CargoHandler()
     {
@@ -59,8 +57,8 @@ public class CargoHandler extends Subsystem
         {
             synchronized (CargoHandler.this)
             {
-                mWantedState = WantedState.DEACTIVATED;
-                mSystemState = SystemState.DEACTIVATING;
+                mWantedState = WantedState.CLOSED;
+                mSystemState = SystemState.CLOSING;
             }
         }
 
@@ -72,9 +70,9 @@ public class CargoHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case EJECTING:
+                    case INTAKING:
                         break;
-                    case DEACTIVATING:
+                    case CLOSING:
                         stop();
                         break;
                     default:
@@ -99,20 +97,14 @@ public class CargoHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case DEACTIVATED:
-                if(mWantedState == WantedState.EJECT)
-                    newState = SystemState.EJECTING;
-                else
-                    newState = SystemState.DEACTIVATING;
-                    break;
-            case EJECT:
-            if(mWantedState == WantedState.DEACTIVATED)
-                newState = SystemState.DEACTIVATING;
-            else
-                newState = SystemState.EJECTING;
+            case CLOSED:
+                newState = SystemState.CLOSING;
+                break;
+            case INTAKE:
+                newState = SystemState.INTAKING;
                 break;
             default:
-                newState = SystemState.DEACTIVATING;
+                newState = SystemState.CLOSING;
                 break;
         }
         return newState;
@@ -143,10 +135,6 @@ public class CargoHandler extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        SmartDashboard.putString("CargoHandler/SystemState", mSystemState.toString());
-        dashboardPutString("SystemState", mSystemState.toString());
-        dashboardPutState(mSystemState.toString());
-
     }
 
     @Override

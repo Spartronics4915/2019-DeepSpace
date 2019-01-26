@@ -3,11 +3,15 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
+
+
+/** 2 pneumatics to eject panels
+ * panels held on by velcro */
 
 public class PanelHandler extends Subsystem
 { 
-//2 solenoid pincers to secure panels in, 2 to eject panels, also panels held on by velcro
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -21,36 +25,33 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        RETRACT, EJECT, OPEN, CLOSE
+        RETRACT, EJECT
     }
 
     private enum SystemState
     {
-        RETRACTING, EJECTING, OPENING, CLOSING
+        RETRACTING, EJECTING
     }
 
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
-    private static final DoubleSolenoid.Value kSolenoidExtend = DoubleSolenoid.Value.kForward;
-    private static final DoubleSolenoid.Value kSolenoidRetract = DoubleSolenoid.Value.kReverse;
+    private final double kEjectTime = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
+    private static final boolean kSolenoidExtend = true;
+    private static final boolean kSolenoidRetract = false;
 
-    private DoubleSolenoid mSolenoid1 = null;
-    private DoubleSolenoid mSolenoid2 = null;
-    private DoubleSolenoid mSolenoid3 = null;
-    private DoubleSolenoid mSolenoid4 = null;
-    //Add Timer
+    private Solenoid mSolenoid1 = null;
+    private Solenoid mSolenoid2 = null;
+
+    private double time;
 
     private PanelHandler()
     {
         boolean success = true;
         try
         {
-            //mMotor = new TalonSRX(1);
-            mSolenoid1 = new DoubleSolenoid(1, 2);
-            mSolenoid2 = new DoubleSolenoid(3, 4);
-            mSolenoid3 = new DoubleSolenoid(5, 6);
-            mSolenoid4 = new DoubleSolenoid(7, 8);
+            mSolenoid1 = new Solenoid(1);
+            mSolenoid2 = new Solenoid(2);
         }
         catch (Exception e)
         {
@@ -69,6 +70,8 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
+                mSolenoid1.set(kSolenoidRetract);
+                mSolenoid2.set(kSolenoidRetract);
                 mWantedState = WantedState.RETRACT;
                 mSystemState = SystemState.RETRACTING;
             }
@@ -95,21 +98,10 @@ public class PanelHandler extends Subsystem
                         {
                             mSolenoid1.set(kSolenoidExtend);
                             mSolenoid2.set(kSolenoidExtend);
+                            time = Timer.getFPGATimestamp();
                         }
-                        break;
-                    case OPENING:
-                        if (newState != mSystemState)
-                        {
-                            mSolenoid3.set(kSolenoidRetract);
-                            mSolenoid4.set(kSolenoidRetract);
-                        }
-                        break;
-                    case CLOSING:
-                        if (newState != mSystemState)
-                        {
-                            mSolenoid3.set(kSolenoidExtend);
-                            mSolenoid4.set(kSolenoidExtend);
-                        }
+                        else if (Timer.getFPGATimestamp() > time + kEjectTime)
+                            setWantedState(WantedState.RETRACT);
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -128,7 +120,7 @@ public class PanelHandler extends Subsystem
         }
     };
 
-    private SystemState defaultStateTransfer() //Open -timer-> Eject -timer-> Retract
+    private SystemState defaultStateTransfer() //Eject -timer-> Retract
     {
         SystemState newState = mSystemState;
         switch (mWantedState)
@@ -137,29 +129,10 @@ public class PanelHandler extends Subsystem
                 newState = SystemState.RETRACTING;
                 break;
             case EJECT:
-                if (mSystemState != SystemState.CLOSING)
-                    newState = SystemState.EJECTING;
-                break;
-            case OPEN:
-                newState = SystemState.OPENING;
-                break;
-            case CLOSE:
-                newState = SystemState.CLOSING;
-                break;
-            default:
-                newState = SystemState.RETRACTING;
+                newState = SystemState.EJECTING;
                 break;
         }
         return newState;
-    }
-
-    public void automate()
-    {
-        setWantedState(WantedState.OPEN);
-        //Wait
-        setWantedState(WantedState.EJECT);
-        //Wait
-        setWantedState(WantedState.RETRACT);
     }
 
     public synchronized void setWantedState(WantedState wantedState)
@@ -181,9 +154,24 @@ public class PanelHandler extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
-        //Ensure solenoids are functioning, and State Transitions
-
-        return false;
+        /*Ensure solenoids are functioning
+        */
+        logNotice("Starting PanelHandler Solenoid Check");
+        try
+        {
+            mSolenoid1.set(kSolenoidExtend);
+            mSolenoid2.set(kSolenoidExtend);
+            Timer.delay(2);
+            mSolenoid1.set(kSolenoidRetract);
+            mSolenoid2.set(kSolenoidRetract);
+        }
+        catch (Exception e)
+        {
+            logException("Trouble instantiating hardware ", e);
+            return false;
+        }
+        logNotice("PanelHandler Solenoid Check End - Successful");
+        return true;
     }
 
     @Override
@@ -191,6 +179,8 @@ public class PanelHandler extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
+        dashboardPutBoolean("mSolenoid1 Extended", mSolenoid1.get());
+        dashboardPutBoolean("mSolenoid2 Extended", mSolenoid2.get());
     }
 
     @Override
@@ -198,7 +188,5 @@ public class PanelHandler extends Subsystem
     {
         mSolenoid1.set(kSolenoidRetract);
         mSolenoid2.set(kSolenoidRetract);
-        mSolenoid3.set(kSolenoidRetract);
-        mSolenoid4.set(kSolenoidRetract);
     }
 }

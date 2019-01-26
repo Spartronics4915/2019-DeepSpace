@@ -67,8 +67,6 @@ public class Superstructure extends Subsystem
         // Climb
         // TODO: Can we do a climb to level two?
         CLIMB_TO_THREE,
-        // Panel
-        EJECT_PANEL_WITH_INTAKE,
     };
 
     // Internal state of the system
@@ -96,8 +94,7 @@ public class Superstructure extends Subsystem
         INTAKING_CARGO,
         INTAKING_PANEL,
         // Placing (could also be step 2)
-        RELEASING_PANEL,
-        EJECTING_PANEL_WITH_INTAKE,
+        EJECTING_PANEL,
         MOVING_CARGO_EJECTOR, // There are two eject heights (step 2.1)
         EJECTING_CARGO, // (step 2.2)
         // Backing out and turning (step 3, PANEL panels only)
@@ -217,7 +214,7 @@ public class Superstructure extends Subsystem
                         if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO)
                             newState = SystemState.MOVING_CARGO_EJECTOR;
                         else if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
-                            newState = SystemState.RELEASING_PANEL;
+                            newState = SystemState.EJECTING_PANEL;
                         break;
                     case INTAKING_CARGO:
                         // TODO: Should this be isCargoHeld() or a timer?
@@ -235,13 +232,9 @@ public class Superstructure extends Subsystem
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
                         break;
-                    case RELEASING_PANEL:
+                    case EJECTING_PANEL:
                         if (newState == mSystemState && Timer.getFPGATimestamp() - mCurrentStateStartTime > kPanelHandlingDuration)
-                            newState = SystemState.EJECTING_PANEL_WITH_INTAKE;
-                        break;
-                    case EJECTING_PANEL_WITH_INTAKE:
-                        if (newState == mSystemState)
-                            newState = SystemState.MOVING_CARGO_EJECTOR;
+                            newState = SystemState.BACKING_OUT_FROM_LOADING;
                         break;
                     case MOVING_CARGO_EJECTOR:
                         if (newState == mSystemState && mCargoHandler.atTarget())
@@ -317,7 +310,7 @@ public class Superstructure extends Subsystem
                 break;
             case ALIGN_AND_EJECT_PANEL:
                 if (mSystemState == SystemState.ALIGNING_CLOSEST_REVERSE_TARGET ||
-                        mSystemState == SystemState.RELEASING_PANEL ||
+                        mSystemState == SystemState.EJECTING_PANEL ||
                         mSystemState == SystemState.BACKING_OUT_FROM_LOADING ||
                         mSystemState == SystemState.TURNING_AROUND)
                     break;
