@@ -21,6 +21,7 @@ public class DriveOffHABAndZero implements Action {
     private final Drive mDrive;
     private final double mVelocity;
     private final double mFeedforward;
+    private final HABLevel mStartingLevel;
     private int mNumBumps = 0;
     private boolean mOnSlope = false;
 
@@ -29,34 +30,40 @@ public class DriveOffHABAndZero implements Action {
         mVelocity = velocity;
         mFeedforward = feedforward;
         mDrive = Drive.getInstance();
+        mStartingLevel = startingLevel;
     }
 
     @Override
     public boolean isFinished()
     {
+        if (mNumBumps >= mStartingLevel.numBumps)
+        {
+            return true;
+        }
+        
         return false;
     }
 
     @Override
     public void update()
     {
-        if (!mOnSlope && mDrive.getPitch().getDegrees() > kBumpEpsilon)
+        if (!mOnSlope && Math.abs(mDrive.getPitch().getDegrees()) > kBumpEpsilon)
         {
-                mNumBumps++;
                 mOnSlope = true;
         }
         
-        else if (mDrive.getPitch().getDegrees() < kBumpEpsilon)
+        else if (Math.abs(mDrive.getPitch().getDegrees()) < kBumpEpsilon && mOnSlope)
         {
             mOnSlope = false;
+            mNumBumps++;
         }
-       
+
     }
 
     @Override
     public void done()
     {
-
+        mDrive.setOpenLoop(new DriveSignal(0, 0));
     }
 
     @Override
