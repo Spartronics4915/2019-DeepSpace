@@ -2,7 +2,7 @@ package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.auto.AutoModeExecutor;
 import com.spartronics4915.frc2019.controlboard.IDriveControlBoard;
-import com.spartronics4915.frc2019.controlboard.MainDriveControlBoard;
+import com.spartronics4915.frc2019.controlboard.OneJoystickControlBoard;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
@@ -26,7 +26,7 @@ public class Robot extends TimedRobot
     private Looper mEnabledLooper = new Looper();
     private Looper mDisabledLooper = new Looper();
     private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
-    private IControlBoard mControlBoard = ControlBoard.getInstance();
+    private IControlBoard mControlBoard = null;
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
     private SubsystemManager mSubsystemManager = null;
     private Drive mDrive = null;
