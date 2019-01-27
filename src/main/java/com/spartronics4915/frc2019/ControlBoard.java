@@ -33,6 +33,8 @@ public class ControlBoard implements IControlBoard
         }
         Logger.notice("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
 
+        mDriveControlBoard = new OneJoystickControlBoard();
+
         mButtonControlBoard = new MainButtonBoard();
     }
 
