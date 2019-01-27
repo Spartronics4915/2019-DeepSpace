@@ -18,17 +18,20 @@ public class ControlBoard implements IControlBoard
         String joyName = new Joystick(Constants.kDriveJoystickPort).getName();
         switch (joyName)
         {
-            case "Xbox": // TODO: Figure out these names
+            case "Controller (Xbox One For Windows)": // Names of joysticks are the same as the names in the driver station program
                 mDriveControlBoard = new XboxSplitControlBoard();
                 break;
-            case "Joystick":
+            case "Logitech Attack 3":
                 if (new Joystick(3).getType() != HIDType.kUnknown)
                     mDriveControlBoard = new TwoJoystickSplitControlBoard();
                 else
                     mDriveControlBoard = new OneJoystickControlBoard();
                 break;
+            default:
+                mDriveControlBoard = new OneJoystickControlBoard();
+                break;
         }
-        Logger.debug("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
+        Logger.notice("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
 
         mDriveControlBoard = new OneJoystickControlBoard();
 
