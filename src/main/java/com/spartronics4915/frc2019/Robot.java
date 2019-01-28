@@ -98,6 +98,7 @@ public class Robot extends TimedRobot
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
+                mControlBoard = new ControlBoard();
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
