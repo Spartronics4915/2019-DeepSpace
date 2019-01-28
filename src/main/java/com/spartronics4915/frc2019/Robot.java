@@ -30,6 +30,7 @@ public class Robot extends TimedRobot
     private Drive mDrive = null;
     private PanelHandler mPanelHandler = null;
     private CargoHandler mCargoHandler = null;
+    private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
     private LED mLED = null;
     private Superstructure mSuperstructure = null;
@@ -93,6 +94,7 @@ public class Robot extends TimedRobot
                 mDrive = Drive.getInstance();
                 mPanelHandler = PanelHandler.getInstance();
                 mCargoHandler = CargoHandler.getInstance();
+                mCargoIntake = CargoIntake.getInstance();
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
@@ -103,6 +105,7 @@ public class Robot extends TimedRobot
                                 mDrive,
                                 mPanelHandler,
                                 mCargoHandler,
+                                mCargoIntake,
                                 mClimber,
                                 mLED,
                                 mSuperstructure));
