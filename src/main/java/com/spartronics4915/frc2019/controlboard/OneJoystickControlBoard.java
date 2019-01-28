@@ -39,32 +39,32 @@ public class OneJoystickControlBoard implements IDriveControlBoard
     }
 
     @Override
-    public boolean getDriveToSelectedTarget()
-    {
-        return mJoystick.getRawButtonReleased(7);
-    }
-
-    @Override
     public boolean getReverseDirection()
-    {
-        return mJoystick.getRawButtonReleased(6);
-    }
-
-    @Override
-    public boolean getTestButtonOne()
     {
         return mJoystick.getRawButtonReleased(3);
     }
 
     @Override
-    public boolean getTestButtonTwo()
+    public boolean getDriveToSelectedTarget()
     {
         return mJoystick.getRawButtonReleased(4);
     }
 
     @Override
-    public boolean getTestButtonThree()
+    public boolean getTestButtonOne()
     {
         return mJoystick.getRawButtonReleased(5);
+    }
+
+    @Override
+    public boolean getTestButtonTwo()
+    {
+        return mJoystick.getRawButtonReleased(6);
+    }
+
+    @Override
+    public boolean getTestButtonThree()
+    {
+        return mJoystick.getRawButtonReleased(7);
     }
 }
