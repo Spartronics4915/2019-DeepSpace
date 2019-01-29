@@ -211,11 +211,20 @@ public class CargoIntake extends Subsystem
     @Override
     public void outputTelemetry()
     {
+        dashboardPutState(mSystemState.toString());
+        dashboardPutWantedState(mWantedState.toString());
+        dashboardPutBoolean("mSolenoid Extended", mSolenoid.get());
+        dashboardPutBoolean("mSolenoidClimb Extended", mSolenoidClimb.get());
+        dashboardPutNumber("mMotor1 Speed", mMotor1.getMotorOutputPercent());
+        dashboardPutNumber("mMotor2 Speed", mMotor2.getMotorOutputPercent());
     }
 
     @Override
     public void stop()
     {
-        // Stop your hardware here
+        mSolenoid.set(kSolenoidRetract);
+        mSolenoidClimb.set(kSolenoidRetract);
+        mMotor1.set(ControlMode.PercentOutput, 0);
+        mMotor2.set(ControlMode.PercentOutput, 0);
     }
 }
