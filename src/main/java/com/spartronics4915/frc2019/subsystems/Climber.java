@@ -43,6 +43,7 @@ public class Climber extends Subsystem
     private DoubleSolenoid mFrontClimberSolenoid2 = null;
     private DoubleSolenoid mRearClimberSolenoid1 = null;
     private DoubleSolenoid mRearClimberSolenoid2 = null;
+    //private DigitalInput 
 
 
     private Climber()
@@ -111,8 +112,8 @@ public class Climber extends Subsystem
                     
                         mFrontClimberSolenoid1.set(Value.kReverse);
                         mFrontClimberSolenoid1.set(Value.kReverse);
-
                         break;
+
                     case RETRACTING_REAR_STRUTS:
                         //Solenoids from the rear struts will retract when the robot can support its own weight on L3
                         //Done primarily with driver vision, but distance sensor might be used
@@ -123,8 +124,9 @@ public class Climber extends Subsystem
 
                     case STOPPING:
                         //Intake arm will STOP rolling and the robot will not be able to continue climbing, only used in emergencies
+                        //TODO Declan, how do we detect errors and tell the rest of the robot to stop climbing? A button perhaps?
                         
-                        stop();    
+                        stop();
                         break;
 
                     default:
