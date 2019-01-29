@@ -36,7 +36,7 @@ public class PanelHandler extends Subsystem
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
-    private final double kEjectTime = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
+    private final double kEjectTime = 0.3; // Seconds TODO: Tune me
     private static final boolean kSolenoidExtend = true;
     private static final boolean kSolenoidRetract = false;
 

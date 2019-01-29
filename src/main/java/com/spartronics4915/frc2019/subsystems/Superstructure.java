@@ -5,6 +5,7 @@ import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.RobotStateMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
@@ -14,6 +15,7 @@ import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.trajectory.TimedView;
 import com.spartronics4915.lib.trajectory.Trajectory;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
+import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstraint;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ILoop;
@@ -109,13 +111,19 @@ public class Superstructure extends Subsystem
     private final PanelHandler mPanelHandler = PanelHandler.getInstance();
 
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
-    private RobotStateMap mRobotStateEstimator = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+    private RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
 
-    private final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
-    private final double kDriveUntilPlatformContactDuration = 1; // Seconds TODO: Tune me
-    private final double kDriveUntilPlatformFullSupportDuration = 1; // Seconds TODO: Tune me
+    private static final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
+    private static final double kDriveUntilPlatformContactDuration = 1; // Seconds TODO: Tune me
+    private static final double kDriveUntilPlatformFullSupportDuration = 1; // Seconds TODO: Tune me
 
-    private final DriveSignal kPlatformDriveSpeed = new DriveSignal(1, 1);
+    private static final DriveSignal kPlatformDriveSpeed = new DriveSignal(1, 1);
+
+    // These constants are _just_ for dynamic paths. See TrajectoryGenerator for constants for premade paths
+    private static final double kMaxPathVelocity = 240.0; // inches/s
+    private static final double kMaxPathAccel = 90.0; // inches/s
+    private static final double kMaxPathCentripetalAccel = 50.0; // inches/s
+    private static final double kMaxPathVoltage = 10.0; // volts
 
     private WantedState mWantedState = WantedState.DRIVER_CONTROL;
     private SystemState mSystemState = SystemState.DRIVER_CONTROLLING;
@@ -193,16 +201,19 @@ public class Superstructure extends Subsystem
                     /* Placing/intaking game pieces */
                     case ALIGNING_CLOSEST_FORWARD_TARGET:
                         // TODO: Put in paths
-                        if (newState == mSystemState)
+                        if (mStateChanged)
                         {
                             ArrayList<Pose2d> waypoints = new ArrayList<>();
-                            waypoints.add(mRobotStateEstimator.getFieldToVehicle(Timer.getFPGATimestamp()));
+                            waypoints.add(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()));
                             waypoints.add(Pose2d.identity());
 
                             double startTime = Timer.getFPGATimestamp();
                             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
-                                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(false, waypoints)))));
-                            Logger.debug("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
+                                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(false, waypoints,
+                                        Arrays.asList(new CentripetalAccelerationConstraint(kMaxPathCentripetalAccel)),
+                                        kMaxPathVelocity, kMaxPathAccel, kMaxPathVoltage)))));
+                            // TODO: Maybe plug in our current velocity as the start veloicty of the path?
+                            Logger.info("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
                             mDrive.setTrajectory(t);
                         }
 
@@ -267,7 +278,13 @@ public class Superstructure extends Subsystem
                 }
 
                 if (newState != mSystemState)
+                {
                     mStateChanged = true;
+                    logNotice("System state to " + newState);
+                }
+                else
+                    mStateChanged = false;
+
                 mSystemState = newState;
             }
         }
