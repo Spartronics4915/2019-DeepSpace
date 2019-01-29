@@ -12,23 +12,27 @@ public class ControlBoard implements IControlBoard
     private IDriveControlBoard mDriveControlBoard;
     private IButtonControlBoard mButtonControlBoard;
 
-    private ControlBoard()
+    public ControlBoard()
     {
         // Possibly use Joystick::getType instead of Joystick::getName
         String joyName = new Joystick(Constants.kDriveJoystickPort).getName();
+        Logger.notice("joyName = " + joyName);
         switch (joyName)
         {
-            case "Xbox": // TODO: Figure out these names
+            case "Controller (Xbox One For Windows)": // TODO: Figure out these names
                 mDriveControlBoard = new XboxSplitControlBoard();
                 break;
-            case "Joystick":
+            case "Logitech Attack 3":
                 if (new Joystick(3).getType() != HIDType.kUnknown)
                     mDriveControlBoard = new TwoJoystickSplitControlBoard();
                 else
                     mDriveControlBoard = new OneJoystickControlBoard();
                 break;
+            default:
+                mDriveControlBoard = new OneJoystickControlBoard();
+                break;
         }
-        Logger.debug("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
+        Logger.notice("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
 
         mButtonControlBoard = new MainButtonBoard();
     }
