@@ -76,7 +76,11 @@ public class ArcadeDriveHelper
      */
     private static double limit(double input)
     {
-        return Math.min(Math.max(input, 0), 1);
+        if (input > 1)
+            return 1;
+        else if (input < -1)
+            return -1;
+        return input;
     }
 
     /**

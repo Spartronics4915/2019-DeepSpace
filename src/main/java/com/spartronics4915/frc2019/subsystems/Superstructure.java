@@ -120,10 +120,11 @@ public class Superstructure extends Subsystem
     private static final DriveSignal kPlatformDriveSpeed = new DriveSignal(1, 1);
 
     // These constants are _just_ for dynamic paths. See TrajectoryGenerator for constants for premade paths
+    // XXX: Currently unused
     private static final double kMaxPathVelocity = 240.0; // inches/s
-    private static final double kMaxPathAccel = 90.0; // inches/s
-    private static final double kMaxPathCentripetalAccel = 50.0; // inches/s
-    private static final double kMaxPathVoltage = 10.0; // volts
+    private static final double kMaxPathAccel = 48.0; // inches/s
+    private static final double kMaxPathCentripetalAccel = 24.0; // inches/s
+    private static final double kMaxPathVoltage = 9.0; // volts
 
     private WantedState mWantedState = WantedState.DRIVER_CONTROL;
     private SystemState mSystemState = SystemState.DRIVER_CONTROLLING;
@@ -209,9 +210,7 @@ public class Superstructure extends Subsystem
 
                             double startTime = Timer.getFPGATimestamp();
                             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
-                                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(false, waypoints,
-                                        Arrays.asList(new CentripetalAccelerationConstraint(kMaxPathCentripetalAccel)),
-                                        kMaxPathVelocity, kMaxPathAccel, kMaxPathVoltage)))));
+                                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(false, waypoints)))));
                             // TODO: Maybe plug in our current velocity as the start veloicty of the path?
                             Logger.info("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
                             mDrive.setTrajectory(t);
