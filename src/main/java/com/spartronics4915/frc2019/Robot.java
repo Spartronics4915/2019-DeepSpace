@@ -1,8 +1,6 @@
 package com.spartronics4915.frc2019;
 
 import com.spartronics4915.frc2019.auto.AutoModeExecutor;
-import com.spartronics4915.frc2019.controlboard.IDriveControlBoard;
-import com.spartronics4915.frc2019.controlboard.OneJoystickControlBoard;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
@@ -11,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.io.IOException;
@@ -25,13 +24,13 @@ public class Robot extends TimedRobot
 {
     private Looper mEnabledLooper = new Looper();
     private Looper mDisabledLooper = new Looper();
-    private CheesyDriveHelper mCheesyDriveHelper = new CheesyDriveHelper();
     private IControlBoard mControlBoard = null;
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
     private SubsystemManager mSubsystemManager = null;
     private Drive mDrive = null;
     private PanelHandler mPanelHandler = null;
     private CargoHandler mCargoHandler = null;
+    private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
     private LED mLED = null;
     private Superstructure mSuperstructure = null;
@@ -95,9 +94,11 @@ public class Robot extends TimedRobot
                 mDrive = Drive.getInstance();
                 mPanelHandler = PanelHandler.getInstance();
                 mCargoHandler = CargoHandler.getInstance();
+                mCargoIntake = CargoIntake.getInstance();
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
+                mControlBoard = new ControlBoard();
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
@@ -105,6 +106,7 @@ public class Robot extends TimedRobot
                                 mDrive,
                                 mPanelHandler,
                                 mCargoHandler,
+                                mCargoIntake,
                                 mClimber,
                                 mLED,
                                 mSuperstructure));
@@ -114,6 +116,8 @@ public class Robot extends TimedRobot
                                          "None,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
+
+                mControlBoard = new ControlBoard();
             }
             catch (Exception e)
             {
@@ -315,23 +319,22 @@ public class Robot extends TimedRobot
         {
             if (mSuperstructure.isDriverControlled())
             {
-                DriveSignal command = mCheesyDriveHelper.cheesyDrive(throttle, turn, mControlBoard.getQuickTurn(), false)/*.scale(12)*/;
-                mDrive.setOpenLoop(command.scale(
-                    mSuperstructure.isDrivingReversed() ? -1 : 1
+                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle(), mControlBoard.getTurn(),
+                    true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1);
+
+                // mDrive.setOpenLoop(command);
+                mDrive.setVelocity(command, new DriveSignal(
+                    command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
+                    command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
                 ));
 
-                // mDrive.setVelocity(command, new DriveSignal(
-                //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-                //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
-                // ));
-                
                 if (mControlBoard.getReverseDirection())
                 {
                     mSuperstructure.reverseDrivingDirection();
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
                 }
                 // TODO (for button person): add buttons for all superstructure wanted states
             }

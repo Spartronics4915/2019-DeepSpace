@@ -4,7 +4,6 @@ import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
-import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.trajectory.Trajectory;
 import com.spartronics4915.lib.trajectory.TrajectoryUtil;
 import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstraint;
@@ -51,14 +50,6 @@ public class TrajectoryGenerator
     public TrajectorySet getTrajectorySet()
     {
         return mTrajectorySet;
-    }
-
-    public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
-        boolean reversed,
-        final List<Pose2d> waypoints)
-    {
-        return mMotionPlanner.generateTrajectory(reversed, waypoints,
-            Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)), kMaxVelocity, kMaxAccel, kMaxVoltage);
     }
 
     public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
