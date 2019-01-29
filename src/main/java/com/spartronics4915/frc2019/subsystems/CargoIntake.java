@@ -3,6 +3,11 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
+import edu.wpi.first.wpilibj.Solenoid;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 public class CargoIntake extends Subsystem
 {
 
@@ -19,23 +24,35 @@ public class CargoIntake extends Subsystem
 
     public enum WantedState
     {
-        TODO
+        HOLD, ARM_DOWN, ARM_UP, INTAKE, EJECT, CLIMB
     }
 
     private enum SystemState
     {
-        TODOING
+        HOLDING, ARM_DOWNING, ARM_UPING, INTAKING, EJECTING, CLIMBING
     }
 
-    private WantedState mWantedState = WantedState.TODO;
-    private SystemState mSystemState = SystemState.TODOING;
+    private WantedState mWantedState = WantedState.HOLD;
+    private SystemState mSystemState = SystemState.HOLDING;
+
+    private static final boolean kSolenoidExtend = true;
+    private static final boolean kSolenoidRetract = false;
+
+    private Solenoid mSolenoid = null;
+    private Solenoid mSolenoidClimb = null;
+
+    private TalonSRX mMotor1 = null;
+    private TalonSRX mMotor2 = null;
 
     private CargoIntake()
     {
         boolean success = true;
         try
         {
-            // Instantiate your hardware here
+            mSolenoid = new Solenoid(1);
+            mSolenoidClimb = new Solenoid(2);
+            mMotor1 = new TalonSRX(5);
+            mMotor2 = new TalonSRX(6);
         }
         catch (Exception e)
         {
@@ -54,8 +71,8 @@ public class CargoIntake extends Subsystem
         {
             synchronized (CargoIntake.this)
             {
-                mWantedState = WantedState.TODO;
-                mSystemState = SystemState.TODOING;
+                mWantedState = WantedState.HOLD;
+                mSystemState = SystemState.HOLDING;
             }
         }
 
@@ -67,7 +84,44 @@ public class CargoIntake extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case TODOING:
+                    case HOLDING:
+                        if (newState != mSystemState){
+                            mSolenoid.set(kSolenoidRetract);
+                            mSolenoidClimb.set(kSolenoidRetract);
+                            mMotor1.set(ControlMode.PercentOutput, 0);
+                            mMotor2.set(ControlMode.PercentOutput, 0);
+                        }
+                        break;
+                    case ARM_DOWNING:
+                        if (newState != mSystemState){
+                            mSolenoid.set(kSolenoidExtend);
+                            mSolenoidClimb.set(kSolenoidRetract);
+                        }
+                        break;
+                    case ARM_UPING:
+                        if (newState != mSystemState){
+                            mSolenoid.set(kSolenoidRetract);
+                            mSolenoidClimb.set(kSolenoidRetract);
+                        }
+                        break;
+                    case INTAKING:
+                        if (newState != mSystemState){
+                            mMotor1.set(ControlMode.PercentOutput, 0.5);
+                            mMotor2.set(ControlMode.PercentOutput, 0.5);
+                        }
+                        break;
+                    case EJECTING:
+                        if (newState != mSystemState){
+                            mMotor1.set(ControlMode.PercentOutput, -0.5);
+                            mMotor2.set(ControlMode.PercentOutput, -0.5);
+                        }
+                        break;
+                    case CLIMBING:
+                        if (newState != mSystemState)
+                        {
+                            mSolenoid.set(kSolenoidExtend);
+                            mSolenoidClimb.set(kSolenoidExtend);
+                        }
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -91,11 +145,26 @@ public class CargoIntake extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case TODO:
-                newState = SystemState.TODOING;
+            case HOLD:
+                newState = SystemState.HOLDING;
+                break;
+            case ARM_DOWN:
+                newState = SystemState.ARM_DOWNING;
+                break;
+            case ARM_UP:
+                newState = SystemState.ARM_UPING;
+                break;
+            case INTAKE:
+                newState = SystemState.INTAKING;
+                break;
+            case EJECT:
+                newState = SystemState.EJECTING;
+                break;
+            case CLIMB:
+                newState = SystemState.CLIMBING;
                 break;
             default:
-                newState = SystemState.TODOING;
+                newState = SystemState.HOLDING;
                 break;
         }
         return newState;
@@ -108,7 +177,23 @@ public class CargoIntake extends Subsystem
 
     public synchronized boolean atTarget()
     {
-        return true;
+        switch (mWantedState)
+        {
+            case HOLD:
+                return mSystemState == SystemState.HOLDING;
+            case ARM_DOWN:
+                return mSystemState == SystemState.ARM_DOWNING;
+            case ARM_UP:
+                return mSystemState == SystemState.ARM_UPING;
+            case INTAKE:
+                return mSystemState == SystemState.INTAKING;
+            case EJECT:
+                return mSystemState == SystemState.EJECTING;
+            case CLIMB:
+                return mSystemState == SystemState.CLIMBING;
+            default:
+                return false;
+        }
     }
 
     @Override
