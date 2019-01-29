@@ -4,6 +4,7 @@ import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -85,33 +86,38 @@ public class CargoIntake extends Subsystem
                 switch (mSystemState)
                 {
                     case HOLDING:
-                        if (newState != mSystemState){
-                            mSolenoid.set(kSolenoidRetract);
-                            mSolenoidClimb.set(kSolenoidRetract);
+                        if (newState != mSystemState)
+                        {
                             mMotor1.set(ControlMode.PercentOutput, 0);
                             mMotor2.set(ControlMode.PercentOutput, 0);
                         }
                         break;
                     case ARM_DOWNING:
-                        if (newState != mSystemState){
+                        if (newState != mSystemState)
+                        {
                             mSolenoid.set(kSolenoidExtend);
                             mSolenoidClimb.set(kSolenoidRetract);
                         }
+                        setWantedState(WantedState.INTAKE);
                         break;
                     case ARM_UPING:
-                        if (newState != mSystemState){
+                        if (newState != mSystemState)
+                        {
                             mSolenoid.set(kSolenoidRetract);
                             mSolenoidClimb.set(kSolenoidRetract);
                         }
+                        setWantedState(WantedState.HOLD);
                         break;
-                    case INTAKING:
-                        if (newState != mSystemState){
+                    case INTAKING://transition to ARM_UPING using proximity sensor
+                        if (newState != mSystemState)
+                        {
                             mMotor1.set(ControlMode.PercentOutput, 0.5);
                             mMotor2.set(ControlMode.PercentOutput, 0.5);
                         }
                         break;
-                    case EJECTING:
-                        if (newState != mSystemState){
+                    case EJECTING://transition to holding using proximity sensor
+                        if (newState != mSystemState)
+                        {
                             mMotor1.set(ControlMode.PercentOutput, -0.5);
                             mMotor2.set(ControlMode.PercentOutput, -0.5);
                         }
@@ -205,7 +211,30 @@ public class CargoIntake extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
-        return false;
+        logNotice("Starting CargoIntake Solenoid Check");
+        try
+        {
+            mSolenoid.set(kSolenoidExtend);
+            Timer.delay(2);
+            mSolenoidClimb.set(kSolenoidRetract);
+            logNotice("CargoIntake Solenoid Check End - Successful");
+            mMotor1.set(ControlMode.PercentOutput, 0.5);
+            mMotor2.set(ControlMode.PercentOutput, 0.5);
+            Timer.delay(2);
+            mMotor1.set(ControlMode.PercentOutput, 0);
+            mMotor2.set(ControlMode.PercentOutput, 0);
+            Timer.delay(2);
+            mMotor1.set(ControlMode.PercentOutput, -0.5);
+            mMotor2.set(ControlMode.PercentOutput, -0.5);
+            Timer.delay(2);
+            logNotice("CargoIntake Motor Check End - Successful");
+        }
+        catch (Exception e)
+        {
+            logException("Trouble instantiating hardware ", e);
+            return false;
+        }
+        return true;
     }
 
     @Override
