@@ -98,7 +98,6 @@ public class Robot extends TimedRobot
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
-                mControlBoard = new ControlBoard();
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
@@ -320,13 +319,13 @@ public class Robot extends TimedRobot
             if (mSuperstructure.isDriverControlled())
             {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle(), mControlBoard.getTurn(),
-                    true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1);
+                    true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(6)*/;
 
-                // mDrive.setOpenLoop(command);
-                mDrive.setVelocity(command, new DriveSignal(
-                    command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-                    command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
-                ));
+                mDrive.setOpenLoop(command);
+                // mDrive.setVelocity(command, new DriveSignal(
+                //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
+                //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
+                // ));
 
                 if (mControlBoard.getReverseDirection())
                 {
