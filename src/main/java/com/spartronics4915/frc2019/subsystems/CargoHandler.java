@@ -20,18 +20,24 @@ public class CargoHandler extends Subsystem
         return mInstance;
     }
 
-    public enum WantedState
+    public enum WantedState // Each WantedState will correspond to a button
     {
-        CLOSED, INTAKE,
+        MANUAL_RAMP, // Runs while held down; Ignores sensors
+        EJECT_OUT, // Runs while held down; Button shared with CargoIntake
+        SHOOT_BAY, // Checks if pneumatic down, then shoots
+        SHOOT_ROCKET, // Checks if pneumatic up, then shoots
     }
 
     private enum SystemState
     {
-        CLOSING, INTAKING,
+        HOLDING, // Ramp runs until cargo reaches top
+        EJECTING, // Ramp runs in reverse
+        SHOOTING, // Timed or sensor??
+        IDLING, // No cargo
     }
 
-    private WantedState mWantedState = WantedState.CLOSED;
-    private SystemState mSystemState = SystemState.CLOSING;
+    private WantedState mWantedState = WantedState.MANUAL_RAMP;
+    private SystemState mSystemState = SystemState.IDLING;
 
     private CargoHandler()
     {
@@ -57,8 +63,8 @@ public class CargoHandler extends Subsystem
         {
             synchronized (CargoHandler.this)
             {
-                mWantedState = WantedState.CLOSED;
-                mSystemState = SystemState.CLOSING;
+                mWantedState = WantedState.MANUAL_RAMP;
+                mSystemState = SystemState.IDLING;
             }
         }
 
@@ -70,10 +76,13 @@ public class CargoHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case INTAKING:
+                    case HOLDING:
                         break;
-                    case CLOSING:
-                        stop();
+                    case EJECTING:
+                        break;
+                    case SHOOTING:
+                        break;
+                    case IDLING:
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -97,14 +106,20 @@ public class CargoHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case CLOSED:
-                newState = SystemState.CLOSING;
+            case MANUAL_RAMP:
+                newState = SystemState.HOLDING;
                 break;
-            case INTAKE:
-                newState = SystemState.INTAKING;
+            case EJECT_OUT:
+                newState = SystemState.EJECTING;
+                break;
+            case SHOOT_BAY:
+                newState = SystemState.SHOOTING;
+                break;
+            case SHOOT_ROCKET:
+                newState = SystemState.SHOOTING;
                 break;
             default:
-                newState = SystemState.CLOSING;
+                newState = SystemState.HOLDING;
                 break;
         }
         return newState;
@@ -141,5 +156,7 @@ public class CargoHandler extends Subsystem
     public void stop()
     {
         // Stop your hardware here
+        mWantedState = WantedState.MANUAL_RAMP;
+        mSystemState = SystemState.IDLING;
     }
 }
