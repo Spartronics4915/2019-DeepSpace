@@ -6,16 +6,16 @@ import com.spartronics4915.lib.util.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class CargoHandler extends Subsystem
+public class CargoChute extends Subsystem
 {
 
-    private static CargoHandler mInstance = null;
+    private static CargoChute mInstance = null;
 
-    public static CargoHandler getInstance()
+    public static CargoChute getInstance()
     {
         if (mInstance == null)
         {
-            mInstance = new CargoHandler();
+            mInstance = new CargoChute();
         }
         return mInstance;
     }
@@ -39,7 +39,7 @@ public class CargoHandler extends Subsystem
     private WantedState mWantedState = WantedState.MANUAL_RAMP;
     private SystemState mSystemState = SystemState.IDLING;
 
-    private CargoHandler()
+    private CargoChute()
     {
         boolean success = true;
         try
@@ -61,7 +61,7 @@ public class CargoHandler extends Subsystem
         @Override
         public void onStart(double timestamp)
         {
-            synchronized (CargoHandler.this)
+            synchronized (CargoChute.this)
             {
                 mWantedState = WantedState.MANUAL_RAMP;
                 mSystemState = SystemState.IDLING;
@@ -71,7 +71,7 @@ public class CargoHandler extends Subsystem
         @Override
         public void onLoop(double timestamp)
         {
-            synchronized (CargoHandler.this)
+            synchronized (CargoChute.this)
             {
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
@@ -94,7 +94,7 @@ public class CargoHandler extends Subsystem
         @Override
         public void onStop(double timestamp)
         {
-            synchronized (CargoHandler.this)
+            synchronized (CargoChute.this)
             {
                 stop();
             }

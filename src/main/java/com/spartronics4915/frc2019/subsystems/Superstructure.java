@@ -106,7 +106,7 @@ public class Superstructure extends Subsystem
 
     // Superstructure doesn't own the drive, but needs to access it
     private final Drive mDrive = Drive.getInstance();
-    private final CargoHandler mCargoHandler = CargoHandler.getInstance();
+    private final CargoChute mCargoChute = CargoChute.getInstance();
     // TODO: private final CargoIntake mCargoIntake = CargoIntake.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final PanelHandler mPanelHandler = PanelHandler.getInstance();
@@ -248,7 +248,7 @@ public class Superstructure extends Subsystem
                             newState = SystemState.BACKING_OUT_FROM_LOADING;
                         break;
                     case MOVING_CARGO_EJECTOR:
-                        if (newState == mSystemState && mCargoHandler.atTarget()) // TODO: ejecting is a cross-subsystem function
+                        if (newState == mSystemState && mCargoChute.atTarget()) // TODO: ejecting is a cross-subsystem function
                             newState = SystemState.EJECTING_CARGO;
                         break;
                     case EJECTING_CARGO:
