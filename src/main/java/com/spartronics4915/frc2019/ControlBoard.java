@@ -22,7 +22,7 @@ public class ControlBoard implements IControlBoard
                 mDriveControlBoard = new XboxSplitControlBoard();
                 break;
             case "Logitech Attack 3":
-                if (new Joystick(3).getType() != HIDType.kUnknown)
+                if (new Joystick(3).getName().equals("Logitech Attack 3"))
                     mDriveControlBoard = new TwoJoystickSplitControlBoard();
                 else
                     mDriveControlBoard = new OneJoystickControlBoard();

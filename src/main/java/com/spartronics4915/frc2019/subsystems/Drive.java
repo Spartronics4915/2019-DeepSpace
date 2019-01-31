@@ -20,6 +20,7 @@ import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class Drive extends Subsystem
     private PigeonIMU mPigeon;
     // Control states
     private DriveControlState mDriveControlState;
+    private DifferentialDrive mDifferentialDrive;
     // Hardware states
     private PeriodicIO mPeriodicIO;
     private boolean mIsBrakeMode;
