@@ -1,8 +1,13 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
+import edu.wpi.first.wpilibj.Solenoid;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -38,6 +43,9 @@ public class CargoChute extends Subsystem
 
     private WantedState mWantedState = WantedState.MANUAL_RAMP;
     private SystemState mSystemState = SystemState.IDLING;
+
+    private TalonSRX mRampMotor = null;
+    private Solenoid mFlipperSolenoid = null;
 
     private CargoChute()
     {
