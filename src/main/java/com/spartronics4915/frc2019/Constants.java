@@ -119,6 +119,7 @@ public class Constants
 
     // Control Board
     public static final int kDriveJoystickPort = 0;
+    public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
     // Arm Harvester
