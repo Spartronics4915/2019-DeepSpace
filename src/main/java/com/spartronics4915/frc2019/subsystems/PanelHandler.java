@@ -40,7 +40,9 @@ public class PanelHandler extends Subsystem
     private static final boolean kSolenoidExtend = true;
     private static final boolean kSolenoidRetract = false;
 
-    private Solenoid mSolenoid1 = null;
+    private Solenoid mSolenoid = null;
+
+    private boolean mStateChanged;
 
     private double time;
 
@@ -49,7 +51,7 @@ public class PanelHandler extends Subsystem
         boolean success = true;
         try
         {
-            mSolenoid1 = new Solenoid(4);
+            mSolenoid = new Solenoid(4);
         }
         catch (Exception e)
         {
@@ -68,7 +70,7 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
-                mSolenoid1.set(kSolenoidRetract);
+                mSolenoid.set(kSolenoidRetract);
                 mWantedState = WantedState.RETRACT;
                 mSystemState = SystemState.RETRACTING;
             }
@@ -79,28 +81,34 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
-                outputTelemetry();
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
                     case RETRACTING:
-                        if (newState != mSystemState)
+                        if (mStateChanged)
                         {
-                            mSolenoid1.set(kSolenoidRetract);
+                            mSolenoid.set(kSolenoidRetract);
                         }
                         break;
                     case EJECTING:
-                        if (newState != mSystemState)
+                        if (mStateChanged)
                         {
-                            mSolenoid1.set(kSolenoidExtend);
+                            mSolenoid.set(kSolenoidExtend);
                             time = Timer.getFPGATimestamp();
                         }
-                        else if (Timer.getFPGATimestamp() > time + kEjectTime)
+                        else if (Timer.getFPGATimestamp() > time + kEjectTime && newState == mSystemState)
                             setWantedState(WantedState.RETRACT);
                         break;
                     default:
                         logError("Unhandled system state!");
                 }
+                if (newState != mSystemState)
+                {
+                    mStateChanged = true;
+                    logNotice("System state to " + newState);
+                }
+                else
+                    mStateChanged = false;
                 mSystemState = newState;
             }
         }
@@ -157,21 +165,21 @@ public class PanelHandler extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
-        /*Ensure solenoids are functioning
-        */
         logNotice("Starting PanelHandler Solenoid Check");
         try
         {
-            mSolenoid1.set(kSolenoidExtend);
+            logNotice("Extending solenoid for 2 seconds");
+            mSolenoid.set(kSolenoidExtend);
             Timer.delay(2);
-            mSolenoid1.set(kSolenoidRetract);
+            logNotice("Retracting solenoid for 2 seconds");
+            mSolenoid.set(kSolenoidRetract);
         }
         catch (Exception e)
         {
             logException("Trouble instantiating hardware ", e);
             return false;
         }
-        logNotice("PanelHandler Solenoid Check End - Successful");
+        logNotice("PanelHandler Solenoid Check End");
         return true;
     }
 
@@ -180,12 +188,12 @@ public class PanelHandler extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
-        dashboardPutBoolean("mSolenoid1 Extended", mSolenoid1.get());
+        dashboardPutBoolean("mSolenoid1 Extended", mSolenoid.get());
     }
 
     @Override
     public void stop()
     {
-        mSolenoid1.set(kSolenoidRetract);
+        mSolenoid.set(kSolenoidRetract);
     }
 }
