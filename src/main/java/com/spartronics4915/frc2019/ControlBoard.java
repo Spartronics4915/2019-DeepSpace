@@ -91,4 +91,42 @@ public class ControlBoard implements IControlBoard
     {
         return mDriveControlBoard.getTestButtonThree();
     }
+
+    //ButtonBoard
+
+    @Override
+    public boolean getClimb()
+    {
+        return mButtonControlBoard.getClimb();
+    }
+
+    @Override
+    public boolean getIntake()
+    {
+        return mButtonControlBoard.getIntake();
+    }
+
+    @Override
+    public boolean getEjectCargo()
+    {
+        return mButtonControlBoard.getEjectCargo();
+    }
+
+    @Override
+    public boolean getShootRocket()
+    {
+        return mButtonControlBoard.getShootRocket();
+    }
+
+    @Override
+    public boolean getShootBay()
+    {
+        return mButtonControlBoard.getShootBay();
+    }
+
+    @Override
+    public boolean getEjectPanel()
+    {
+        return mButtonControlBoard.getEjectPanel();
+    }
 }
