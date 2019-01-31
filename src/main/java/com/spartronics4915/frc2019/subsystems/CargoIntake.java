@@ -41,7 +41,7 @@ public class CargoIntake extends Subsystem
     private static final boolean kSolenoidRetract = false;
     private static final double kIntakeSpeed = 0.5;
     private static final double kEjectSpeed = -0.5;
-    private static final double kIntakeClimbSpeed = -0.5;
+    private static final double kIntakeClimbSpeed = 0.5;
 
 
     private Solenoid mSolenoid = null;
@@ -97,17 +97,14 @@ public class CargoIntake extends Subsystem
                         {
                             mMotor1.set(ControlMode.PercentOutput, 0);
                             mMotor2.set(ControlMode.PercentOutput, 0);
-                            mSolenoid.set(kSolenoidRetract);
-                            mSolenoidClimb.set(kSolenoidRetract);
+                            setSolenoidsToUp();
                         }
                         break;
                     case ARM_DOWNING:
                         if (mStateChanged)
                         {
-                            mSolenoid.set(kSolenoidExtend);
-                            mSolenoidClimb.set(kSolenoidRetract);
+                            setSolenoidsToDown();
                         }
-                        setWantedState(WantedState.INTAKE);
                         break;
                     case INTAKING://transition to ARM_UPING using proximity sensor
                         if (mStateChanged)
@@ -119,6 +116,7 @@ public class CargoIntake extends Subsystem
                     case EJECTING://transition to holding using proximity sensor
                         if (mStateChanged)
                         {
+                            setSolenoidsToDown();
                             mMotor1.set(ControlMode.PercentOutput, kEjectSpeed);
                             mMotor2.set(ControlMode.PercentOutput, kEjectSpeed);
                         }
@@ -155,6 +153,18 @@ public class CargoIntake extends Subsystem
             }
         }
     };
+
+    private void setSolenoidsToUp()
+    {
+        mSolenoid.set(kSolenoidRetract);
+        mSolenoidClimb.set(kSolenoidRetract);
+    }
+
+    private void setSolenoidsToDown()
+    {
+        mSolenoid.set(kSolenoidExtend);
+        mSolenoidClimb.set(kSolenoidRetract);
+    }
 
     private SystemState defaultStateTransfer()
     {
@@ -225,8 +235,7 @@ public class CargoIntake extends Subsystem
             mSolenoidClimb.set(kSolenoidExtend);
             Timer.delay(2);
             logNotice("Retracting solenoids for 2 seconds");
-            mSolenoid.set(kSolenoidRetract);
-            mSolenoidClimb.set(kSolenoidRetract);
+            setSolenoidsToUp();
             Timer.delay(2);
             logNotice("CargoIntake Solenoid Check End");
             logNotice("Running motors at 50% for 2 seconds");
