@@ -5,6 +5,7 @@ import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -45,6 +46,8 @@ public class CargoChute extends Subsystem
     private SystemState mSystemState = SystemState.IDLING;
 
     private TalonSRX mRampMotor = null;
+    private TalonSRX mShootMotorLeft = null;
+    private TalonSRX mShootMotorRight = null;
     private Solenoid mFlipperSolenoid = null;
 
     private CargoChute()
@@ -53,6 +56,12 @@ public class CargoChute extends Subsystem
         try
         {
             // Instantiate your hardware here
+            mRampMotor = new TalonSRX(Constants.kRampMotorId);
+            mShootMotorLeft = new TalonSRX(Constants.kShootMotorLeftId);
+            mShootMotorRight = new TalonSRX(Constants.kShootMotorRightId);
+            mFlipperSolenoid = new Solenoid(Constants.kFlipperSolenoidId);
+
+            // TODO: Instantiate sensors
         }
         catch (Exception e)
         {
@@ -65,7 +74,6 @@ public class CargoChute extends Subsystem
 
     private final ILoop mLoop = new ILoop()
     {
-
         @Override
         public void onStart(double timestamp)
         {
@@ -85,12 +93,44 @@ public class CargoChute extends Subsystem
                 switch (mSystemState)
                 {
                     case HOLDING:
+                        if (/* || (sensor || sensor*/) // TODO
+                        {
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                        }
+                        else
+                        {
+                            mRampMotor.set(ControlMode.PercentOutput, 0);
+                        }
                         break;
                     case EJECTING:
+                        if (newState != mSystemState)
+                        {
+                            mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+                            mShootMotorLeft.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
+                            mShootMotorRight.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
+                        }
                         break;
                     case SHOOTING:
+                        if (newState != mSystemState)
+                        {
+                            mShootMotorLeft.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                            mShootMotorRight.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                        }
+                        else if ( not top sensor ) // FIXME: manual override? pressed twice?
+                        {
+                            mShootMotorLeft.set(ControlMode.PercentOutput, 0);
+                            mShootMotorRight.set(ControlMode.PercentOutput, 0);
+                            if (newState == mSystemState)
+                                newState = SystemState.IDLING;
+                        }
                         break;
                     case IDLING:
+                        if (newState != mSystemState)
+                        {
+                            mRampMotor.set(ControlMode.PercentOutput, 0);
+                            mShootMotorLeft.set(ControlMode.PercentOutput, 0);
+                            mShootMotorRight.set(ControlMode.PercentOutput, 0);
+                        }
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -115,6 +155,7 @@ public class CargoChute extends Subsystem
         switch (mWantedState)
         {
             case MANUAL_RAMP:
+                // TODO: implement manual override
                 newState = SystemState.HOLDING;
                 break;
             case EJECT_OUT:
