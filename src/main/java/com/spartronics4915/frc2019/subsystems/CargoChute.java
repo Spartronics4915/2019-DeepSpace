@@ -50,6 +50,8 @@ public class CargoChute extends Subsystem
     private TalonSRX mShootMotorRight = null;
     private Solenoid mFlipperSolenoid = null;
 
+    private boolean mStateChanged;
+
     private CargoChute()
     {
         boolean success = true;
@@ -93,17 +95,15 @@ public class CargoChute extends Subsystem
                 switch (mSystemState)
                 {
                     case HOLDING:
-                        if (/* || (sensor || sensor*/) // TODO
+                        if (true) // TODO: cargo detected bottom
                         {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
                         else
-                        {
                             mRampMotor.set(ControlMode.PercentOutput, 0);
-                        }
                         break;
                     case EJECTING:
-                        if (newState != mSystemState)
+                        if (mStateChanged)
                         {
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                             mShootMotorLeft.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
@@ -111,21 +111,21 @@ public class CargoChute extends Subsystem
                         }
                         break;
                     case SHOOTING:
-                        if (newState != mSystemState)
-                        {
-                            mShootMotorLeft.set(ControlMode.PercentOutput, Constants.kShootSpeed);
-                            mShootMotorRight.set(ControlMode.PercentOutput, Constants.kShootSpeed);
-                        }
-                        else if ( not top sensor ) // FIXME: manual override? pressed twice?
+                        if (true) // TODO: cargo detected top FIXME: manual override? pressed twice?
                         {
                             mShootMotorLeft.set(ControlMode.PercentOutput, 0);
                             mShootMotorRight.set(ControlMode.PercentOutput, 0);
                             if (newState == mSystemState)
                                 newState = SystemState.IDLING;
                         }
+                        if (mStateChanged)
+                        {
+                            mShootMotorLeft.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                            mShootMotorRight.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                        }
                         break;
                     case IDLING:
-                        if (newState != mSystemState)
+                        if (mStateChanged)
                         {
                             mRampMotor.set(ControlMode.PercentOutput, 0);
                             mShootMotorLeft.set(ControlMode.PercentOutput, 0);
@@ -135,6 +135,11 @@ public class CargoChute extends Subsystem
                     default:
                         logError("Unhandled system state!");
                 }
+                if (newState != mSystemState)
+                    mStateChanged = true;
+                else
+                    mStateChanged = false;
+
                 mSystemState = newState;
             }
         }
