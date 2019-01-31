@@ -41,8 +41,6 @@ public class Climber extends Subsystem
     private DoubleSolenoid mFrontClimberSolenoid2 = null;
     private DoubleSolenoid mRearClimberSolenoid1 = null;
     private DoubleSolenoid mRearClimberSolenoid2 = null;
-    //private DigitalInput 
-
 
     private Climber()
     
@@ -64,7 +62,7 @@ public class Climber extends Subsystem
     private final ILoop mLoop = new ILoop()
     {
 
-        private boolean mStateChanged = true;
+        public boolean mStateChanged = true;
         
         @Override
         public void onStart(double timestamp)
@@ -205,7 +203,14 @@ public class Climber extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
-        return false;
+        logNotice("Lifitng for 5 Seconds");
+        mFrontClimberSolenoid1.set(Value.kForward);
+        mFrontClimberSolenoid2.set(Value.kForward);
+        mRearClimberSolenoid1.set(Value.kForward);
+        mRearClimberSolenoid2.set(Value.kForward);
+        
+
+        return true;
     }
 
     @Override
