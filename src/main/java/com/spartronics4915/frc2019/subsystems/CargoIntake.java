@@ -109,6 +109,7 @@ public class CargoIntake extends Subsystem
                     case INTAKING://transition to ARM_UPING using proximity sensor
                         if (mStateChanged)
                         {
+                            setSolenoidsToDown();
                             mMotor1.set(ControlMode.PercentOutput, kIntakeSpeed);
                             mMotor2.set(ControlMode.PercentOutput, kIntakeSpeed);
                         }

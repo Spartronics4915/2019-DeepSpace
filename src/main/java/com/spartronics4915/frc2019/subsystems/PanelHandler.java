@@ -44,8 +44,6 @@ public class PanelHandler extends Subsystem
 
     private boolean mStateChanged;
 
-    private double time;
-
     private PanelHandler()
     {
         boolean success = true;
@@ -64,6 +62,7 @@ public class PanelHandler extends Subsystem
 
     private final ILoop mLoop = new ILoop()
     {
+        private double mEjectTime;
 
         @Override
         public void onStart(double timestamp)
@@ -94,9 +93,9 @@ public class PanelHandler extends Subsystem
                         if (mStateChanged)
                         {
                             mSolenoid.set(kSolenoidExtend);
-                            time = Timer.getFPGATimestamp();
+                            mEjectTime = Timer.getFPGATimestamp();
                         }
-                        else if (Timer.getFPGATimestamp() > time + kEjectTime && newState == mSystemState)
+                        else if (Timer.getFPGATimestamp() > mEjectTime + kEjectTime && newState == mSystemState)
                             setWantedState(WantedState.RETRACT);
                         break;
                     default:
@@ -145,15 +144,7 @@ public class PanelHandler extends Subsystem
 
     public synchronized boolean atTarget()
     {
-        switch (mWantedState)
-        {
-            case RETRACT:
-                return mSystemState == SystemState.RETRACTING;
-            case EJECT:
-                return mSystemState == SystemState.EJECTING;
-            default:
-                return false;
-        }
+        return mSystemState == SystemState.RETRACTING && mWantedState == WantedState.RETRACT;
     }
 
     @Override
