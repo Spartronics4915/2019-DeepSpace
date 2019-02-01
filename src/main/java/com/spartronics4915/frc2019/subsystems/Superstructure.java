@@ -27,18 +27,18 @@ import edu.wpi.first.wpilibj.Timer;
  * The superstructure subsystem is the overarching superclass containing all
  * components of the superstructure: climber, harvester, and articulated
  * grabber, and lifter.
- * 
+ *
  * The superstructure subsystem also contains some miscellaneous hardware that
  * is located in the superstructure but isn't part of any other subsystems like
  * the compressor, pressure sensor, and hopper wall pistons.
- * 
+ *
  * Instead of interacting with subsystems like the feeder and intake directly,
  * the {@link Robot} class interacts with the superstructure, which passes on
  * the commands to the correct subsystem.
- * 
+ *
  * The superstructure also coordinates actions between different subsystems like
  * the feeder and shooter.
- * 
+ *
  * @see LED
  * @see Subsystem
  */
@@ -106,7 +106,8 @@ public class Superstructure extends Subsystem
 
     // Superstructure doesn't own the drive, but needs to access it
     private final Drive mDrive = Drive.getInstance();
-    private final CargoHandler mCargoHandler = CargoHandler.getInstance();
+    private final CargoChute mCargoChute = CargoChute.getInstance();
+    // TODO: private final CargoIntake mCargoIntake = CargoIntake.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final PanelHandler mPanelHandler = PanelHandler.getInstance();
 
@@ -247,7 +248,7 @@ public class Superstructure extends Subsystem
                             newState = SystemState.BACKING_OUT_FROM_LOADING;
                         break;
                     case MOVING_CARGO_EJECTOR:
-                        if (newState == mSystemState && mCargoHandler.atTarget())
+                        if (newState == mSystemState && mCargoChute.atTarget()) // TODO: ejecting is a cross-subsystem function
                             newState = SystemState.EJECTING_CARGO;
                         break;
                     case EJECTING_CARGO:
