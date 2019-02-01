@@ -29,17 +29,23 @@ public class CollectVelocityData implements Action
     private double mStartTime = 0.0;
 
     /**
+     * This is a quasi-static test to determine Kv (the slope of of the voltage-speed curve).
+     * This test collects data on robot (for convenience) so a regression can be run.
+     * 
+     * If you want to calculate the moment of inertia then you should run this test turning
+     * in place. Otherwise you should go straight.
+     * 
      * @param data     reference to the list where data points should be stored
-     * @param highGear use high gear or low
      * @param reverse  if true drive in reverse, if false drive normally
-     * @param turn     if true turn, if false drive straight
+     * @param turnInPlace     if true turn, if false drive straight
+     * @param side     the side to collect data from/run
      */
 
-    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turn, SideToCharacterize side)
+    public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turnInPlace, SideToCharacterize side)
     {
         mVelocityData = data;
         mReverse = reverse;
-        mTurn = turn;
+        mTurn = turnInPlace;
         mSide = side;
         mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "VELOCITY_DATA.csv").toString(), DriveCharacterization.VelocityDataPoint.class);
 
