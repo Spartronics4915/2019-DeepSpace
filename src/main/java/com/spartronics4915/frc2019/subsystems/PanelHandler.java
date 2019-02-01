@@ -49,7 +49,7 @@ public class PanelHandler extends Subsystem
         boolean success = true;
         try
         {
-            mSolenoid = new Solenoid(4);
+            mSolenoid = new Solenoid(2);
         }
         catch (Exception e)
         {
