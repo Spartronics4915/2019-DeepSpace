@@ -19,7 +19,7 @@ public class Constants
     /* ROBOT PHYSICAL CONSTANTS */
 
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 23.75;
+    public static final double kDriveWheelTrackWidthInches = 25.75;
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 0.624; // Tune me!
@@ -116,11 +116,14 @@ public class Constants
     public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
-    // Arm Harvester
-    public static final int kIntakeMotorLeftId = 7;
-    public static final int kIntakeMotorRightId = 6;
-    public static final int kIntakeSolenoidId = 1;
-    public static final int kClimberSolenoidId = 2;
+    // Panel Handler
+    public static final int kPanelHandlerSolenoid = 2;
+
+    // Cargo Intake
+    public static final int kCargoIntakeSolenoid = 0;
+    public static final int kCargoIntakeSolenoidClimb = 1;
+    public static final int kCargoIntakeMotorRight = 6;
+    public static final int kCargoIntakeMotorLeft = 7;
 
     // Cargo Ramp
     public static final int kRampMotorId = 5;
