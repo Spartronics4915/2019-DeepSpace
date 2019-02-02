@@ -1,6 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
@@ -64,7 +65,7 @@ public class CargoIntake extends Subsystem
             mSolenoidClimb = new Solenoid(Constants.kCargoIntakeSolenoidClimb);
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
-            mSensor = new IRSensor(Constants.kCargoIntakeSensor);
+            mSensor = new A21IRSensor(Constants.kCargoIntakeSensor);
 
         }
         catch (Exception e)
