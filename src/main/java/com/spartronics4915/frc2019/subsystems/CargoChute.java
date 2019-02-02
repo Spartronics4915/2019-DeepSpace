@@ -2,7 +2,7 @@
  * Mechanics removed the ShootMotors - remove these
  * Read through the CheckSystem method and ask questions
  * Use TalonSRXFactory to instansiate Talons (ask Declan)
- * Instanciate sensors
+ * Instantiate sensors
  * Use the sensors in places
  * Don't keep shooting states running forever?
  * Add in the manual SystemStates (RAMPING_MANUAL, HOLDING_MANUAL)
@@ -66,8 +66,8 @@ public class CargoChute extends Subsystem
         try
         {
             // Instantiate your hardware here
-            mRampMotor = new TalonSRX(Constants.kRampMotorId); // TODO: this should use TalonSRXFactory
-            mFlipperSolenoid = new Solenoid(Constants.kFlipperSolenoidId);
+            mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId); // TODO: this should use TalonSRXFactory
+            mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId);
             // mShootMotorLeft = new TalonSRX(Constants.kShootMotorLeftId); // Should these
             // just go?
             // mShootMotorRight = new TalonSRX(Constants.kShootMotorRightId);
