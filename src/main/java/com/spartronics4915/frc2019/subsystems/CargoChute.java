@@ -50,13 +50,8 @@ public class CargoChute extends Subsystem
     private WantedState mWantedState = WantedState.BRING_BALL_TO_TOP;
     private SystemState mSystemState = SystemState.HOLDING;
 
-    //Motor
     private TalonSRX mRampMotor = null;
-    
-    //Solenoid
     private Solenoid mFlipperSolenoid = null;
-
-    //Sensor
     private A21IRSensor mRampSensor = null;
 
     private boolean mSolenoidStatus = false;
@@ -69,9 +64,7 @@ public class CargoChute extends Subsystem
         {
             // Instantiate your hardware here
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
-            mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId);
-
-            // TODO: Instantiate sensor(s)
+            mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId); // TODO: are PCMs 0 and 1 or 1 and 2?
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
         }
         catch (Exception e)
@@ -108,45 +101,47 @@ public class CargoChute extends Subsystem
                         //Is this if statement necessary?
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
-                        if (isInManual() && mStateChanged) 
-                        {
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
-                        }
-                        if (/* TODO: ball position */ true && !isInManual() && mSystemState == newState)
-                        {
+                        if (true /* TODO: Ball in position */ && !isInManual())
                             newState = SystemState.HOLDING;
-                        }
                         break;
                     case HOLDING:
                         if (mStateChanged)
-                        {
                             mRampMotor.set(ControlMode.PercentOutput, 0);
-                        }
-                        if (true /* TODO: Ball not in position */ && !isInManual() && mSystemState == newState)
-                        {
+                        if (true /* TODO: Ball not in position */ && !isInManual())
                             newState = SystemState.RAMPING;
-                        }
                         break;
                     case EJECTING:
                         if (mStateChanged)
-                        {
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
-                        }
                         break;
-                    case SHOOTING_BAY: // don't keep running
+                    case SHOOTING_BAY: // TODO: don't keep running
                         if (mStateChanged)
                         {
+<<<<<<< HEAD
                             if(solenoidIsOut()){
                                 mFlipperSolenoid.set(Constants.kSolenoidRetract);
+=======
+                            if (mSolenoidStatus)
+                            {
+                                mFlipperSolenoid.set(Constants.kSolenoidRetract);
+                                mSolenoidStatus = false;
+>>>>>>> 18cad5d094057f6648de0dde07d257438b32f11c
                             }
                             newState = SystemState.RAMPING;
                         }
                         break;
-                    case SHOOTING_ROCKET: // don't keep running
+                    case SHOOTING_ROCKET: // TODO: don't keep running
                         if (mStateChanged)
                         {
+<<<<<<< HEAD
                             if(solenoidIsIn()){
                                 mFlipperSolenoid.set(Constants.kSolenoidExtend);
+=======
+                            if (!mSolenoidStatus)
+                            {
+                                mFlipperSolenoid.set(Constants.kSolenoidExtend);
+                                mSolenoidStatus = true;
+>>>>>>> 18cad5d094057f6648de0dde07d257438b32f11c
                             }
                             newState = SystemState.RAMPING;
                         }
@@ -196,7 +191,7 @@ public class CargoChute extends Subsystem
                 break;
             case BRING_BALL_TO_TOP:
                 if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING)
-                    newState = SystemState.HOLDING; // this checks if the SYstemState is in holding or ramping
+                    newState = SystemState.HOLDING;
                 break;
             case SHOOT_BAY:
                 newState = SystemState.SHOOTING_BAY;
@@ -235,17 +230,14 @@ public class CargoChute extends Subsystem
             logNotice("Beginning CargoChute system check:");
 
             logNotice("Beginning ramp check.");
-
             logNotice("Running ramp at default speed for five seconds: ");
             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
             Timer.delay(5);
             logNotice("Done.");
-
             logNotice("Running ramp at zero speed for three seconds: ");
             mRampMotor.set(ControlMode.PercentOutput, 0);
             Timer.delay(3);
             logNotice("Done.");
-            
             logNotice("Running ramp at reverse default speed for five seconds: ");
             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
             Timer.delay(5);
@@ -254,22 +246,18 @@ public class CargoChute extends Subsystem
             logNotice("Ramp check complete.");
 
             logNotice("Beginning pneumatic check: ");
-
             logNotice("Sending ramp pneumatics up for three seconds: ");
             mFlipperSolenoid.set(true);
             Timer.delay(3);
             logNotice("Done.");
-
             logNotice("Sending ramp pneumatics down for three seconds: ");
             mFlipperSolenoid.set(true);
             Timer.delay(3);
             logNotice("Done.");
-
             logNotice("Sending ramp pneumatics up for three seconds: ");
             mFlipperSolenoid.set(true);
             Timer.delay(3);
             logNotice("Done.");
-
             logNotice("Sending ramp pneumatics down for five seconds: ");
             mFlipperSolenoid.set(true);
             Timer.delay(3);

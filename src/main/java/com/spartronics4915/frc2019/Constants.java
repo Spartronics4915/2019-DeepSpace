@@ -139,20 +139,14 @@ public class Constants
         public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
 
     // Cargo Ramp
-        
-        //IDs
-        public static final int kRampMotorId = 7;
-        public static final int kFlipperSolenoidId = 3;
-        public static final int kRampSensorId = 6;
-
-        //Speeds
-        public static final double kShootSpeed = 1.0; // tune
-        public static final double kRampSpeed = 1.0;
-        
-        public static final boolean kSolenoidExtend = false; //Reverse BOTH OF THESE to debug chute solenoid directions
-        public static final boolean kSolenoidRetract = true; //Reverse BOTH OF THESE to debug chute solenoid directions
-
-        public static final double kBallInPositionThreshold = 1.0; //TODO: Tune this
+    public static final int kRampMotorId = 7;
+    public static final int kFlipperSolenoidId = 3;
+    public static final int kRampSensorId = 6;
+    public static final double kShootSpeed = 1.0; // tune
+    public static final double kRampSpeed = 1.0;
+    public static final double kBallInPositionThreshold = 1.0; // TODO: tune
+    public static final boolean kSolenoidExtend = false;
+    public static final boolean kSolenoidRetract = true;
 
     // Climber
     public static final int kClimberPWMId = 2;
