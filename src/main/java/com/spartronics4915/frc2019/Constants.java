@@ -122,16 +122,21 @@ public class Constants
     public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
-    // Arm Harvester
-    public static final int kIntakeMotorLeftId = 5;
-    public static final int kIntakeMotorRightId = 6;
-    public static final int kIntakeSolenoidId = 1;
-    public static final int kClimberSolenoidId = 2;
+    // Panel Handler
+    public static final int kPanelHandlerSolenoid = 2;
+
+    // Cargo Intake
+    public static final int kCargoIntakeSolenoid = 0;
+    public static final int kCargoIntakeSolenoidClimb = 1;
+    public static final int kCargoIntakeMotorRight = 6;
+    public static final int kCargoIntakeMotorLeft = 7;
 
     // Cargo Ramp
-    public static final int kCargoEjectorLeftId = 8;
-    public static final int kCargoEjectorRightId = 9;
+    public static final int kShootMotorLeftId = 8;
+    public static final int kShootMotorRightId = 9;
     public static final int kRampMotorId = 7;
     public static final int kFlipperSolenoidId = 3;
+    public static final int kShootSpeed = 1; // tune
+    public static final int kRampSpeed = 1;
 
 }
