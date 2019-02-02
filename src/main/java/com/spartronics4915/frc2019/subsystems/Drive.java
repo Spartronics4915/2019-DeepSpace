@@ -20,6 +20,7 @@ import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class Drive extends Subsystem
     private PigeonIMU mPigeon;
     // Control states
     private DriveControlState mDriveControlState;
+    private DifferentialDrive mDifferentialDrive;
     // Hardware states
     private PeriodicIO mPeriodicIO;
     private boolean mIsBrakeMode;
@@ -100,7 +102,7 @@ public class Drive extends Subsystem
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(left);
+        talon.setSensorPhase(false);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
@@ -408,6 +410,11 @@ public class Drive extends Subsystem
         return rotationsToInches(getRightVelocityTicksPer100ms() * 10.0 / Constants.kDriveEncoderPPR);
     }
 
+    public double getRightOutputVoltage()
+    {
+        return mPeriodicIO.right_voltage;
+    }
+
     public double getLeftVelocityTicksPer100ms()
     {
         return mPeriodicIO.left_velocity_ticks_per_100ms;
@@ -417,6 +424,11 @@ public class Drive extends Subsystem
     public double getLeftLinearVelocity()
     {
         return rotationsToInches(getLeftVelocityTicksPer100ms() * 10.0 / Constants.kDriveEncoderPPR);
+    }
+
+    public double getLeftOutputVoltage()
+    {
+        return mPeriodicIO.left_voltage;
     }
 
     public double getLinearVelocity()
@@ -515,6 +527,8 @@ public class Drive extends Subsystem
         mPeriodicIO.right_velocity_ticks_per_100ms = mRightMaster.getSelectedSensorVelocity(0);
         mPeriodicIO.gyro_heading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
         mPeriodicIO.gyro_pitch = Rotation2d.fromDegrees(mYawPitchRoll[1]);
+        mPeriodicIO.left_voltage = mLeftMaster.getMotorOutputVoltage();
+        mPeriodicIO.right_voltage = mRightMaster.getMotorOutputVoltage();
         double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
         
         if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
@@ -767,6 +781,8 @@ public class Drive extends Subsystem
         public double right_distance;
         public int left_velocity_ticks_per_100ms;
         public int right_velocity_ticks_per_100ms;
+        public double left_voltage;
+        public double right_voltage;
         public Rotation2d gyro_heading = Rotation2d.identity();
         public Pose2d error = Pose2d.identity();
         public Rotation2d gyro_pitch = Rotation2d.identity();

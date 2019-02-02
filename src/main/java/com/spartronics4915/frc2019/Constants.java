@@ -30,14 +30,14 @@ public class Constants
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
     // Uncomment for per-wheel constants
-    // // Left
-    // public static final double kDriveLeftVIntercept = 0.6806717258105043; // V
-    // public static final double kDriveLeftKv = 0.27817287970276816; // V per rad/s
-    // public static final double kDriveLeftKa = 0.01561261448817294; // V per rad/s^2
+    // Left
+    // public static final double kDriveLeftVIntercept = 0.646; // V
+    // public static final double kDriveLeftKv = 0.242; // V per rad/s
+    // public static final double kDriveLeftKa = 0.0008; // V per rad/s^2
     // // Right
-    // public static final double kDriveRightVIntercept = 0.921925703056741; // V
-    // public static final double kDriveRightKv = 0.22982332117199153; // V per rad/s
-    // public static final double kDriveRightKa = 0.020857218537664493; // V per rad/s^2
+    // public static final double kDriveRightVIntercept = 0.386; // V
+    // public static final double kDriveRightKv = 0.233; // V per rad/s
+    // public static final double kDriveRightKa = 0.0008; // V per rad/s^2
 
     // Left
     // public static final double kDriveLeftVIntercept = 1.59634357933506; // V
@@ -75,7 +75,7 @@ public class Constants
     public static final double kDriveDownShiftAngularVelocity = Math.PI / 2.0; // rad/sec
     public static final double kDriveUpShiftVelocity = 11.0 * 12.0; // inches per second
 
-    public static final double kPathKX = 4.0; // units/s per unit of error
+    public static final double kPathKX = 10.0; // units/s per unit of error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
     public static final double kPathMinLookaheadDistance = 24.0; // inches
 
@@ -119,6 +119,7 @@ public class Constants
 
     // Control Board
     public static final int kDriveJoystickPort = 0;
+    public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
     // Arm Harvester
@@ -128,9 +129,11 @@ public class Constants
     public static final int kClimberSolenoidId = 2;
 
     // Cargo Ramp
-    public static final int kCargoEjectorLeftId = 8;
-    public static final int kCargoEjectorRightId = 9;
+    public static final int kShootMotorLeftId = 8;
+    public static final int kShootMotorRightId = 9;
     public static final int kRampMotorId = 7;
     public static final int kFlipperSolenoidId = 3;
+    public static final int kShootSpeed = 1; // tune
+    public static final int kRampSpeed = 1;
 
 }

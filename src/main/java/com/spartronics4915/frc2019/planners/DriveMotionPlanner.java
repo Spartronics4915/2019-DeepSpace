@@ -13,6 +13,7 @@ import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.trajectory.timing.TimingConstraint;
 import com.spartronics4915.lib.trajectory.timing.TimingUtil;
 import com.spartronics4915.lib.util.CSVWritable;
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.Units;
 import com.spartronics4915.lib.util.Util;
 
@@ -37,7 +38,7 @@ public class DriveMotionPlanner implements CSVWritable
         NONLINEAR_FEEDBACK
     }
 
-    FollowerType mFollowerType = FollowerType.NONLINEAR_FEEDBACK;
+    FollowerType mFollowerType = FollowerType.FEEDFORWARD_ONLY;
 
     public void setFollowerType(FollowerType type)
     {
@@ -95,6 +96,7 @@ public class DriveMotionPlanner implements CSVWritable
                 break;
             }
         }
+        Logger.debug("DriveMotionPlanner running trajectory; mIsReversed is " + mIsReversed);
     }
 
     public void reset()
@@ -364,7 +366,7 @@ public class DriveMotionPlanner implements CSVWritable
             // The tests depend on this file, so we leave this commented out for now. (A wpilib call
             // here breaks the tests). We could get do something hacky, like scan the stack trace for
             // "org.junit", we could jump for a full on mocking library, or we can just leave these
-            // commented out unless they're  desparately needed. You can see which one I picked.
+            // commented out unless they're desparately needed. You can see which one I picked.
             // SmartDashboard.putString("DriveMotionPlanner/trajectorySetpoints", mSetpoint.velocity() + " " + acceleration_m + " " + curvature_m);
             // SmartDashboard.putString("DriveMotionPlanner/dynamicsSetpoints", dynamics.chassis_velocity + " " + dynamics.chassis_acceleration);
 

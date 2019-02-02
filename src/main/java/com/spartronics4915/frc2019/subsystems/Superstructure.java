@@ -27,18 +27,18 @@ import edu.wpi.first.wpilibj.Timer;
  * The superstructure subsystem is the overarching superclass containing all
  * components of the superstructure: climber, harvester, and articulated
  * grabber, and lifter.
- * 
+ *
  * The superstructure subsystem also contains some miscellaneous hardware that
  * is located in the superstructure but isn't part of any other subsystems like
  * the compressor, pressure sensor, and hopper wall pistons.
- * 
+ *
  * Instead of interacting with subsystems like the feeder and intake directly,
  * the {@link Robot} class interacts with the superstructure, which passes on
  * the commands to the correct subsystem.
- * 
+ *
  * The superstructure also coordinates actions between different subsystems like
  * the feeder and shooter.
- * 
+ *
  * @see LED
  * @see Subsystem
  */
@@ -106,7 +106,8 @@ public class Superstructure extends Subsystem
 
     // Superstructure doesn't own the drive, but needs to access it
     private final Drive mDrive = Drive.getInstance();
-    private final CargoHandler mCargoHandler = CargoHandler.getInstance();
+    private final CargoChute mCargoChute = CargoChute.getInstance();
+    // TODO: private final CargoIntake mCargoIntake = CargoIntake.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final PanelHandler mPanelHandler = PanelHandler.getInstance();
 
@@ -120,10 +121,11 @@ public class Superstructure extends Subsystem
     private static final DriveSignal kPlatformDriveSpeed = new DriveSignal(1, 1);
 
     // These constants are _just_ for dynamic paths. See TrajectoryGenerator for constants for premade paths
+    // XXX: Currently unused
     private static final double kMaxPathVelocity = 240.0; // inches/s
-    private static final double kMaxPathAccel = 90.0; // inches/s
-    private static final double kMaxPathCentripetalAccel = 50.0; // inches/s
-    private static final double kMaxPathVoltage = 10.0; // volts
+    private static final double kMaxPathAccel = 48.0; // inches/s
+    private static final double kMaxPathCentripetalAccel = 24.0; // inches/s
+    private static final double kMaxPathVoltage = 9.0; // volts
 
     private WantedState mWantedState = WantedState.DRIVER_CONTROL;
     private SystemState mSystemState = SystemState.DRIVER_CONTROLLING;
@@ -209,9 +211,7 @@ public class Superstructure extends Subsystem
 
                             double startTime = Timer.getFPGATimestamp();
                             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
-                                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(false, waypoints,
-                                        Arrays.asList(new CentripetalAccelerationConstraint(kMaxPathCentripetalAccel)),
-                                        kMaxPathVelocity, kMaxPathAccel, kMaxPathVoltage)))));
+                                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(false, waypoints)))));
                             // TODO: Maybe plug in our current velocity as the start veloicty of the path?
                             Logger.info("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
                             mDrive.setTrajectory(t);
@@ -248,7 +248,7 @@ public class Superstructure extends Subsystem
                             newState = SystemState.BACKING_OUT_FROM_LOADING;
                         break;
                     case MOVING_CARGO_EJECTOR:
-                        if (newState == mSystemState && mCargoHandler.atTarget())
+                        if (newState == mSystemState && mCargoChute.atTarget()) // TODO: ejecting is a cross-subsystem function
                             newState = SystemState.EJECTING_CARGO;
                         break;
                     case EJECTING_CARGO:
