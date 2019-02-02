@@ -130,5 +130,7 @@ public class Constants
     public static final int kFlipperSolenoidId = 3; // A3 FIXME:!!!
     public static final double kShootSpeed = 1.0; // TODO: tune
     public static final double kRampSpeed = 1.0; //TODO: tune (use when pulling the ball up)
+
+    
     // analog six
 }

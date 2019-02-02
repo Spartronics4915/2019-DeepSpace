@@ -14,6 +14,10 @@ import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
+import com.spartronics4915.lib.drivers.IRSensor;
+
+
+import edu.wpi.first.wpilibj.AnalogInput;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -61,7 +65,7 @@ public class CargoChute extends Subsystem
     private boolean mStateChanged;
 
     //Sensor
-    
+    private IRSensor rampSensor = null;
 
     private CargoChute()
     {
