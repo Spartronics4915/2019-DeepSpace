@@ -1,6 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.ControlBoard;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
@@ -47,7 +48,8 @@ public class Climber extends Subsystem
         try
         {
             mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontLeftSolenoidId1, Constants.kFrontLeftSolenoidId2);
-            mFrontRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontRightSolenoidId1, Constants.kFrontRightSolenoidId2);
+            mFrontRightClimberSolenoid =
+                    new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontRightSolenoidId1, Constants.kFrontRightSolenoidId2);
             mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearLeftSolenoidId1, Constants.kRearLeftSolenoid2);
             mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1, Constants.kRearRightSolenoidId2);
             mFrontRightIRSensor = new IRSensor(Constants.kFrontLeftIRSensorId);
@@ -165,25 +167,17 @@ public class Climber extends Subsystem
         switch (mWantedState)
         {
             case DISABLE:
-
                 newState = SystemState.DISABLING;
                 break;
-
             case CLIMB:
-
                 newState = SystemState.CLIMBING;
                 break;
-
             case RETRACT_FRONT_STRUTS:
-
                 newState = SystemState.RETRACTING_FRONT_STRUTS;
                 break;
-
             case RETRACT_REAR_STRUTS:
-
                 newState = SystemState.RETRACTING_REAR_STRUTS;
                 break;
-
             default:
                 newState = SystemState.DISABLING;
                 logNotice("Robot is in an Unhandled Wanted State!");
