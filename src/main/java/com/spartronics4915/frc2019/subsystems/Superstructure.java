@@ -68,7 +68,7 @@ public class Superstructure extends Subsystem
         ALIGN_AND_EJECT_PANEL,
         // Climb
         // TODO: Can we do a climb to level two?
-        CLIMB_TO_THREE,
+        CLIMB,
     };
 
     // Internal state of the system
@@ -175,6 +175,7 @@ public class Superstructure extends Subsystem
                     /* Climbing */
                     case LIFTING_TO_THREE:
                         // XXX: Climb sequence is currently uninterruptable (that's why there's no newState == mSystemState)
+                        mClimber.setWantedState(Climber.WantedState.CLIMB);
                         if (mClimber.atTarget())
                             newState = SystemState.DRIVING_UNTIL_PLATFORM_CONTACT;
                         break;
@@ -184,6 +185,7 @@ public class Superstructure extends Subsystem
                             newState = SystemState.RETRACTING_FORWARD_STRUTS;
                         break;
                     case RETRACTING_FORWARD_STRUTS:
+                        mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
                         if (mClimber.atTarget())
                             newState = SystemState.DRIVING_UNTIL_PLATFORM_FULL_SUPPORT;
                         break;
@@ -193,7 +195,8 @@ public class Superstructure extends Subsystem
                             newState = SystemState.RETRACTING_REAR_STRUTS;
                         break;
                     case RETRACTING_REAR_STRUTS:
-                        if (mWantedState == WantedState.CLIMB_TO_THREE && mClimber.atTarget())
+                        mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
+                        if (mWantedState == WantedState.CLIMB && mClimber.atTarget())
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
@@ -333,7 +336,7 @@ public class Superstructure extends Subsystem
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
-            case CLIMB_TO_THREE:
+            case CLIMB:
                 if (mSystemState == SystemState.LIFTING_TO_THREE ||
                         mSystemState == SystemState.DRIVING_UNTIL_PLATFORM_CONTACT ||
                         mSystemState == SystemState.RETRACTING_FORWARD_STRUTS ||

@@ -124,13 +124,29 @@ public class Constants
     public static final int kCargoIntakeSolenoidClimb = 1;
     public static final int kCargoIntakeMotorRight = 6;
     public static final int kCargoIntakeMotorLeft = 7;
+    public static final int kCargoIntakeSensor = 7;
+    public static final int kCargoIntakeSensorMinDistance = 100; //TODO: unit/value
+    public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
 
     // Cargo Ramp
-    public static final int kRampMotorId = 5;
-    public static final int kFlipperSolenoidId = 3; // A3 FIXME:!!!
-    public static final double kShootSpeed = 1.0; // TODO: tune
-    public static final double kRampSpeed = 1.0; //TODO: tune (use when pulling the ball up)
+    public static final int kShootMotorLeftId = 8;
+    public static final int kShootMotorRightId = 9;
+    public static final int kRampMotorId = 7;
+    public static final int kFlipperSolenoidId = 3;
+    public static final double kShootSpeed = 1.0; // tune
+    public static final double kRampSpeed = 1.0;
 
-    
-    // analog six
+    // Climber
+    public static final int kClimberPWMId = 2;
+    public static final int kFrontLeftSolenoidId1 = 0;
+    public static final int kFrontLeftSolenoidId2 = 1;
+    public static final int kFrontRightSolenoidId1 = 2;
+    public static final int kFrontRightSolenoidId2 = 3;
+    public static final int kRearLeftSolenoidId1 = 4;
+    public static final int kRearLeftSolenoid2 = 5;
+    public static final int kRearRightSolenoidId1 = 6;
+    public static final int kRearRightSolenoidId2 = 7;
+    public static final int kFrontLeftIRSensorId = 0;
+    public static final int kFrontRightIRSensorId = 1;
+
 }
