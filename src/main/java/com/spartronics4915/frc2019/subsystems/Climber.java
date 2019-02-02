@@ -46,12 +46,12 @@ public class Climber extends Subsystem
         boolean success = true;
         try
         {
-            mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontPortSolenoidId1, Constants.kFrontPortSolenoidId2);
-            mFrontRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontStarboardSolenoidId1, Constants.kFrontStarboardSolenoidId2);
-            mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearPortSolenoidId1, Constants.kRearPortSolenoidId2);
-            mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearStarboardSolenoidId1, Constants.kRearStarboardSolenoidId2);
-            mFrontRightIRSensor = new IRSensor(Constants.kFrontPortIRSensorId);
-            mFrontLeftIRSensor = new IRSensor(Constants.kFrontStarboardIRSensorId);
+            mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontLeftSolenoidId1, Constants.kFrontLeftSolenoidId2);
+            mFrontRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontRightSolenoidId1, Constants.kFrontRightSolenoidId2);
+            mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearLeftSolenoidId1, Constants.kRearLeftSolenoid2);
+            mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1, Constants.kRearRightSolenoidId2);
+            mFrontRightIRSensor = new IRSensor(Constants.kFrontLeftIRSensorId);
+            mFrontLeftIRSensor = new IRSensor(Constants.kFrontRightIRSensorId);
         }
         catch (Exception e)
         {
