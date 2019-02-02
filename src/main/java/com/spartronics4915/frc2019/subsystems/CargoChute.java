@@ -67,6 +67,12 @@ public class CargoChute extends Subsystem
     //Sensor
     private IRSensor mRampSensor = null;
 
+    private boolean isInManual()
+    {
+        return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
+    }
+
+
     private CargoChute()
     {
         boolean success = true;
@@ -176,11 +182,6 @@ public class CargoChute extends Subsystem
             }
         }
     };
-
-    private boolean isInManual()
-    {
-        return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
-    }
 
     private SystemState defaultStateTransfer()
     {
