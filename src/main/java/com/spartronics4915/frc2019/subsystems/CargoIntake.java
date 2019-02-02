@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
@@ -43,24 +45,27 @@ public class CargoIntake extends Subsystem
     private static final double kEjectSpeed = -0.5;
     private static final double kIntakeClimbSpeed = 0.5;
 
-
     private Solenoid mSolenoid = null;
     private Solenoid mSolenoidClimb = null;
 
-    private TalonSRX mMotor1 = null;
-    private TalonSRX mMotor2 = null;
+    private TalonSRX mMotorRight = null;
+    private TalonSRX mMotorLeft = null;
+
+    private IRSensor mSensor = null;
 
     private boolean mStateChanged;
 
     private CargoIntake()
     {
-        boolean success = true;
+        boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            mSolenoid = new Solenoid(1);
-            mSolenoidClimb = new Solenoid(2);
-            mMotor1 = TalonSRXFactory.createDefaultTalon(5);
-            mMotor2 = TalonSRXFactory.createDefaultTalon(6);
+            mSolenoid = new Solenoid(Constants.kCargoIntakeSolenoid);
+            mSolenoidClimb = new Solenoid(Constants.kCargoIntakeSolenoidClimb);
+            mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
+            mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
+            mSensor = new IRSensor(Constants.kCargoIntakeSensor);
+
         }
         catch (Exception e)
         {
@@ -95,8 +100,8 @@ public class CargoIntake extends Subsystem
                     case HOLDING:
                         if (mStateChanged)
                         {
-                            mMotor1.set(ControlMode.PercentOutput, 0);
-                            mMotor2.set(ControlMode.PercentOutput, 0);
+                            mMotorRight.set(ControlMode.PercentOutput, 0);
+                            mMotorLeft.set(ControlMode.PercentOutput, 0);
                             setSolenoidsToUp();
                         }
                         break;
@@ -106,27 +111,33 @@ public class CargoIntake extends Subsystem
                             setSolenoidsToDown();
                         }
                         break;
-                    case INTAKING://transition to ARM_UPING using proximity sensor
+                    case INTAKING://transition to holding using proximity sensor
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
-                            mMotor1.set(ControlMode.PercentOutput, kIntakeSpeed);
-                            mMotor2.set(ControlMode.PercentOutput, kIntakeSpeed);
+                            mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
                         }
+                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
+                                && newState == mSystemState)
+                            setWantedState(WantedState.HOLD);
                         break;
                     case EJECTING://transition to holding using proximity sensor
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
-                            mMotor1.set(ControlMode.PercentOutput, kEjectSpeed);
-                            mMotor2.set(ControlMode.PercentOutput, kEjectSpeed);
+                            mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
                         }
+                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
+                                && newState == mSystemState)
+                            setWantedState(WantedState.HOLD);
                         break;
                     case CLIMBING:
                         if (mStateChanged)
                         {
-                            mMotor1.set(ControlMode.PercentOutput, kIntakeClimbSpeed);
-                            mMotor2.set(ControlMode.PercentOutput, kIntakeClimbSpeed);
+                            mMotorRight.set(ControlMode.PercentOutput, kIntakeClimbSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, kIntakeClimbSpeed);
                             mSolenoid.set(kSolenoidExtend);
                             mSolenoidClimb.set(kSolenoidExtend);
                         }
@@ -240,19 +251,19 @@ public class CargoIntake extends Subsystem
             Timer.delay(2);
             logNotice("CargoIntake Solenoid Check End");
             logNotice("Running motors at 50% for 2 seconds");
-            mMotor1.set(ControlMode.PercentOutput, kIntakeSpeed);
-            mMotor2.set(ControlMode.PercentOutput, kIntakeSpeed);
+            mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
+            mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
             Timer.delay(2);
             logNotice("Running motors at 0% for 2 seconds");
-            mMotor1.set(ControlMode.PercentOutput, 0);
-            mMotor2.set(ControlMode.PercentOutput, 0);
+            mMotorRight.set(ControlMode.PercentOutput, 0);
+            mMotorLeft.set(ControlMode.PercentOutput, 0);
             Timer.delay(2);
             logNotice("Running motors at -50% for 2 seconds");
-            mMotor1.set(ControlMode.PercentOutput, kEjectSpeed);
-            mMotor2.set(ControlMode.PercentOutput, kEjectSpeed);
+            mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
+            mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
             Timer.delay(2);
-            mMotor1.set(ControlMode.PercentOutput, 0);
-            mMotor2.set(ControlMode.PercentOutput, 0);
+            mMotorRight.set(ControlMode.PercentOutput, 0);
+            mMotorLeft.set(ControlMode.PercentOutput, 0);
             logNotice("CargoIntake Motor Check End");
         }
         catch (Exception e)
@@ -270,8 +281,8 @@ public class CargoIntake extends Subsystem
         dashboardPutWantedState(mWantedState.toString());
         dashboardPutBoolean("mSolenoid Extended", mSolenoid.get());
         dashboardPutBoolean("mSolenoidClimb Extended", mSolenoidClimb.get());
-        dashboardPutNumber("mMotor1 Speed", mMotor1.getMotorOutputPercent());
-        dashboardPutNumber("mMotor2 Speed", mMotor2.getMotorOutputPercent());
+        dashboardPutNumber("mMotor1 Speed", mMotorRight.getMotorOutputPercent());
+        dashboardPutNumber("mMotor2 Speed", mMotorLeft.getMotorOutputPercent());
     }
 
     @Override
@@ -279,7 +290,7 @@ public class CargoIntake extends Subsystem
     {
         mSolenoid.set(kSolenoidRetract);
         mSolenoidClimb.set(kSolenoidRetract);
-        mMotor1.set(ControlMode.PercentOutput, 0);
-        mMotor2.set(ControlMode.PercentOutput, 0);
+        mMotorRight.set(ControlMode.PercentOutput, 0);
+        mMotorLeft.set(ControlMode.PercentOutput, 0);
     }
 }

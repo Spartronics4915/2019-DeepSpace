@@ -19,7 +19,7 @@ public class Constants
     /* ROBOT PHYSICAL CONSTANTS */
 
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 23.75;
+    public static final double kDriveWheelTrackWidthInches = 25.75;
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 0.624; // Tune me!
@@ -111,29 +111,42 @@ public class Constants
     public static final int kRightDriveSlaveAId = 2;
     public static final double kDriveEncoderPPR = 1440.0; // PPR (1440) = CPR (360) * 4 (because quadrature)
 
-    // Turret
-    public static final int kTurretMotorId = 5; // TODO: Figure out the correct motor ID
-    // We're using the CTRE Mag encoders: https://content.vexrobotics.com/vexpro/pdf/Magnetic-Encoder-User's-Guide-01282016.pdf
-    public static final double kTurretPPR = 4096.0;
-    public static final double kTurretUnitsPerRev = 13653; // 4096 Quadrature CPR * (10 / 3) Belt reduction
-
     // Control Board
     public static final int kDriveJoystickPort = 0;
     public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
-    // Arm Harvester
-    public static final int kIntakeMotorLeftId = 5;
-    public static final int kIntakeMotorRightId = 6;
-    public static final int kIntakeSolenoidId = 1;
-    public static final int kClimberSolenoidId = 2;
+    // Panel Handler
+    public static final int kPanelHandlerSolenoid = 2;
+
+    // Cargo Intake
+    public static final int kCargoIntakeSolenoid = 0;
+    public static final int kCargoIntakeSolenoidClimb = 1;
+    public static final int kCargoIntakeMotorRight = 6;
+    public static final int kCargoIntakeMotorLeft = 7;
+    public static final int kCargoIntakeSensor = 7;
+    public static final int kCargoIntakeSensorMinDistance = 100; //TODO: unit/value
+    public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
 
     // Cargo Ramp
     public static final int kShootMotorLeftId = 8;
     public static final int kShootMotorRightId = 9;
     public static final int kRampMotorId = 7;
     public static final int kFlipperSolenoidId = 3;
-    public static final int kShootSpeed = 1; // tune
-    public static final int kRampSpeed = 1;
+    public static final double kShootSpeed = 1.0; // tune
+    public static final double kRampSpeed = 1.0;
+
+    // Climber
+    public static final int kClimberPWMId = 2;
+    public static final int kFrontLeftSolenoidId1 = 0;
+    public static final int kFrontLeftSolenoidId2 = 1;
+    public static final int kFrontRightSolenoidId1 = 2;
+    public static final int kFrontRightSolenoidId2 = 3;
+    public static final int kRearLeftSolenoidId1 = 4;
+    public static final int kRearLeftSolenoid2 = 5;
+    public static final int kRearRightSolenoidId1 = 6;
+    public static final int kRearRightSolenoidId2 = 7;
+    public static final int kFrontLeftIRSensorId = 0;
+    public static final int kFrontRightIRSensorId = 1;
 
 }
