@@ -19,11 +19,7 @@ public class ControlBoard implements IControlBoard
         Logger.notice("joyName = " + joyName);
         switch (joyName)
         {
-<<<<<<< HEAD
-            case "Controller (Xbox One For Windows)": // TODO: Figure out these names
-=======
             case "Controller (Xbox One For Windows)": // Names of joysticks are the same as the names in the driver station program
->>>>>>> 8e7f98b348cd15ff0e99a2a6145a57d49e7bfa1d
                 mDriveControlBoard = new XboxSplitControlBoard();
                 break;
             case "Logitech Attack 3":
@@ -37,11 +33,8 @@ public class ControlBoard implements IControlBoard
                 break;
         }
         Logger.notice("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
-<<<<<<< HEAD
-=======
 
         mDriveControlBoard = new OneJoystickControlBoard();
->>>>>>> 8e7f98b348cd15ff0e99a2a6145a57d49e7bfa1d
 
         mButtonControlBoard = new MainButtonBoard();
     }
