@@ -1,8 +1,8 @@
 /* TODOS
- * ✓ Mechanics removed the ShootMotors - remove these
- * Read through the CheckSystem method and ask questions
- * Use TalonSRXFactory to instansiate Talons (ask Declan)
- * Instantiate sensors
+ * ✔ Mechanics removed the ShootMotors - remove these
+ * ✔ Read through the CheckSystem method and ask questions
+ * ✔ Use TalonSRXFactory to instansiate Talons (ask Declan)
+ * TODO: Instantiate sensors
  * Use the sensors in places
  * Don't keep shooting states running forever?
  */
@@ -49,9 +49,10 @@ public class CargoChute extends Subsystem
     private WantedState mWantedState = WantedState.BRING_BALL_TO_TOP;
     private SystemState mSystemState = SystemState.HOLDING;
 
+    //Motor
     private TalonSRX mRampMotor = null;
-    // private TalonSRX mShootMotorLeft = null;
-    // private TalonSRX mShootMotorRight = null;
+    
+    //Solenoid
     private Solenoid mFlipperSolenoid = null;
 
     private static final boolean mSolenoidExtend = true;
@@ -59,13 +60,16 @@ public class CargoChute extends Subsystem
     private boolean mSolenoidStatus = false;
     private boolean mStateChanged;
 
+    //Sensor
+    
+
     private CargoChute()
     {
         boolean success = true;
         try
         {
             // Instantiate your hardware here
-            mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId); // TODO: this should use TalonSRXFactory
+            mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId);
 
             // TODO: Instantiate sensor(s)

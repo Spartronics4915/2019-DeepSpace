@@ -125,7 +125,7 @@ public class Constants
     // Cargo Ramp
     public static final int kRampMotorId = 5;
     public static final int kFlipperSolenoidId = 3; // A3 FIXME:!!!
-    public static final int kShootSpeed = 1; // tune
-    public static final int kRampSpeed = 1;
+    public static final double kShootSpeed = 1.0; // TODO: tune
+    public static final double kRampSpeed = 1.0; //TODO: tune (use when pulling the ball up)
     // analog six
 }
