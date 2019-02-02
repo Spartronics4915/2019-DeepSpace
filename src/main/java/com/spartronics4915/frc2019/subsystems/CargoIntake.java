@@ -278,6 +278,7 @@ public class CargoIntake extends Subsystem
         dashboardPutNumber("mMotor1 Speed", mMotorRight.getMotorOutputPercent());
         dashboardPutNumber("mMotor2 Speed", mMotorLeft.getMotorOutputPercent());
         dashboardPutNumber("Distance from cargo", mSensor.getDistance());
+        dashboardPutBoolean("Is cargo obtained", mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance));
     }
 
     @Override
