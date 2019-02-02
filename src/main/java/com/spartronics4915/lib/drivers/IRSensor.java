@@ -2,11 +2,9 @@ package com.spartronics4915.lib.drivers;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 
-public class IRSensor
+public abstract class IRSensor
 {
-
     AnalogInput mAnalogInput;
-    final double kTriggerVoltage = 1.1;
 
     public IRSensor(int port)
     {
@@ -22,16 +20,7 @@ public class IRSensor
         return v;
     }
 
-    public double getDistance() // inches
-    {
-        // formula for sharp a41 detector, each model has a different formula
-        //      v = 1 / (L + .42)  (1/cm)
-        // 
-        //double cm = 1.0 / getVoltage() - .42; // warning blows up when v == 0
-        double volt = getVoltage();
-        double cm = 59.06 - (94.11 * volt) + (57.60 * Math.pow(volt, 2.0)) - (11.65 * Math.pow(volt, 3.0));
-        return cm / 2.54;
-    }
+    public abstract double getDistance(); // inches
 
     public boolean isTargetInVoltageRange(double min, double max)
     {
@@ -51,15 +40,6 @@ public class IRSensor
     {
         double d = getDistance();
         if (d > minDist && d < maxDist)
-            return true;
-        else
-            return false;
-    }
-    
-    public boolean isTargetAcquired()
-    {
-        double voltage = getVoltage();
-        if (voltage > kTriggerVoltage)
             return true;
         else
             return false;
