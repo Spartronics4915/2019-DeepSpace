@@ -336,6 +336,10 @@ public class Robot extends TimedRobot
                 {
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
                 }
+                else if (mControlBoard.getClimb()) 
+                {
+                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
+                }
                 // TODO (for button person): add buttons for all superstructure wanted states
             }
             else if (mControlBoard.getReturnToDriverControl())
