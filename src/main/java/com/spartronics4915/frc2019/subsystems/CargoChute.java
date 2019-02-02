@@ -65,7 +65,7 @@ public class CargoChute extends Subsystem
     private boolean mStateChanged;
 
     //Sensor
-    private IRSensor rampSensor = null;
+    private IRSensor mRampSensor = null;
 
     private CargoChute()
     {
@@ -77,6 +77,7 @@ public class CargoChute extends Subsystem
             mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId);
 
             // TODO: Instantiate sensor(s)
+            mRampSensor = IRSensor(Constants.kRampSensorID);
         }
         catch (Exception e)
         {

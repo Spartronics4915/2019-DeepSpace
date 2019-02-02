@@ -129,10 +129,10 @@ public class Constants
     public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
 
     // Cargo Ramp
-    public static final int kShootMotorLeftId = 8;
-    public static final int kShootMotorRightId = 9;
     public static final int kRampMotorId = 7;
     public static final int kFlipperSolenoidId = 3;
+    public static final int kRampSensorId = 1;
+
     public static final double kShootSpeed = 1.0; // tune
     public static final double kRampSpeed = 1.0;
 
