@@ -123,17 +123,17 @@ public class Constants
     public static final double kJoystickThreshold = 0.5;
 
     // Arm Harvester
-    public static final int kIntakeMotorLeftId = 5;
+    public static final int kIntakeMotorLeftId = 7;
     public static final int kIntakeMotorRightId = 6;
     public static final int kIntakeSolenoidId = 1;
     public static final int kClimberSolenoidId = 2;
 
     // Cargo Ramp
-    public static final int kShootMotorLeftId = 8;
-    public static final int kShootMotorRightId = 9;
-    public static final int kRampMotorId = 7;
-    public static final int kFlipperSolenoidId = 3;
+    //public static final int kShootMotorLeftId = 8;
+    //public static final int kShootMotorRightId = 9;
+    public static final int kRampMotorId = 5;
+    public static final int kFlipperSolenoidId = 3; // A3 FIXME:!!!
     public static final int kShootSpeed = 1; // tune
     public static final int kRampSpeed = 1;
-
+    // analog six
 }
