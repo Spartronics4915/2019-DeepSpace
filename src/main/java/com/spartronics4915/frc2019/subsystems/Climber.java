@@ -1,10 +1,11 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.AnalogInput;
 
 public class Climber extends Subsystem
 {
@@ -36,8 +37,8 @@ public class Climber extends Subsystem
     private DoubleSolenoid mFrontClimberSolenoid2 = null; //Starboard
     private DoubleSolenoid mRearClimberSolenoid1 = null; //Port
     private DoubleSolenoid mRearClimberSolenoid2 = null; //Starboard
-    public AnalogInput mFrontIRSensor1 = null; //Starboard
-    public AnalogInput mFrontIRSensor2 = null; //Port
+    public IRSensor mFrontIRSensor1 = null; //Starboard
+    public IRSensor mFrontIRSensor2 = null; //Port
 
     private Climber()
 
@@ -45,12 +46,12 @@ public class Climber extends Subsystem
         boolean success = true;
         try
         {
-            mFrontClimberSolenoid1 = new DoubleSolenoid(2, 0, 1);
-            mFrontClimberSolenoid2 = new DoubleSolenoid(2, 2, 3);
-            mRearClimberSolenoid1 = new DoubleSolenoid(2, 4, 5);
-            mRearClimberSolenoid2 = new DoubleSolenoid(2, 6, 7);
-            mFrontIRSensor1 = new AnalogInput(0);
-            mFrontIRSensor2 = new AnalogInput(1);
+            mFrontClimberSolenoid1 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontPortSolenoidId1, Constants.kFrontPortSolenoidId2);
+            mFrontClimberSolenoid2 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontStarboardSolenoidId1, Constants.kFrontStarboardSolenoidId2);
+            mRearClimberSolenoid1 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearPortSolenoidId1, Constants.kRearPortSolenoidId2);
+            mRearClimberSolenoid2 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearStarboardSolenoidId1, Constants.kRearStarboardSolenoidId2);
+            mFrontIRSensor1 = new IRSensor(Constants.kFrontPortIRSensorId);
+            mFrontIRSensor2 = new IRSensor(Constants.kFrontStarboardIRSensorId);
         }
         catch (Exception e)
         {

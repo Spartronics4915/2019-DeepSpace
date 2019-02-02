@@ -139,4 +139,17 @@ public class Constants
     public static final int kShootSpeed = 1; // tune
     public static final int kRampSpeed = 1;
 
+    // Climber
+    public static final int kClimberPWMId = 2;
+    public static final int kFrontPortSolenoidId1 = 0;
+    public static final int kFrontPortSolenoidId2 = 1;
+    public static final int kFrontStarboardSolenoidId1 = 2;
+    public static final int kFrontStarboardSolenoidId2 = 3;
+    public static final int kRearPortSolenoidId1 = 4;
+    public static final int kRearPortSolenoidId2 = 5;
+    public static final int kRearStarboardSolenoidId1 = 6;
+    public static final int kRearStarboardSolenoidId2 = 7;
+    public static final int kFrontPortIRSensorId = 0;
+    public static final int kFrontStarboardIRSensorId = 1;
+
 }
