@@ -1,5 +1,6 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
@@ -49,7 +50,7 @@ public class PanelHandler extends Subsystem
         boolean success = true;
         try
         {
-            mSolenoid = new Solenoid(2);
+            mSolenoid = new Solenoid(Constants.kPanelHandlerSolenoid);
         }
         catch (Exception e)
         {

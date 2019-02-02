@@ -1,5 +1,6 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
@@ -57,10 +58,10 @@ public class CargoIntake extends Subsystem
         boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            mSolenoid = new Solenoid(0);
-            mSolenoidClimb = new Solenoid(1);
-            mMotorRight = TalonSRXFactory.createDefaultTalon(6);
-            mMotorLeft = TalonSRXFactory.createDefaultTalon(7);
+            mSolenoid = new Solenoid(Constants.kCargoIntakeSolenoid);
+            mSolenoidClimb = new Solenoid(Constants.kCargoIntakeSolenoidClimb);
+            mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
+            mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
         }
         catch (Exception e)
         {
