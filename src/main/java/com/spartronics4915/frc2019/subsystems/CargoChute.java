@@ -13,22 +13,19 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
-
-import com.spartronics4915.lib.drivers.IRSensor;
-
-import edu.wpi.first.wpilibj.AnalogInput;
-
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
+import com.spartronics4915.lib.drivers.A21IRSensor;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CargoChute extends Subsystem
 {
-
     private static CargoChute mInstance = null;
 
     public static CargoChute getInstance()
@@ -40,7 +37,7 @@ public class CargoChute extends Subsystem
         return mInstance;
     }
 
-    public enum WantedState // Each WantedState will correspond to a button
+    public enum WantedState
     {
         RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, SHOOT_BAY, SHOOT_ROCKET,
     }
@@ -59,32 +56,11 @@ public class CargoChute extends Subsystem
     //Solenoid
     private Solenoid mFlipperSolenoid = null;
 
-    private static final boolean mSolenoidExtend = true;
-    private static final boolean mSolenoidRetract = false;
+    //Sensor
+    private A21IRSensor mRampSensor = null;
+
     private boolean mSolenoidStatus = false;
     private boolean mStateChanged;
-
-    //Sensor
-    private IRSensor mRampSensor = null;
-
-    private boolean isInManual()
-    {
-        return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
-    }
-
-    private boolean ballInPosition()
-    {
-        return mRampSensor.getDistance() == 1;
-    }
-
-    private boolean solenoidIsOut() {
-        return mFlipperSolenoid.get() == Constants.kSolenoidOut;
-    }
-
-    private boolean solenoidIsIn() {
-        return mFlipperSolenoid.get() == Constants.kSolenoidIn;
-    }
-
 
     private CargoChute()
     {
@@ -96,7 +72,7 @@ public class CargoChute extends Subsystem
             mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId);
 
             // TODO: Instantiate sensor(s)
-            mRampSensor = new IRSensor(Constants.kRampSensorId);
+            mRampSensor = new A21IRSensor(Constants.kRampSensorId);
         }
         catch (Exception e)
         {
@@ -129,17 +105,15 @@ public class CargoChute extends Subsystem
                 switch (mSystemState)
                 {
                     case RAMPING:
+                        //Is this if statement necessary?
                         if (mStateChanged)
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                        if (isInManual() && mStateChanged) 
                         {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
-                        if (true /* TODO: Ball in position */ && !isInManual() && mSystemState == newState)
+                        if (/* TODO: ball position */ true && !isInManual() && mSystemState == newState)
                         {
-                            newState = SystemState.HOLDING;
-                        }
-                        if (true  && !isInManual() && mSystemState == newState)
-                        {
-
                             newState = SystemState.HOLDING;
                         }
                         break;
@@ -163,16 +137,18 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                         {
                             if(solenoidIsOut()){
-                                mFlipperSolenoid.set(Constants.kSolenoidIn);
+                                mFlipperSolenoid.set(Constants.kSolenoidRetract);
                             }
+                            newState = SystemState.RAMPING;
                         }
                         break;
                     case SHOOTING_ROCKET: // don't keep running
                         if (mStateChanged)
                         {
                             if(solenoidIsIn()){
-                                mFlipperSolenoid.set(Constants.kSolenoidOut);
+                                mFlipperSolenoid.set(Constants.kSolenoidExtend);
                             }
+                            newState = SystemState.RAMPING;
                         }
                         break;
                     default:
@@ -198,6 +174,11 @@ public class CargoChute extends Subsystem
             }
         }
     };
+
+    private boolean isInManual()
+    {
+        return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
+    }
 
     private SystemState defaultStateTransfer()
     {
@@ -318,7 +299,20 @@ public class CargoChute extends Subsystem
         mWantedState = WantedState.BRING_BALL_TO_TOP;
         mSystemState = SystemState.HOLDING;
         mRampMotor.set(ControlMode.PercentOutput, 0.0);
-        mFlipperSolenoid.set(mSolenoidRetract);
+        mFlipperSolenoid.set(Constants.kSolenoidRetract);
 
+    }
+    
+    private boolean ballInPosition()
+    {
+        return mRampSensor.getDistance() == 1;
+    }
+
+    private boolean solenoidIsOut() {
+        return mFlipperSolenoid.get() == Constants.kSolenoidExtend;
+    }
+
+    private boolean solenoidIsIn() {
+        return mFlipperSolenoid.get() == Constants.kSolenoidRetract;
     }
 }
