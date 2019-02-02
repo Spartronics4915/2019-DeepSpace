@@ -131,7 +131,7 @@ public class Constants
     // Cargo Ramp
     public static final int kRampMotorId = 7;
     public static final int kFlipperSolenoidId = 3;
-    public static final int kRampSensorId = 1;
+    public static final int kRampSensorId = 213890890;
 
     public static final double kShootSpeed = 1.0; // tune
     public static final double kRampSpeed = 1.0;

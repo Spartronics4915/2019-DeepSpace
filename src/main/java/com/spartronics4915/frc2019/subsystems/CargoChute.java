@@ -13,12 +13,12 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
-import com.spartronics4915.lib.drivers.TalonSRXFactory;
-import com.spartronics4915.lib.drivers.IRSensor;
 
+import com.spartronics4915.lib.drivers.IRSensor;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 
+import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -77,7 +77,7 @@ public class CargoChute extends Subsystem
             mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId);
 
             // TODO: Instantiate sensor(s)
-            mRampSensor = IRSensor(Constants.kRampSensorID);
+            mRampSensor = new IRSensor(Constants.kRampSensorId);
         }
         catch (Exception e)
         {
