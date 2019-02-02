@@ -3,8 +3,13 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
+import edu.wpi.first.wpilibj.SerialPort;
+
+
 public class LED extends Subsystem
 {
+
+    private SerialPort mBling;
 
     private static LED mInstance = null;
 
@@ -17,25 +22,35 @@ public class LED extends Subsystem
         return mInstance;
     }
 
-    public enum WantedState
+    // private enum SubsytemLEDState
+    // {
+    //     CLIMBING, 
+    // }
+
+    private final byte[] kForwards = "2".getBytes();
+    private final byte[] kBackwards = "3".getBytes();
+    private final byte[] kOff = "4".getBytes();
+    private final byte[] kAutonomous = "5".getBytes();
+
+    private enum LEDState
     {
-        CLOSED, INTAKE,
+        DISABLING, UPDATING,
     }
 
-    private enum SystemState
+    public enum DriveLEDState
     {
-        CLOSING, INTAKING,
+        FORWARDS, BACKWARDS, AUTONOMOUS, DISABLED
     }
 
-    private WantedState mWantedState = WantedState.CLOSED;
-    private SystemState mSystemState = SystemState.CLOSING;
+    private LEDState mLEDState = LEDState.DISABLING;
+    private DriveLEDState mDriveState = DriveLEDState.DISABLED;
 
-    private LED()
+    public LED()
     {
         boolean success = true;
         try
         {
-            // Instantiate your hardware here
+            mBling = new SerialPort(9600, SerialPort.Port.kUSB);
         }
         catch (Exception e)
         {
@@ -54,8 +69,7 @@ public class LED extends Subsystem
         {
             synchronized (LED.this)
             {
-                mWantedState = WantedState.CLOSED;
-                mSystemState = SystemState.CLOSING;
+                mDriveState = DriveLEDState.DISABLED;
             }
         }
 
@@ -64,18 +78,18 @@ public class LED extends Subsystem
         {
             synchronized (LED.this)
             {
-                SystemState newState = defaultStateTransfer();
-                switch (mSystemState)
-                {
-                    case INTAKING:
-                        break;
-                    case CLOSING:
-                        stop();
-                        break;
-                    default:
-                        logError("Unhandled system state!");
-                }
-                mSystemState = newState;
+                // SystemState newState = defaultStateTransfer();
+                // switch (mSystemState)
+                // {
+                //     case INTAKING:
+                //         break;
+                //     case CLOSING:
+                //         stop();
+                //         break;
+                //     default:
+                //         logError("Unhandled system state!");
+                // }
+                // mSystemState = newState;
             }
         }
 
@@ -89,27 +103,46 @@ public class LED extends Subsystem
         }
     };
 
-    private SystemState defaultStateTransfer()
+    public synchronized void setDriveState(DriveLEDState driveState)
     {
-        SystemState newState = mSystemState;
-        switch (mWantedState)
-        {
-            case CLOSED:
-                newState = SystemState.CLOSING;
-                break;
-            case INTAKE:
-                newState = SystemState.INTAKING;
-                break;
-            default:
-                newState = SystemState.CLOSING;
-                break;
-        }
-        return newState;
+        mDriveState = driveState;
+        mLEDState = LEDState.UPDATING;
     }
 
-    public synchronized void setWantedState(WantedState wantedState)
+    public synchronized void setDriveState() 
     {
-        mWantedState = wantedState;
+        if (mDriveState == DriveLEDState.FORWARDS)
+        {
+            mDriveState = DriveLEDState.BACKWARDS;
+            mLEDState = LEDState.UPDATING;
+        } else if (mDriveState == DriveLEDState.BACKWARDS)
+        {
+            mDriveState = DriveLEDState.FORWARDS;
+            mLEDState = LEDState.UPDATING;
+        }
+    }
+
+    public synchronized void updateBling() 
+    {
+        if (mLEDState == LEDState.UPDATING)
+        {
+            switch (mDriveState)
+            {
+                case FORWARDS:
+                    mBling.write(kForwards, kForwards.length);
+                    break;
+                case BACKWARDS:
+                    mBling.write(kBackwards, kBackwards.length);
+                    break;
+                case AUTONOMOUS:
+                    mBling.write(kAutonomous, kAutonomous.length);
+                    break;
+                default:
+                    mBling.write(kOff, kOff.length);
+                    break;
+            }
+            mLEDState = LEDState.DISABLING;
+        }
     }
 
     @Override
