@@ -2,11 +2,15 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.ControlBoard;
+import com.spartronics4915.lib.drivers.A21IRSensor;
+import com.spartronics4915.lib.drivers.A41IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+
 
 public class Climber extends Subsystem
 {
@@ -56,12 +60,12 @@ public class Climber extends Subsystem
                     new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontRightSolenoidId1, Constants.kFrontRightSolenoidId2);
             mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearLeftSolenoidId1, Constants.kRearLeftSolenoid2);
             mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1, Constants.kRearRightSolenoidId2);
-            mFrontRightIRSensor = new IRSensor(Constants.kFrontLeftIRSensorId);
-            mFrontLeftIRSensor = new IRSensor(Constants.kFrontRightIRSensorId);
-            mDownwardFrontLeftIRSensor = new IRSensor(Constants.kDownwardFrontLeftIRSensorId);
-            mDownwardFrontRightIRSensor = new IRSensor(Constants.kDownwardFrontRightIRSensorId);
-            mDownwardRearLeftIRSensor = new IRSensor(Constants.kDownwardRearLeftIRSensorId);
-            mDownwardRearRightIRSensor = new IRSensor(Constants.kDownwardRearRightIRSensorId);
+            mFrontRightIRSensor = new A41IRSensor(Constants.kFrontLeftIRSensorId);
+            mFrontLeftIRSensor = new A41IRSensor(Constants.kFrontRightIRSensorId);
+            mDownwardFrontLeftIRSensor = new A21IRSensor(Constants.kDownwardFrontLeftIRSensorId);
+            mDownwardFrontRightIRSensor = new A21IRSensor(Constants.kDownwardFrontRightIRSensorId);
+            mDownwardRearLeftIRSensor = new A21IRSensor(Constants.kDownwardRearLeftIRSensorId);
+            mDownwardRearRightIRSensor = new A21IRSensor(Constants.kDownwardRearRightIRSensorId);
         }
         catch (Exception e)
         {
@@ -102,10 +106,10 @@ public class Climber extends Subsystem
                         // CLIMBING)
                         if (mStateChanged == true)
                         {
-                            mFrontLeftClimberSolenoid.set(Value.kOff);
-                            mFrontRightClimberSolenoid.set(Value.kOff);
-                            mRearLeftClimberSolenoid.set(Value.kOff);
-                            mRearRightClimberSolenoid.set(Value.kOff);
+                            mFrontLeftClimberSolenoid.set(Value.kReverse);
+                            mFrontRightClimberSolenoid.set(Value.kReverse);
+                            mRearLeftClimberSolenoid.set(Value.kReverse);
+                            mRearRightClimberSolenoid.set(Value.kReverse);
                         }
                         break;
 
@@ -218,7 +222,38 @@ public class Climber extends Subsystem
         mFrontRightClimberSolenoid.set(Value.kForward);
         mRearLeftClimberSolenoid.set(Value.kForward);
         mRearRightClimberSolenoid.set(Value.kForward);
+        Timer.delay(5);
+        mFrontLeftClimberSolenoid.set(Value.kReverse);
+        mFrontRightClimberSolenoid.set(Value.kReverse);
+        mRearLeftClimberSolenoid.set(Value.kReverse);
+        mRearRightClimberSolenoid.set(Value.kReverse);
+        Timer.delay(2);
 
+        logNotice("Testing IR Sensors");
+        mFrontLeftIRSensor.getDistance();
+        mFrontLeftIRSensor.getVoltage();
+        logNotice("Front Left IR Sensor Distance is " + mFrontLeftIRSensor.getDistance() + " and Voltage is " + mFrontLeftIRSensor.getVoltage());
+        Timer.delay(5);
+        mFrontRightIRSensor.getDistance();
+        mFrontRightIRSensor.getVoltage();
+        logNotice("Front Right IR Sensor Distance is " + mFrontRightIRSensor.getDistance() + " and Voltage is " + mFrontRightIRSensor.getVoltage());
+        Timer.delay(5);
+        mDownwardFrontLeftIRSensor.getDistance();
+        mDownwardFrontLeftIRSensor.getVoltage();
+        logNotice("Downward Front Left IR Sensor Distance is " + mDownwardFrontLeftIRSensor.getDistance() + " and Voltage is " + mDownwardFrontLeftIRSensor.getVoltage());
+        Timer.delay(5);
+        mDownwardFrontRightIRSensor.getDistance();
+        mDownwardFrontRightIRSensor.getVoltage();
+        logNotice("Downward Front Right IR Sensor Distance is " + mDownwardFrontRightIRSensor.getDistance() + " and Voltage is " + mDownwardFrontRightIRSensor.getVoltage());
+        Timer.delay(5);
+        mDownwardRearLeftIRSensor.getDistance();
+        mDownwardRearLeftIRSensor.getVoltage();
+        logNotice("Downward Rear Left IR Sensor Distance is " + mDownwardRearLeftIRSensor.getDistance() + " and Voltage is " + mDownwardRearLeftIRSensor.getVoltage());
+        Timer.delay(5);
+        mDownwardRearRightIRSensor.getDistance();
+        mDownwardRearRightIRSensor.getVoltage();
+        logNotice("Downward Rear Right Sensor Distance is " + mDownwardRearRightIRSensor.getDistance() + " and Voltage is " + mDownwardRearRightIRSensor.getVoltage());
+        Timer.delay(5);
         return true;
     }
 
