@@ -34,12 +34,16 @@ public class Climber extends Subsystem
 
     private WantedState mWantedState = WantedState.DISABLE;
     private SystemState mSystemState = SystemState.DISABLING;
-    private DoubleSolenoid mFrontLeftClimberSolenoid = null; //Port
-    private DoubleSolenoid mFrontRightClimberSolenoid = null; //Starboard
-    private DoubleSolenoid mRearLeftClimberSolenoid = null; //Port
-    private DoubleSolenoid mRearRightClimberSolenoid = null; //Starboard
-    public IRSensor mFrontRightIRSensor = null; //Starboard
-    public IRSensor mFrontLeftIRSensor = null; //Port
+    private DoubleSolenoid mFrontLeftClimberSolenoid = null;
+    private DoubleSolenoid mFrontRightClimberSolenoid = null;
+    private DoubleSolenoid mRearLeftClimberSolenoid = null;
+    private DoubleSolenoid mRearRightClimberSolenoid = null;
+    public IRSensor mFrontRightIRSensor = null;
+    public IRSensor mFrontLeftIRSensor = null;
+    public IRSensor mDownwardFrontLeftIRSensor = null;
+    public IRSensor mDownwardFrontRightIRSensor = null;
+    public IRSensor mDownwardRearLeftIRSensor = null;
+    public IRSensor mDownwardRearRightIRSensor = null;
 
     private Climber()
 
@@ -54,6 +58,10 @@ public class Climber extends Subsystem
             mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1, Constants.kRearRightSolenoidId2);
             mFrontRightIRSensor = new IRSensor(Constants.kFrontLeftIRSensorId);
             mFrontLeftIRSensor = new IRSensor(Constants.kFrontRightIRSensorId);
+            mDownwardFrontLeftIRSensor = new IRSensor(Constants.kDownwardFrontLeftIRSensorId);
+            mDownwardFrontRightIRSensor = new IRSensor(Constants.kDownwardFrontRightIRSensorId);
+            mDownwardRearLeftIRSensor = new IRSensor(Constants.kDownwardRearLeftIRSensorId);
+            mDownwardRearRightIRSensor = new IRSensor(Constants.kDownwardRearRightIRSensorId);
         }
         catch (Exception e)
         {

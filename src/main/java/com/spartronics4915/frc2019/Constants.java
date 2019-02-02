@@ -148,5 +148,8 @@ public class Constants
     public static final int kRearRightSolenoidId2 = 7;
     public static final int kFrontLeftIRSensorId = 0;
     public static final int kFrontRightIRSensorId = 1;
-
+    public static final int kDownwardFrontRightIRSensorId = 2;
+    public static final int kDownwardFrontLeftIRSensorId = 3;
+    public static final int kDownwardRearRightIRSensorId = 4;
+    public static final int kDownwardRearLeftIRSensorId = 5;
 }
