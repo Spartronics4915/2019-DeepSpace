@@ -1,6 +1,5 @@
 package com.spartronics4915.frc2019.subsystems;
 
-import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.SerialPort;
@@ -9,7 +8,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 public class LED extends Subsystem
 {
 
-    private SerialPort mBling;
+    private SerialPort mSerialPort;
 
     private static LED mInstance = null;
 
@@ -22,24 +21,25 @@ public class LED extends Subsystem
         return mInstance;
     }
 
-    // private enum SubsytemLEDState
-    // {
-    //     CLIMBING, 
-    // }
-
-    private final byte[] kForwards = "2".getBytes();
-    private final byte[] kBackwards = "3".getBytes();
-    private final byte[] kOff = "4".getBytes();
-    private final byte[] kAutonomous = "5".getBytes();
-
     private enum LEDState
     {
-        DISABLING, UPDATING,
+        DISABLING, UPDATING, OFF,
     }
 
     public enum DriveLEDState
     {
-        FORWARDS, BACKWARDS, AUTONOMOUS, DISABLED
+        OFF("0".getBytes()),
+        FORWARDS("1".getBytes()),
+        BACKWARDS("2".getBytes()),
+        AUTONOMOUS("3".getBytes()),
+        DISABLED("4".getBytes()); // Add the remainder of your states
+
+        public final byte[] serialSignal;
+
+        private DriveLEDState(byte[] serialSignal)
+        {
+            this.serialSignal = serialSignal;
+        }
     }
 
     private LEDState mLEDState = LEDState.DISABLING;
@@ -50,7 +50,7 @@ public class LED extends Subsystem
         boolean success = true;
         try
         {
-            mBling = new SerialPort(9600, SerialPort.Port.kUSB);
+            mSerialPort = new SerialPort(9600, SerialPort.Port.kUSB);
         }
         catch (Exception e)
         {
@@ -60,48 +60,6 @@ public class LED extends Subsystem
 
         logInitialized(success);
     }
-
-    private final ILoop mLoop = new ILoop()
-    {
-
-        @Override
-        public void onStart(double timestamp)
-        {
-            synchronized (LED.this)
-            {
-                mDriveState = DriveLEDState.DISABLED;
-            }
-        }
-
-        @Override
-        public void onLoop(double timestamp)
-        {
-            synchronized (LED.this)
-            {
-                // SystemState newState = defaultStateTransfer();
-                // switch (mSystemState)
-                // {
-                //     case INTAKING:
-                //         break;
-                //     case CLOSING:
-                //         stop();
-                //         break;
-                //     default:
-                //         logError("Unhandled system state!");
-                // }
-                // mSystemState = newState;
-            }
-        }
-
-        @Override
-        public void onStop(double timestamp)
-        {
-            synchronized (LED.this)
-            {
-                stop();
-            }
-        }
-    };
 
     public synchronized void setDriveState(DriveLEDState driveState)
     {
@@ -126,21 +84,7 @@ public class LED extends Subsystem
     {
         if (mLEDState == LEDState.UPDATING)
         {
-            switch (mDriveState)
-            {
-                case FORWARDS:
-                    mBling.write(kForwards, kForwards.length);
-                    break;
-                case BACKWARDS:
-                    mBling.write(kBackwards, kBackwards.length);
-                    break;
-                case AUTONOMOUS:
-                    mBling.write(kAutonomous, kAutonomous.length);
-                    break;
-                default:
-                    mBling.write(kOff, kOff.length);
-                    break;
-            }
+            mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length);
             mLEDState = LEDState.DISABLING;
         }
     }
@@ -148,13 +92,13 @@ public class LED extends Subsystem
     @Override
     public void registerEnabledLoops(ILooper enabledLooper)
     {
-        enabledLooper.register(mLoop);
+        
     }
 
     @Override
     public boolean checkSystem(String variant)
     {
-        return false;
+        return true;
     }
 
     @Override
@@ -166,6 +110,8 @@ public class LED extends Subsystem
     @Override
     public void stop()
     {
-        // Stop your hardware here
+        mDriveState = DriveLEDState.OFF;
+        mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length);
+        mLEDState = LEDState.OFF;
     }
 }
