@@ -330,7 +330,7 @@ public class Robot extends TimedRobot
                 if (mControlBoard.getReverseDirection())
                 {
                     mSuperstructure.reverseDrivingDirection();
-                    mLED.setDriveState();
+                    mLED.setDriveState(mSuperstructure.isDrivingReversed() ? LED.DriveLEDState.BACKWARDS : LED.DriveLEDState.FORWARDS);
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {

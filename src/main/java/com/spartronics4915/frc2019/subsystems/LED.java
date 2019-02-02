@@ -23,7 +23,7 @@ public class LED extends Subsystem
 
     private enum LEDState
     {
-        DISABLING, UPDATING, OFF,
+        ON, OFF,
     }
 
     public enum DriveLEDState
@@ -42,7 +42,7 @@ public class LED extends Subsystem
         }
     }
 
-    private LEDState mLEDState = LEDState.DISABLING;
+    private LEDState mLEDState = LEDState.ON;
     private DriveLEDState mDriveState = DriveLEDState.DISABLED;
 
     public LED()
@@ -63,29 +63,9 @@ public class LED extends Subsystem
 
     public synchronized void setDriveState(DriveLEDState driveState)
     {
-        mDriveState = driveState;
-        mLEDState = LEDState.UPDATING;
-    }
-
-    public synchronized void setDriveState() 
-    {
-        if (mDriveState == DriveLEDState.FORWARDS)
+        if (mLEDState == LEDState.ON)
         {
-            mDriveState = DriveLEDState.BACKWARDS;
-            mLEDState = LEDState.UPDATING;
-        } else if (mDriveState == DriveLEDState.BACKWARDS)
-        {
-            mDriveState = DriveLEDState.FORWARDS;
-            mLEDState = LEDState.UPDATING;
-        }
-    }
-
-    public synchronized void updateBling() 
-    {
-        if (mLEDState == LEDState.UPDATING)
-        {
-            mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length);
-            mLEDState = LEDState.DISABLING;
+            mSerialPort.write(driveState.serialSignal, driveState.serialSignal.length);
         }
     }
 
