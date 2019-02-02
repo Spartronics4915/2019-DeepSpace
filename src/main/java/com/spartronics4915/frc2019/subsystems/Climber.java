@@ -4,6 +4,7 @@ import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.AnalogInput;
 
 public class Climber extends Subsystem
 {
@@ -21,34 +22,35 @@ public class Climber extends Subsystem
 
     public enum WantedState
     {
-        DISABLED, 
-        CLIMB,
-        RETRACT_FRONT_STRUTS,
-        RETRACT_REAR_STRUTS,
+        DISABLE, CLIMB, RETRACT_FRONT_STRUTS, RETRACT_REAR_STRUTS,
     }
 
     private enum SystemState
     {
-        DISABLING, 
-        CLIMBING,
-        RETRACTING_FRONT_STRUTS,
-        RETRACTING_REAR_STRUTS,
+        DISABLING, CLIMBING, RETRACTING_FRONT_STRUTS, RETRACTING_REAR_STRUTS,
     }
 
-    private WantedState mWantedState = WantedState.DISABLED;
+    private WantedState mWantedState = WantedState.DISABLE;
     private SystemState mSystemState = SystemState.DISABLING;
-    private DoubleSolenoid mFrontClimberSolenoid1 = null;
-    private DoubleSolenoid mFrontClimberSolenoid2 = null;
-    private DoubleSolenoid mRearClimberSolenoid1 = null;
-    private DoubleSolenoid mRearClimberSolenoid2 = null;
+    private DoubleSolenoid mFrontClimberSolenoid1 = null; //Port
+    private DoubleSolenoid mFrontClimberSolenoid2 = null; //Starboard
+    private DoubleSolenoid mRearClimberSolenoid1 = null; //Port
+    private DoubleSolenoid mRearClimberSolenoid2 = null; //Starboard
+    public AnalogInput mFrontIRSensor1 = null; //Starboard
+    public AnalogInput mFrontIRSensor2 = null; //Port
 
     private Climber()
-    
+
     {
         boolean success = true;
         try
         {
-            
+            mFrontClimberSolenoid1 = new DoubleSolenoid(2, 0, 1);
+            mFrontClimberSolenoid2 = new DoubleSolenoid(2, 2, 3);
+            mRearClimberSolenoid1 = new DoubleSolenoid(2, 4, 5);
+            mRearClimberSolenoid2 = new DoubleSolenoid(2, 6, 7);
+            mFrontIRSensor1 = new AnalogInput(0);
+            mFrontIRSensor2 = new AnalogInput(1);
         }
         catch (Exception e)
         {
@@ -63,13 +65,13 @@ public class Climber extends Subsystem
     {
 
         public boolean mStateChanged = true;
-        
+
         @Override
         public void onStart(double timestamp)
         {
             synchronized (Climber.this)
             {
-                mWantedState = WantedState.DISABLED;
+                mWantedState = WantedState.DISABLE;
                 mSystemState = SystemState.DISABLING;
             }
         }
@@ -83,46 +85,51 @@ public class Climber extends Subsystem
                 switch (mSystemState)
                 {
                     case DISABLING:
-                        //Climber is disabled (Will be like this until the last 30 seconds of the match)
-                        //Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
-                       if (mStateChanged == true)
-                       {
-                        mFrontClimberSolenoid1.set(Value.kOff);
-                        mFrontClimberSolenoid2.set(Value.kOff);
-                        mRearClimberSolenoid1.set(Value.kOff);
-                        mRearClimberSolenoid2.set(Value.kOff);
-                       }
+                        // Climber is disabled (Will be like this until the last 30 seconds of the
+                        // match)
+                        // Make sure tanks are at acceptable levels for climbing (Check before intiating
+                        // CLIMBING)
+                        if (mStateChanged == true)
+                        {
+                            mFrontClimberSolenoid1.set(Value.kOff);
+                            mFrontClimberSolenoid2.set(Value.kOff);
+                            mRearClimberSolenoid1.set(Value.kOff);
+                            mRearClimberSolenoid2.set(Value.kOff);
+                        }
                         break;
 
                     case CLIMBING:
-                        //Struts will extend from their dormant position to allow the robot to reach the height required to get to L3
-                        //Must be done when robot is flushed with L3 (Done with distance sensors and a backup encoder reading)
-                       if (mStateChanged == true)
-                       {
-                        mFrontClimberSolenoid1.set(Value.kForward);
-                        mFrontClimberSolenoid2.set(Value.kForward);
-                        mRearClimberSolenoid1.set(Value.kForward);
-                        mRearClimberSolenoid2.set(Value.kForward);
-                       }
-                        break;
-                    
-                    case RETRACTING_FRONT_STRUTS:
-                        //Solenoids from the front struts will retract when they become flushed with L3
-                        //Done with distance sensors and backup driver vision
+                        // Struts will extend from their dormant position to allow the robot to reach
+                        // the height required to get to L3
+                        // Must be done when robot is flushed with L3 (Done with distance sensors and a
+                        // backup encoder reading)
                         if (mStateChanged == true)
                         {
-                        mFrontClimberSolenoid1.set(Value.kReverse);
-                        mFrontClimberSolenoid1.set(Value.kReverse);
+                            mFrontClimberSolenoid1.set(Value.kForward);
+                            mFrontClimberSolenoid2.set(Value.kForward);
+                            mRearClimberSolenoid1.set(Value.kForward);
+                            mRearClimberSolenoid2.set(Value.kForward);
+                        }
+                        break;
+
+                    case RETRACTING_FRONT_STRUTS:
+                        // Solenoids from the front struts will retract when they become flushed with L3
+                        // Done with distance sensors and backup driver vision
+                        if (mStateChanged == true)
+                        {
+                            mFrontClimberSolenoid1.set(Value.kReverse);
+                            mFrontClimberSolenoid1.set(Value.kReverse);
                         }
                         break;
 
                     case RETRACTING_REAR_STRUTS:
-                        //Solenoids from the rear struts will retract when the robot can support its own weight on L3
-                        //Done primarily with driver vision, but distance sensor might be used
+                        // Solenoids from the rear struts will retract when the robot can support its
+                        // own weight on L3
+                        // Done primarily with driver vision, but distance sensor might be used
                         if (mStateChanged)
                         {
-                        mRearClimberSolenoid1.set(Value.kReverse);
-                        mRearClimberSolenoid2.set(Value.kReverse);
+                            mRearClimberSolenoid1.set(Value.kReverse);
+                            mRearClimberSolenoid2.set(Value.kReverse);
                         }
                         break;
 
@@ -156,7 +163,7 @@ public class Climber extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case DISABLED:
+            case DISABLE:
 
                 newState = SystemState.DISABLING;
                 break;
@@ -172,7 +179,7 @@ public class Climber extends Subsystem
                 break;
 
             case RETRACT_REAR_STRUTS:
-                
+
                 newState = SystemState.RETRACTING_REAR_STRUTS;
                 break;
 
@@ -208,7 +215,6 @@ public class Climber extends Subsystem
         mFrontClimberSolenoid2.set(Value.kForward);
         mRearClimberSolenoid1.set(Value.kForward);
         mRearClimberSolenoid2.set(Value.kForward);
-        
 
         return true;
     }

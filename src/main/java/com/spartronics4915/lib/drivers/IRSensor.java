@@ -1,61 +1,67 @@
 package com.spartronics4915.lib.drivers;
 
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.AnalogTrigger;
-import edu.wpi.first.wpilibj.AnalogTriggerOutput.AnalogTriggerType;
-import edu.wpi.first.wpilibj.Counter;
 
-/**
- * Driver for an analog Sharp IR sensor (or any distance sensor where output
- * voltage is a function of range, really).
- */
 public class IRSensor
 {
 
-    private final AnalogInput mAnalogInput;
-    private final AnalogTrigger mAnalogTrigger;
-    private final Counter mCounter;
-    private final double mA;
-    private final double mB;
-    private final double mC;
+    AnalogInput mAnalogInput;
+    final double kTriggerVoltage = 1.1;
 
-    public IRSensor(int port, double min_trigger_distance_centimeters, double max_trigger_disntance_centimeters, int a, int b, int c)
+    public IRSensor(int port)
     {
-        mA = a;
-        mB = b;
-        mC = c;
-
         mAnalogInput = new AnalogInput(port);
         mAnalogInput.setAverageBits(6);
-        mAnalogTrigger = new AnalogTrigger(mAnalogInput);
-        mAnalogTrigger.setAveraged(true);
-        mAnalogTrigger.setFiltered(false);
-        mAnalogTrigger.setLimitsVoltage(min_trigger_distance_centimeters, max_trigger_disntance_centimeters);
-        mCounter = new Counter(mAnalogTrigger.createOutput(AnalogTriggerType.kState));
-    }
-
-    public int getCount()
-    {
-        return mCounter.get();
     }
 
     public double getVoltage()
     {
-        return mAnalogInput.getAverageVoltage();
+        double v = mAnalogInput.getAverageVoltage();
+        if (v < .001)
+            v = .001;
+        return v;
     }
 
-    public boolean isTriggered()
+    public double getDistance() // inches
     {
-        return mAnalogTrigger.getTriggerState();
+        // formula for sharp a41 detector, each model has a different formula
+        //      v = 1 / (L + .42)  (1/cm)
+        // 
+        //double cm = 1.0 / getVoltage() - .42; // warning blows up when v == 0
+        double volt = getVoltage();
+        double cm = 59.06 - (94.11 * volt) + (57.60 * Math.pow(volt, 2.0)) - (11.65 * Math.pow(volt, 3.0));
+        return cm / 2.54;
     }
 
-    public void resetCount()
+    public boolean isTargetInVoltageRange(double min, double max)
     {
-        mCounter.reset();
+        double v = getVoltage();
+        if (v > min && v < max)
+            return true;
+        else
+            return false;
     }
 
-    public double getVoltageForDistance(double distance)
+    /**
+     * @param minDist in inches
+     * @param maxDist in inches
+     * @return is within the distance
+     */
+    public boolean isTargetInDistanceRange(double minDist, double maxDist)
     {
-        return (Math.log((distance - mA) / mB) / Math.log(Math.E)) / mC;
+        double d = getDistance();
+        if (d > minDist && d < maxDist)
+            return true;
+        else
+            return false;
+    }
+    
+    public boolean isTargetAcquired()
+    {
+        double voltage = getVoltage();
+        if (voltage > kTriggerVoltage)
+            return true;
+        else
+            return false;
     }
 }
