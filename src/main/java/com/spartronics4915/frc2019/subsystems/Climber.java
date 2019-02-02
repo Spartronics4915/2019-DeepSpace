@@ -33,12 +33,12 @@ public class Climber extends Subsystem
 
     private WantedState mWantedState = WantedState.DISABLE;
     private SystemState mSystemState = SystemState.DISABLING;
-    private DoubleSolenoid mFrontClimberSolenoid1 = null; //Port
-    private DoubleSolenoid mFrontClimberSolenoid2 = null; //Starboard
-    private DoubleSolenoid mRearClimberSolenoid1 = null; //Port
-    private DoubleSolenoid mRearClimberSolenoid2 = null; //Starboard
-    public IRSensor mFrontIRSensor1 = null; //Starboard
-    public IRSensor mFrontIRSensor2 = null; //Port
+    private DoubleSolenoid mFrontLeftClimberSolenoid = null; //Port
+    private DoubleSolenoid mFrontRightClimberSolenoid = null; //Starboard
+    private DoubleSolenoid mRearLeftClimberSolenoid = null; //Port
+    private DoubleSolenoid mRearRightClimberSolenoid = null; //Starboard
+    public IRSensor mFrontRightIRSensor = null; //Starboard
+    public IRSensor mFrontLeftIRSensor = null; //Port
 
     private Climber()
 
@@ -46,12 +46,12 @@ public class Climber extends Subsystem
         boolean success = true;
         try
         {
-            mFrontClimberSolenoid1 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontPortSolenoidId1, Constants.kFrontPortSolenoidId2);
-            mFrontClimberSolenoid2 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontStarboardSolenoidId1, Constants.kFrontStarboardSolenoidId2);
-            mRearClimberSolenoid1 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearPortSolenoidId1, Constants.kRearPortSolenoidId2);
-            mRearClimberSolenoid2 = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearStarboardSolenoidId1, Constants.kRearStarboardSolenoidId2);
-            mFrontIRSensor1 = new IRSensor(Constants.kFrontPortIRSensorId);
-            mFrontIRSensor2 = new IRSensor(Constants.kFrontStarboardIRSensorId);
+            mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontPortSolenoidId1, Constants.kFrontPortSolenoidId2);
+            mFrontRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontStarboardSolenoidId1, Constants.kFrontStarboardSolenoidId2);
+            mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearPortSolenoidId1, Constants.kRearPortSolenoidId2);
+            mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearStarboardSolenoidId1, Constants.kRearStarboardSolenoidId2);
+            mFrontRightIRSensor = new IRSensor(Constants.kFrontPortIRSensorId);
+            mFrontLeftIRSensor = new IRSensor(Constants.kFrontStarboardIRSensorId);
         }
         catch (Exception e)
         {
@@ -92,10 +92,10 @@ public class Climber extends Subsystem
                         // CLIMBING)
                         if (mStateChanged == true)
                         {
-                            mFrontClimberSolenoid1.set(Value.kOff);
-                            mFrontClimberSolenoid2.set(Value.kOff);
-                            mRearClimberSolenoid1.set(Value.kOff);
-                            mRearClimberSolenoid2.set(Value.kOff);
+                            mFrontLeftClimberSolenoid.set(Value.kOff);
+                            mFrontRightClimberSolenoid.set(Value.kOff);
+                            mRearLeftClimberSolenoid.set(Value.kOff);
+                            mRearRightClimberSolenoid.set(Value.kOff);
                         }
                         break;
 
@@ -106,10 +106,10 @@ public class Climber extends Subsystem
                         // backup encoder reading)
                         if (mStateChanged == true)
                         {
-                            mFrontClimberSolenoid1.set(Value.kForward);
-                            mFrontClimberSolenoid2.set(Value.kForward);
-                            mRearClimberSolenoid1.set(Value.kForward);
-                            mRearClimberSolenoid2.set(Value.kForward);
+                            mFrontLeftClimberSolenoid.set(Value.kForward);
+                            mFrontRightClimberSolenoid.set(Value.kForward);
+                            mRearLeftClimberSolenoid.set(Value.kForward);
+                            mRearRightClimberSolenoid.set(Value.kForward);
                         }
                         break;
 
@@ -118,8 +118,8 @@ public class Climber extends Subsystem
                         // Done with distance sensors and backup driver vision
                         if (mStateChanged == true)
                         {
-                            mFrontClimberSolenoid1.set(Value.kReverse);
-                            mFrontClimberSolenoid1.set(Value.kReverse);
+                            mFrontLeftClimberSolenoid.set(Value.kReverse);
+                            mFrontLeftClimberSolenoid.set(Value.kReverse);
                         }
                         break;
 
@@ -129,8 +129,8 @@ public class Climber extends Subsystem
                         // Done primarily with driver vision, but distance sensor might be used
                         if (mStateChanged)
                         {
-                            mRearClimberSolenoid1.set(Value.kReverse);
-                            mRearClimberSolenoid2.set(Value.kReverse);
+                            mRearLeftClimberSolenoid.set(Value.kReverse);
+                            mRearRightClimberSolenoid.set(Value.kReverse);
                         }
                         break;
 
@@ -212,10 +212,10 @@ public class Climber extends Subsystem
     public boolean checkSystem(String variant)
     {
         logNotice("Lifitng for 5 Seconds");
-        mFrontClimberSolenoid1.set(Value.kForward);
-        mFrontClimberSolenoid2.set(Value.kForward);
-        mRearClimberSolenoid1.set(Value.kForward);
-        mRearClimberSolenoid2.set(Value.kForward);
+        mFrontLeftClimberSolenoid.set(Value.kForward);
+        mFrontRightClimberSolenoid.set(Value.kForward);
+        mRearLeftClimberSolenoid.set(Value.kForward);
+        mRearRightClimberSolenoid.set(Value.kForward);
 
         return true;
     }
