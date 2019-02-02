@@ -149,6 +149,9 @@ public class Constants
         public static final double kShootSpeed = 1.0; // tune
         public static final double kRampSpeed = 1.0;
 
+        public static final boolean kSolenoidOut = true; //Reverse BOTH OF THESE to debug chute solenoid directions
+        public static final boolean kSolenoidIn = false; //Reverse BOTH OF THESE to debug chute solenoid directions
+
     // Climber
         
         //IDs

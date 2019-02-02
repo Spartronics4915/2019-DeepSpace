@@ -2,7 +2,7 @@
  * ✔ Mechanics removed the ShootMotors - remove these
  * ✔ Read through the CheckSystem method and ask questions
  * ✔ Use TalonSRXFactory to instansiate Talons (ask Declan)
- * TODO: Instantiate sensors
+ * ✔ TODO: Instantiate sensors
  * Use the sensors in places
  * Don't keep shooting states running forever?
  */
@@ -72,6 +72,19 @@ public class CargoChute extends Subsystem
         return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
     }
 
+    private boolean ballInPosition()
+    {
+        return mRampSensor.getDistance() == 1;
+    }
+
+    private boolean solenoidIsOut() {
+        return mFlipperSolenoid.get() == Constants.kSolenoidOut;
+    }
+
+    private boolean solenoidIsIn() {
+        return mFlipperSolenoid.get() == Constants.kSolenoidIn;
+    }
+
 
     private CargoChute()
     {
@@ -121,7 +134,14 @@ public class CargoChute extends Subsystem
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
                         if (true /* TODO: Ball in position */ && !isInManual() && mSystemState == newState)
+                        {
                             newState = SystemState.HOLDING;
+                        }
+                        if (true  && !isInManual() && mSystemState == newState)
+                        {
+
+                            newState = SystemState.HOLDING;
+                        }
                         break;
                     case HOLDING:
                         if (mStateChanged)
@@ -142,20 +162,16 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY: // don't keep running
                         if (mStateChanged)
                         {
-                            if (mSolenoidStatus)
-                            {
-                                mFlipperSolenoid.set(mSolenoidRetract);
-                                mSolenoidStatus = false;
+                            if(solenoidIsOut()){
+                                mFlipperSolenoid.set(Constants.kSolenoidIn);
                             }
                         }
                         break;
                     case SHOOTING_ROCKET: // don't keep running
                         if (mStateChanged)
                         {
-                            if (!mSolenoidStatus)
-                            {
-                                mFlipperSolenoid.set(mSolenoidExtend);
-                                mSolenoidStatus = true;
+                            if(solenoidIsIn()){
+                                mFlipperSolenoid.set(Constants.kSolenoidOut);
                             }
                         }
                         break;
