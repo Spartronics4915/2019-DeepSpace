@@ -5,6 +5,9 @@
  * ✔ Instantiate sensors
  * ✔ Use the sensors in places
  * ✔ Don't keep shooting states running forever?
+ * Fill out outputTelemetry()
+ * Fill out atTarget()
+ * T E S T
  */
 
 package com.spartronics4915.frc2019.subsystems;
