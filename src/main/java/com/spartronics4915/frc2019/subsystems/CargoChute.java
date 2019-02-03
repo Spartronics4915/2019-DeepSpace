@@ -277,12 +277,4 @@ public class CargoChute extends Subsystem
     {
         return mRampSensor.getDistance() == 1;
     }
-
-    private boolean solenoidIsOut() {
-        return mFlipperSolenoid.get() == Constants.kSolenoidExtend;
-    }
-
-    private boolean solenoidIsIn() {
-        return mFlipperSolenoid.get() == Constants.kSolenoidRetract;
-    }
 }
