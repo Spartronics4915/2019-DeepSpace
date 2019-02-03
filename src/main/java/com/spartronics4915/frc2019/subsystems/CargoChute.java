@@ -3,8 +3,8 @@
  * ✔ Read through the CheckSystem method and ask questions
  * ✔ Use TalonSRXFactory to instansiate Talons (ask Declan)
  * ✔ TODO: Instantiate sensors
- * Use the sensors in places
- * Don't keep shooting states running forever?
+ * ✔ Use the sensors in places
+ * ✔ Don't keep shooting states running forever?
  */
 
 package com.spartronics4915.frc2019.subsystems;
@@ -53,6 +53,7 @@ public class CargoChute extends Subsystem
     private TalonSRX mRampMotor = null;
     private Solenoid mFlipperSolenoid = null;
     private A21IRSensor mRampSensor = null;
+    private Timer mTimer = new Timer();
 
     private boolean mStateChanged;
 
@@ -97,41 +98,48 @@ public class CargoChute extends Subsystem
                 switch (mSystemState)
                 {
                     case RAMPING:
-                        //Is this if statement necessary?
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
-                        if (true /* TODO: Ball in position */ && !isInManual())
+                        if (ballInPosition() && !isInManual())
                             newState = SystemState.HOLDING;
                         break;
                     case HOLDING:
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, 0);
-                        if (true /* TODO: Ball not in position */ && !isInManual())
+                        if (ballInPosition() && !isInManual())
                             newState = SystemState.RAMPING;
                         break;
                     case EJECTING:
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                         break;
-                    case SHOOTING_BAY: // TODO: don't keep running
+                    case SHOOTING_BAY:
                         if (mStateChanged)
                         {
+                            mTimer.start();
                             mFlipperSolenoid.set(Constants.kSolenoidRetract);
-                            newState = SystemState.RAMPING;
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
+                        if(mTimer.hasPeriodPassed(Constants.kShootTime))
+                            newState = SystemState.HOLDING;
                         break;
-                    case SHOOTING_ROCKET: // TODO: don't keep running
+                    case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
+                            mTimer.start();
                             mFlipperSolenoid.set(Constants.kSolenoidExtend);
-                            newState = SystemState.RAMPING;
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
+                        if(mTimer.hasPeriodPassed(Constants.kShootTime))
+                            newState = SystemState.HOLDING;
                         break;
                     default:
                         logError("Unhandled system state!");
                 }
                 if (newState != mSystemState)
                 {
+                    mTimer.stop();
+                    mTimer.reset();
                     mStateChanged = true;
                 }
                 else
@@ -274,6 +282,6 @@ public class CargoChute extends Subsystem
     
     private boolean ballInPosition()
     {
-        return mRampSensor.getDistance() == 1;
+        return mRampSensor.getDistance() == Constants.kBallInPositionThreshold;
     }
 }
