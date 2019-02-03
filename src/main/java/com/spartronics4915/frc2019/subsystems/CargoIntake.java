@@ -290,6 +290,8 @@ public class CargoIntake extends Subsystem
     @Override
     public void stop()
     {
+        mWantedState = WantedState.HOLD;
+        mSystemState = SystemState.HOLDING;
         mSolenoid.set(kSolenoidRetract);
         mSolenoidClimb.set(kSolenoidRetract);
         mMotorRight.set(ControlMode.PercentOutput, 0);
