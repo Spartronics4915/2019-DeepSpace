@@ -54,7 +54,6 @@ public class CargoChute extends Subsystem
     private Solenoid mFlipperSolenoid = null;
     private A21IRSensor mRampSensor = null;
 
-    private boolean mSolenoidStatus = false;
     private boolean mStateChanged;
 
     private CargoChute()
