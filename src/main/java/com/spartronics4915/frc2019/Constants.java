@@ -116,6 +116,10 @@ public class Constants
     public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
+    // PWMs
+    public static final int kCargoHatchArmPWMId = 0;
+    public static final int kClimberPWMId = 1;
+
     // Panel Handler
     public static final int kPanelHandlerSolenoid = 2;
 
@@ -139,7 +143,6 @@ public class Constants
     public static final boolean kSolenoidRetract = true;
 
     // Climber
-    public static final int kClimberPWMId = 2;
     public static final int kFrontLeftSolenoidId1 = 0; //Extend
     public static final int kFrontLeftSolenoidId2 = 1; //Retract
     public static final int kFrontRightSolenoidId1 = 2; //Extend

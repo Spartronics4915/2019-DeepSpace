@@ -64,7 +64,7 @@ public class CargoChute extends Subsystem
         {
             // Instantiate your hardware here
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
-            mFlipperSolenoid = new Solenoid(1, Constants.kFlipperSolenoidId); // TODO: are PCMs 0 and 1 or 1 and 2?
+            mFlipperSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kFlipperSolenoidId);
 
             // TODO: Instantiate sensor
         }

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
  * panels held on by velcro */
 
 public class PanelHandler extends Subsystem
-{ 
+{
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -50,7 +50,7 @@ public class PanelHandler extends Subsystem
         boolean success = true;
         try
         {
-            mSolenoid = new Solenoid(Constants.kPanelHandlerSolenoid);
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kPanelHandlerSolenoid);
         }
         catch (Exception e)
         {
