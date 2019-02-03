@@ -129,24 +129,29 @@ public class Constants
     public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
 
     // Cargo Ramp
-    public static final int kShootMotorLeftId = 8;
-    public static final int kShootMotorRightId = 9;
     public static final int kRampMotorId = 7;
     public static final int kFlipperSolenoidId = 3;
+    public static final int kRampSensorId = 6;
     public static final double kShootSpeed = 1.0; // tune
     public static final double kRampSpeed = 1.0;
+    public static final double kBallInPositionThreshold = 1.0; // TODO: tune
+    public static final boolean kSolenoidExtend = false;
+    public static final boolean kSolenoidRetract = true;
 
     // Climber
     public static final int kClimberPWMId = 2;
-    public static final int kFrontLeftSolenoidId1 = 0;
-    public static final int kFrontLeftSolenoidId2 = 1;
-    public static final int kFrontRightSolenoidId1 = 2;
-    public static final int kFrontRightSolenoidId2 = 3;
-    public static final int kRearLeftSolenoidId1 = 4;
-    public static final int kRearLeftSolenoid2 = 5;
-    public static final int kRearRightSolenoidId1 = 6;
-    public static final int kRearRightSolenoidId2 = 7;
+    public static final int kFrontLeftSolenoidId1 = 0; //Extend
+    public static final int kFrontLeftSolenoidId2 = 1; //Retract
+    public static final int kFrontRightSolenoidId1 = 2; //Extend
+    public static final int kFrontRightSolenoidId2 = 3; //Retract
+    public static final int kRearLeftSolenoidId1 = 4; //Extend
+    public static final int kRearLeftSolenoid2 = 5; //Retract
+    public static final int kRearRightSolenoidId1 = 6; //Extend
+    public static final int kRearRightSolenoidId2 = 7; //Retract
     public static final int kFrontLeftIRSensorId = 0;
     public static final int kFrontRightIRSensorId = 1;
-
+    public static final int kDownwardFrontRightIRSensorId = 2;
+    public static final int kDownwardFrontLeftIRSensorId = 3;
+    public static final int kDownwardRearRightIRSensorId = 4;
+    public static final int kDownwardRearLeftIRSensorId = 5;
 }
