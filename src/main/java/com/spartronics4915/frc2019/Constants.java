@@ -105,11 +105,15 @@ public class Constants
     public static final int kNumCANDevices = kNumTalons + kNumPCMs; // don't count PDP
 
     // Drive
-    public static final int kLeftDriveMasterId = 3;
-    public static final int kLeftDriveSlaveAId = 4;
-    public static final int kRightDriveMasterId = 1;
-    public static final int kRightDriveSlaveAId = 2;
-    public static final double kDriveEncoderPPR = 1440.0; // PPR (1440) = CPR (360) * 4 (because quadrature)
+        
+        //IDs
+        public static final int kLeftDriveMasterId = 3;
+        public static final int kLeftDriveSlaveAId = 4;
+        public static final int kRightDriveMasterId = 1;
+        public static final int kRightDriveSlaveAId = 2;
+    
+        //Numbers
+        public static final double kDriveEncoderPPR = 1440.0; // PPR (1440) = CPR (360) * 4 (because quadrature)
 
     // Control Board
     public static final int kDriveJoystickPort = 0;
@@ -121,16 +125,24 @@ public class Constants
     public static final int kClimberPWMId = 1;
 
     // Panel Handler
-    public static final int kPanelHandlerSolenoid = 2;
+        
+        //IDs
+        public static final int kPanelHandlerSolenoid = 2;
 
     // Cargo Intake
-    public static final int kCargoIntakeSolenoid = 0;
-    public static final int kCargoIntakeSolenoidClimb = 1;
-    public static final int kCargoIntakeMotorRight = 6;
-    public static final int kCargoIntakeMotorLeft = 7;
-    public static final int kCargoIntakeSensor = 7;
-    public static final int kCargoIntakeSensorMinDistance = 100; //TODO: unit/value
-    public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
+       
+        //IDs
+        public static final int kCargoIntakeSolenoid = 0;
+        public static final int kCargoIntakeSolenoidClimb = 1;
+        public static final int kCargoIntakeMotorRight = 6;
+        public static final int kCargoIntakeMotorLeft = 7;
+        public static final int kCargoIntakeSensor = 7;
+
+        //Distances
+        public static final int kCargoIntakeSensorMinDistance = 100; //TODO: unit/value
+        public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
+
+        public static final double kShootTime = 4;
 
     // Cargo Ramp
     public static final int kRampMotorId = 5;
