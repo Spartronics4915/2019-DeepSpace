@@ -117,32 +117,14 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY: // TODO: don't keep running
                         if (mStateChanged)
                         {
-<<<<<<< HEAD
-                            if(solenoidIsOut()){
-                                mFlipperSolenoid.set(Constants.kSolenoidRetract);
-=======
-                            if (mSolenoidStatus)
-                            {
-                                mFlipperSolenoid.set(Constants.kSolenoidRetract);
-                                mSolenoidStatus = false;
->>>>>>> 18cad5d094057f6648de0dde07d257438b32f11c
-                            }
+                            mFlipperSolenoid.set(Constants.kSolenoidRetract);
                             newState = SystemState.RAMPING;
                         }
                         break;
                     case SHOOTING_ROCKET: // TODO: don't keep running
                         if (mStateChanged)
                         {
-<<<<<<< HEAD
-                            if(solenoidIsIn()){
-                                mFlipperSolenoid.set(Constants.kSolenoidExtend);
-=======
-                            if (!mSolenoidStatus)
-                            {
-                                mFlipperSolenoid.set(Constants.kSolenoidExtend);
-                                mSolenoidStatus = true;
->>>>>>> 18cad5d094057f6648de0dde07d257438b32f11c
-                            }
+                            mFlipperSolenoid.set(Constants.kSolenoidExtend);
                             newState = SystemState.RAMPING;
                         }
                         break;
