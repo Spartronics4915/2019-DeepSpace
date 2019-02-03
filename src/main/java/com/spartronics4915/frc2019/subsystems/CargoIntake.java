@@ -62,8 +62,8 @@ public class CargoIntake extends Subsystem
         boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            mSolenoid = new Solenoid(Constants.kCargoIntakeSolenoid);
-            mSolenoidClimb = new Solenoid(Constants.kCargoIntakeSolenoidClimb);
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoid);
+            mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoidClimb);
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
             mSensor = new A41IRSensor(Constants.kCargoIntakeSensor);
