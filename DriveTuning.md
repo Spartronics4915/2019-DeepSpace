@@ -7,12 +7,15 @@ want and at the speed we want.
 
 - [Introduction](#introduction)
 - [Drive Characterization](#drive-characterization)
-    - [From Theory to Practice](#from-theory-to-practice)
-- [Delivering Target Velocities](#delivering-target-velocities)
+- [Collecting the Data](#collecting-the-data)
+- [The Rubber Hits the Road](#the-rubber-hits-the-road)
+    - [Drive.java](#drivejava)
+    - [MotionPlanner](#motionplanner)
     - [DCMotorTransmission](#dcmotortransmission)
     - [DifferentialDrive](#differentialdrive)
 - [Computing Target Velocities For a Planned Path](#computing-target-velocities-for-a-planned-path)
 - [References](#references)
+- [Misc notes from chief delphi](#misc-notes-from-chief-delphi)
 
 <!-- /TOC -->
 
@@ -21,16 +24,18 @@ want and at the speed we want.
 Our CANTalons can be operated in a confusing variety of modes.  Central to
 our autonomous motion and path-planning is the __Velocity Control Mode__ (VCM).
 The idea of this mode is that there is a feedback loop (PID) that runs on each
-Talon Master whose purpose is to track a target velocity.  As our robot traverses
-a curved path, our path-planner's job is to repeatedly compute target
-velocities for each wheel. Different from the __Position Control Mode__, VCM
-relies upon a _feedforward_ term. The idea is to help the VCM PID
-be more effective by commanding the motors to be in _approximately_ the
-correct power configuration so that the job of the feedback terms is merely
-to fine-tune the motor power levels to hone in on our target velocities.
-If we select a feedforward value of 0, then the feedback terms bear the full
-responsibility of achieving the target velocity and that makes the PID value
-tuning process extremely difficult to achieve.
+Talon Master whose purpose is to track a target velocity.  In order for our
+robot to traverse a curved path, our path-planner's job must compute a series
+of target velocities for each wheel and this computation is highly dependent
+upon our characterization of the robot's dynamic capabilities. Different from
+__Position Control Mode__, VCM relies upon a _feedforward_ term. The idea
+is to help the VCM PID be more effective by commanding the motors to be
+in _approximately_ the correct power configuration so that the job of
+the feedback terms is merely to fine-tune the motor power levels to hone
+in on our target velocities. If we select a feedforward value of 0, then
+the feedback terms bear the full responsibility of achieving the target
+velocity and that makes the PID value tuning process extremely difficult
+to achieve.
 
 So we must take some care is selecting values for Kf that make the PID tuning
 more efficient and reliable. We now consider _what are the units of Kf_?
@@ -41,8 +46,8 @@ provide the following formula for selecting Kf.
 
     Kf = ([Percent Output] * 1023) / [Velocity]
 
-Careful inspection reveals that Kf is expressed in units of motor-controller
-output/velocity. In other words, Volts/inches/second. Rewriting this we see:
+Careful inspection reveals that Kf is expressed in percentage of motor-controller
+output/velocity. In other words, PctVbus/inches/second. Rewriting this we see:
 
     [Percent Output] * 1023 = Kf * Velocity
 
@@ -73,17 +78,18 @@ to drive our fully-loaded drivetrain at a particular velocity.
 We can easily imagine gathering data that captures the mapping between a
 particular velocity and the voltage required to attain it. It gets a little
 trickier because no drivetrain is perfect and we thus anticipate that the left
-voltage map will differ from the right voltage map. And of course, until we
-have a final robot with all subsystems mounted and operating, any
-characterization efforts will be placeholders.
+voltage map will differ from the right voltage map. And of course, since the
+dynamic behavior of the robot depends heavily upon mass and mass distribution,
+we must hold off on final characterization efforts until we have a final robot.
 
-There are a number of FRC-centric resources available to assist with
+Happily, there are a number of FRC-centric resources available to assist with
 drive characterization.  First and foremost is the [FRC Whitepaper On Drive Characterization](https://www.chiefdelphi.com/uploads/default/original/3X/f/7/f79d24101e6f1487e76099774e4ba60683e86cda.pdf5).
 This paper is referenced by most other resources and is a great resource if
-you want to understand some of the physics principles behind robot characterization.
-Another great resources is chapter 4 of [Practical Guide to State-space Control](https://github.com/calcmogul/state-space-guide).  Finally, there are
-canned drive characterization implementations built into our Team254-based codebase
-as well as via the [FRC Drive Characterization github](https://github.com/robotpy/robot-characterization).
+you want to understand some of the physical principles behind robot characterization.
+Another great resource is chapter 4 of [Practical Guide to State-space Control](https://github.com/calcmogul/state-space-guide).  Equations you'll find there
+are a little intimidating but some are quite central to our endeavor. Finally,
+there are canned drive characterization procedures built into our
+Team254-based codebase as well as in the [FRC Drive Characterization github](https://github.com/robotpy/robot-characterization).
 
 At the end of the day, the goal described by these resources it to characterize
 a robot drive for straight linear motion via this formula:
@@ -92,11 +98,12 @@ a robot drive for straight linear motion via this formula:
     Vapp = Ks + Kv*velocity + Ka*acceleration;
 ```
 
-Note that the voltage applied to the robot depends on both its current
-velocity as well its current acceleration.  In other words, we can't select
-a voltage requirement (and thus a feedforeward term) without specifying
-both a target velocity and a target acceleration. Here are the meanings
-and units for the terms of this formula:
+We can glean from this formula that the voltage we must apply to the robot in
+order to achieve a target velocity depends on both its current velocity as
+well its current acceleration.  In other words, we can't select a voltage
+requirement (and thus a feedforeward term) without specifying both a target
+velocity and a target acceleration. Here are the meanings and units for
+the terms of this formula:
 
 * Vapp - the voltage to request, we'll need to convert this to Kf
 * Ks - the voltage required to break static friction (ie start moving)
@@ -106,7 +113,7 @@ and units for the terms of this formula:
 Here's a simple procedure for obtaining an estimate of these constants:
 
 * Build an autonomous routine that drives straight and slowly increases
-  the voltage request. A range from 0 to .5 (or event .25) should suffice
+  the voltage request. A range from 0 to .5 (or even .25) should suffice
   to capture the data we require. In TalonSRX terms this means running in "PctVbus"
   (open loop) mode and slowly increasing the PctOutput value. The process
   of ramping output should take place over, say, 10 seconds and so we could
@@ -134,7 +141,7 @@ Here's a simple procedure for obtaining an estimate of these constants:
   eliminate the effects of Kv during acceleration. It may be possible to
   take Kv into account while gathering the Ka data, but since we've not
   seen other teams attmpt this we assume it's either unnecessary or
-  otherwise a bad idea.
+  a bad idea.
 
 For many uses, obtaining and applying these values is sufficient to obtain
 reliable, repeatable control over the robot's autonomous driving. Interestingly
@@ -166,7 +173,7 @@ Note that we're not merely applying the ratio of Ka from linear to Ka from
 angular.  Instead we plot one versus the other and estimate the slope of this
 line.  Since the acceleration data is inherently noisy, we expect that the
 resulting plot appears less linear and more "cloudy".  Also note that the
-moment of intertia depends on the configuration of any articulable parts on
+moment of inertia depends on the configuration of any articulable parts on
 the robot.  This means that procedure should be performed with robot
 components in a typical "competition configuration" where the path-planner
 is in operation. Interestingly, Team254 provides an alternate formulation via
@@ -201,73 +208,84 @@ to speed. This is probably due to scrubbing. We tuned the parameter until
 our observed plots ~matched our model.
 ```
 
-### From Theory to Practice
+## Collecting the Data
 
 In our Team254-based code we find an autonomous mode, `CharacterizeDriveMode`.
 This class can be used to run the linear and angular characterizations described
 above.  In its current state (2019, week4), it only runs a turning test and
-not a linear one. It also offers the possibility of storing different
-drive characterizations.  This capability is probably useful to assist
-debugging the electro-mechanical construction of the drivetrain but shouldn't
-be employed for final characterizations because the drivetrain is inherently
-coupled when operating on the ground. The means by which the constants are
-obtained are intimately connected with the physical characteristics of the robotg
-and the sharing of the load between drivetrain sides.tly. In addition, it only runs a turning
-test and not a linear one.  This can easily be modified to perform both
-linear and angular acceleration tests.  One issue with the code is that it
-performs an automated regression analysis.  Our experience is that this results
-we obtain this way are inferior to those obtained after some manual cleanup.
-When applied toward final production values it seems likely that we should
-only run this procedure on the ground and for both
+not a linear one. It also offers the possibility of computing different
+drive characterizations for each side.  This capability is definitely useful
+to assist in debugging the electro-mechanical construction of the drivetrain
+but probably shouldn't be employed for final characterizations because the
+drivetrain-sides are inherently coupled when operating on the ground. The means
+by which the constants are obtained are intimately connected with the physical
+characteristics of the robot and the sharing of the load between drivetrain
+sides.
 
-Another method for obtaining these data can be found in the
+One issue with the code is that it performs an automated regression analysis.
+Our experience is that results we obtain this way are inferior to those
+obtained after some manual cleanup. The good news is that it's very easy
+to save the collected data into a ".csv" file that can easily be imported
+into a webapp for regression analyis like [this one](https://mycurvefit.com/).
+When applied to final production values it seems likely that we should only
+run this procedure on the ground and for both linear and angular values and
+only code Ka,Kv,Ka,Kt,J values after human inspection.
+
+Another method for obtaining the _linear_ motion data can be found in the
 [robotpy characterization framework](https://github.com/robotpy/robot-characterization).
 This methodology provides a plethora of graphs to better visualize the
+the test results. At the end of the day it seems likely that since
+it produces estimates for linear motion in the same manner as our java
+implementation it will be more convenient to use our integrated solution
+for both linear _and_ angular rather than the python solution for one and
+our java code for the other.
 
-``` java
-class CharacterizationConstants
-{
-    public double ks; // V to break static friction
-    public double kv; // V / rad / s
-    public double ka; // V / rad / s^2
-}
+```java
+List<DriveCharacterization.VelocityDataPoint> linearVelData = new ArrayList<>();
+List<DriveCharacterization.AccelerationDataPoint> linearAccData = new ArrayList<>();
+List<DriveCharacterization.AccelerationDataPoint> angularVelData = new ArrayList<>();
+List<DriveCharacterization.AccelerationDataPoint> angularAccData = new ArrayList<>();
+
+boolean reverse = false;
+boolean turnInPlace;
+CharacterizeDriveMode.SideToCharacterize side = SideToCharacterize.BOTH;
+
+// first collect linear data
+turnInPlace = false;
+runAction(new CollectVelocityData(linearVelData, reverse, turnInPlace, side));
+runAction(new WaitAction(10));
+runAction(new CollectAccelerationData(linearAccData, reverse, turnInPlace, side));
+runAction(new WaitAction(10));
+
+// next collect angular data
+turnInPlace = true;
+runAction(new CollectVelocityData(angularVelData, reverse, turnInPlace, side));
+runAction(new WaitAction(10));
+runAction(new CollectAccelerationData(angularAccData, reverse, turnInPlace, side));
+
+// next write out the data for regression analysis.  This will result
+// in values for Ks, Kv, Ka/Kt and J.  NB: currently angularVelData
+// may not be needed.
 ```
 
-T
+Upon completion of the regression analysis, we place values into
+`Constants.java` as `kDriveVIntercept`, `kDriveKv` and `kDriveKa` and
+`kRobotAngularInertia`.  The value `kRobotLinearInertia` should be
+measured by weight the robot (including bumper and battery).  The
+value for `kRobotAngularDrag` may be less important but if we find ourselves
+having troubles following high-curvature paths, we may need to tune this
+value.
 
-These values, in turn, should be placed into Constants.java as
-`kDriveVIntercept`, `kDriveKv` and `kDriveKa`.  Note that these
-physical values are represented in "SI units" and that our standard
-for representing velocity is currently inches per second.
+Another action, `CollectCurvatureData`, captures the relationship between
+RobotState's measured dynamics with known (and different) left and right
+motor power.  This procedure interacts with the RobotState odometry to
+compare the wheel's "predicted curvature" (dx, dtheta) with the voltages
+applied to left and right motors. Currently there's no obvious connection
+between the results of this test and the tuning of any constants.
 
-In our Team254-based code, we see an autonomous action `CollectVelocityData.java`.
-This action moves from 0 to 25% power and measures the velocity associated with
-each power level.  The data is written to a csv file and can be used to produce
-a polynomial (or line) that maps velocity to voltage.  Similarly the action
-`CollectAcclerationData.java` runs for a fixed time interval and samples the
-rate at which velocity changes over time. The results of these two tests are
-interpretted by another class, `DriveCharacterization.java` to produce an
-efficient approximation of this data which, in turn, is used to help produce
-the demand and feedforward values for our MotionPlanner. Another action, `CollectCurvatureData`, captures the relationship between RobotState's
-measured dynamics with known (and different) left and right motor power
-_(and it's my suspicion that CollectCurvatureData can be used to
-validate the results of all the characterization machinery)_.
-Currently, `DriveCharacterization` doesn't utilize the curvature dataset
-but its method,  `characterizeDrive` does combine the velocity and
-acceleration samples to produce this:
+## The Rubber Hits the Road
 
-
-So far, we've characterized our drive in terms of its linear motion.
-It turns out that mechanically, the motion of turning a robot is
-different from moving a robot along a line.  In a frictionless setting,
-in order to change velocity we must accelerate and this requires
-application of force.  Angular velocity and angular momentum are terms we use to
-describe the amount and rate of change of our robots' turning  and
-just as with linear motion, we must apply a force to change our heading.
-
-
-
-## Delivering Target Velocities
+### Drive.java
 
 Here is the line in subsystems/Drive.java that makes things happen.
 
@@ -279,25 +297,57 @@ mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand,
 ```
 
 First, notice that this new entrypoint has appeared since our 2018 season.
-As before, the `demand` parameter is expressed in terms of target velocity.
-What's new here is that we are given the opportunity to update our feedforward
-term at the same time. This makes sense since our MotionPlanner is continuously
-updating our target velocity and it turns out to be necessary because for most
-drivetrains, the velocity is not a simple linear function of motor voltage.
+As before, the `demand0` parameter is expressed in terms of target velocity
+(and in native units). What's new here is that we are given the opportunity
+to update our feedforward term at the same time via `demand1`. This makes
+sense since our MotionPlanner is continuously updating our target velocity
+and it turns out to be necessary because for most drivetrains, the velocity
+is not a simple linear function of motor voltage. Most importantly the original
+CTRE formulation for Kf assumes Ks is 0 which is definitely not the
+case for drivetrains.
 
-The [ctre docs](http://www.ctr-electronics.com/downloads/api/java/html/com/ctre/phoenix/motorcontrol/can/BaseMotorController.html#set-com.ctre.phoenix.motorcontrol.ControlMode-double-com.ctre.phoenix.motorcontrol.DemandType-double-)
-indicate that the `ArbitraryFeedForward` term is expressed in motor output
-units.  This value is directly added to the value computed by the current
-PID control loop which is always in the range [-1024, 1024].  Thus it
-falls upon us to convert our feedforward term (intuitively power) into ctre
-motor output units. As discussed below, this value is computed by
-MotionPlanner and updated frequently. Finally, notice that we apply a local
-Kd multiplier to the computed acceleration term. We can think of this term
-as a sort of mini-PD-controller that is under our direct control via the
-feedforward term.  Since we are operating in Velocity mode, the Kp term
-would to the velocity error and the Kd term can be applied to the
-_acceleration_ (derivative of velocity) in order to smooth out the
-oscillations typical of a P-only controller.
+The [ctre docs](http://www.ctr-electronics.com/downloads/api/java/html/interfacecom_1_1ctre_1_1phoenix_1_1motorcontrol_1_1_i_motor_controller.html)
+say this:
+
+```text
+ArbitraryFeedForward: Use demand1 as an arbitrary additive value to the
+demand0 output.  In PercentOutput the demand0 output is the motor output,
+and in closed-loop modes the demand0 output is the output of PID0.
+```
+
+What isn't clear from this documentation is whether the value is interpretted
+as a feedforward value or as something else.  The Team254 code is a better source
+of insight and it's clear from the implementation that demand1 is a
+pct-vbus signal. Here is the update code during path following:
+
+```java
+void updatePathFollower(...)
+{
+  DriveMotionPlanner.Output output = mMotionPlanner.update(now, robotState);
+  DriveSignal demand = new DriveSignal(
+                        radiansPerSecondToTicksPer100ms(output.left_velocity),
+                        radiansPerSecondToTicksPer100ms(output.right_velocity));
+  DriveSignal feedfwd = new DriveSignal(output.left_feedforward_voltage / 12.0,
+                        output.right_feedforward_voltage / 12.0);
+  this.setPathVelocity(target, feedfwd);
+}
+
+void setPathVelocity()
+{
+    // In velocity-Control mode:
+    //      demand is measured in ticksPer100ms
+    //      feedforward is measured in pctVbus [0,1]
+    mPeriodicIO.left_demand = signal.getLeft();
+    mPeriodicIO.right_demand = signal.getRight();
+    mPeriodicIO.left_feedforward = feedforward.getLeft();
+    mPeriodicIO.right_feedforward = feedforward.getRight();
+}
+```
+
+What we learn from this is that the motion planner produces an output velocity
+measured in radiansPerSecond and a feedforward term measured in Volts.
+
+### MotionPlanner
 
 
 ### DCMotorTransmission
@@ -340,10 +390,11 @@ of our new target).
 ## References
 
 * [FRC Whitepaper On Drive Characterization](https://www.chiefdelphi.com/t/paper-frc-drivetrain-characterization/160915)
-* [RobotPy characterization script](https://github.com/robotpy/robot-characterization)
 * [Practical Guide to State-space Control](https://github.com/calcmogul/state-space-guide) (ch 4)
+* [RobotPy characterization script](https://github.com/robotpy/robot-characterization)
 
 
+## Misc notes from chief delphi
 Great discussion of acceleration variability:
 
 ``` text

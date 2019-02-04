@@ -109,13 +109,13 @@ public class Drive extends Subsystem
         talon.configVelocityMeasurementWindow(1, Constants.kLongCANTimeoutMs);
         talon.configClosedloopRamp(Constants.kDriveVoltageRampRate, Constants.kLongCANTimeoutMs);
         talon.configNeutralDeadband(0.04, 0);
-        
+
     }
 
     private Drive()
     {
         mPeriodicIO = new PeriodicIO();
-        
+
         boolean success = true;
         try
         {
@@ -233,6 +233,9 @@ public class Drive extends Subsystem
             updateTalonsForVelocity();
             mDriveControlState = DriveControlState.PATH_FOLLOWING;
         }
+        // In velocity-Control mode:
+        //      demand is measured in ticksPer100ms
+        //      feedforward is measured in pctVbus [0,1]
         mPeriodicIO.left_demand = signal.getLeft();
         mPeriodicIO.right_demand = signal.getRight();
         mPeriodicIO.left_feedforward = feedforward.getLeft();
@@ -241,7 +244,7 @@ public class Drive extends Subsystem
 
     /**
      * Configure talons for velocity control without paths
-     * 
+     *
      * @param inchesPerSecVelocity Desired velocity in inches per second
      * @param feedforwardVoltage Voltage (0-12) to apply arbitrarily to velocity PID output
      */
@@ -249,8 +252,8 @@ public class Drive extends Subsystem
     {
         if (mDriveControlState != DriveControlState.VELOCITY)
         {
-            logDebug("Switching to closed loop velocity. Target: " + 
-            inchesPerSecVelocity.toString() + 
+            logDebug("Switching to closed loop velocity. Target: " +
+            inchesPerSecVelocity.toString() +
                 ", Arbitrary feedforward: " + feedforwardVoltage.toString());
             updateTalonsForVelocity();
             mDriveControlState = DriveControlState.VELOCITY;
@@ -465,7 +468,7 @@ public class Drive extends Subsystem
                 setPathVelocity(
                         new DriveSignal(radiansPerSecondToTicksPer100ms(output.left_velocity),
                                 radiansPerSecondToTicksPer100ms(output.right_velocity)),
-                        new DriveSignal(output.left_feedforward_voltage / 12.0, 
+                        new DriveSignal(output.left_feedforward_voltage / 12.0,
                                         output.right_feedforward_voltage / 12.0));
 
                 // if accel is rads per sec^2, why divide by 1000 (and not 100?)
@@ -495,12 +498,12 @@ public class Drive extends Subsystem
         }
 
     }
-   
+
     public Rotation2d getPitch()
     {
         return mPeriodicIO.gyro_pitch;
     }
-   
+
     public synchronized void reloadGains(TalonSRX talon)
     {
         talon.config_kP(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
@@ -530,7 +533,7 @@ public class Drive extends Subsystem
         mPeriodicIO.left_voltage = mLeftMaster.getMotorOutputVoltage();
         mPeriodicIO.right_voltage = mRightMaster.getMotorOutputVoltage();
         double deltaLeftTicks = ((mPeriodicIO.left_position_ticks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
-        
+
         if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
         {
             mPeriodicIO.left_distance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
@@ -549,12 +552,12 @@ public class Drive extends Subsystem
         {
             mPeriodicIO.right_distance += deltaRightTicks * Constants.kDriveWheelDiameterInches;
         }
-        
+
         if (mCSVWriter != null)
         {
             mCSVWriter.add(mPeriodicIO);
         }
-        
+
 
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
     }
@@ -578,14 +581,34 @@ public class Drive extends Subsystem
         }
         else
         {
+            // In ControlMode.Velocity:
+            //      * demand is measured in ticksPer100ms
+            //      * feedforward is measured in pctVbus [0,1]
+            // Note: we employ a localized PD controller on the arbitrary
+            //  feedforward term. kDriveVelocityKd combines with accel since
+            //  accel is the derivative of velocity.
+            // Remember that there is path-following controller that sits
+            //  atop this call and that in that context the term feedfwd
+            //  controller refers to an open-loop path follower.
+            //  (fair warning).
+            mLeftMaster.set(ControlMode.Velocity,
+                    mPeriodicIO.left_demand,
+                    DemandType.ArbitraryFeedForward,
+                        mPeriodicIO.left_feedforward +
+                            Constants.kDriveVelocityKd*mPeriodicIO.left_accel/1023.0);
+            mRightMaster.set(ControlMode.Velocity,
+                    mPeriodicIO.right_demand,
+                    DemandType.ArbitraryFeedForward,
+                        mPeriodicIO.right_feedforward +
+                            Constants.kDriveVelocityKd*mPeriodicIO.right_accel/1023.0);
+            //
+            // Following can be used to debug the feedback term without the
+            // Talon-side PID.
+            //
             // mLeftMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
             //      mPeriodicIO.left_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
             // mRightMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
             //      mPeriodicIO.right_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
-            mLeftMaster.set(ControlMode.Velocity, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.left_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0);
-            mRightMaster.set(ControlMode.Velocity, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.right_feedforward + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0);
         }
     }
 
@@ -603,14 +626,14 @@ public class Drive extends Subsystem
         logNotice("checkSystem " + variant + " ---------------");
         if(variant.equals("velocityControl"))
         {
-            Timer timer = new Timer();            
-            logNotice("  enter velocity control mode");            
+            Timer timer = new Timer();
+            logNotice("  enter velocity control mode");
             logNotice("  straight: 10ips, 4 sec");
             this.setVelocity(new DriveSignal(10, 10), feedfwd);
             timer.reset();
             timer.start();
             while (!timer.hasPeriodPassed(4))
-            {                
+            {
                 Timer.delay(.05);
                 this.outputTelemetry();
             }
