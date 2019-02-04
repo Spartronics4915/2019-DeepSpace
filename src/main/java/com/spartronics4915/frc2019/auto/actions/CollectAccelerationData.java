@@ -31,28 +31,40 @@ public class CollectAccelerationData implements Action
     private double mPrevTime = 0.0;
 
     /**
-     * @param data     reference to the list where data points should be stored
-     * @param highGear use high gear or low
-     * @param reverse  if true drive in reverse, if false drive normally
-     * @param turn     if true turn, if false drive straight
-     * @param side     the side to collect data for (motors will be run for all sides regardless of this setting)
+     * This test collects data about the behavior of the drivetrain in a "dynamic
+     * test",
+     * where we set the demand to a constant value and sample acceleration. The idea
+     * is that velocity is that steady-state velocity is negligle in this case, so
+     * we are only measuring the effects of acceleration.
+     * 
+     * There are a couple of issues with this test (we should sample voltage
+     * directly, and we should subtract the voltage caused by velocity from this
+     * applied voltage), and it is advised to use the FeedRemoteCharacterization
+     * action instead of this.
+     * 
+     * @param data        reference to the list where data points should be stored
+     * @param reverse     if true drive in reverse, if false drive normally
+     * @param turnInPlace if true turn, if false drive straight
+     * @param side        the side to collect data for (motors will be run for all
+     *                    sides regardless of this setting)
      */
-    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean reverse, boolean turn, SideToCharacterize side)
+    public CollectAccelerationData(List<DriveCharacterization.AccelerationDataPoint> data, boolean reverse, boolean turnInPlace,
+            SideToCharacterize side)
     {
         mAccelerationData = data;
         mReverse = reverse;
-        mTurn = turn;
+        mTurn = turnInPlace;
         mSide = side;
-        mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "ACCEL_DATA.csv").toString(), DriveCharacterization.AccelerationDataPoint.class);
+        mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "ACCEL_DATA.csv").toString(),
+                DriveCharacterization.AccelerationDataPoint.class);
     }
 
     @Override
     public void start()
     {
         mDrive.setOpenLoop(new DriveSignal(
-            (mSide.shouldRunLeft() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * kPower,
-            (mSide.shouldRunRight() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower)
-        );
+                (mSide.shouldRunLeft() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * kPower,
+                (mSide.shouldRunRight() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
         mStartTime = Timer.getFPGATimestamp();
         mPrevTime = mStartTime;
         Logger.debug("Collecting acceleration data");

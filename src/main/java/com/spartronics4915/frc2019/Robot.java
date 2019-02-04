@@ -29,7 +29,7 @@ public class Robot extends TimedRobot
     private SubsystemManager mSubsystemManager = null;
     private Drive mDrive = null;
     private PanelHandler mPanelHandler = null;
-    private CargoHandler mCargoHandler = null;
+    private CargoChute mCargoChute = null;
     private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
     private LED mLED = null;
@@ -93,7 +93,7 @@ public class Robot extends TimedRobot
             {
                 mDrive = Drive.getInstance();
                 mPanelHandler = PanelHandler.getInstance();
-                mCargoHandler = CargoHandler.getInstance();
+                mCargoChute = CargoChute.getInstance();
                 mCargoIntake = CargoIntake.getInstance();
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
@@ -104,14 +104,14 @@ public class Robot extends TimedRobot
                                 RobotStateEstimator.getInstance(),
                                 mDrive,
                                 mPanelHandler,
-                                mCargoHandler,
+                                mCargoChute,
                                 mCargoIntake,
                                 mClimber,
                                 mLED,
                                 mSuperstructure));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
-                SmartDashboard.putString(kRobotTestModeOptions, 
+                SmartDashboard.putString(kRobotTestModeOptions,
                                          "None,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
@@ -208,7 +208,7 @@ public class Robot extends TimedRobot
                 mAutoModeExecutor.stop();
             }
 
-            // RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity()); Do not do this here 
+            // RobotState.getInstance().reset(Timer.getFPGATimestamp(), Pose2d.identity()); Do not do this here
             mEnabledLooper.start();
 
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
@@ -335,6 +335,10 @@ public class Robot extends TimedRobot
                 {
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
                 }
+                else if (mControlBoard.getClimb()) 
+                {
+                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
+                }
                 // TODO (for button person): add buttons for all superstructure wanted states
             }
             else if (mControlBoard.getReturnToDriverControl())
@@ -373,9 +377,9 @@ public class Robot extends TimedRobot
     {
         mSubsystemManager.outputToTelemetry();
         mEnabledLooper.outputToSmartDashboard();
-        SmartDashboard.putNumber("Robot/BatteryVoltage", 
+        SmartDashboard.putNumber("Robot/BatteryVoltage",
             RobotController.getBatteryVoltage());
-        SmartDashboard.putNumber("Robot/InputCurrent", 
+        SmartDashboard.putNumber("Robot/InputCurrent",
             RobotController.getInputCurrent());
     }
 }

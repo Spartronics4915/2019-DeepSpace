@@ -1,11 +1,18 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
+
+
+/** 2 pneumatics to eject panels
+ * panels held on by velcro */
+
 public class PanelHandler extends Subsystem
 {
-
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -19,23 +26,31 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        CLOSED, INTAKE,
+        RETRACT, EJECT
     }
 
     private enum SystemState
     {
-        CLOSING, INTAKING,
+        RETRACTING, EJECTING
     }
 
-    private WantedState mWantedState = WantedState.CLOSED;
-    private SystemState mSystemState = SystemState.CLOSING;
+    private WantedState mWantedState = WantedState.RETRACT;
+    private SystemState mSystemState = SystemState.RETRACTING;
+
+    private final double kEjectTime = 0.3; // Seconds TODO: Tune me
+    private static final boolean kSolenoidExtend = false;
+    private static final boolean kSolenoidRetract = true;
+
+    private Solenoid mSolenoid = null;
+
+    private boolean mStateChanged;
 
     private PanelHandler()
     {
         boolean success = true;
         try
         {
-            // Instantiate your hardware here
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kPanelHandlerSolenoid);
         }
         catch (Exception e)
         {
@@ -48,14 +63,16 @@ public class PanelHandler extends Subsystem
 
     private final ILoop mLoop = new ILoop()
     {
+        private double mEjectTime;
 
         @Override
         public void onStart(double timestamp)
         {
             synchronized (PanelHandler.this)
             {
-                mWantedState = WantedState.CLOSED;
-                mSystemState = SystemState.CLOSING;
+                mSolenoid.set(kSolenoidRetract);
+                mWantedState = WantedState.RETRACT;
+                mSystemState = SystemState.RETRACTING;
             }
         }
 
@@ -67,14 +84,31 @@ public class PanelHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case INTAKING:
+                    case RETRACTING:
+                        if (mStateChanged)
+                        {
+                            mSolenoid.set(kSolenoidRetract);
+                        }
                         break;
-                    case CLOSING:
-                        stop();
+                    case EJECTING:
+                        if (mStateChanged)
+                        {
+                            mSolenoid.set(kSolenoidExtend);
+                            mEjectTime = Timer.getFPGATimestamp();
+                        }
+                        else if (Timer.getFPGATimestamp() > mEjectTime + kEjectTime && newState == mSystemState)
+                            setWantedState(WantedState.RETRACT);
                         break;
                     default:
                         logError("Unhandled system state!");
                 }
+                if (newState != mSystemState)
+                {
+                    mStateChanged = true;
+                    logNotice("System state to " + newState);
+                }
+                else
+                    mStateChanged = false;
                 mSystemState = newState;
             }
         }
@@ -89,19 +123,16 @@ public class PanelHandler extends Subsystem
         }
     };
 
-    private SystemState defaultStateTransfer()
+    private SystemState defaultStateTransfer() //Eject -timer-> Retract
     {
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case CLOSED:
-                newState = SystemState.CLOSING;
+            case RETRACT:
+                newState = SystemState.RETRACTING;
                 break;
-            case INTAKE:
-                newState = SystemState.INTAKING;
-                break;
-            default:
-                newState = SystemState.CLOSING;
+            case EJECT:
+                newState = SystemState.EJECTING;
                 break;
         }
         return newState;
@@ -114,7 +145,7 @@ public class PanelHandler extends Subsystem
 
     public synchronized boolean atTarget()
     {
-        return true;
+        return mSystemState == SystemState.RETRACTING && mWantedState == WantedState.RETRACT;
     }
 
     @Override
@@ -126,18 +157,37 @@ public class PanelHandler extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
-        return false;
+        logNotice("Starting PanelHandler Solenoid Check");
+        try
+        {
+            logNotice("Extending solenoid for 2 seconds");
+            mSolenoid.set(kSolenoidExtend);
+            Timer.delay(2);
+            logNotice("Retracting solenoid for 2 seconds");
+            mSolenoid.set(kSolenoidRetract);
+        }
+        catch (Exception e)
+        {
+            logException("Trouble instantiating hardware ", e);
+            return false;
+        }
+        logNotice("PanelHandler Solenoid Check End");
+        return true;
     }
 
     @Override
     public void outputTelemetry()
     {
-
+        dashboardPutState(mSystemState.toString());
+        dashboardPutWantedState(mWantedState.toString());
+        dashboardPutBoolean("mSolenoid1 Extended", mSolenoid.get());
     }
 
     @Override
     public void stop()
     {
-        // Stop your hardware here
+        mWantedState = WantedState.RETRACT;
+        mSystemState = SystemState.RETRACTING;
+        mSolenoid.set(kSolenoidRetract);
     }
 }
