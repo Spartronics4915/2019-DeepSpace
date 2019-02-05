@@ -29,27 +29,15 @@ public class Constants
     public static final double kRobotAngularInertia = 461; // kg m^2 (from an online calculator) TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
-    // Uncomment for per-wheel constants
-    // Left
-    // public static final double kDriveLeftVIntercept = 0.646; // V
-    // public static final double kDriveLeftKv = 0.242; // V per rad/s
-    // public static final double kDriveLeftKa = 0.0008; // V per rad/s^2
-    // // Right
-    // public static final double kDriveRightVIntercept = 0.386; // V
-    // public static final double kDriveRightKv = 0.233; // V per rad/s
-    // public static final double kDriveRightKa = 0.0008; // V per rad/s^2
+    // Right
+    public static final double kDriveRightVIntercept = 0.7503; // V
+    public static final double kDriveRightKv = 0.9288; // V per rad/s
+    public static final double kDriveRightKa = 0.1583; // V per rad/s^2
 
     // Left
-    // public static final double kDriveLeftVIntercept = 1.59634357933506; // V
-    // public static final double kDriveLeftKv = 0.199070536239607; // V per rad/s
-    // public static final double kDriveLeftKa = 0.001200902662294194; // V per rad/s^2
-    public static final double kDriveLeftVIntercept = 0.8029026946682132 ; // V
-    public static final double kDriveLeftKv = 0.1880282238461718; // V per rad/s
-    public static final double kDriveLeftKa = 0.0008; // V per rad/s^2
-    // Right
-    public static final double kDriveRightVIntercept = kDriveLeftVIntercept; // V
-    public static final double kDriveRightKv = kDriveLeftKv; // V per rad/s
-    public static final double kDriveRightKa = kDriveLeftKa; // V per rad/s^2
+    public static final double kDriveLeftVIntercept = 0.5574; // V
+    public static final double kDriveLeftKv = 0.9480; // V per rad/s
+    public static final double kDriveLeftKa = 0.1583; // V per rad/s^2
 
     public static final double kDriveLeftDeadband = 0.078;
     public static final double kDriveRightDeadband = 0.068;
@@ -116,6 +104,10 @@ public class Constants
     public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
+    // PWMs
+    public static final int kCargoHatchArmPWMId = 0;
+    public static final int kClimberPWMId = 1;
+
     // Panel Handler
     public static final int kPanelHandlerSolenoid = 2;
 
@@ -127,26 +119,31 @@ public class Constants
     public static final int kCargoIntakeSensor = 7;
     public static final int kCargoIntakeSensorMinDistance = 100; //TODO: unit/value
     public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
+    public static final double kShootTime = 4;
 
     // Cargo Ramp
-    public static final int kShootMotorLeftId = 8;
-    public static final int kShootMotorRightId = 9;
-    public static final int kRampMotorId = 7;
+    public static final int kRampMotorId = 5;
     public static final int kFlipperSolenoidId = 3;
-    public static final double kShootSpeed = 1.0; // tune
+    public static final int kRampSensorId = 6;
     public static final double kRampSpeed = 1.0;
+    public static final double kShootSpeed = 1.0; // tune
+    public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
+    public static final boolean kRampSolenoidExtend = false;
+    public static final boolean kRampSolenoidRetract = true;
 
     // Climber
-    public static final int kClimberPWMId = 2;
-    public static final int kFrontLeftSolenoidId1 = 0;
-    public static final int kFrontLeftSolenoidId2 = 1;
-    public static final int kFrontRightSolenoidId1 = 2;
-    public static final int kFrontRightSolenoidId2 = 3;
-    public static final int kRearLeftSolenoidId1 = 4;
-    public static final int kRearLeftSolenoid2 = 5;
-    public static final int kRearRightSolenoidId1 = 6;
-    public static final int kRearRightSolenoidId2 = 7;
+    public static final int kFrontLeftSolenoidId1 = 0; //Extend
+    public static final int kFrontLeftSolenoidId2 = 1; //Retract
+    public static final int kFrontRightSolenoidId1 = 2; //Extend
+    public static final int kFrontRightSolenoidId2 = 3; //Retract
+    public static final int kRearLeftSolenoidId1 = 4; //Extend
+    public static final int kRearLeftSolenoid2 = 5; //Retract
+    public static final int kRearRightSolenoidId1 = 6; //Extend
+    public static final int kRearRightSolenoidId2 = 7; //Retract
     public static final int kFrontLeftIRSensorId = 0;
     public static final int kFrontRightIRSensorId = 1;
-
+    public static final int kDownwardFrontRightIRSensorId = 2;
+    public static final int kDownwardFrontLeftIRSensorId = 3;
+    public static final int kDownwardRearRightIRSensorId = 4;
+    public static final int kDownwardRearLeftIRSensorId = 5;
 }
