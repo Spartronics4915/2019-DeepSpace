@@ -1,6 +1,9 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.drivers.A21IRSensor;
+import com.spartronics4915.lib.drivers.A41IRSensor;
+import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
@@ -38,18 +41,19 @@ public class CargoIntake extends Subsystem
     private WantedState mWantedState = WantedState.HOLD;
     private SystemState mSystemState = SystemState.HOLDING;
 
-    private static final boolean kSolenoidExtend = true;
-    private static final boolean kSolenoidRetract = false;
+    private static final boolean kSolenoidExtend = false;
+    private static final boolean kSolenoidRetract = true;
     private static final double kIntakeSpeed = 0.5;
     private static final double kEjectSpeed = -0.5;
     private static final double kIntakeClimbSpeed = 0.5;
-
 
     private Solenoid mSolenoid = null;
     private Solenoid mSolenoidClimb = null;
 
     private TalonSRX mMotorRight = null;
     private TalonSRX mMotorLeft = null;
+
+    private IRSensor mSensor = null;
 
     private boolean mStateChanged;
 
@@ -58,10 +62,12 @@ public class CargoIntake extends Subsystem
         boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            mSolenoid = new Solenoid(Constants.kCargoIntakeSolenoid);
-            mSolenoidClimb = new Solenoid(Constants.kCargoIntakeSolenoidClimb);
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoid);
+            mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoidClimb);
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
+            mSensor = new A41IRSensor(Constants.kCargoIntakeSensor);
+
         }
         catch (Exception e)
         {
@@ -107,13 +113,16 @@ public class CargoIntake extends Subsystem
                             setSolenoidsToDown();
                         }
                         break;
-                    case INTAKING://transition to ARM_UPING using proximity sensor
+                    case INTAKING://transition to holding using proximity sensor
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
                             mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
                         }
+                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
+                                && newState == mSystemState)
+                            setWantedState(WantedState.HOLD);
                         break;
                     case EJECTING://transition to holding using proximity sensor
                         if (mStateChanged)
@@ -122,6 +131,9 @@ public class CargoIntake extends Subsystem
                             mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
                         }
+                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
+                                && newState == mSystemState)
+                            setWantedState(WantedState.HOLD);
                         break;
                     case CLIMBING:
                         if (mStateChanged)
@@ -278,6 +290,8 @@ public class CargoIntake extends Subsystem
     @Override
     public void stop()
     {
+        mWantedState = WantedState.HOLD;
+        mSystemState = SystemState.HOLDING;
         mSolenoid.set(kSolenoidRetract);
         mSolenoidClimb.set(kSolenoidRetract);
         mMotorRight.set(ControlMode.PercentOutput, 0);
