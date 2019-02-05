@@ -1,4 +1,4 @@
-# Drive Tuning
+# Drivetrain Characterization and Tuning
 
 Wherein we discuss the murky business of getting the robot to move where we
 want and at the speed we want.
@@ -7,6 +7,11 @@ want and at the speed we want.
 
 - [Introduction](#introduction)
 - [Drive Characterization](#drive-characterization)
+    - [2-minutes of Physics](#2-minutes-of-physics)
+        - [Newton's Second Law - `F = m*a`](#newtons-second-law---f--ma)
+        - [Rotational Motion - `F = torque/radius`](#rotational-motion---f--torqueradius)
+        - [One With the Force](#one-with-the-force)
+    - [Back to Robots and Motors](#back-to-robots-and-motors)
 - [Collecting the Data](#collecting-the-data)
 - [The Rubber Hits the Road](#the-rubber-hits-the-road)
     - [Drive.java](#drivejava)
@@ -24,11 +29,11 @@ Our CANTalons can be operated in a confusing variety of modes.  Central to
 our autonomous motion and path-planning is the __Velocity Control Mode__ (VCM).
 The idea of this mode is that there is a feedback loop (PID) that runs on each
 Talon Master whose purpose is to track a target velocity.  In order for our
-robot to traverse a curved path, our path-planner's job must compute a series
-of target velocities for each wheel and this computation is highly dependent
-upon our characterization of the robot's dynamic capabilities. Different from
-__Position Control Mode__, VCM relies upon a _feedforward_ term. The idea
-is to help the VCM PID be more effective by commanding the motors to be
+robot to traverse a curved path, our path-planner's job is to compute a series
+of target velocities for each wheel. It turns out, this computation is highly
+dependent upon our characterization of the robot's dynamic capabilities.
+Different from __Position Control Mode__, VCM relies upon a _feedforward_ term.
+The idea is to help the VCM PID be more effective by commanding the motors to be
 in _approximately_ the correct power configuration so that the job of
 the feedback terms is merely to fine-tune the motor power levels to hone
 in on our target velocities. If we select a feedforward value of 0, then
@@ -37,30 +42,15 @@ velocity and that makes the PID value tuning process extremely difficult
 to achieve.
 
 So we must take some care is selecting values for Kf that make the PID tuning
-more efficient and reliable. We now consider _what are the units of Kf_?
-We know that PID values are multipliers for the error terms but
-since Kf is independent of the error, it makes sense that its meaning (and units)
-are different. CTRE docs, [Feed Forward, Kf](https://github.com/CrossTheRoadElec/Phoenix-Documentation/blob/master/README.md#feed-forward-kf),
-provide the following formula for selecting Kf.
+more efficient and reliable. Since we understand that the purpose of Kf is to
+provide approximately the correct amount of power to achieve a target velocity
+we can think of it as Volts per Velocity.  We'll delve more into the units for
+CTRE's Kf parameter below when the rubber hits the road. The CTRE Kf interface
+suggests the notion that a feedforward term can apply for _any velocity_.
+As we'll see below, this is not adequate for our requirements and so we must
+establish a _`different value of Kf for each target velocity`_.
 
-    Kf = ([Percent Output] * 1023) / [Velocity]
-
-Careful inspection reveals that Kf is expressed in percentage of motor-controller
-output/velocity. In other words, PctVbus/inches/second. Rewriting this we see:
-
-    [Percent Output] * 1023 = Kf * Velocity
-
-Recalling that internally velocity is expressed in encoder ticks/100ms,
-we conclude that useful _values_ for Kf are hardly intuitive.  But leaving
-out some constants, we can think of it as the _power_ required to drive the
-motor at a particular speed.
-
-The apparent goal for this interface conveys the notion that a feedforward term
-can apply for _any velocity_. As we'll see below, this is inadequate for our
-requirements and so we must establish a _`different value of Kf for each
-target velocity`_.
-
-So the question for us is how do we know what values of Kf to choose and
+The question for us, then, is how do we know what values of Kf to choose and
 how do we write software to deliver new Kf values "continuously".
 
 Since modeling an FRC drivetrain mathematically is not only difficult but
@@ -80,8 +70,58 @@ trickier because no drivetrain is perfect and we thus anticipate that the left
 voltage map will differ from the right voltage map. And of course, since the
 dynamic behavior of the robot depends heavily upon mass and mass distribution,
 we must hold off on final characterization efforts until we have a final robot.
+As we'll see, it's even trickier still.
 
-Happily, there are a number of FRC-centric resources available to assist with
+### 2-minutes of Physics
+
+Before proceeding further, we must review a few fundamental physics conepts
+that relate to robot motion.
+
+#### Newton's Second Law - `F = m*a`
+
+In order to change the motion of a thing, we must apply a collection of forces
+(F). Also, the more massive the thing (m), the more force we must apply to
+achieve that same change.  Finally we must only apply a force to change a
+thing's velocity and this is called acceleration (a). This formula works
+in outer-space where there's no friction, negligible pressure, etc.  To
+make it a little more useful in earthly conditions, we can modify it slightly
+to include _dissipating effects_ like this: `F = s + f*v + m*a`. This formula
+approximates the physical effects of friction, air-pressure, etc by expressing
+the idea that we must add some force in proportion to the current velocity
+(v) just to keep moving at the same velocity.
+
+#### Rotational Motion - `F = torque/radius`
+
+Newton's second law is often presented in the form of _linear motion_.
+In robotics, we commonly deal with wheels and electric motors. Here,
+the rotational motion that occurs when we power a motor is best described
+with units of angles rather than distance.  A turning motor is said to have
+an _angular velocity_, often measured in rotations per minute (RPM) or
+radians per second (rad/s).  As in the linear case, if we wish to change
+angular velocity we must apply a force and this results in _angular acceleration_.
+We have a special name, `torque`, for the force applied to achieve angular
+acceleration and it's one trickiest topics in the field of physics. Even
+the idea of mass is trickier and physicists use the term `Moment of Inertia`
+(often referred to as `J` or `I`) to characterize the amount that the
+mass within an object affects its angular motion.
+
+#### One With the Force
+
+One of the coolest things about physics is that it unifies seemingly diverse
+phenomena under a concise mathematical framework.  For our purposes, the idea
+of Force unites linear and angular motion and we'll see how this helps us
+to characterize our robot motion.  From our two simplified equations of motion,
+we can understand one relationship between linear and angular motion by
+equating the two. And from this we'll see that we can compute how much power
+we should apply to our motors to achieve a particular linear motion.
+
+```math
+    F = Sum(torques) = m*linear_acceleration = J*angular_accleration
+```
+
+### Back to Robots and Motors
+
+Happily, there are a number of FRC-centric resources available to assist us with
 drive characterization.  First and foremost is the [FRC Whitepaper On Drive Characterization](https://www.chiefdelphi.com/uploads/default/original/3X/f/7/f79d24101e6f1487e76099774e4ba60683e86cda.pdf5).
 This paper is referenced by most other resources and is a great resource if
 you want to understand some of the physical principles behind robot characterization.
@@ -90,17 +130,22 @@ are a little intimidating but some are quite central to our endeavor. Finally,
 there are canned drive characterization procedures built into our
 Team254-based codebase as well as in the [FRC Drive Characterization github](https://github.com/robotpy/robot-characterization).
 
-At the end of the day, the goal described by these resources it to characterize
-a robot drive for straight linear motion via this formula:
+At the end of the day, the goal described by these resources is to
+characterize a robot drive for straight linear motion via this formula:
 
 ```java
     Vapp = Ks + Kv*velocity + Ka*acceleration;
 ```
 
+This bears a strong resemblence to our physics formula for linear motion and for
+our purposes the formulas are equivalent. Experts will be quick to point
+out that Volts is _not_ a force but rather a potential and only when electrical
+current runs through a motor are actual forces in play.
+
 We can glean from this formula that the voltage we must apply to the robot in
 order to achieve a target velocity depends on both its current velocity as
-well its current acceleration.  In other words, we can't select a voltage
-requirement (and thus a feedforeward term) without specifying both a target
+well its acceleration.  In other words, we can't select a voltage
+requirement (and thus a feedforward term) without specifying both a target
 velocity and a target acceleration. Here are the meanings and units for
 the terms of this formula:
 
@@ -113,10 +158,10 @@ Here's a simple procedure for obtaining an estimate of these constants:
 
 * Build an autonomous routine that drives straight and slowly increases
   the voltage request. A range from 0 to .5 (or even .25) should suffice
-  to capture the data we require. In TalonSRX terms this means running in "PctVbus"
-  (open loop) mode and slowly increasing the PctOutput value. The process
-  of ramping output should take place over, say, 10 seconds and so we could
-  compute a "voltage ramp rate" and add that value to the requested pct
+  to capture the data we require. In TalonSRX terms this means running in
+  "PctVbus" (open loop) mode and slowly increasing the PctOutput value. The
+  process of ramping output should take place over, say, 10 seconds and so we
+  could compute a "voltage ramp rate" and add that value to the requested pct
   on each robot-loop iteration.
 * At each iteration, record the current velocity provided by the wheel encoders.
 * After this test completes, you can run the data through a linear-regression
@@ -127,8 +172,8 @@ Here's a simple procedure for obtaining an estimate of these constants:
   line through our data.  It is quite common to filter out "weird" values
   usually on the front-end of the data collection in order to get a better
   fit for the main portion of the curve.  Intuitively we don't want the
-  non-linear forces associated with getting going to distort our linear
-  approximation whilst in motion.
+  non-linear forces associated with getting-going to distort our linear
+  approximation for typical motion.
 * In order to estimate the Ka term, we run another test. Here we apply
   an instantaneous voltage request of, say .5 (ie 6 Volts) for 2 seconds
   and measure how the velocity changes over time.  We obtain an acceleration
@@ -148,6 +193,7 @@ Team254 has taken the idea one step further and suggests that we also characteri
 our robot's motion while turning. In physics parlance, we need to characterize
 the robot's angular velocity and angular acceleration. In order to do this we
 need to estimate the `moment of inertia` for our robot.
+
 
 [Practical Guide to State-space Control](file:///C:/Users/danab/Desktop/robotics/FRC2019/_references/state-space-guide.pdf) (section 4.5.2) describes this procedure for estimating our robot's moment of
 inertia (J).
@@ -270,7 +316,7 @@ runAction(new CollectAccelerationData(angularAccData, reverse, turnInPlace, side
 Upon completion of the regression analysis, we place values into
 `Constants.java` as `kDriveVIntercept`, `kDriveKv` and `kDriveKa` and
 `kRobotAngularInertia`.  The value `kRobotLinearInertia` should be
-measured by weight the robot (including bumper and battery).  The
+measured by weighing the robot (including bumper and battery).  The
 value for `kRobotAngularDrag` may be less important but if we find ourselves
 having troubles following high-curvature paths, we may need to tune this
 value.
@@ -310,8 +356,7 @@ say this:
 
 ```text
 ArbitraryFeedForward: Use demand1 as an arbitrary additive value to the
-demand0 output.  In PercentOutput the demand0 output is the motor output,
-and in closed-loop modes the demand0 output is the output of PID0.
+demand0 output.
 ```
 
 What isn't clear from this documentation is whether the value is interpretted
@@ -335,11 +380,11 @@ void setPathVelocity()
 {
     // In velocity-Control mode:
     //      demand is measured in ticksPer100ms
-    //      feedforward is measured in pctVbus [0,1]
+    //      feedfwd is measured in pctVbus [0,1]
     mPeriodicIO.left_demand = signal.getLeft();
     mPeriodicIO.right_demand = signal.getRight();
-    mPeriodicIO.left_feedforward = feedforward.getLeft();
-    mPeriodicIO.right_feedforward = feedforward.getRight();
+    mPeriodicIO.left_feedforward = feedfwd.getLeft();
+    mPeriodicIO.right_feedforward = feedfwd.getRight();
 }
 ```
 
@@ -356,11 +401,9 @@ of the DriveMotionPlanner is a model of the drivetrain kinematics and
 dynamics, `DifferentialDrive`.  On each update, we obtain a new target
 position, orientation and velocity from the motion trajectory based on
 the current time. This target is compared against an estimate of the current
-robot state including `DifferentialDrive.DriveDynamics` to produce an error.
-Now depending on the configured follower algorithm, we produce our `Output`
-based on the current state and the dynamics which are a function of our new
-target.
-
+robot state to produce an error. Now depending on the configured follower
+algorithm, we produce our `Output` based on the current state and the
+`DifferentialDrive.DriveDynamics` which are a function of our new target.
 
 ### DifferentialDrive
 
@@ -373,20 +416,22 @@ Before we proceed any deeper, let's define some important terms.
 robot-coordinates (like wheel rotations) into world or field
 coordinates (like the linear and angular acceleration of the robot chassis).
 `Dynamics` refers to the amount of force required to achieve a requested
-velocity and acceleration.  Different drive models require different kinematics
-and robots with the same kinematic model will generally have different dynamics
-due to differences in mass, mass distribution and sources of friction.
+velocity and acceleration.  Different drive models require different _kinematics_.
+Similarly, robots with the _same_ kinematic model will generally have different
+_dynamics_ due to differences in mass, mass distribution and sources of friction.
 
 The DifferentialDrive is the representation of the robot kinematics
 for a robot with two independently operating drivetrains located on the
 left and right side of the robot.  If we wish to adopt an alternate
 drive-train design like mecanum or swerve, we'll need need an alternate
 implementation of DifferentialDrive, and likely abstract that interface
-so we can easily switch between different drive models.   This is the
-approach followed by "jaci's pathfollower" and this has been recently
-adopted as the WPI libraries path follower implementation.
+so we can easily switch between different drive models. This is the
+approach followed by "jaci's pathfollower" - the software package that
+has been recently adopted as the standard FRC/WPI path follower implementation.
 
-Here are the kinematic equations for the differential drive:
+Here are the kinematic equations for the differential drive.  Note that
+these formulas are independent of time.  That means that you can use them
+for position, velocity or acceleration calculations.
 
 ```java
 public ChassisState solveForwardKinematics(final WheelState wmotion)
@@ -405,21 +450,20 @@ public WheelState solveInverseKinematics(final ChassisState cmotion)
 }
 ```
 
-In the forward direction, we convert the wheel distances or velocities (formulas
-work for both) into robot distance or velocity. The key point here is that the
-linear term is just the average of the left and right terms.  If one side is
-rotating in the opposite direction of the other then we get a linear velocity
-of 0. The robot is chasing its tail. The angular term is a function of the
-difference between left and right and so if they are equal, the robot is
-driving straight. Also note that any calculations involving robot turning
-involve the effective robot wheelbase. As the wheelbase increases, larger
-changes of wheel values make smaller changes is chassis angular values.
+In the `forward kinematics`, we convert the wheel velocities into robot velocity.
+The key point here is that the `linear` term is just the average of the left and
+right wheel terms.  If one side is rotating in the opposite direction of the other
+then we get a linear velocity of 0. The robot is chasing its tail. The `angular`
+term is a function of the _difference_ between left and right and so if they are
+equal, the robot is driving straight. Also note that any calculations involving
+robot turning involve the effective robot wheelbase. As the wheelbase increases,
+larger changes of wheel values make smaller changes is chassis angular values.
 
 In `inverse kinematics` we convert the current chassis linear and angular
-distance or velocity into wheel distances or velocities. We can use inverse
-kinematics to determine the left and right wheel rotation rate for a given
-robot motion specification. This is a key requirement for our path-follower
-since its paths are defined relative to the robot and not to each wheel.
+velocity into wheel velocities. We can use inverse kinematics to determine
+the left and right wheel rotation rate for a given robot motion specification.
+This is a key requirement for our path-follower since its paths are defined
+relative to the robot and not to each wheel.
 
 Note that in order to solve kinematics we don't require access to physical
 properties besides wheel and wheelbase and we have arrived at a place where
@@ -431,7 +475,15 @@ motor.  And to do this we need to consider the robot _dynamics_ and consider
 the other physical characteristics of our robot.
 
 The key polymorphic method, `DifferentialDrive.solveInverseDynamics`, is
-responsible for converting the requested robot dynamics into `DriveDynamics`.
+responsible for converting the requested robot/chass velocity and acceleration
+request into `DriveDynamics`.  It should be noted that in order to even produce
+these requests, the Motion Planner must have already taken into account some
+physical properties of our robot in order to plan an _achievable path_.
+This machinery is discussed [elsewhere](PathFollowingNotes.md). For now,
+the key idea is that the MotionPlanner needs to convert its field and
+robot-centeric velocity and acceleration requirements into wheel velocity
+and acceleration and from there into motor output requirements in the
+form of wheel velocity setpoint and wheel voltage feedforward terms.
 
 ```java
 public static class DriveDynamics
@@ -448,18 +500,88 @@ public static class DriveDynamics
 ```
 
 This class encapsulates all the information required to produce a feedforward
-voltage term for our path follower.  The method, solveInvertDynamics, must
+voltage term for our path follower.  The method, `solveInverseDynamics`, must
 account for the current velocity and acceleration in order to produce values
 for wheel/motor voltage, velocity, acceleration, etc.  It relies on the
 services of `DCMotorTransmission` for the the drive characterization
-constants.
+constants.  Note that by converting the required dynamics into wheel torques,
+we encapsulate/segregate the details of the chassis dynamics from the details
+of the actual dc motor.
 
+```java
+// Convert chassis acceleration to wheel torques.
+public void solveInverseDynamics(DriveDynamics d)
+{
+    //  J ia moment of inertia
+    //  m is mass: linear intertia
+    //  effectiveWheelbase radius: might be larger than actual to compensate
+    //      for skid steer.  Measure by turning the robot in place several
+    //      times and figuring out what the equivalent wheelbase radius is.
+    d.wheel_torque.left = wheelRadius/2.0 *
+        (d.chassis_acceleration.linear * m +
+         d.chassis_acceleration.angular * J/effectiveWheelbase -
+         d.chassis_velocity.angular * angularDrag/effectiveWheelbase);
+
+   d.wheel_torque.right = wheelRadius/2.0 *
+        (d.chassis_acceleration.linear * m +
+         d.chassis_acceleration.angular * J/effectiveWheelbase +
+         d.chassis_velocity.angular * angularDrag/effectiveWheelbase);
+
+    // Solve for input voltages.
+    d.voltage.left = left_transmission_.getVoltageForTorque(
+                        d.wheel_velocity.left, d.wheel_torque.left);
+    d.voltage.right = right_transmission_.getVoltageForTorque(
+                        d.wheel_velocity.right, d.wheel_torque.right);
+}
+```
 
 ### DCMotorTransmission
 
 Model of a DC motor rotating a shaft. All parameters refer to the output
 (e.g. should already consider gearing and efficiency losses). The motor
 is assumed to be symmetric forward/reverse.
+
+Here is its state/member variables:
+
+``` java
+final double speed_per_volt;
+final double torque_per_volt;
+final double friction_voltage;
+```
+
+Here's how `DriveMotionPlanner` constructs instances of this class:
+
+```java
+private DCMotorTransmission makeTransmission(double vIntercept, double kv, double ka)
+{
+    double wheelRadiusM = Units.inches_to_meters(Constants.kDriveWheelRadiusInches);
+    double speedPerVolt =  1/kv; // volts/vel -> vel/volts
+    double torquePerVolt = wheelRadiusM*wheelRadiusM*m / (2.0 * ka),
+    return new DCMotorTransmission(speedPerVolt, torquePerVolt, vIntercept);
+}
+```
+
+And here, _finally_, is where the voltages are computed. Note that the
+function requires both a speed and an acceleration.
+
+```java
+{
+public double getVoltageForTorque(final double output_speed, final double torque)
+{
+    double ks;
+    if (output_speed > Util.kEpsilon)
+        ks = friction_voltage; // Forward motion, rolling friction.
+    else if (output_speed < -Util.kEpsilon)
+        ks = -friction_voltage; // Reverse motion, rolling friction.
+    else if (torque > Util.kEpsilon)
+        ks = friction_voltage; // System is static, forward torque.
+    else if (torque < -Util.kEpsilon)
+        ks = -friction_voltage; // System is static, reverse torque.
+    else
+        return 0.0; // System is idle.
+    return torque/torque_per_volt + output_speed/speed_per_volt + ks;
+}
+```
 
 
 ## References
