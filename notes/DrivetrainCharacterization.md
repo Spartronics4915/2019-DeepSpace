@@ -479,7 +479,7 @@ responsible for converting the requested robot/chass velocity and acceleration
 request into `DriveDynamics`.  It should be noted that in order to even produce
 these requests, the Motion Planner must have already taken into account some
 physical properties of our robot in order to plan an _achievable path_.
-This machinery is discussed [elsewhere](PathFollowingNotes.md). For now,
+This machinery is discussed [elsewhere](PathFollowing.md). For now,
 the key idea is that the MotionPlanner needs to convert its field and
 robot-centeric velocity and acceleration requirements into wheel velocity
 and acceleration and from there into motor output requirements in the
