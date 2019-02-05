@@ -103,11 +103,11 @@ public class Robot extends TimedRobot
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
                                 mDrive,
-                                // mPanelHandler,
-                                // mCargoChute,
-                                // mCargoIntake,
-                                // mClimber,
-                                // mLED,
+                                mPanelHandler,
+                                mCargoChute,
+                                mCargoIntake,
+                                mClimber,
+                                mLED,
                                 mSuperstructure));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
