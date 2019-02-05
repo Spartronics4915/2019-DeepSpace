@@ -437,15 +437,15 @@ for position, velocity or acceleration calculations.
 public ChassisState solveForwardKinematics(final WheelState wmotion)
 {
     ChassisState s = new ChassisState();
-    s.linear = kWheelRadius * (wmotion.right + wmotion.left) / 2.0;
-    s.angular = kWheelRadius * (wmotion.right - wmotion.left) / kWheelbaseDiameter;
+    s.linear = kWheelRadius * (wmotion.right+wmotion.left)/2.0;
+    s.angular = kWheelRadius * (wmotion.right-wmotion.left)/kWheelbaseDiameter;
     return s;
 }
 public WheelState solveInverseKinematics(final ChassisState cmotion)
 {
     WheelState s = new WheelState();
-    w.left = (cmotion.linear - kWheelbaseRadius * cmotion.angular) / kWheelRadius;
-    s.right = (chassis_motion.linear + kWheelbaseRadius * cmotion.angular) / kWheelRadius;
+    w.left = (cmotion.linear - kWheelbaseRadius*cmotion.angular)/kWheelRadius;
+    s.right = (cmotion.linear + kWheelbaseRadius*cmotion.angular)/kWheelRadius;
     return s;
 }
 ```
