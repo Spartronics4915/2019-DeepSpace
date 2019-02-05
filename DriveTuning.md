@@ -10,10 +10,9 @@ want and at the speed we want.
 - [Collecting the Data](#collecting-the-data)
 - [The Rubber Hits the Road](#the-rubber-hits-the-road)
     - [Drive.java](#drivejava)
-    - [MotionPlanner](#motionplanner)
-    - [DCMotorTransmission](#dcmotortransmission)
+    - [DriveMotionPlanner](#drivemotionplanner)
     - [DifferentialDrive](#differentialdrive)
-- [Computing Target Velocities For a Planned Path](#computing-target-velocities-for-a-planned-path)
+    - [DCMotorTransmission](#dcmotortransmission)
 - [References](#references)
 - [Misc notes from chief delphi](#misc-notes-from-chief-delphi)
 
@@ -347,32 +346,7 @@ void setPathVelocity()
 What we learn from this is that the motion planner produces an output velocity
 measured in radiansPerSecond and a feedforward term measured in Volts.
 
-### MotionPlanner
-
-
-### DCMotorTransmission
-
-Model of a DC motor rotating a shaft. All parameters refer to the output
-(e.g. should already consider gearing and efficiency losses). The motor
-is assumed to be symmetric forward/reverse.
-
-``` java
-double speedPerVolt = 1.0/Constants.kDriveKv; // speed_per_volt (rad/s/V no load)
-double r = Units.inches_to_meters(Constants.kDriveWheelRadiusInches);
-double rsq = r * r;
-double torquePerVolt = rsq * Constants.kRobotLinearInertia /
-                            (2.0 * Constants.kDriveKa); // N*m/V (stall)
-double frictionVoltage = Constants.kDriveIIntercept; // V
-new DCMotorTransmission(speedPerVolt, torquePerVolt, frictionVoltage);
-```
-
-### DifferentialDrive
-
-Dynamic model a differential drive robot. Note: to simplify things, this math
-assumes the center of mass is coincident with the kinematic center of rotation
-(e.g. midpoint of the center axle).
-
-## Computing Target Velocities For a Planned Path
+### DriveMotionPlanner
 
 At the heart of the system, `DriveMotionPlanner` combines pre-planned paths
 with drive characteristics as well as a selectable trajectory-following
@@ -382,9 +356,110 @@ of the DriveMotionPlanner is a model of the drivetrain kinematics and
 dynamics, `DifferentialDrive`.  On each update, we obtain a new target
 position, orientation and velocity from the motion trajectory based on
 the current time. This target is compared against an estimate of the current
-state to produce an error. Now depending on the follower algorithm, we produce
-our `Output` based on the current state and the dynamics (which are a function
-of our new target).
+robot state including `DifferentialDrive.DriveDynamics` to produce an error.
+Now depending on the configured follower algorithm, we produce our `Output`
+based on the current state and the dynamics which are a function of our new
+target.
+
+
+### DifferentialDrive
+
+`DifferentialDrive` is the interface used by `DriveMotionPlanner` to
+produce a new power configuration for our motors given the current
+state of the robot chassis and its difference (error) from our target.
+
+Before we proceed any deeper, let's define some important terms.
+`Kinematics` refers to the way that we convert forces applied in
+robot-coordinates (like wheel rotations) into world or field
+coordinates (like the linear and angular acceleration of the robot chassis).
+`Dynamics` refers to the amount of force required to achieve a requested
+velocity and acceleration.  Different drive models require different kinematics
+and robots with the same kinematic model will generally have different dynamics
+due to differences in mass, mass distribution and sources of friction.
+
+The DifferentialDrive is the representation of the robot kinematics
+for a robot with two independently operating drivetrains located on the
+left and right side of the robot.  If we wish to adopt an alternate
+drive-train design like mecanum or swerve, we'll need need an alternate
+implementation of DifferentialDrive, and likely abstract that interface
+so we can easily switch between different drive models.   This is the
+approach followed by "jaci's pathfollower" and this has been recently
+adopted as the WPI libraries path follower implementation.
+
+Here are the kinematic equations for the differential drive:
+
+```java
+public ChassisState solveForwardKinematics(final WheelState wmotion)
+{
+    ChassisState s = new ChassisState();
+    s.linear = kWheelRadius * (wmotion.right + wmotion.left) / 2.0;
+    s.angular = kWheelRadius * (wmotion.right - wmotion.left) / kWheelbaseDiameter;
+    return s;
+}
+public WheelState solveInverseKinematics(final ChassisState cmotion)
+{
+    WheelState s = new WheelState();
+    w.left = (cmotion.linear - kWheelbaseRadius * cmotion.angular) / kWheelRadius;
+    s.right = (chassis_motion.linear + kWheelbaseRadius * cmotion.angular) / kWheelRadius;
+    return s;
+}
+```
+
+In the forward direction, we convert the wheel distances or velocities (formulas
+work for both) into robot distance or velocity. The key point here is that the
+linear term is just the average of the left and right terms.  If one side is
+rotating in the opposite direction of the other then we get a linear velocity
+of 0. The robot is chasing its tail. The angular term is a function of the
+difference between left and right and so if they are equal, the robot is
+driving straight. Also note that any calculations involving robot turning
+involve the effective robot wheelbase. As the wheelbase increases, larger
+changes of wheel values make smaller changes is chassis angular values.
+
+In `inverse kinematics` we convert the current chassis linear and angular
+distance or velocity into wheel distances or velocities. We can use inverse
+kinematics to determine the left and right wheel rotation rate for a given
+robot motion specification. This is a key requirement for our path-follower
+since its paths are defined relative to the robot and not to each wheel.
+
+Note that in order to solve kinematics we don't require access to physical
+properties besides wheel and wheelbase and we have arrived at a place where
+we know how many turns or turns/sec of each wheel required to move the robot
+the requested distance or at the requested velocity. We're still missing a
+key ingredient. In order to command the robot to move at a particular speed
+(linear and angular), we need to know how much voltage to provide to each
+motor.  And to do this we need to consider the robot _dynamics_ and consider
+the other physical characteristics of our robot.
+
+The key polymorphic method, `DifferentialDrive.solveInverseDynamics`, is
+responsible for converting the requested robot dynamics into `DriveDynamics`.
+
+```java
+public static class DriveDynamics
+{
+    public double curvature = 0.0; // m^-1
+    public double dcurvature = 0.0; // m^-1/m
+    public ChassisState chassis_velocity = new ChassisState(); // m/s
+    public ChassisState chassis_acceleration = new ChassisState(); // m/s^2
+    public WheelState wheel_velocity = new WheelState(); // rad/s
+    public WheelState wheel_acceleration = new WheelState(); // rad/s^2
+    public WheelState voltage = new WheelState(); // V
+    public WheelState wheel_torque = new WheelState(); // N m
+}
+```
+
+This class encapsulates all the information required to produce a feedforward
+voltage term for our path follower.  The method, solveInvertDynamics, must
+account for the current velocity and acceleration in order to produce values
+for wheel/motor voltage, velocity, acceleration, etc.  It relies on the
+services of `DCMotorTransmission` for the the drive characterization
+constants.
+
+
+### DCMotorTransmission
+
+Model of a DC motor rotating a shaft. All parameters refer to the output
+(e.g. should already consider gearing and efficiency losses). The motor
+is assumed to be symmetric forward/reverse.
 
 
 ## References
