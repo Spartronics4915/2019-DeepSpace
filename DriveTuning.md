@@ -176,7 +176,7 @@ moment of inertia depends on the configuration of any articulable parts on
 the robot.  This means that procedure should be performed with robot
 components in a typical "competition configuration" where the path-planner
 is in operation. Interestingly, Team254 provides an alternate formulation via
-a Chief Delphi post [here](https://www.chiefdelphi.com/t/team-254-presents-lockdown-technical-binder-2018/166515/69):
+a Chief Delphi post [here](https://www.chiefdelphi.com/t/team-254-presents-lockdown-technical-binder-2018/166515/144):
 
 ```java
  // Torque/wheelRadius * chassisRadius = angularAccel * J;
