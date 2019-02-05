@@ -21,11 +21,6 @@ public class LED extends Subsystem
         return mInstance;
     }
 
-    private enum LEDState
-    {
-        ON, OFF,
-    }
-
     public enum DriveLEDState
     {
         OFF("0".getBytes()),
@@ -42,7 +37,6 @@ public class LED extends Subsystem
         }
     }
 
-    private LEDState mLEDState = LEDState.ON;
     private DriveLEDState mDriveState = DriveLEDState.DISABLED;
 
     public LED()
@@ -63,10 +57,10 @@ public class LED extends Subsystem
 
     public synchronized void setDriveState(DriveLEDState driveState)
     {
-        if (mLEDState == LEDState.ON)
-        {
-            mSerialPort.write(driveState.serialSignal, driveState.serialSignal.length);
-        }
+        mDriveState = driveState;
+        dashboardPutNumber("Byte yeet", mDriveState.serialSignal.length);
+        dashboardPutNumber("Bytes sent", mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length));
+        mSerialPort.flush();
     }
 
     @Override
@@ -84,7 +78,7 @@ public class LED extends Subsystem
     @Override
     public void outputTelemetry()
     {
-
+        dashboardPutState(mDriveState.toString());
     }
 
     @Override
@@ -92,6 +86,6 @@ public class LED extends Subsystem
     {
         mDriveState = DriveLEDState.OFF;
         mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length);
-        mLEDState = LEDState.OFF;
+        mSerialPort.close();
     }
 }

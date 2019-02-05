@@ -99,6 +99,8 @@ public class Robot extends TimedRobot
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
 
+                mLED.setDriveState(LED.DriveLEDState.BACKWARDS);
+
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
                                 RobotStateEstimator.getInstance(),
