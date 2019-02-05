@@ -2,6 +2,7 @@ package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.util.DriveSignal;
+import com.spartronics4915.lib.util.Logger;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -15,9 +16,7 @@ public class FeedRemoteCharacterization implements Action
     private final NetworkTableEntry mAutoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
     private final NetworkTableEntry mTelemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
 
-    private double mPriorAutospeed = 0;
     Number[] mOutputArray = new Number[9];
-
 
     /**
      * This feeds this python script: https://github.com/robotpy/robot-characterization
@@ -40,12 +39,12 @@ public class FeedRemoteCharacterization implements Action
         double now = Timer.getFPGATimestamp();
         
         // ft and ft/s
-        double leftPosition = mDrive.getLeftEncoderDistance();
-        double leftVelocity = mDrive.getLeftLinearVelocity();
+        double leftPosition = mDrive.getLeftEncoderDistance() / 12;
+        double leftVelocity = mDrive.getLeftLinearVelocity() / 12;
 
         // ft and ft/s
-        double rightPosition = mDrive.getRightEncoderDistance();
-        double rightVelocity = mDrive.getRightLinearVelocity();
+        double rightPosition = mDrive.getRightEncoderDistance() / 12;
+        double rightVelocity = mDrive.getRightLinearVelocity() / 12;
 
         // volts
         double battery = RobotController.getBatteryVoltage();
@@ -56,7 +55,6 @@ public class FeedRemoteCharacterization implements Action
 
         // percent output on [-1 1]
         double autospeed = mAutoSpeedEntry.getDouble(0);
-        mPriorAutospeed = autospeed;
 
         mDrive.setOpenLoop(new DriveSignal(autospeed, autospeed));
 

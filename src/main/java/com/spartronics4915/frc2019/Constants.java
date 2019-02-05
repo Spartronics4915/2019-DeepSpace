@@ -29,27 +29,15 @@ public class Constants
     public static final double kRobotAngularInertia = 461; // kg m^2 (from an online calculator) TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
-    // Uncomment for per-wheel constants
-    // Left
-    // public static final double kDriveLeftVIntercept = 0.646; // V
-    // public static final double kDriveLeftKv = 0.242; // V per rad/s
-    // public static final double kDriveLeftKa = 0.0008; // V per rad/s^2
-    // // Right
-    // public static final double kDriveRightVIntercept = 0.386; // V
-    // public static final double kDriveRightKv = 0.233; // V per rad/s
-    // public static final double kDriveRightKa = 0.0008; // V per rad/s^2
+    // Right
+    public static final double kDriveRightVIntercept = 0.7503; // V
+    public static final double kDriveRightKv = 0.9288; // V per rad/s
+    public static final double kDriveRightKa = 0.1583; // V per rad/s^2
 
     // Left
-    // public static final double kDriveLeftVIntercept = 1.59634357933506; // V
-    // public static final double kDriveLeftKv = 0.199070536239607; // V per rad/s
-    // public static final double kDriveLeftKa = 0.001200902662294194; // V per rad/s^2
-    public static final double kDriveLeftVIntercept = 0.8029026946682132 ; // V
-    public static final double kDriveLeftKv = 0.1880282238461718; // V per rad/s
-    public static final double kDriveLeftKa = 0.0008; // V per rad/s^2
-    // Right
-    public static final double kDriveRightVIntercept = kDriveLeftVIntercept; // V
-    public static final double kDriveRightKv = kDriveLeftKv; // V per rad/s
-    public static final double kDriveRightKa = kDriveLeftKa; // V per rad/s^2
+    public static final double kDriveLeftVIntercept = 0.5574; // V
+    public static final double kDriveLeftKv = 0.9480; // V per rad/s
+    public static final double kDriveLeftKa = 0.1583; // V per rad/s^2
 
     public static final double kDriveLeftDeadband = 0.078;
     public static final double kDriveRightDeadband = 0.068;

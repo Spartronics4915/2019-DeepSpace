@@ -3,7 +3,6 @@ package com.spartronics4915.frc2019;
 import com.spartronics4915.frc2019.controlboard.*;
 import com.spartronics4915.lib.util.Logger;
 
-import edu.wpi.first.wpilibj.GenericHID.HIDType;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class ControlBoard implements IControlBoard
