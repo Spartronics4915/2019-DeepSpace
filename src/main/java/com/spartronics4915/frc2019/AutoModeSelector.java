@@ -44,6 +44,7 @@ public class AutoModeSelector
             new AutoModeCreator("Other: Characterize Drivetrain (Both)", () -> new CharacterizeDriveMode(SideToCharacterize.BOTH)),
             new AutoModeCreator("Other: Characterize Drivetrain (Left)", () -> new CharacterizeDriveMode(SideToCharacterize.LEFT)),
             new AutoModeCreator("Other: Characterize Drivetrain (Right)", () -> new CharacterizeDriveMode(SideToCharacterize.RIGHT)),
+            new AutoModeCreator("Other: Characterize Drivetrain (Remote)", () -> new CharacterizeDriveRemoteMode())
 
             // e.g. new AutoModeCreator(C: Drive To Hopper", () -> new DriveToHopperMode()),
     };

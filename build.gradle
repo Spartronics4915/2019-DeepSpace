@@ -3,7 +3,7 @@ import java.io.ByteArrayOutputStream;
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2019.1.1"
+    id "edu.wpi.first.GradleRIO" version "2019.2.1"
     id "war"
     id "com.bmuschko.tomcat" version "2.5"
 }

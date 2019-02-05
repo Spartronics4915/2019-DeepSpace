@@ -67,8 +67,9 @@ public class Superstructure extends Subsystem
         ALIGN_AND_EJECT_CARGO,
         ALIGN_AND_EJECT_PANEL,
         // Climb
-        // TODO: Can we do a climb to level two?
         CLIMB,
+        // Panel ejecting (no auto align)
+        EJECT_PANEL,
     };
 
     // Internal state of the system
@@ -81,7 +82,7 @@ public class Superstructure extends Subsystem
         /* Climbing */
         // TODO: We could add align to climb and mount hab platform states, if the drivers want auto align for climbing
         LIFTING_TO_THREE,
-        DRIVING_UNTIL_PLATFORM_CONTACT, // TODO: Is this going to be a mechanism that deploys and pulls us forward ("the cheetos")?
+        RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT,
         RETRACTING_FORWARD_STRUTS,
         DRIVING_UNTIL_PLATFORM_FULL_SUPPORT,
         RETRACTING_REAR_STRUTS,
@@ -89,16 +90,14 @@ public class Superstructure extends Subsystem
 
         /* Placing/intaking game pieces */
         // Alignment using vision+odometry (step 1)
-        // TODO: Ensure that forward only has cargo intake on it, and that reverse has cargo out+hatch panel (this is currently assumed below)
-        ALIGNING_CLOSEST_FORWARD_TARGET,
+        INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET, // This intakes cargo while driving
         ALIGNING_CLOSEST_REVERSE_TARGET,
         // Intaking (step 2)
-        INTAKING_CARGO,
         INTAKING_PANEL,
         // Placing (could also be step 2)
+        MOVING_CHUTE_TO_EJECT_PANEL,
         EJECTING_PANEL,
-        MOVING_CARGO_EJECTOR, // There are two eject heights (step 2.1)
-        EJECTING_CARGO, // (step 2.2)
+        EJECTING_CARGO,
         // Backing out and turning (step 3, PANEL panels only)
         BACKING_OUT_FROM_LOADING,
         TURNING_AROUND,
@@ -107,7 +106,7 @@ public class Superstructure extends Subsystem
     // Superstructure doesn't own the drive, but needs to access it
     private final Drive mDrive = Drive.getInstance();
     private final CargoChute mCargoChute = CargoChute.getInstance();
-    // TODO: private final CargoIntake mCargoIntake = CargoIntake.getInstance();
+    private final CargoIntake mCargoIntake = CargoIntake.getInstance();
     private final Climber mClimber = Climber.getInstance();
     private final PanelHandler mPanelHandler = PanelHandler.getInstance();
 
@@ -115,6 +114,7 @@ public class Superstructure extends Subsystem
     private RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
 
     private static final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
+    private static final double kCargoChuteMovingWaitDuration = 0.8; // Seconds TODO: Tune me
     private static final double kDriveUntilPlatformContactDuration = 1; // Seconds TODO: Tune me
     private static final double kDriveUntilPlatformFullSupportDuration = 1; // Seconds TODO: Tune me
 
@@ -140,9 +140,7 @@ public class Superstructure extends Subsystem
     private ILoop mLoop = new ILoop()
     {
 
-        // State change timestamps are currently unused, but I'm keeping them
-        // here because they're potentially useful.
-        private double mCurrentStateStartTime;
+        private Timer mStateChangedTimer = new Timer();
         private boolean mStateChanged;
 
         @Override
@@ -151,7 +149,8 @@ public class Superstructure extends Subsystem
             synchronized (Superstructure.this)
             {
                 mWantedState = WantedState.DRIVER_CONTROL;
-                mCurrentStateStartTime = timestamp;
+                mStateChangedTimer.reset();
+                mStateChangedTimer.start();
                 mSystemState = SystemState.DRIVER_CONTROLLING;
                 mStateChanged = true;
             }
@@ -174,24 +173,23 @@ public class Superstructure extends Subsystem
 
                     /* Climbing */
                     case LIFTING_TO_THREE:
-                        // XXX: Climb sequence is currently uninterruptable (that's why there's no newState == mSystemState)
                         mClimber.setWantedState(Climber.WantedState.CLIMB);
-                        if (mClimber.atTarget())
-                            newState = SystemState.DRIVING_UNTIL_PLATFORM_CONTACT;
+                        if (mClimber.atTarget() && newState == mSystemState)
+                            newState = SystemState.RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT;
                         break;
-                    case DRIVING_UNTIL_PLATFORM_CONTACT:
+                    case RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT:
                         mDrive.setOpenLoop(kPlatformDriveSpeed);
-                        if (Timer.getFPGATimestamp() - mCurrentStateStartTime > kDriveUntilPlatformContactDuration)
+                        if (mStateChangedTimer.hasPeriodPassed(kDriveUntilPlatformContactDuration) && newState == mSystemState)
                             newState = SystemState.RETRACTING_FORWARD_STRUTS;
                         break;
                     case RETRACTING_FORWARD_STRUTS:
                         mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
-                        if (mClimber.atTarget())
+                        if (mClimber.atTarget() && newState == mSystemState)
                             newState = SystemState.DRIVING_UNTIL_PLATFORM_FULL_SUPPORT;
                         break;
                     case DRIVING_UNTIL_PLATFORM_FULL_SUPPORT:
                         mDrive.setOpenLoop(kPlatformDriveSpeed);
-                        if (Timer.getFPGATimestamp() - mCurrentStateStartTime > kDriveUntilPlatformFullSupportDuration)
+                        if (mStateChangedTimer.hasPeriodPassed(kDriveUntilPlatformFullSupportDuration) && newState == mSystemState)
                             newState = SystemState.RETRACTING_REAR_STRUTS;
                         break;
                     case RETRACTING_REAR_STRUTS:
@@ -204,8 +202,9 @@ public class Superstructure extends Subsystem
                         break;
 
                     /* Placing/intaking game pieces */
-                    case ALIGNING_CLOSEST_FORWARD_TARGET:
-                        // TODO: Put in paths
+                    case INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET:
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+                        mCargoChute.setWantedState(CargoChute.WantedState.BRING_BALL_TO_TOP);
                         if (mStateChanged)
                         {
                             ArrayList<Pose2d> waypoints = new ArrayList<>();
@@ -220,42 +219,53 @@ public class Superstructure extends Subsystem
                             mDrive.setTrajectory(t);
                         }
 
-                        if (newState == mSystemState && mDrive.isDoneWithTrajectory())
-                            newState = SystemState.INTAKING_CARGO;
-                        break;
-                    case ALIGNING_CLOSEST_REVERSE_TARGET:
-                        // TODO: Put in paths
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO)
-                            newState = SystemState.MOVING_CARGO_EJECTOR;
-                        else if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
-                            newState = SystemState.EJECTING_PANEL;
-                        break;
-                    case INTAKING_CARGO:
-                        // TODO: Should this be isCargoHeld() or a timer?
-                        if (mWantedState == WantedState.ALIGN_AND_INTAKE_CARGO)
+                        if (mWantedState == WantedState.ALIGN_AND_INTAKE_CARGO && (mDrive.isDoneWithTrajectory() || mCargoChute.atTarget()))
                         {
-                            mWantedState = WantedState.DRIVER_CONTROL; // XXX: Bad?
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                            mDrive.setOpenLoop(DriveSignal.BRAKE);
+                            mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
                         break;
+                    case ALIGNING_CLOSEST_REVERSE_TARGET:
+                        // TODO: Put in paths
+                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO && mDrive.isDoneWithTrajectory())
+                        {
+                            newState = SystemState.EJECTING_CARGO;
+                        }
+                        else if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
+                        {
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                            if (mDrive.isDoneWithTrajectory())
+                                newState = SystemState.EJECTING_PANEL;
+                        }
+                        break;
                     case INTAKING_PANEL:
+                        // This is literally just a timer and setting the cargo chute to low
+                        // TODO: Add cargo chute bring to low wanted state
                         if (mWantedState == WantedState.ALIGN_AND_INTAKE_PANEL
-                                && Timer.getFPGATimestamp() - mCurrentStateStartTime > kPanelHandlingDuration)
+                                && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration))
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
                         break;
+                    case MOVING_CHUTE_TO_EJECT_PANEL:
+                        // TODO: Bring cargo chute to low here
+                        if (newState == mSystemState && mStateChangedTimer.hasPeriodPassed(kCargoChuteMovingWaitDuration))
+                            newState = SystemState.EJECTING_PANEL;
                     case EJECTING_PANEL:
-                        if (newState == mSystemState && Timer.getFPGATimestamp() - mCurrentStateStartTime > kPanelHandlingDuration)
+                        // TODO: Also bring cargo chute to low here
+                        if (mCargoChute.atTarget())
+                            mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+
+                        if (newState == mSystemState && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration)
+                                && mCargoChute.atTarget() && mPanelHandler.atTarget())
                             newState = SystemState.BACKING_OUT_FROM_LOADING;
                         break;
-                    case MOVING_CARGO_EJECTOR:
-                        if (newState == mSystemState && mCargoChute.atTarget()) // TODO: ejecting is a cross-subsystem function
-                            newState = SystemState.EJECTING_CARGO;
-                        break;
                     case EJECTING_CARGO:
-                        // TODO: Should this be isCargoEjected(), atTarget(), or a timer?
+                        // TODO: There are multiple eject levels, so we either let the drivers press
+                        // eject themselves or have multiple wanted states for each eject level
                         if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO)
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
@@ -264,7 +274,7 @@ public class Superstructure extends Subsystem
                         break;
                     case BACKING_OUT_FROM_LOADING:
                         // TODO: Put in paths
-                        if (newState == mSystemState && mDrive.isDoneWithTrajectory())
+                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO && mDrive.isDoneWithTrajectory() && newState == mSystemState)
                             newState = SystemState.TURNING_AROUND;
                         break;
                     case TURNING_AROUND:
@@ -283,6 +293,7 @@ public class Superstructure extends Subsystem
                 if (newState != mSystemState)
                 {
                     mStateChanged = true;
+                    mStateChangedTimer.reset();
                     logNotice("System state to " + newState);
                 }
                 else
@@ -309,10 +320,9 @@ public class Superstructure extends Subsystem
                 break;
             case ALIGN_AND_INTAKE_CARGO:
                 // Assumes cargo is on the forward side
-                if (mSystemState == SystemState.ALIGNING_CLOSEST_FORWARD_TARGET ||
-                        mSystemState == SystemState.INTAKING_CARGO)
+                if (mSystemState == SystemState.INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET)
                     break;
-                newState = SystemState.ALIGNING_CLOSEST_FORWARD_TARGET;
+                newState = SystemState.INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET;
                 break;
             case ALIGN_AND_INTAKE_PANEL:
                 // Assumes PANEL intake is on the reverse side
@@ -322,8 +332,7 @@ public class Superstructure extends Subsystem
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
             case ALIGN_AND_EJECT_CARGO:
-                if (mSystemState == SystemState.ALIGNING_CLOSEST_FORWARD_TARGET ||
-                        mSystemState == SystemState.MOVING_CARGO_EJECTOR ||
+                if (mSystemState == SystemState.INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET ||
                         mSystemState == SystemState.EJECTING_CARGO)
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
@@ -338,13 +347,17 @@ public class Superstructure extends Subsystem
                 break;
             case CLIMB:
                 if (mSystemState == SystemState.LIFTING_TO_THREE ||
-                        mSystemState == SystemState.DRIVING_UNTIL_PLATFORM_CONTACT ||
+                        mSystemState == SystemState.RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT ||
                         mSystemState == SystemState.RETRACTING_FORWARD_STRUTS ||
                         mSystemState == SystemState.DRIVING_UNTIL_PLATFORM_FULL_SUPPORT ||
                         mSystemState == SystemState.RETRACTING_REAR_STRUTS)
                     break;
                 newState = SystemState.LIFTING_TO_THREE;
                 break;
+            case EJECT_PANEL:
+                if (mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL
+                        || mSystemState == SystemState.EJECTING_PANEL)
+                    newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
             default:
                 logError("Unhandled wanted state in default state transfer!");
                 newState = SystemState.DRIVER_CONTROLLING;
@@ -377,7 +390,7 @@ public class Superstructure extends Subsystem
     @Override
     public void stop()
     {
-        // TODO: Figure out all the "stopped" states of the subsystems and set them here
+        // Subsystem manager stops these, we don't
     }
 
     @Override

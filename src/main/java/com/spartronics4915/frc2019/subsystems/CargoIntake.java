@@ -41,8 +41,8 @@ public class CargoIntake extends Subsystem
     private WantedState mWantedState = WantedState.HOLD;
     private SystemState mSystemState = SystemState.HOLDING;
 
-    private static final boolean kSolenoidExtend = true;
-    private static final boolean kSolenoidRetract = false;
+    private static final boolean kSolenoidExtend = false;
+    private static final boolean kSolenoidRetract = true;
     private static final double kIntakeSpeed = 0.5;
     private static final double kEjectSpeed = -0.5;
     private static final double kIntakeClimbSpeed = 0.5;
@@ -62,8 +62,8 @@ public class CargoIntake extends Subsystem
         boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            mSolenoid = new Solenoid(Constants.kCargoIntakeSolenoid);
-            mSolenoidClimb = new Solenoid(Constants.kCargoIntakeSolenoidClimb);
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoid);
+            mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoidClimb);
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
             mSensor = new A41IRSensor(Constants.kCargoIntakeSensor);
@@ -290,6 +290,8 @@ public class CargoIntake extends Subsystem
     @Override
     public void stop()
     {
+        mWantedState = WantedState.HOLD;
+        mSystemState = SystemState.HOLDING;
         mSolenoid.set(kSolenoidRetract);
         mSolenoidClimb.set(kSolenoidRetract);
         mMotorRight.set(ControlMode.PercentOutput, 0);
