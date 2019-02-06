@@ -42,12 +42,12 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, SHOOT_BAY, SHOOT_ROCKET,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, SHOOT_BAY, SHOOT_ROCKET,
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, SHOOTING_BAY, SHOOTING_ROCKET,
+        RAMPING, HOLDING, EJECTING, LOWERING, SHOOTING_BAY, SHOOTING_ROCKET,
     }
 
     private WantedState mWantedState = WantedState.BRING_BALL_TO_TOP;
@@ -116,6 +116,9 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                         break;
+                    case LOWERING:
+                        if (mStateChanged)
+                            mRampSolenoid.set(Constants.kRampSolenoidRetract);
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
@@ -190,6 +193,8 @@ public class CargoChute extends Subsystem
                 if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING)
                     newState = SystemState.HOLDING;
                 break;
+            case LOWER:
+                newState = SystemState.LOWERING;
             case SHOOT_BAY:
                 newState = SystemState.SHOOTING_BAY;
                 break;
@@ -220,6 +225,8 @@ public class CargoChute extends Subsystem
                return mSystemState == SystemState.EJECTING && !ballInPosition();
             case BRING_BALL_TO_TOP:
                 return mSystemState == SystemState.RAMPING && ballInPosition();
+            case LOWER:
+                return mSystemState == SystemState.LOWERING;
             case SHOOT_BAY:
                 return mSystemState == SystemState.SHOOTING_BAY && mShootTimer.hasPeriodPassed(Constants.kShootTime);
             case SHOOT_ROCKET:
