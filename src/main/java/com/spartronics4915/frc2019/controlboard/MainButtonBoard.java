@@ -34,6 +34,12 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
+    public boolean getManualRamp()
+    {
+        return mButtonBoard.getRawButtonPressed(7);
+    }
+
+    @Override
     public boolean getShootRocket()
     {
         return mButtonBoard.getRawButtonPressed(4);
