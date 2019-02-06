@@ -64,9 +64,9 @@ public class Superstructure extends Subsystem
         // Alignment and intake/place using vision
         ALIGN_AND_INTAKE_CARGO,
         ALIGN_AND_INTAKE_PANEL,
-        ALIGN_AND_EJECT_CARGO_ROCKET,
-        ALIGN_AND_EJECT_CARGO_BAY,
-        ALIGN_AND_EJECT_PANEL,
+        ALIGN_AND_SHOOT_CARGO_ROCKET,
+        ALIGN_AND_SHOOT_CARGO_BAY,
+        ALIGN_AND_SHOOT_PANEL,
         // Climb
         CLIMB,
         // Panel ejecting (no auto align)
@@ -232,11 +232,11 @@ public class Superstructure extends Subsystem
                         mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
                         {
-                            if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
+                            if (mWantedState == WantedState.ALIGN_AND_SHOOT_PANEL)
                                 newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
                             else if (mWantedState == WantedState.ALIGN_AND_INTAKE_PANEL)
                                 newState = SystemState.INTAKING_PANEL;
-                            else if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_BAY || mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_ROCKET)
+                            else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY || mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
                                 newState = SystemState.EJECTING_CARGO;
                         }
                         break;
@@ -266,9 +266,9 @@ public class Superstructure extends Subsystem
                     case EJECTING_CARGO:
                         // TODO: There are multiple eject levels, so we either let the drivers press
                         // eject themselves or have multiple wanted states for each eject level
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_BAY)
+                        if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY)
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
-                        else if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_ROCKET)
+                        else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                         else
                             break;
@@ -281,12 +281,12 @@ public class Superstructure extends Subsystem
                         break;
                     case BACKING_OUT_FROM_LOADING:
                         // TODO: Put in paths
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL && mDrive.isDoneWithTrajectory() && newState == mSystemState)
+                        if (mWantedState == WantedState.ALIGN_AND_SHOOT_PANEL && mDrive.isDoneWithTrajectory() && newState == mSystemState)
                             newState = SystemState.TURNING_AROUND;
                         break;
                     case TURNING_AROUND:
                         // TODO: Implement drive quick turn
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
+                        if (mWantedState == WantedState.ALIGN_AND_SHOOT_PANEL)
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
@@ -338,17 +338,17 @@ public class Superstructure extends Subsystem
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
-            case ALIGN_AND_EJECT_CARGO_BAY:
+            case ALIGN_AND_SHOOT_CARGO_BAY:
                 if (isInAlignAndEjectCargoSystemState())
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
-            case ALIGN_AND_EJECT_CARGO_ROCKET:
+            case ALIGN_AND_SHOOT_CARGO_ROCKET:
                 if (isInAlignAndEjectCargoSystemState())
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
-            case ALIGN_AND_EJECT_PANEL:
+            case ALIGN_AND_SHOOT_PANEL:
                 if (mSystemState == SystemState.ALIGNING_CLOSEST_REVERSE_TARGET ||
                         mSystemState == SystemState.EJECTING_PANEL ||
                         mSystemState == SystemState.BACKING_OUT_FROM_LOADING ||
