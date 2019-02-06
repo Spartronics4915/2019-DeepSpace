@@ -326,6 +326,21 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
                 // ));
+                
+                if(mControlBoard.getEjectPanel())
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+
+                if(mControlBoard.getIntake())
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+
+                if(mControlBoard.getTestButtonOne())
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+
+                if(mControlBoard.getEjectCargo())
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+
+                if(mControlBoard.getTestButtonTwo())
+                    mPanelHandler.checkSystem("variant");
 
                 if (mControlBoard.getReverseDirection())
                 {
