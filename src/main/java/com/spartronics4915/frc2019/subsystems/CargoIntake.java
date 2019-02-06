@@ -120,9 +120,6 @@ public class CargoIntake extends Subsystem
                             mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
                         }
-                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
-                                && newState == mSystemState)
-                            setWantedState(WantedState.HOLD);
                         break;
                     case EJECTING://BB3
                         if (mStateChanged)
@@ -131,9 +128,6 @@ public class CargoIntake extends Subsystem
                             mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
                         }
-                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
-                                && newState == mSystemState)
-                            setWantedState(WantedState.HOLD);
                         break;
                     case CLIMBING:
                         if (mStateChanged)
@@ -221,9 +215,9 @@ public class CargoIntake extends Subsystem
             case ARM_DOWN:
                 return mSystemState == SystemState.ARM_DOWNING;
             case INTAKE:
-                return mSystemState == SystemState.INTAKING;
+                return mSystemState == SystemState.INTAKING && mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance);
             case EJECT:
-                return mSystemState == SystemState.EJECTING;
+                return mSystemState == SystemState.EJECTING && mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance);
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             default:
@@ -285,6 +279,8 @@ public class CargoIntake extends Subsystem
         dashboardPutBoolean("mSolenoidClimb Extended", mSolenoidClimb.get());
         dashboardPutNumber("mMotor1 Speed", mMotorRight.getMotorOutputPercent());
         dashboardPutNumber("mMotor2 Speed", mMotorLeft.getMotorOutputPercent());
+        dashboardPutNumber("Distance from cargo", mSensor.getDistance());
+        dashboardPutBoolean("Is cargo obtained", mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance));
     }
 
     @Override
