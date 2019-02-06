@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CargoChute extends Subsystem
 {
+
     private static CargoChute mInstance = null;
 
     public static CargoChute getInstance()
@@ -123,7 +124,7 @@ public class CargoChute extends Subsystem
                             mFlipperSolenoid.set(Constants.kRampSolenoidRetract);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case SHOOTING_ROCKET:
@@ -133,7 +134,7 @@ public class CargoChute extends Subsystem
                             mFlipperSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     default:

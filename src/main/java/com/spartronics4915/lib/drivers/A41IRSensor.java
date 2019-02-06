@@ -2,6 +2,7 @@ package com.spartronics4915.lib.drivers;
 
 public class A41IRSensor extends IRSensor
 {
+
     public A41IRSensor(int port)
     {
         super(port);
