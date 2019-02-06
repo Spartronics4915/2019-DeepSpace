@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import javax.lang.model.util.ElementScanner6;
+
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.ControlBoard;
 import com.spartronics4915.lib.drivers.A21IRSensor;
@@ -205,7 +207,12 @@ public class Climber extends Subsystem
 
     public synchronized boolean atTarget()
     {
-        return true;
+        if (mDownwardRearLeftIRSensor.getDistance() <= 3)
+            return true;
+        else if (mDownwardRearLeftIRSensor.getDistance() <= 3 && mDownwardRearRightIRSensor.getDistance() <= 3)
+            return true;
+        else 
+            return false;
     }
 
     @Override
