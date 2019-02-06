@@ -6,7 +6,7 @@
  * ✔ Use the sensors in places
  * ✔ Don't keep shooting states running forever?
  * ✔ Fill out atTarget()
- * Fill out outputTelemetry()
+ * ✔ Fill out outputTelemetry()
  * T E S T
  */
 
@@ -187,7 +187,7 @@ public class CargoChute extends Subsystem
                 newState = SystemState.EJECTING;
                 break;
             case BRING_BALL_TO_TOP:
-                if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING) // FIXME: what's this do?
+                if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING)
                     newState = SystemState.HOLDING;
                 break;
             case SHOOT_BAY:
@@ -301,6 +301,9 @@ public class CargoChute extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
+        dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // TODO: double check this value
+        dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
+        dashboardPutNumber("mRampSensor distance: ", mRampSensor.getDistance());
     }
 
     @Override
