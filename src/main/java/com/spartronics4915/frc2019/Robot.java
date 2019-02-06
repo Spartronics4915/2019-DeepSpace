@@ -334,15 +334,15 @@ public class Robot extends TimedRobot
                     else
                         mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
-                if (mControlBoard.getShootBay())
+                else if (mControlBoard.getShootBay())
                 {
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                 }
-                if (mControlBoard.getShootRocket())
+                else if (mControlBoard.getShootRocket())
                 {
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 }
-                if (mControlBoard.getEjectCargo())
+                else if (mControlBoard.getEjectCargo())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
