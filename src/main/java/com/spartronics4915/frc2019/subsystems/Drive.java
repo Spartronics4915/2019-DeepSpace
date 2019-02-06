@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.Kinematics;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
@@ -14,6 +15,8 @@ import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
+import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
@@ -37,7 +40,6 @@ public class Drive extends Subsystem
     private PigeonIMU mPigeon;
     // Control states
     private DriveControlState mDriveControlState;
-    private DifferentialDrive mDifferentialDrive;
     // Hardware states
     private PeriodicIO mPeriodicIO;
     private boolean mIsBrakeMode;
@@ -200,7 +202,20 @@ public class Drive extends Subsystem
     {
         in.register(mLoop);
     }
-
+    /**
+     * 
+     */
+    public synchronized void setWantTurn(Rotation2d heading)
+    {
+        if (mDriveControlState != DriveControlState.TURN)
+        {
+            logDebug("Switching to field relative turn: " + heading);
+            mDriveControlState = DriveControlState.TURN;
+        }
+        WheelState w = mMotionPlanner.getModel().solveInverseKinematics(new ChassisState(0.0, heading.getRadians()));
+        mPeriodicIO.left_demand = w.left;
+        mPeriodicIO.right_demand = w.right;
+    }
     /**
      * Configure talons for open loop control
      */
@@ -579,6 +594,12 @@ public class Drive extends Subsystem
             mLeftMaster.set(ControlMode.PercentOutput, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward, 0.0);
             mRightMaster.set(ControlMode.PercentOutput, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward, 0.0);
         }
+
+        if (mDriveControlState == DriveControlState.TURN) 
+        {
+            mLeftMaster.set(ControlMode.Position, mPeriodicIO.left_demand);
+            mRightMaster.set(ControlMode.Position, mPeriodicIO.right_demand);
+        }
         else
         {
             // In ControlMode.Velocity:
@@ -792,6 +813,7 @@ public class Drive extends Subsystem
         OPEN_LOOP, // open loop voltage control
         PATH_FOLLOWING, // velocity PID control from a path
         VELOCITY, // constant velocity from not a path
+        TURN, // turning to a field-relative heading
     }
 
     public static class PeriodicIO
