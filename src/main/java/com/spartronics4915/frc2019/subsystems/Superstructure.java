@@ -64,7 +64,8 @@ public class Superstructure extends Subsystem
         // Alignment and intake/place using vision
         ALIGN_AND_INTAKE_CARGO,
         ALIGN_AND_INTAKE_PANEL,
-        ALIGN_AND_EJECT_CARGO,
+        ALIGN_AND_EJECT_CARGO_ROCKET,
+        ALIGN_AND_EJECT_CARGO_BAY,
         ALIGN_AND_EJECT_PANEL,
         // Climb
         CLIMB,
@@ -114,7 +115,6 @@ public class Superstructure extends Subsystem
     private RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
 
     private static final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
-    private static final double kCargoChuteMovingWaitDuration = 0.8; // Seconds TODO: Tune me
     private static final double kDriveUntilPlatformContactDuration = 1; // Seconds TODO: Tune me
     private static final double kDriveUntilPlatformFullSupportDuration = 1; // Seconds TODO: Tune me
 
@@ -229,15 +229,15 @@ public class Superstructure extends Subsystem
                         break;
                     case ALIGNING_CLOSEST_REVERSE_TARGET:
                         // TODO: Put in paths
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO && mDrive.isDoneWithTrajectory())
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                        if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
                         {
-                            newState = SystemState.EJECTING_CARGO;
-                        }
-                        else if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
-                        {
-                            mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-                            if (mDrive.isDoneWithTrajectory())
-                                newState = SystemState.EJECTING_PANEL;
+                            if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL)
+                                newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
+                            else if (mWantedState == WantedState.ALIGN_AND_INTAKE_PANEL)
+                                newState = SystemState.INTAKING_PANEL;
+                            else if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_BAY || mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_ROCKET)
+                                newState = SystemState.EJECTING_CARGO;
                         }
                         break;
                     case INTAKING_PANEL:
@@ -252,10 +252,10 @@ public class Superstructure extends Subsystem
                         break;
                     case MOVING_CHUTE_TO_EJECT_PANEL:
                         // TODO: Bring cargo chute to low here
-                        if (newState == mSystemState && mStateChangedTimer.hasPeriodPassed(kCargoChuteMovingWaitDuration))
+                        if (newState == mSystemState && mCargoChute.atTarget())
                             newState = SystemState.EJECTING_PANEL;
                     case EJECTING_PANEL:
-                        // TODO: Also bring cargo chute to low here
+                        // TODO: Also bring cargo chute to low here to be safe
                         if (mCargoChute.atTarget())
                             mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
@@ -266,7 +266,14 @@ public class Superstructure extends Subsystem
                     case EJECTING_CARGO:
                         // TODO: There are multiple eject levels, so we either let the drivers press
                         // eject themselves or have multiple wanted states for each eject level
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO)
+                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_BAY)
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                        else if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO_ROCKET)
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
+                        else
+                            break;
+
+                        if (mCargoChute.atTarget())
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
@@ -274,7 +281,7 @@ public class Superstructure extends Subsystem
                         break;
                     case BACKING_OUT_FROM_LOADING:
                         // TODO: Put in paths
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_CARGO && mDrive.isDoneWithTrajectory() && newState == mSystemState)
+                        if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL && mDrive.isDoneWithTrajectory() && newState == mSystemState)
                             newState = SystemState.TURNING_AROUND;
                         break;
                     case TURNING_AROUND:
@@ -331,9 +338,13 @@ public class Superstructure extends Subsystem
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
-            case ALIGN_AND_EJECT_CARGO:
-                if (mSystemState == SystemState.INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET ||
-                        mSystemState == SystemState.EJECTING_CARGO)
+            case ALIGN_AND_EJECT_CARGO_BAY:
+                if (isInAlignAndEjectCargoSystemState())
+                    break;
+                newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
+                break;
+            case ALIGN_AND_EJECT_CARGO_ROCKET:
+                if (isInAlignAndEjectCargoSystemState())
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
@@ -364,6 +375,12 @@ public class Superstructure extends Subsystem
                 break;
         }
         return newState;
+    }
+
+    private boolean isInAlignAndEjectCargoSystemState()
+    {
+        return mSystemState == SystemState.INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET ||
+                mSystemState == SystemState.EJECTING_CARGO;
     }
 
     public synchronized void setWantedState(WantedState wantedState)
