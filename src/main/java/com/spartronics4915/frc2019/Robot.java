@@ -347,7 +347,8 @@ public class Robot extends TimedRobot
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
-
+                // TODO: Add eject panel
+                // TODO: Add intake
 
                 if (mControlBoard.getReverseDirection())
                 {
