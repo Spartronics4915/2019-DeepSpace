@@ -7,6 +7,7 @@
  * ✔ Don't keep shooting states running forever?
  * ✔ Fill out atTarget()
  * ✔ Fill out outputTelemetry()
+ * Fix the BRING_BALL_TO_TOP: when checking to actually go into it, don't if in either manual wantedstate
  * T E S T
  */
 
@@ -173,6 +174,11 @@ public class CargoChute extends Subsystem
     private boolean ballInPosition()
     {
         return mRampSensor.getDistance() <= Constants.kMaxChuteBallDistanceThreshold;
+    }
+
+    public boolean isRampRunning()
+    {
+        return mSystemState == SystemState.RAMPING;
     }
 
     private SystemState defaultStateTransfer()
