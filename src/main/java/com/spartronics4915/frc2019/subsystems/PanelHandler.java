@@ -90,7 +90,7 @@ public class PanelHandler extends Subsystem
                             mSolenoid.set(kSolenoidRetract);
                         }
                         break;
-                    case EJECTING:
+                    case EJECTING://BB6
                         if (mStateChanged)
                         {
                             mSolenoid.set(kSolenoidExtend);
@@ -155,7 +155,7 @@ public class PanelHandler extends Subsystem
     }
 
     @Override
-    public boolean checkSystem(String variant)
+    public boolean checkSystem(String variant)//DS6
     {
         logNotice("Starting PanelHandler Solenoid Check");
         try

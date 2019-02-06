@@ -99,7 +99,7 @@ public class CargoIntake extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case HOLDING:
+                    case HOLDING://DS5
                         if (mStateChanged)
                         {
                             mMotorRight.set(ControlMode.PercentOutput, 0);
@@ -113,7 +113,7 @@ public class CargoIntake extends Subsystem
                             setSolenoidsToDown();
                         }
                         break;
-                    case INTAKING://transition to holding using proximity sensor
+                    case INTAKING://BB2
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
@@ -124,7 +124,7 @@ public class CargoIntake extends Subsystem
                                 && newState == mSystemState)
                             setWantedState(WantedState.HOLD);
                         break;
-                    case EJECTING://transition to holding using proximity sensor
+                    case EJECTING://BB3
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
