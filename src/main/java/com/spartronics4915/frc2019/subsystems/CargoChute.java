@@ -56,7 +56,7 @@ public class CargoChute extends Subsystem
     private TalonSRX mRampMotor = null;
     private Solenoid mFlipperSolenoid = null;
     private A21IRSensor mRampSensor = null;
-    private Timer mTimer = new Timer();
+    private Timer mShootTimer = new Timer();
 
     private boolean mStateChanged;
 
@@ -119,21 +119,21 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
-                            mTimer.start();
+                            mShootTimer.start();
                             mFlipperSolenoid.set(Constants.kRampSolenoidRetract);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
-                            mTimer.start();
+                            mShootTimer.start();
                             mFlipperSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     default:
@@ -141,8 +141,8 @@ public class CargoChute extends Subsystem
                 }
                 if (newState != mSystemState)
                 {
-                    mTimer.stop();
-                    mTimer.reset();
+                    mShootTimer.stop();
+                    mShootTimer.reset();
                     mStateChanged = true;
                 }
                 else
@@ -210,7 +210,24 @@ public class CargoChute extends Subsystem
 
     public synchronized boolean atTarget() // FIXME
     {
-        return true;
+        switch (mWantedState)
+        {
+            case RAMP_MANUAL:
+                return mSystemState == SystemState.RAMPING;
+            case HOLD_MANUAL:
+                return mSystemState == SystemState.HOLDING;
+            case EJECT_BACK:
+               return mSystemState == SystemState.EJECTING && !ballInPosition();
+            case BRING_BALL_TO_TOP:
+                return mSystemState == SystemState.RAMPING && ballInPosition();
+            case SHOOT_BAY:
+                return mSystemState == SystemState.SHOOTING_BAY && mShootTimer.hasPeriodPassed(kSh);
+            case SHOOT_ROCKET:
+                return mSystemState == SystemState.SHOOTING_ROCKET;
+            default:
+                logError("CargoChute atTarget for unknown WantedState: " + mWantedState);
+                return false;
+        }
     }
 
     @Override
