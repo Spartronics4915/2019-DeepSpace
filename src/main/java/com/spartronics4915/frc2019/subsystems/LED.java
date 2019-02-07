@@ -1,5 +1,9 @@
 package com.spartronics4915.frc2019.subsystems;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
 import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.SerialPort;
@@ -8,7 +12,8 @@ import edu.wpi.first.wpilibj.SerialPort;
 public class LED extends Subsystem
 {
 
-    private SerialPort mSerialPort;
+    // private SerialPort mSerialPort;
+    private FileOutputStream mSerialPort;
 
     private static LED mInstance = null;
 
@@ -44,7 +49,8 @@ public class LED extends Subsystem
         boolean success = true;
         try
         {
-            mSerialPort = new SerialPort(9600, SerialPort.Port.kUSB);
+            // mSerialPort = new SerialPort(9600, SerialPort.Port.kUSB);
+            mSerialPort = new FileOutputStream("/dev/ttyACM0");
         }
         catch (Exception e)
         {
@@ -57,17 +63,25 @@ public class LED extends Subsystem
 
     public synchronized void setDriveState(DriveLEDState driveState)
     {
-        mDriveState = driveState;
-        dashboardPutNumber("Byte yeet", mDriveState.serialSignal.length);
+        /** mDriveState = driveState;
+        dashboardPutString("Byte value", Arrays.toString(mDriveState.serialSignal));
         dashboardPutNumber("Bytes sent", mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length));
+        // dashboardPutNumber("Bytes sent", mSerialPort.write(new byte[] {'2'}, 1));
         mSerialPort.flush();
-    }
+        dashboardPutNumber("Bytes in response", mSerialPort.getBytesReceived());*/
+        try
+        {
+            mSerialPort.write(driveState.serialSignal);
+        }
+        catch(IOException e)
+        {
+            logException("We didn't think this would work anyways, but we did hope",  e);
+        }
+        }
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper)
-    {
-        
-    }
+    {}
 
     @Override
     public boolean checkSystem(String variant)
@@ -83,9 +97,5 @@ public class LED extends Subsystem
 
     @Override
     public void stop()
-    {
-        mDriveState = DriveLEDState.OFF;
-        mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length);
-        mSerialPort.close();
-    }
+    {}
 }

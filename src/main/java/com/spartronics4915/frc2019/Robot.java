@@ -98,8 +98,7 @@ public class Robot extends TimedRobot
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
-
-                mLED.setDriveState(LED.DriveLEDState.BACKWARDS);
+                mLED.setDriveState(LED.DriveLEDState.FORWARDS);
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
@@ -109,7 +108,7 @@ public class Robot extends TimedRobot
                                 mCargoChute,
                                 mCargoIntake,
                                 mClimber,
-                                mLED,
+                                // mLED,
                                 mSuperstructure));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
@@ -203,6 +202,7 @@ public class Robot extends TimedRobot
         {
             Logger.logTeleopInit();
             Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosity, "NOTICE"));
+            mLED.setDriveState(LED.DriveLEDState.BACKWARDS);
 
             mDisabledLooper.stop();
             if (mAutoModeExecutor != null)
@@ -328,6 +328,14 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
                 // ));
+
+                if(mControlBoard.getTestButtonOne())
+                {
+                    mLED.setDriveState(mSuperstructure.isDrivingReversed() ? LED.DriveLEDState.BACKWARDS : LED.DriveLEDState.FORWARDS);
+                }
+                else {
+                    mLED.setDriveState(mSuperstructure.isDrivingReversed() ? LED.DriveLEDState.BACKWARDS : LED.DriveLEDState.BACKWARDS);
+                }
 
                 if (mControlBoard.getReverseDirection())
                 {
