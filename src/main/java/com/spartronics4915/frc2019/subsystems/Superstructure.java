@@ -164,8 +164,6 @@ public class Superstructure extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    // TODO: We have to call mSubsystem.setWantedState in basically all of these branches
-
                     /* Regular driver control */
                     case DRIVER_CONTROLLING:
                         // Driver control doesn't really go through us, except for getDirectionMultiplier
@@ -241,8 +239,8 @@ public class Superstructure extends Subsystem
                         }
                         break;
                     case INTAKING_PANEL:
-                        // This is literally just a timer and setting the cargo chute to low
-                        // TODO: Add cargo chute bring to low wanted state
+                        mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+
                         if (mWantedState == WantedState.ALIGN_AND_INTAKE_PANEL
                                 && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration))
                         {
@@ -251,11 +249,13 @@ public class Superstructure extends Subsystem
                         }
                         break;
                     case MOVING_CHUTE_TO_EJECT_PANEL:
-                        // TODO: Bring cargo chute to low here
+                        mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+
                         if (newState == mSystemState && mCargoChute.atTarget())
                             newState = SystemState.EJECTING_PANEL;
                     case EJECTING_PANEL:
-                        // TODO: Also bring cargo chute to low here to be safe
+                        mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+
                         if (mCargoChute.atTarget())
                             mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
@@ -264,8 +264,6 @@ public class Superstructure extends Subsystem
                             newState = SystemState.BACKING_OUT_FROM_LOADING;
                         break;
                     case EJECTING_CARGO:
-                        // TODO: There are multiple eject levels, so we either let the drivers press
-                        // eject themselves or have multiple wanted states for each eject level
                         if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY)
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                         else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
