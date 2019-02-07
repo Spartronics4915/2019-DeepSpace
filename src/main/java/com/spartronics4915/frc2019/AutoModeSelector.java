@@ -38,6 +38,7 @@ public class AutoModeSelector
             new AutoModeCreator("All: Do nothing", () -> new DoNothingMode());
     private static final AutoModeCreator[] mAllModes = {
             mDefaultMode,
+            new AutoModeCreator("A: Drive Off Hab and Place Left Panel", () -> new PlaceLeftHatchFromLevelTwoMode()),
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),
             new AutoModeCreator("Other: Curved Path Test", () -> new PathTestMode(true)),
             new AutoModeCreator("Other: Velocity Test", () -> new VelocityTestMode()),
