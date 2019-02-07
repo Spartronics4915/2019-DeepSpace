@@ -134,7 +134,7 @@ public class CargoChute extends Subsystem
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case SHOOTING_ROCKET:
@@ -186,7 +186,7 @@ public class CargoChute extends Subsystem
 
     public boolean isRampRunning()
     {
-        return mSystemState == SystemState.RAMPING;
+        return mSystemState == SystemState.RAMPING || mSystemState == SystemState.EJECTING || mSystemState == SystemState.SHOOTING_BAY || mSystemState == SystemState.SHOOTING_ROCKET;
     }
 
     private SystemState defaultStateTransfer()
