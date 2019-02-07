@@ -9,21 +9,14 @@ import com.spartronics4915.lib.geometry.Pose2d;
 public class ZeroOdometryFromVision implements Action
 {
     public boolean mZeroed = false;
-    public Pose2d Target;
-    public double Start;
+    //public final Pose2d mTarget;
+    public double mStartTime;
     public double mVisionCaptureTime;
     public RobotStateMap mStateMap;
     
     @Override
     public boolean isFinished() {
-        if (mZeroed)
-        {
-            return true;
-        }
-        else 
-        {
-            return false;
-        }
+        return mZeroed;
     }
 
     @Override
@@ -32,7 +25,7 @@ public class ZeroOdometryFromVision implements Action
         if (visionUpdate != null)
         {
             mVisionCaptureTime =  visionUpdate.frameCapturedTime;
-            if (mVisionCaptureTime > Start) 
+            if (mVisionCaptureTime > mStartTime) 
             {
                 mStateMap.reset(
                     Timer.getFPGATimestamp(),
@@ -50,7 +43,7 @@ public class ZeroOdometryFromVision implements Action
 
     @Override
     public void start() {
-        Start = Timer.getFPGATimestamp();
+        mStartTime = Timer.getFPGATimestamp();
     }
 
 }
