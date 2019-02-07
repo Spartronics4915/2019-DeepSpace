@@ -156,13 +156,9 @@ public class Climber extends Subsystem
                 }
                 mSystemState = newState;
                 if (newState != mSystemState)
-                {
                     mStateChanged = false;
-                }
                 else
-                {
                     mStateChanged = true;
-                }
             }
         }
 
@@ -216,23 +212,15 @@ public class Climber extends Subsystem
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
                 if (mDownwardFrontLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
-                {
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
-                }
                 else
-                {
                     return false;
-                }
             case RETRACT_REAR_STRUTS:
             {
                 if (mDownwardRearLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
-                {
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
-                }
                 else
-                {
                     return false;
-                }
             }
             default:
                 logError("Climber in unhandled Wanted State!");
