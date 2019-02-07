@@ -113,6 +113,12 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
+    public boolean getManualRamp()
+    {
+        return mButtonControlBoard.getManualRamp();
+    }
+
+    @Override
     public boolean getShootRocket()
     {
         return mButtonControlBoard.getShootRocket();
