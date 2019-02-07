@@ -119,6 +119,7 @@ public class CargoChute extends Subsystem
                         {
                             mShootTimer.reset();
                             mShootTimer.start();
+                            mRampMotor.set(ControlMode.PercentOutput, 0);
                         }
                         if (mShootTimer.hasPeriodPassed(Constants.kTransitionTime))
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
