@@ -4,6 +4,7 @@ import com.spartronics4915.frc2019.auto.AutoModeExecutor;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
+import com.spartronics4915.frc2019.subsystems.CargoChute.WantedState;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -327,20 +328,41 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
                 // ));
                 
-                if(mControlBoard.getEjectPanel())
+                if(mControlBoard.getEjectPanel())//1: 6
                     mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
-                if(mControlBoard.getIntake())
+                if(mControlBoard.getIntake())//1: 2
                     mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
 
-                if(mControlBoard.getTestButtonOne())
+                if(mControlBoard.getTestButtonOne())//2: 5
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
 
-                if(mControlBoard.getEjectCargo())
+                if(mControlBoard.getTestButtonThree())//2: 7
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
 
                 if(mControlBoard.getTestButtonTwo())
-                    mPanelHandler.checkSystem("variant");
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+
+                if (mControlBoard.getManualRamp())
+                {
+                    if (!mCargoChute.isRampRunning())
+                        mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
+                    else
+                        mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
+                }
+                else if (mControlBoard.getShootBay())
+                {
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                }
+                else if (mControlBoard.getShootRocket())
+                {
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
+                }
+                else if (mControlBoard.getEjectCargo())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                }
 
                 if (mControlBoard.getReverseDirection())
                 {
@@ -350,7 +372,7 @@ public class Robot extends TimedRobot
                 {
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
                 }
-                else if (mControlBoard.getClimb()) 
+                else if (mControlBoard.getClimb())
                 {
                     mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
                 }

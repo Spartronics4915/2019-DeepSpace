@@ -5,8 +5,9 @@
  * ✔ Instantiate sensors
  * ✔ Use the sensors in places
  * ✔ Don't keep shooting states running forever?
- * Fill out outputTelemetry()
- * Fill out atTarget()
+ * ✔ Fill out atTarget()
+ * ✔ Fill out outputTelemetry()
+ * Fix the BRING_BALL_TO_TOP: when checking to actually go into it, don't if in either manual wantedstate
  * T E S T
  */
 
@@ -42,21 +43,21 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, SHOOT_BAY, SHOOT_ROCKET,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, SHOOT_BAY, SHOOT_ROCKET,
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, SHOOTING_BAY, SHOOTING_ROCKET,
+        RAMPING, HOLDING, EJECTING, LOWERING, SHOOTING_BAY, SHOOTING_ROCKET,
     }
 
     private WantedState mWantedState = WantedState.BRING_BALL_TO_TOP;
     private SystemState mSystemState = SystemState.HOLDING;
 
     private TalonSRX mRampMotor = null;
-    private Solenoid mFlipperSolenoid = null;
+    private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
-    private Timer mTimer = new Timer();
+    private Timer mShootTimer = new Timer();
 
     private boolean mStateChanged;
 
@@ -67,7 +68,7 @@ public class CargoChute extends Subsystem
         {
             // Instantiate your hardware here
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
-            mFlipperSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kFlipperSolenoidId);
+            mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kFlipperSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
         }
         catch (Exception e)
@@ -116,24 +117,27 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                         break;
+                    case LOWERING:
+                        if (mStateChanged)
+                            mRampSolenoid.set(Constants.kRampSolenoidRetract);
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
-                            mTimer.start();
-                            mFlipperSolenoid.set(Constants.kRampSolenoidRetract);
+                            mShootTimer.start();
+                            mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
-                            mTimer.start();
-                            mFlipperSolenoid.set(Constants.kRampSolenoidExtend);
+                            mShootTimer.start();
+                            mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     default:
@@ -141,8 +145,8 @@ public class CargoChute extends Subsystem
                 }
                 if (newState != mSystemState)
                 {
-                    mTimer.stop();
-                    mTimer.reset();
+                    mShootTimer.stop();
+                    mShootTimer.reset();
                     mStateChanged = true;
                 }
                 else
@@ -172,6 +176,11 @@ public class CargoChute extends Subsystem
         return mRampSensor.getDistance() <= Constants.kMaxChuteBallDistanceThreshold;
     }
 
+    public boolean isRampRunning()
+    {
+        return mSystemState == SystemState.RAMPING;
+    }
+
     private SystemState defaultStateTransfer()
     {
         SystemState newState = mSystemState;
@@ -187,9 +196,11 @@ public class CargoChute extends Subsystem
                 newState = SystemState.EJECTING;
                 break;
             case BRING_BALL_TO_TOP:
-                if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING) // FIXME: what's this do?
+                if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING)
                     newState = SystemState.HOLDING;
                 break;
+            case LOWER:
+                newState = SystemState.LOWERING;
             case SHOOT_BAY:
                 newState = SystemState.SHOOTING_BAY;
                 break;
@@ -208,9 +219,28 @@ public class CargoChute extends Subsystem
         mWantedState = wantedState;
     }
 
-    public synchronized boolean atTarget() // FIXME
+    public synchronized boolean atTarget()
     {
-        return true;
+        switch (mWantedState)
+        {
+            case RAMP_MANUAL:
+                return mSystemState == SystemState.RAMPING;
+            case HOLD_MANUAL:
+                return mSystemState == SystemState.HOLDING;
+            case EJECT_BACK:
+               return mSystemState == SystemState.EJECTING && !ballInPosition();
+            case BRING_BALL_TO_TOP:
+                return mSystemState == SystemState.RAMPING && ballInPosition();
+            case LOWER:
+                return mSystemState == SystemState.LOWERING;
+            case SHOOT_BAY:
+                return mSystemState == SystemState.SHOOTING_BAY && mShootTimer.hasPeriodPassed(Constants.kShootTime);
+            case SHOOT_ROCKET:
+                return mSystemState == SystemState.SHOOTING_ROCKET;
+            default:
+                logError("CargoChute atTarget for unknown WantedState: " + mWantedState);
+                return false;
+        }
     }
 
     @Override
@@ -252,19 +282,19 @@ public class CargoChute extends Subsystem
         try
         {
             logNotice("Sending ramp pneumatics up for three seconds: ");
-            mFlipperSolenoid.set(Constants.kRampSolenoidExtend);
+            mRampSolenoid.set(Constants.kRampSolenoidExtend);
             Timer.delay(3);
             logNotice("Done.");
             logNotice("Sending ramp pneumatics down for three seconds: ");
-            mFlipperSolenoid.set(Constants.kRampSolenoidRetract);
+            mRampSolenoid.set(Constants.kRampSolenoidRetract);
             Timer.delay(3);
             logNotice("Done.");
             logNotice("Sending ramp pneumatics up for three seconds: ");
-            mFlipperSolenoid.set(Constants.kRampSolenoidExtend);
+            mRampSolenoid.set(Constants.kRampSolenoidExtend);
             Timer.delay(3);
             logNotice("Done.");
             logNotice("Sending ramp pneumatics down for five seconds: ");
-            mFlipperSolenoid.set(Constants.kRampSolenoidRetract);
+            mRampSolenoid.set(Constants.kRampSolenoidRetract);
             Timer.delay(3);
             logNotice("Done.");
         }
@@ -284,6 +314,9 @@ public class CargoChute extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
+        dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // TODO: double check this value
+        dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
+        dashboardPutNumber("mRampSensor distance: ", mRampSensor.getDistance());
     }
 
     @Override
@@ -293,6 +326,6 @@ public class CargoChute extends Subsystem
         mWantedState = WantedState.BRING_BALL_TO_TOP;
         mSystemState = SystemState.HOLDING;
         mRampMotor.set(ControlMode.PercentOutput, 0.0);
-        mFlipperSolenoid.set(Constants.kRampSolenoidRetract);
+        mRampSolenoid.set(Constants.kRampSolenoidRetract);
     }
 }
