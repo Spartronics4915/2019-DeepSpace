@@ -1,7 +1,8 @@
 package com.spartronics4915.lib.drivers;
 
-public class A21IRSensor extends IRSensor 
+public class A21IRSensor extends IRSensor
 {
+
     public A21IRSensor(int port)
     {
         super(port);
@@ -11,7 +12,7 @@ public class A21IRSensor extends IRSensor
     public double getDistance()
     {
         double volt = getVoltage();
-        double cm = 59.06 - (94.11 * volt) + (57.60 * Math.pow(volt, 2.0)) - (11.65 * Math.pow(volt, 3.0));
+        double cm = 356.3748 - (1576.436 * volt) + (2461.958 * Math.pow(volt, 2.0)) - (1291.155 * Math.pow(volt, 3.0));
         return cm / 2.54;
     }
 
