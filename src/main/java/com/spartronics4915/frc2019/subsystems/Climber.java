@@ -63,7 +63,7 @@ public class Climber extends Subsystem
             mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1,
                     Constants.kRearRightSolenoidId2);
             mFrontRightIRSensor = new A41IRSensor(Constants.kFrontLeftIRSensorId);
-            mFrontLeftIRSensor = new A41IRSensor(Constants.kFrontRightIRSensorId);
+            mFrontLeftIRSensor = new A21IRSensor(Constants.kFrontRightIRSensorId);
             mDownwardFrontLeftIRSensor = new A21IRSensor(Constants.kDownwardFrontLeftIRSensorId);
             mDownwardFrontRightIRSensor = new A21IRSensor(Constants.kDownwardFrontRightIRSensorId);
             mDownwardRearLeftIRSensor = new A21IRSensor(Constants.kDownwardRearLeftIRSensorId);
@@ -127,6 +127,7 @@ public class Climber extends Subsystem
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
                         }
+                        mDownwardFrontLeftIRSensor.getVoltage();
                         break;
 
                     case RETRACTING_FRONT_STRUTS:
@@ -299,6 +300,8 @@ public class Climber extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
+        dashboardPutNumber("Voltage of IR Sensor is ", mFrontLeftIRSensor.getVoltage());
+        dashboardPutNumber("Distance readout of IR Sensor is ", mFrontLeftIRSensor.getDistance());
     }
 
     @Override
