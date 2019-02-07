@@ -125,8 +125,8 @@ public class Constants
     public static final int kRampMotorId = 5;
     public static final int kFlipperSolenoidId = 3;
     public static final int kRampSensorId = 6;
-    public static final double kRampSpeed = 1.0;
-    public static final double kShootSpeed = 1.0; // tune
+    public static final double kRampSpeed = 1.0; //TODO: tune
+    public static final double kShootSpeed = 1.0; // TODO: tune
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
     public static final boolean kRampSolenoidExtend = false;
     public static final boolean kRampSolenoidRetract = true;
