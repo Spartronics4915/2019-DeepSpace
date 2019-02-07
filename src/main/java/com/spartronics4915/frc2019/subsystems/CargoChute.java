@@ -57,6 +57,7 @@ public class CargoChute extends Subsystem
     private TalonSRX mRampMotor = null;
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
+    
     private Timer mShootTimer = new Timer();
 
     private boolean mStateChanged;
@@ -115,6 +116,11 @@ public class CargoChute extends Subsystem
                         break;
                     case EJECTING:
                         if (mStateChanged)
+                        {
+                            mShootTimer.reset();
+                            mShootTimer.start();
+                        }
+                        if (mShootTimer.hasPeriodPassed(Constants.kTransitionTime))
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                         break;
                     case LOWERING:
@@ -123,6 +129,7 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
+                            mShootTimer.reset();
                             mShootTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
@@ -133,6 +140,7 @@ public class CargoChute extends Subsystem
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
+                            mShootTimer.reset();
                             mShootTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
