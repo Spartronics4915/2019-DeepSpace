@@ -5,8 +5,10 @@ public interface IButtonControlBoard
     // CLIMBING
     boolean getClimb();
 
+    boolean getManualExtendAllClimbPneumatics();
+
     // INTAKE
-    boolean getIntake();
+    boolean getIntakeCargo();
 
     boolean getEjectCargo(); // shared between intake and cargo ramp subsystems
 
@@ -18,5 +20,7 @@ public interface IButtonControlBoard
     boolean getShootBay();
 
     // PANEL HANDLER
+    boolean getIntakePanel();
+
     boolean getEjectPanel();
 }

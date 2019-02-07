@@ -100,9 +100,15 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getIntake()
+    public boolean getManualExtendAllClimbPneumatics()
     {
-        return mButtonControlBoard.getIntake();
+        return mButtonControlBoard.getManualExtendAllClimbPneumatics();
+    }
+
+    @Override
+    public boolean getIntakeCargo()
+    {
+        return mButtonControlBoard.getIntakeCargo();
     }
 
     @Override
@@ -127,6 +133,12 @@ public class ControlBoard implements IControlBoard
     public boolean getShootBay()
     {
         return mButtonControlBoard.getShootBay();
+    }
+
+    @Override
+    public boolean getIntakePanel()
+    {
+        return mButtonControlBoard.getIntakePanel();
     }
 
     @Override

@@ -22,7 +22,13 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
-    public boolean getIntake()
+    public boolean getManualExtendAllClimbPneumatics()
+    {
+        return mButtonBoard.getRawButtonPressed(7);
+    }
+
+    @Override
+    public boolean getIntakeCargo()
     {
         return mButtonBoard.getRawButtonPressed(2);
     }
@@ -49,6 +55,12 @@ public class MainButtonBoard implements IButtonControlBoard
     public boolean getShootBay()
     {
         return mButtonBoard.getRawButtonPressed(5);
+    }
+
+    @Override
+    public boolean getIntakePanel()
+    {
+        return mButtonBoard.getRawButtonPressed(8);
     }
 
     @Override
