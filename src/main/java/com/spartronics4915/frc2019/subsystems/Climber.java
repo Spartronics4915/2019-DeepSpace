@@ -214,7 +214,7 @@ public class Climber extends Subsystem
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
-                if (mDownwardFrontLeftIRSensor.getDistance() <= 2.5)
+                if (mDownwardFrontLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
                 {
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
                 }
@@ -224,7 +224,7 @@ public class Climber extends Subsystem
                 }
             case RETRACT_REAR_STRUTS:
             {
-                if (mDownwardRearLeftIRSensor.getDistance() <= 2.5)
+                if (mDownwardRearLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
                 {
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 }
