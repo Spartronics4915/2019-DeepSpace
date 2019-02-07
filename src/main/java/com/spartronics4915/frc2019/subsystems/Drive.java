@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.Kinematics;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
@@ -79,6 +78,8 @@ public class Drive extends Subsystem
                         break;
                     case VELOCITY:
                         updateVelocity();
+                        break;
+                    case TURN:
                         break;
                     default:
                         logError("Unexpected drive control state: " + mDriveControlState);
@@ -202,14 +203,12 @@ public class Drive extends Subsystem
     {
         in.register(mLoop);
     }
-    /**
-     * 
-     */
+
     public synchronized void setWantTurn(Rotation2d heading)
     {
         if (mDriveControlState != DriveControlState.TURN)
         {
-            logDebug("Switching to field relative turn: " + heading);
+            logDebug("Switching to robot relative turn: " + heading);
             mDriveControlState = DriveControlState.TURN;
         }
         WheelState w = mMotionPlanner.getModel().solveInverseKinematics(new ChassisState(0.0, heading.getRadians()));
@@ -595,7 +594,7 @@ public class Drive extends Subsystem
             mRightMaster.set(ControlMode.PercentOutput, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward, 0.0);
         }
 
-        if (mDriveControlState == DriveControlState.TURN) 
+        else if (mDriveControlState == DriveControlState.TURN) 
         {
             mLeftMaster.set(ControlMode.Position, mPeriodicIO.left_demand);
             mRightMaster.set(ControlMode.Position, mPeriodicIO.right_demand);
