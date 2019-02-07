@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CargoChute extends Subsystem
 {
+
     private static CargoChute mInstance = null;
 
     public static CargoChute getInstance()
@@ -146,7 +147,7 @@ public class CargoChute extends Subsystem
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     default:
