@@ -178,7 +178,7 @@ public class CargoChute extends Subsystem
 
     public boolean isRampRunning()
     {
-        return mSystemState == SystemState.RAMPING;
+        return mSystemState == SystemState.RAMPING || mSystemState == SystemState.EJECTING || mSystemState == SystemState.SHOOTING_BAY || mSystemState == SystemState.SHOOTING_ROCKET;
     }
 
     private SystemState defaultStateTransfer()
