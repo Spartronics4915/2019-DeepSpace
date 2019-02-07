@@ -127,7 +127,7 @@ public class CargoChute extends Subsystem
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case SHOOTING_ROCKET:
