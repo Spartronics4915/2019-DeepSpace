@@ -59,7 +59,7 @@ public class CargoChute extends Subsystem
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
     
-    private Timer mShootTimer = new Timer();
+    private Timer mCargoTimer = new Timer();
 
     private boolean mStateChanged;
 
@@ -118,11 +118,11 @@ public class CargoChute extends Subsystem
                     case EJECTING:
                         if (mStateChanged)
                         {
-                            mShootTimer.reset();
-                            mShootTimer.start();
+                            mCargoTimer.reset();
+                            mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, 0);
                         }
-                        if (mShootTimer.hasPeriodPassed(Constants.kTransitionTime))
+                        if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime))
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                         break;
                     case LOWERING:
@@ -131,23 +131,23 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
-                            mShootTimer.reset();
-                            mShootTimer.start();
+                            mCargoTimer.reset();
+                            mCargoTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
-                            mShootTimer.reset();
-                            mShootTimer.start();
+                            mCargoTimer.reset();
+                            mCargoTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     default:
@@ -155,8 +155,8 @@ public class CargoChute extends Subsystem
                 }
                 if (newState != mSystemState)
                 {
-                    mShootTimer.stop();
-                    mShootTimer.reset();
+                    mCargoTimer.stop();
+                    mCargoTimer.reset();
                     mStateChanged = true;
                 }
                 else
@@ -244,7 +244,7 @@ public class CargoChute extends Subsystem
             case LOWER:
                 return mSystemState == SystemState.LOWERING;
             case SHOOT_BAY:
-                return mSystemState == SystemState.SHOOTING_BAY && mShootTimer.hasPeriodPassed(Constants.kShootTime);
+                return mSystemState == SystemState.SHOOTING_BAY && mCargoTimer.hasPeriodPassed(Constants.kShootTime);
             case SHOOT_ROCKET:
                 return mSystemState == SystemState.SHOOTING_ROCKET;
             default:
