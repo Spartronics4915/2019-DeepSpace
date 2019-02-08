@@ -23,6 +23,7 @@ import java.util.jar.Manifest;
 
 public class Robot extends TimedRobot
 {
+
     private Looper mEnabledLooper = new Looper();
     private Looper mDisabledLooper = new Looper();
     private IControlBoard mControlBoard = null;
@@ -113,7 +114,7 @@ public class Robot extends TimedRobot
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
                 SmartDashboard.putString(kRobotTestModeOptions,
-                                         "None,Drive,All");
+                        "None,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
 
@@ -320,14 +321,18 @@ public class Robot extends TimedRobot
             if (mSuperstructure.isDriverControlled())
             {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle(), mControlBoard.getTurn(),
-                    true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(6)*/;
+                        true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/* .scale(6) */;
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
                 //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
                 // ));
-                if (mControlBoard.getManualRamp())
+                if (mControlBoard.getClimb())
+                {
+                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                }
+                else if (mControlBoard.getManualRamp())
                 {
                     if (!mCargoChute.isRampRunning())
                         mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
@@ -347,11 +352,12 @@ public class Robot extends TimedRobot
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
-
+                // TODO: Add eject panel
+                // TODO: Add intake
 
                 if (mControlBoard.getReverseDirection())
                 {
-                    mSuperstructure.reverseDrivingDirection();
+                     mSuperstructure.reverseDrivingDirection();
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {
@@ -383,7 +389,7 @@ public class Robot extends TimedRobot
         outputToSmartDashboard();
     }
 
-     /**
+    /**
      * Unused but required function. Plays a similar role to our
      * allPeriodic method. Presumably the timing in IterativeRobotBase wasn't
      * to the liking of initial designers of this system. Perhaps because
@@ -400,8 +406,8 @@ public class Robot extends TimedRobot
         mSubsystemManager.outputToTelemetry();
         mEnabledLooper.outputToSmartDashboard();
         SmartDashboard.putNumber("Robot/BatteryVoltage",
-            RobotController.getBatteryVoltage());
+                RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("Robot/InputCurrent",
-            RobotController.getInputCurrent());
+                RobotController.getInputCurrent());
     }
 }
