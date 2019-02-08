@@ -41,8 +41,8 @@ public class CargoIntake extends Subsystem
     private WantedState mWantedState = WantedState.HOLD;
     private SystemState mSystemState = SystemState.HOLDING;
 
-    private static final boolean kSolenoidExtend = false;
-    private static final boolean kSolenoidRetract = true;
+    private static final boolean kSolenoidExtend = true;
+    private static final boolean kSolenoidRetract = false;
     private static final double kIntakeSpeed = 0.5;
     private static final double kEjectSpeed = -0.5;
     private static final double kIntakeClimbSpeed = 0.5;
@@ -62,8 +62,8 @@ public class CargoIntake extends Subsystem
         boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoid);
-            mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoidClimb);
+            mSolenoid = new Solenoid(Constants.kCargoIntakeSolenoid);
+            mSolenoidClimb = new Solenoid(Constants.kCargoIntakeSolenoidClimb);
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
             mSensor = new A41IRSensor(Constants.kCargoIntakeSensor);
@@ -99,7 +99,7 @@ public class CargoIntake extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case HOLDING:
+                    case HOLDING://DS5
                         if (mStateChanged)
                         {
                             mMotorRight.set(ControlMode.PercentOutput, 0);
@@ -113,27 +113,21 @@ public class CargoIntake extends Subsystem
                             setSolenoidsToDown();
                         }
                         break;
-                    case INTAKING://transition to holding using proximity sensor
+                    case INTAKING://BB2
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
                             mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
                         }
-                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
-                                && newState == mSystemState)
-                            setWantedState(WantedState.HOLD);
                         break;
-                    case EJECTING://transition to holding using proximity sensor
+                    case EJECTING://BB3
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
                             mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
                         }
-                        else if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance)
-                                && newState == mSystemState)
-                            setWantedState(WantedState.HOLD);
                         break;
                     case CLIMBING:
                         if (mStateChanged)
@@ -221,9 +215,9 @@ public class CargoIntake extends Subsystem
             case ARM_DOWN:
                 return mSystemState == SystemState.ARM_DOWNING;
             case INTAKE:
-                return mSystemState == SystemState.INTAKING;
+                return mSystemState == SystemState.INTAKING && mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance);
             case EJECT:
-                return mSystemState == SystemState.EJECTING;
+                return mSystemState == SystemState.EJECTING && mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance);
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             default:
@@ -285,13 +279,13 @@ public class CargoIntake extends Subsystem
         dashboardPutBoolean("mSolenoidClimb Extended", mSolenoidClimb.get());
         dashboardPutNumber("mMotor1 Speed", mMotorRight.getMotorOutputPercent());
         dashboardPutNumber("mMotor2 Speed", mMotorLeft.getMotorOutputPercent());
+        dashboardPutNumber("Distance from cargo", mSensor.getDistance());
+        dashboardPutBoolean("Is cargo obtained", mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance));
     }
 
     @Override
     public void stop()
     {
-        mWantedState = WantedState.HOLD;
-        mSystemState = SystemState.HOLDING;
         mSolenoid.set(kSolenoidRetract);
         mSolenoidClimb.set(kSolenoidRetract);
         mMotorRight.set(ControlMode.PercentOutput, 0);
