@@ -8,6 +8,7 @@
  * ✔ Fill out atTarget()
  * ✔ Fill out outputTelemetry()
  * Fix the BRING_BALL_TO_TOP: when checking to actually go into it, don't if in either manual wantedstate
+ * cool, the chute can break the arm now. we gotta write code to stop that from happening.
  * T E S T
  */
 
