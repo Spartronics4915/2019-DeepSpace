@@ -14,12 +14,13 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
-
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -66,7 +67,8 @@ public class CargoChute extends Subsystem
         boolean success = true;
         try
         {
-            // Instantiate your hardware here
+            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPWMId)) throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
+
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kFlipperSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);

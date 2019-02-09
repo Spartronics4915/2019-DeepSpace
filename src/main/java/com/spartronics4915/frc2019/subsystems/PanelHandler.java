@@ -1,6 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
@@ -47,9 +48,11 @@ public class PanelHandler extends Subsystem
 
     private PanelHandler()
     {
-        boolean success = true;
+        boolean success = false;
         try
         {
+            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPWMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
+
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kPanelHandlerSolenoid);
         }
         catch (Exception e)

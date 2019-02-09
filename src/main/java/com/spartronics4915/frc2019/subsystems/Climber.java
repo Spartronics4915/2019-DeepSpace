@@ -5,8 +5,11 @@ import com.spartronics4915.frc2019.ControlBoard;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.A41IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
+import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
+
+import edu.wpi.first.hal.sim.mockdata.PCMDataJNI;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -52,14 +55,16 @@ public class Climber extends Subsystem
     private Climber()
 
     {
-        boolean success = true;
+        boolean success = false;
         try
         {
-            mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontLeftSolenoidId1, Constants.kFrontLeftSolenoidId2);
+            if (!CANProbe.getInstance().validatePCMId(Constants.kClimberPCMId)) throw new RuntimeException("Climber PCM isn't on the CAN bus!");
+
+            mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kFrontLeftSolenoidId1, Constants.kFrontLeftSolenoidId2);
             mFrontRightClimberSolenoid =
-                    new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontRightSolenoidId1, Constants.kFrontRightSolenoidId2);
-            mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearLeftSolenoidId1, Constants.kRearLeftSolenoid2);
-            mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1, Constants.kRearRightSolenoidId2);
+                    new DoubleSolenoid(Constants.kClimberPCMId, Constants.kFrontRightSolenoidId1, Constants.kFrontRightSolenoidId2);
+            mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kRearLeftSolenoidId1, Constants.kRearLeftSolenoid2);
+            mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kRearRightSolenoidId1, Constants.kRearRightSolenoidId2);
             mFrontRightIRSensor = new A41IRSensor(Constants.kFrontLeftIRSensorId);
             mFrontLeftIRSensor = new A41IRSensor(Constants.kFrontRightIRSensorId);
             mDownwardFrontLeftIRSensor = new A21IRSensor(Constants.kDownwardFrontLeftIRSensorId);

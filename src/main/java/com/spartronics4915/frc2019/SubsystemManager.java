@@ -23,17 +23,29 @@ public class SubsystemManager implements ILooper
 
     public void outputToTelemetry()
     {
-        mAllSubsystems.forEach((s) -> s.outputTelemetry());
+        mAllSubsystems.forEach((s) ->
+        {
+            if (s.isInitialized())
+                s.outputTelemetry();
+        });
     }
 
     public void writeToLog()
     {
-        mAllSubsystems.forEach((s) -> s.writeToLog());
+        mAllSubsystems.forEach((s) ->
+        {
+            if (s.isInitialized())
+                s.writeToLog();
+        });
     }
 
     public void stop()
     {
-        mAllSubsystems.forEach((s) -> s.stop());
+        mAllSubsystems.forEach((s) ->
+        {
+            if (s.isInitialized())
+                s.stop();
+        });
     }
 
     private class EnabledLoop implements ILoop
@@ -106,7 +118,11 @@ public class SubsystemManager implements ILooper
 
     public void registerEnabledLoops(ILooper enabledLooper)
     {
-        mAllSubsystems.forEach((s) -> s.registerEnabledLoops(this));
+        mAllSubsystems.forEach((s) ->
+        {
+            if (s.isInitialized())
+                s.registerEnabledLoops(this);
+        });
         enabledLooper.register(new EnabledLoop());
     }
 

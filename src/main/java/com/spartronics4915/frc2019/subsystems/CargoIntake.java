@@ -5,6 +5,7 @@ import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.A41IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
+import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
 
@@ -62,10 +63,12 @@ public class CargoIntake extends Subsystem
         boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoid);
-            mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoidClimb);
+            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPWMId)) throw new RuntimeException("CargoIntake PCM isn't on the CAN bus!");
+
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoid);
+            mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kCargoIntakeSolenoidClimb);
             mSensor = new A41IRSensor(Constants.kCargoIntakeSensor);
 
         }
