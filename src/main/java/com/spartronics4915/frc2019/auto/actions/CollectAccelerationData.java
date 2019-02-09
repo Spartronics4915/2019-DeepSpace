@@ -63,8 +63,8 @@ public class CollectAccelerationData implements Action
     public void start()
     {
         mDrive.setOpenLoop(new DriveSignal(
-                (mSide.shouldRunLeft() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * kPower,
-                (mSide.shouldRunRight() ? 1 : 0) * (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
+                (mReverse ? -1.0 : 1.0) * kPower,
+                (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
         mStartTime = Timer.getFPGATimestamp();
         mPrevTime = mStartTime;
         Logger.debug("Collecting acceleration data");
@@ -96,7 +96,7 @@ public class CollectAccelerationData implements Action
         }
 
         mAccelerationData.add(new DriveCharacterization.AccelerationDataPoint(
-                currentVelocity, //convert to radians per second
+                currentVelocity, //converted to radians per second
                 kPower * 12.0, //convert to volts
                 acceleration));
 
