@@ -8,6 +8,7 @@
  * ✔ Fill out atTarget()
  * ✔ Fill out outputTelemetry()
  * Fix the BRING_BALL_TO_TOP: when checking to actually go into it, don't if in either manual wantedstate
+ * cool, the chute can break the arm now. we gotta write code to stop that from happening.
  * T E S T
  */
 
@@ -31,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CargoChute extends Subsystem
 {
+
     private static CargoChute mInstance = null;
 
     public static CargoChute getInstance()
@@ -67,10 +69,10 @@ public class CargoChute extends Subsystem
         boolean success = true;
         try
         {
-            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPWMId)) throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
+            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
 
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
-            mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kFlipperSolenoidId);
+            mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kFlipperSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
         }
         catch (Exception e)
@@ -139,7 +141,7 @@ public class CargoChute extends Subsystem
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if(mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     default:

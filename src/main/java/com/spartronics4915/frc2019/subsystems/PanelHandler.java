@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
  * panels held on by velcro */
 
 public class PanelHandler extends Subsystem
-{
+{ 
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -39,8 +39,8 @@ public class PanelHandler extends Subsystem
     private SystemState mSystemState = SystemState.RETRACTING;
 
     private final double kEjectTime = 0.3; // Seconds TODO: Tune me
-    private static final boolean kSolenoidExtend = false;
-    private static final boolean kSolenoidRetract = true;
+    private static final boolean kSolenoidExtend = true;
+    private static final boolean kSolenoidRetract = false;
 
     private Solenoid mSolenoid = null;
 
@@ -51,9 +51,9 @@ public class PanelHandler extends Subsystem
         boolean success = false;
         try
         {
-            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPWMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
+            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
-            mSolenoid = new Solenoid(Constants.kCargoHatchArmPWMId, Constants.kPanelHandlerSolenoid);
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
         }
         catch (Exception e)
         {
@@ -93,7 +93,7 @@ public class PanelHandler extends Subsystem
                             mSolenoid.set(kSolenoidRetract);
                         }
                         break;
-                    case EJECTING:
+                    case EJECTING://BB6
                         if (mStateChanged)
                         {
                             mSolenoid.set(kSolenoidExtend);
@@ -158,7 +158,7 @@ public class PanelHandler extends Subsystem
     }
 
     @Override
-    public boolean checkSystem(String variant)
+    public boolean checkSystem(String variant)//DS6
     {
         logNotice("Starting PanelHandler Solenoid Check");
         try
@@ -189,8 +189,6 @@ public class PanelHandler extends Subsystem
     @Override
     public void stop()
     {
-        mWantedState = WantedState.RETRACT;
-        mSystemState = SystemState.RETRACTING;
         mSolenoid.set(kSolenoidRetract);
     }
 }

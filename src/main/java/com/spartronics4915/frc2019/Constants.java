@@ -112,7 +112,7 @@ public class Constants
     public static final double kJoystickThreshold = 0.5;
 
     // PWMs
-    public static final int kCargoHatchArmPWMId = 0;
+    public static final int kCargoHatchArmPCMId = 0;
     public static final int kClimberPCMId = 1;
 
     // Panel Handler
@@ -153,4 +153,5 @@ public class Constants
     public static final int kDownwardFrontLeftIRSensorId = 3;
     public static final int kDownwardRearRightIRSensorId = 4;
     public static final int kDownwardRearLeftIRSensorId = 5;
+    public static final double kIRSensorTriggerDistance = 2.5;
 }
