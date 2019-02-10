@@ -4,7 +4,6 @@ import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.PolynomialRegression;
 import com.spartronics4915.lib.util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DriveCharacterization
@@ -71,9 +70,9 @@ public class DriveCharacterization
     }
 
     /**
-     * From "Practical Guide to State Space Control" section 4.5.2 We're solving for
-     * I (also known as J) in rma=Iα. Jared Russell has posted a similar equation
-     * that you can use to solve for J, but we're not using it.
+     * From "Practical Guide to State Space Control" section 4.5.2. We're solving
+     * for I (also known as J) in rma=Iα. Jared Russell has posted a similar
+     * equation that you can use to solve for J, but we're not using it.
      * 
      * @param linearAccelerationData  in rad/s^2
      * @param angularAccelerationData in rad/s^2

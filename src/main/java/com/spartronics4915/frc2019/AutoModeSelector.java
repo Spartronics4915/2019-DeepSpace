@@ -42,7 +42,7 @@ public class AutoModeSelector
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),
             new AutoModeCreator("Other: Curved Path Test", () -> new PathTestMode(true)),
             new AutoModeCreator("Other: Velocity Test", () -> new VelocityTestMode()),
-            new AutoModeCreator("Other: Characterize Drivetrain (Both)", () -> new CharacterizeDriveMode(SideToCharacterize.BOTH)),
+            new AutoModeCreator("Other: Characterize Drivetrain (Both+MOI)", () -> new CharacterizeDriveMode(SideToCharacterize.BOTH)),
             new AutoModeCreator("Other: Characterize Drivetrain (Left)", () -> new CharacterizeDriveMode(SideToCharacterize.LEFT)),
             new AutoModeCreator("Other: Characterize Drivetrain (Right)", () -> new CharacterizeDriveMode(SideToCharacterize.RIGHT)),
             new AutoModeCreator("Other: Characterize Drivetrain (Remote)", () -> new CharacterizeDriveRemoteMode())

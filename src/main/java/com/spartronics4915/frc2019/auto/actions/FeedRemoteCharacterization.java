@@ -2,6 +2,7 @@ package com.spartronics4915.frc2019.auto.actions;
 
 import java.util.Arrays;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.Logger;
@@ -42,13 +43,15 @@ public class FeedRemoteCharacterization implements Action
         
         // The script says to use ft and ft/s, but we use inches because that works better for us
 
-        // in and in/s
-        double leftPosition = mDrive.getLeftEncoderDistance();
-        double leftVelocity = mDrive.getLeftLinearVelocity();
+        double inToRads = 2/Constants.kDriveWheelDiameterInches;
 
         // in and in/s
-        double rightPosition = mDrive.getRightEncoderDistance();
-        double rightVelocity = mDrive.getRightLinearVelocity();
+        double leftPosition = mDrive.getLeftEncoderDistance() * inToRads;
+        double leftVelocity = mDrive.getLeftLinearVelocity() * inToRads;
+
+        // in and in/s
+        double rightPosition = mDrive.getRightEncoderDistance() * inToRads;
+        double rightVelocity = mDrive.getRightLinearVelocity() * inToRads;
 
         // volts
         double battery = RobotController.getBatteryVoltage();

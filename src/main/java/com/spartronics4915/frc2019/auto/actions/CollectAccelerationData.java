@@ -4,11 +4,13 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.auto.modes.CharacterizeDriveMode.SideToCharacterize;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
+import com.spartronics4915.lib.physics.DriveCharacterization.AccelerationDataPoint;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import com.spartronics4915.lib.util.Util;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.nio.file.Paths;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
 public class CollectAccelerationData implements Action
 {
 
-    private static final double kPower = 0.5;
+    private static final double kPower = 0.25;
     private static final double kTotalTime = 2.0; //how long to run the test for
     private static final Drive mDrive = Drive.getInstance();
 
@@ -32,15 +34,13 @@ public class CollectAccelerationData implements Action
 
     /**
      * This test collects data about the behavior of the drivetrain in a "dynamic
-     * test",
-     * where we set the demand to a constant value and sample acceleration. The idea
-     * is that velocity is that steady-state velocity is negligle in this case, so
-     * we are only measuring the effects of acceleration.
+     * test", where we set the demand to a constant value and sample acceleration.
+     * The idea is that velocity is that steady-state velocity is negligle in this
+     * case, so we are only measuring the effects of acceleration.
      * 
-     * There are a couple of issues with this test (we should sample voltage
-     * directly, and we should subtract the voltage caused by velocity from this
-     * applied voltage), and it is advised to use the FeedRemoteCharacterization
-     * action instead of this.
+     * There are a couple of issues with this test (we should subtract the voltage
+     * caused by velocity from this applied voltage), and one should examine if the
+     * FeedRemoteCharacterization action is appropriate instead of this.
      * 
      * @param data        reference to the list where data points should be stored
      * @param reverse     if true drive in reverse, if false drive normally
@@ -73,11 +73,14 @@ public class CollectAccelerationData implements Action
     @Override
     public void update()
     {
+        // convert to radians/sec
         double currentVelocity =
                 mSide.getVelocityTicksPer100ms(mDrive) / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
         double currentTime = Timer.getFPGATimestamp();
 
-        //don't calculate acceleration until we've populated prevTime and prevVelocity
+        SmartDashboard.putNumber("CollectAccelerationData/currentTime", currentTime);
+
+        // don't calculate acceleration until we've populated prevTime and prevVelocity
         if (mPrevTime == mStartTime)
         {
             mPrevTime = currentTime;
@@ -87,7 +90,7 @@ public class CollectAccelerationData implements Action
 
         double acceleration = (currentVelocity - mPrevVelocity) / (currentTime - mPrevTime);
 
-        //ignore accelerations that are too small
+        // ignore accelerations that are effectively 0
         if (acceleration < Util.kEpsilon)
         {
             mPrevTime = currentTime;
@@ -96,8 +99,8 @@ public class CollectAccelerationData implements Action
         }
 
         mAccelerationData.add(new DriveCharacterization.AccelerationDataPoint(
-                currentVelocity, //converted to radians per second
-                kPower * 12.0, //convert to volts
+                currentVelocity, // rads/sec
+                kPower * mSide.getVoltage(mDrive), //convert to volts
                 acceleration));
 
         mCSVWriter.add(mAccelerationData.get(mAccelerationData.size() - 1));
@@ -115,7 +118,13 @@ public class CollectAccelerationData implements Action
     @Override
     public void done()
     {
+        // Remove anything before we hit our max acceleration (i.e. don't log the ramp-up period)
+        AccelerationDataPoint maxDataPoint = mAccelerationData.stream()
+                .max((AccelerationDataPoint dp0, AccelerationDataPoint dp1) -> Double.compare(Math.abs(dp0.acceleration), Math.abs(dp1.acceleration)))
+                .orElseThrow();
+        mAccelerationData.subList(0, mAccelerationData.indexOf(maxDataPoint)).clear();
+
         mDrive.setOpenLoop(DriveSignal.BRAKE);
-        mCSVWriter.flush();
+        mCSVWriter.flush(); // CSV writer will have value around 0 removed, but the max accel trimming will not be applied
     }
 }

@@ -37,14 +37,14 @@ public class Constants
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
     // Right
-    public static final double kDriveRightVIntercept = 0.7503; // V
-    public static final double kDriveRightKv = 0.9288; // V per rad/s
-    public static final double kDriveRightKa = 0.1583; // V per rad/s^2
+    public static final double kDriveRightVIntercept = 0.9534; // V
+    public static final double kDriveRightKv = 0.2241; // V per rad/s
+    public static final double kDriveRightKa = 0.0036; // V per rad/s^2
 
     // Left
-    public static final double kDriveLeftVIntercept = 0.5574; // V
-    public static final double kDriveLeftKv = 0.9480; // V per rad/s
-    public static final double kDriveLeftKa = 0.1583; // V per rad/s^2
+    public static final double kDriveLeftVIntercept = 0.3221; // V
+    public static final double kDriveLeftKv = 0.1337; // V per rad/s
+    public static final double kDriveLeftKa = 0.00468; // V per rad/s^2
 
     public static final double kDriveLeftDeadband = 0.078;
     public static final double kDriveRightDeadband = 0.068;

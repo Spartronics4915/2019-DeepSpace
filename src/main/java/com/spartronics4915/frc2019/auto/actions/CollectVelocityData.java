@@ -7,7 +7,10 @@ import com.spartronics4915.lib.physics.DriveCharacterization;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
+import com.spartronics4915.lib.util.Util;
+
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.nio.file.Paths;
 import java.util.List;
@@ -17,6 +20,7 @@ public class CollectVelocityData implements Action
 
     private static final double kMaxPower = 0.5;
     private static final double kRampRate = 0.02;
+    private static final double kMinVelocity = 0.5 * (1 / Constants.kDriveWheelDiameterInches) * (2 * Math.PI); // Convert in/sec to rads/sec
     private static final Drive mDrive = Drive.getInstance();
 
     private final ReflectingCSVWriter<DriveCharacterization.VelocityDataPoint> mCSVWriter;
@@ -29,16 +33,18 @@ public class CollectVelocityData implements Action
     private double mStartTime = 0.0;
 
     /**
-     * This is a quasi-static test to determine Kv (the slope of of the voltage-speed curve).
-     * This test collects data on robot (for convenience) so a regression can be run.
+     * This is a quasi-static test to determine Kv (the slope of of the
+     * voltage-speed curve).
+     * This test collects data on robot (for convenience) so a regression can be
+     * run.
      * 
-     * If you want to calculate the moment of inertia then you should run this test turning
-     * in place. Otherwise you should go straight.
+     * If you want to calculate the moment of inertia then you should run this test
+     * turning in place. Otherwise you should go straight.
      * 
-     * @param data     reference to the list where data points should be stored
-     * @param reverse  if true drive in reverse, if false drive normally
-     * @param turnInPlace     if true turn, if false drive straight
-     * @param side     the side to collect data from/run
+     * @param data        reference to the list where data points should be stored
+     * @param reverse     if true drive in reverse, if false drive normally
+     * @param turnInPlace if true turn, if false drive straight
+     * @param side        the side to collect data from/run
      */
 
     public CollectVelocityData(List<DriveCharacterization.VelocityDataPoint> data, boolean reverse, boolean turnInPlace, SideToCharacterize side)
@@ -47,7 +53,8 @@ public class CollectVelocityData implements Action
         mReverse = reverse;
         mTurn = turnInPlace;
         mSide = side;
-        mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "VELOCITY_DATA.csv").toString(), DriveCharacterization.VelocityDataPoint.class);
+        mCSVWriter = new ReflectingCSVWriter<>(Paths.get(System.getProperty("user.home"), "VELOCITY_DATA.csv").toString(),
+                DriveCharacterization.VelocityDataPoint.class);
 
     }
 
@@ -67,13 +74,21 @@ public class CollectVelocityData implements Action
             isFinished = true;
             return;
         }
+
+        SmartDashboard.putNumber("CollectVelocityData/percentPower", percentPower);
+
         mDrive.setOpenLoop(new DriveSignal(
-            (mReverse ? -1.0 : 1.0) * percentPower,
-            (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower)
-        );
+                (mReverse ? -1.0 : 1.0) * percentPower,
+                (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * percentPower));
+
+        // convert to rads/sec
+        double velocity = mSide.getVelocityTicksPer100ms(mDrive) / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
+        if (velocity < Util.kEpsilon)
+            return;
+
         mVelocityData.add(new DriveCharacterization.VelocityDataPoint(
-                mSide.getVelocityTicksPer100ms(mDrive) / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10, //convert velocity to radians per second
-                percentPower * 12.0 //convert to volts
+                velocity, // rads/sec
+                percentPower * mSide.getVoltage(mDrive) // convert to volts
         ));
         mCSVWriter.add(mVelocityData.get(mVelocityData.size() - 1));
 
