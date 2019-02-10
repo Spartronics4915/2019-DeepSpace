@@ -328,10 +328,27 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
                 // ));
+                                
+                if(mControlBoard.getEjectPanel())//1: 6
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+
+                if(mControlBoard.getIntake())//1: 2
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+
+                if(mControlBoard.getTestButtonOne())//2: 5
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+
+                if(mControlBoard.getTestButtonThree())//2: 7
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+
+                if(mControlBoard.getTestButtonTwo())
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+
                 if (mControlBoard.getClimb())
                 {
                     mClimber.setWantedState(Climber.WantedState.CLIMB);
                 }
+
                 else if (mControlBoard.getManualRamp())
                 {
                     if (!mCargoChute.isRampRunning())
@@ -352,6 +369,7 @@ public class Robot extends TimedRobot
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
+
                 // TODO: Add eject panel
                 // TODO: Add intake
 

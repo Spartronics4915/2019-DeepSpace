@@ -79,6 +79,11 @@ public class DriveMotionPlanner implements CSVWritable
             vIntercept);
     }
 
+    public DifferentialDrive getModel()
+    {
+        return mModel;
+    }
+
     public void setTrajectory(final TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory)
     {
         mCurrentTrajectory = trajectory;

@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019;
 
+import com.spartronics4915.lib.geometry.Pose2d;
+import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.lidar.icp.IReferenceModel;
 import com.spartronics4915.lib.lidar.icp.Point;
@@ -15,6 +17,11 @@ public class Constants
 {
 
     public static final double kLooperDt = 0.01;
+
+    public static final Pose2d[] kVisionTargetLocations = 
+    {
+        new Pose2d(0, 0, Rotation2d.identity()),
+    };
 
     /* ROBOT PHYSICAL CONSTANTS */
 
@@ -105,8 +112,8 @@ public class Constants
     public static final double kJoystickThreshold = 0.5;
 
     // PWMs
-    public static final int kCargoHatchArmPWMId = 0;
-    public static final int kClimberPWMId = 1;
+    public static final int kCargoHatchArmPCMId = 0;
+    public static final int kClimberPCMId = 1;
 
     // Panel Handler
     public static final int kPanelHandlerSolenoid = 2;

@@ -4,6 +4,7 @@ import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.PolynomialRegression;
 import com.spartronics4915.lib.util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DriveCharacterization
@@ -67,6 +68,35 @@ public class DriveCharacterization
         CharacterizationConstants rv = getVelocityCharacterization(getVelocityData(velocityData));
         getAccelerationCharacterization(getAccelerationData(accelerationData, rv), rv);
         return rv;
+    }
+
+    /**
+     * From "Practical Guide to State Space Control" section 4.5.2 We're solving for
+     * I (also known as J) in rma=Iα. Jared Russell has posted a similar equation
+     * that you can use to solve for J, but we're not using it.
+     * 
+     * @param linearAccelerationData  in rad/s^2
+     * @param angularAccelerationData in rad/s^2
+     * @param wheelRadius             in m
+     * @param robotMass               in kg
+     * @return moment of inertia (angular inertia) in kg m^2
+     */
+    public static double calculateAngularInertia(List<AccelerationDataPoint> linearAccelerationData,
+            List<AccelerationDataPoint> angularAccelerationData, double wheelRadius, double robotMass)
+    {
+        Logger.debug("Linear accel data has " + linearAccelerationData.size() + " samples, angular has " + angularAccelerationData.size());
+        double[] x = new double[angularAccelerationData.size()];
+        double[] y = new double[linearAccelerationData.size()];
+
+        for (int i = 0; i < x.length; i++)
+            x[i] = angularAccelerationData.get(i).acceleration;
+        for (int i = 0; i < y.length; i++)
+            y[i] = linearAccelerationData.get(i).acceleration;
+
+        PolynomialRegression p = new PolynomialRegression(x, y, 1);
+        Logger.notice("moi r^2: " + p.R2());
+
+        return p.beta(1) * (wheelRadius * robotMass);
     }
 
     private static CharacterizationConstants getVelocityCharacterization(double[][] points)
