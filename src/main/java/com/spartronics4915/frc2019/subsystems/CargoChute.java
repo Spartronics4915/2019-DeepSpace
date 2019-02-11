@@ -21,7 +21,7 @@
  *     - Should switch with a click of a button
  * - There should be a quick transition so that ramp motors do not go from full speed ahead to full speed behind
  *
- * Code review time!
+ * After all this is completed: code review
  */
 
 package com.spartronics4915.frc2019.subsystems;
@@ -132,12 +132,14 @@ public class CargoChute extends Subsystem
                     case EJECTING:
                         if (mStateChanged)
                         {
-                            mCargoTimer.reset();
                             mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, 0);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime))
+                        {
+                            mCargoTimer.stop();
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+                        }
                         break;
                     case LOWERING:
                         if (mStateChanged)
@@ -145,9 +147,8 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
-                            mCargoTimer.reset();
-                            mCargoTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                            mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
@@ -156,9 +157,8 @@ public class CargoChute extends Subsystem
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
-                            mCargoTimer.reset();
-                            mCargoTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
+                            mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
