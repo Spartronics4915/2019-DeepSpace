@@ -111,7 +111,7 @@ public class Constants
     public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
-    // PWMs
+    // PCMs
     public static final int kCargoHatchArmPCMId = 0;
     public static final int kClimberPCMId = 1;
 
