@@ -324,24 +324,25 @@ public class Robot extends TimedRobot
                         true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/* .scale(6) */;
 
                 mDrive.setOpenLoop(command);
-                // mDrive.setVelocity(command, new DriveSignal(
-                //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-                //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
-                // ));
-                                
-                if(mControlBoard.getEjectPanel())//1: 6
+                /* mDrive.setVelocity(command, new DriveSignal(command.scale(Constants.kDriveLeftKv).getLeft()
+                 *     + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
+                 *     command.scale(Constants.kDriveLeftKv).getRight()
+                 *     + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())));
+                 */
+
+                if (mControlBoard.getEjectPanel()) // 1: 6
                     mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
-                if(mControlBoard.getIntake())//1: 2
+                if (mControlBoard.getIntake()) // 1: 2
                     mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
 
-                if(mControlBoard.getTestButtonOne())//2: 5
+                if (mControlBoard.getTestButtonOne()) // 2: 5
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
 
-                if(mControlBoard.getTestButtonThree())//2: 7
+                if (mControlBoard.getTestButtonThree()) // 2: 7
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
 
-                if(mControlBoard.getTestButtonTwo())
+                if (mControlBoard.getTestButtonTwo())
                     mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
 
                 if (mControlBoard.getClimb())
