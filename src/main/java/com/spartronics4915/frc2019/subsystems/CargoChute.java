@@ -8,7 +8,13 @@
  * ✔ Fill out atTarget()
  * ✔ Fill out outputTelemetry()
  * the chute can break the arm now. we gotta write code to stop that from happening.
- * ✔ Mechanics have determined that we need ejecting wheels again.
+ * - Make sure that CargoChute lowers the arm before extending to the rocket height, and additionally...
+ *     - Lowers the chute immediately after successfully shooting the cargo, but...
+ *     - Does not allow for the arm to be retracted during that time.
+ * - Make sure that anywhere _using_ the cargo chute or arm won't break either
+ *     - Places include CheckSystem and and some superstructure?
+ * ✔ Mechanics added the ShootMotors - add these
+ *
  * T E S T
  * - Both SHOOTs should... shoot. Solenoids and the ejecting wheels should work too.
  * - Need to integrate with CargoIntake to prevent arm damage. (!!!thisisimportant!!!)
