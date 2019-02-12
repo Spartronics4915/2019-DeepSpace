@@ -8,7 +8,7 @@
  * ✔ Fill out atTarget()
  * ✔ Fill out outputTelemetry()
  * the chute can break the arm now. we gotta write code to stop that from happening.
- * Mechanics have determined that we need ejecting wheels again.
+ * ✔ Mechanics have determined that we need ejecting wheels again.
  * T E S T
  * - Both SHOOTs should... shoot. Solenoids and the ejecting wheels should work too.
  * - Need to integrate with CargoIntake to prevent arm damage. (!!!thisisimportant!!!)
@@ -69,6 +69,8 @@ public class CargoChute extends Subsystem
     private SystemState mSystemState = SystemState.HOLDING;
 
     private TalonSRX mRampMotor = null;
+    private TalonSRX mShootMotorLeft = null;
+    private TalonSRX mShootMotorRight = null;
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
 
@@ -84,6 +86,8 @@ public class CargoChute extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
 
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
+            mShootMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kShootMotorLeftId);
+            mShootMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kShootMotorRightId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
         }
@@ -134,12 +138,16 @@ public class CargoChute extends Subsystem
                         {
                             mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, 0);
+                            mShootMotorLeft.set(ControlMode.PercentOutput, 0);
+                            mShootMotorRight.set(ControlMode.PercentOutput, 0);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime)) // Does the period still pass if the timer is stopped?
                         {
                             mCargoTimer.stop();
                             mCargoTimer.reset(); // I believe we need this reset here per above comment
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+                            mShootMotorLeft.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
+                            mShootMotorRight.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
                         }
                         break;
                     case LOWERING:
@@ -150,6 +158,8 @@ public class CargoChute extends Subsystem
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mCargoTimer.start();
+                            mShootMotorLeft.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                            mShootMotorRight.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
@@ -160,6 +170,8 @@ public class CargoChute extends Subsystem
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
+                            mShootMotorLeft.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                            mShootMotorRight.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
@@ -279,31 +291,51 @@ public class CargoChute extends Subsystem
     {
         logNotice("Beginning CargoChute system check:");
 
-        logNotice("Beginning ramp check.");
+        logNotice("Beginning motor check.");
         try
         {
-            logNotice("Running ramp at default speed for five seconds: ");
+            logNotice("Running RampMotor at ramping speed for five seconds: ");
             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
             Timer.delay(5);
             logNotice("Done.");
-            logNotice("Running ramp at zero speed for three seconds: ");
+            logNotice("Running RampMotor at zero speed for three seconds: ");
             mRampMotor.set(ControlMode.PercentOutput, 0);
             Timer.delay(3);
             logNotice("Done.");
-            logNotice("Running ramp at reverse default speed for five seconds: ");
+            logNotice("Running RampMotor at reverse ramping speed for five seconds: ");
             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
             Timer.delay(5);
             logNotice("Done.");
             mRampMotor.set(ControlMode.PercentOutput, 0);
+
+            logNotice("Running ShootMotorLeft at shooting speed for five seconds: ");
+            mShootMotorLeft.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+            Timer.delay(5);
+            logNotice("Running ShootMotorLeft at zero speed for three seconds: ");
+            mShootMotorLeft.set(ControlMode.PercentOutput, 0);
+            Timer.delay(3);
+            logNotice("Running ShootMotorLeft at reverse shooting speed for five seconds: ");
+            mShootMotorLeft.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
+            Timer.delay(5);
+
+            logNotice("Running ShootMotorRight at shooting speed for five seconds: ");
+            mShootMotorRight.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+            Timer.delay(5);
+            logNotice("Running ShootMotorRight at zero speed for three seconds: ");
+            mShootMotorRight.set(ControlMode.PercentOutput, 0);
+            Timer.delay(3);
+            logNotice("Running ShootMotorRight at reverse shooting speed for five seconds: ");
+            mShootMotorRight.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
+            Timer.delay(5);
         }
         catch (Exception e)
         {
-            logException("Did not pass ramp check: ", e);
+            logException("Did not pass motor check: ", e);
             return false;
         }
-        logNotice("Ramp check complete.");
+        logNotice("Motor check complete.");
 
-        logNotice("Beginning pneumatic check: ");
+        logNotice("Beginning pneumatic check: "); // TODO: oh shoot this might hurt the intake arm
         try
         {
             logNotice("Sending ramp pneumatics up for three seconds: ");
@@ -318,7 +350,7 @@ public class CargoChute extends Subsystem
             mRampSolenoid.set(Constants.kRampSolenoidExtend);
             Timer.delay(3);
             logNotice("Done.");
-            logNotice("Sending ramp pneumatics down for five seconds: ");
+            logNotice("Sending ramp pneumatics down for three seconds: ");
             mRampSolenoid.set(Constants.kRampSolenoidRetract);
             Timer.delay(3);
             logNotice("Done.");
@@ -339,8 +371,10 @@ public class CargoChute extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
-        dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // TODO: double check this value
+        dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
+        dashboardPutNumber("mShootMotorLeft speed: ", mShootMotorLeft.getMotorOutputPercent());
+        dashboardPutNumber("mShootMotorRight speed: ", mShootMotorRight.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor distance: ", mRampSensor.getDistance());
     }
 
@@ -351,6 +385,8 @@ public class CargoChute extends Subsystem
         mWantedState = WantedState.BRING_BALL_TO_TOP;
         mSystemState = SystemState.HOLDING;
         mRampMotor.set(ControlMode.PercentOutput, 0.0);
+        mShootMotorLeft.set(ControlMode.PercentOutput, 0.0);
+        mShootMotorRight.set(ControlMode.PercentOutput, 0.0);
         mRampSolenoid.set(Constants.kRampSolenoidRetract);
     }
 }
