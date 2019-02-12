@@ -129,7 +129,7 @@ public class CargoChute extends Subsystem
                         break;
                     case HOLDING:
                         if (mStateChanged)
-                            mRampMotor.set(ControlMode.PercentOutput, 0);
+                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
                             newState = SystemState.RAMPING;
                         break;
@@ -137,9 +137,9 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                         {
                             mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, 0);
-                            mShootMotorLeft.set(ControlMode.PercentOutput, 0);
-                            mShootMotorRight.set(ControlMode.PercentOutput, 0);
+                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                            mShootMotorLeft.set(ControlMode.PercentOutput, 0.0);
+                            mShootMotorRight.set(ControlMode.PercentOutput, 0.0);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime)) // Does the period still pass if the timer is stopped?
                         {
@@ -299,20 +299,20 @@ public class CargoChute extends Subsystem
             Timer.delay(5);
             logNotice("Done.");
             logNotice("Running RampMotor at zero speed for three seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, 0);
+            mRampMotor.set(ControlMode.PercentOutput, 0.0);
             Timer.delay(3);
             logNotice("Done.");
             logNotice("Running RampMotor at reverse ramping speed for five seconds: ");
             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
             Timer.delay(5);
             logNotice("Done.");
-            mRampMotor.set(ControlMode.PercentOutput, 0);
+            mRampMotor.set(ControlMode.PercentOutput, 0.0);
 
             logNotice("Running ShootMotorLeft at shooting speed for five seconds: ");
             mShootMotorLeft.set(ControlMode.PercentOutput, Constants.kShootSpeed);
             Timer.delay(5);
             logNotice("Running ShootMotorLeft at zero speed for three seconds: ");
-            mShootMotorLeft.set(ControlMode.PercentOutput, 0);
+            mShootMotorLeft.set(ControlMode.PercentOutput, 0.0);
             Timer.delay(3);
             logNotice("Running ShootMotorLeft at reverse shooting speed for five seconds: ");
             mShootMotorLeft.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
@@ -322,7 +322,7 @@ public class CargoChute extends Subsystem
             mShootMotorRight.set(ControlMode.PercentOutput, Constants.kShootSpeed);
             Timer.delay(5);
             logNotice("Running ShootMotorRight at zero speed for three seconds: ");
-            mShootMotorRight.set(ControlMode.PercentOutput, 0);
+            mShootMotorRight.set(ControlMode.PercentOutput, 0.0);
             Timer.delay(3);
             logNotice("Running ShootMotorRight at reverse shooting speed for five seconds: ");
             mShootMotorRight.set(ControlMode.PercentOutput, -Constants.kShootSpeed);
