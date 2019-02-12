@@ -135,9 +135,10 @@ public class CargoChute extends Subsystem
                             mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, 0);
                         }
-                        if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime))
+                        if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime)) // Does the period still pass if the timer is stopped?
                         {
                             mCargoTimer.stop();
+                            mCargoTimer.reset(); // I believe we need this reset here per above comment
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                         }
                         break;
@@ -149,7 +150,7 @@ public class CargoChute extends Subsystem
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
@@ -159,7 +160,7 @@ public class CargoChute extends Subsystem
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
