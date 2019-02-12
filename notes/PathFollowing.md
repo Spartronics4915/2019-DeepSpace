@@ -23,7 +23,10 @@
 <!-- /TOC -->
 
 
+
 ## Introduction
+
+_NB: this is a work in progress..._
 
 Path-following has been an advanced capability for FRC teams. This is because
 the time investment required to obtain accurate results is quite high.  Here
@@ -154,21 +157,25 @@ In this diagram the six constraints on our curve include beginning and
 ending position (p0,p1), velocity (v0, v1) and acceleration (a0, a1).
 Referring to our code, the Pose2d specifies position and orientation.
 In our diagram, we can produce values for (v0, v1) by scaling the
-robot orientation vector `[sin,cos]` by the _tangential speed_ for our robot.
+robot orientation vector, `[cos,sin]`, by the _tangential speed_ for our robot.
 The values for v0 indicate that the speed in y is greater than the
 speed in x. This is why the robot is pointing that way at the begining
 of the segment. The value for a0 indicates that the velocity is changing
 primarily in x and this is what accounts for the dramatic right turn.
+If the acceleration vector aligns with the velocity vector we have pure
+linear acceleration.   And if it's not aligned, then we have some amount
+of _angular acceleration_, or turning. Just as velocity is represented by
+the _tangent_ to the curve, acceleration is represented by its _curvature_.
 It must be noted that there are values for (a0,a1) that produce _invalid_
 results for our spline.  Specifically, imagine if we set them to (0,0).
 Without acceleration, we can't turn and so the curve could never start
 at p0,v0 and end at p1,v1.  On the other hand if we set v0 to (p1-p0)
 and v1 to v0, then an acceleration of (0,0) could produce a valid curve.
-To develop a better intuition of how the values interact, check out
-this [online spline editor](https://www.desmos.com/calculator/v8hozhn35m).
+To develop a better intuition of how the values interact, check out this
+[online spline editor](https://www.desmos.com/calculator/v8hozhn35m).
 
-Recall that a path is a collection of hermite cubic segments, we see now
-how we can enforce physical properties across spline segments: we simply make
+Recalling that a path is a collection of hermite cubic segments, we see can now
+how to enforce physical properties across spline segments: we simply make
 sure that neighboring segments share the same values as their neighboring
 end-points. So, while we haven't yet discussed how to select velocities
 and accelerations along on our spline, we now understand what to do with
@@ -210,7 +217,16 @@ the velocity?
 
 ### A Fast Path
 
+Wherein, timing and physical constraints are used to establish values for
+velocity and acceleration.
+
 ### An Accurate Path
+
+Wherein the subdivided / sampled spline is used to establish the
+setpoint while the error is approximated by the difference between
+the setpoint and the odometry's estimate.  Now the selected path-following
+controls is used to adjust the current robot controls to push its current
+state closer to the setpoint.
 
 ## The Rubber Hits the Road
 
@@ -231,7 +247,7 @@ Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
             double max_voltage);
 ```
 
-Thus, `MotionPlanner` converts a small set of poses int a larger set of
+Thus, `MotionPlanner` converts a small set of poses into a larger set of
 timed poses with augmented curvature information.  In order to generate
 the trajectory, it takes into account the provided list of `TimingContraints`
 and the maximum allowances for velocity, acceleration and voltage.
