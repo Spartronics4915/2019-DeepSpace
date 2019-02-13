@@ -55,6 +55,8 @@ public class RobotStateEstimator extends Subsystem
                             mLidarRobotState,
                             vehicleToLidar,
                             () -> Timer.getFPGATimestamp());
+        
+        logInitialized(true);
     }
 
     public RobotStateMap getEncoderRobotStateMap()

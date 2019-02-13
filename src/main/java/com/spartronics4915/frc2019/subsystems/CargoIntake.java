@@ -1,7 +1,6 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.A41IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
@@ -60,7 +59,7 @@ public class CargoIntake extends Subsystem
 
     private CargoIntake()
     {
-        boolean success = true;//IR sensor anolog port 7 to detect cargo going into chute
+        boolean success = true; // IR sensor anolog port 7 to detect cargo going into chute
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("CargoIntake PCM isn't on the CAN bus!");

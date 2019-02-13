@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019.auto.actions;
 
+import java.util.Optional;
+
 import com.spartronics4915.frc2019.VisionUpdateManager;
 import com.spartronics4915.frc2019.subsystems.RobotStateEstimator;
 import com.spartronics4915.lib.util.RobotStateMap;
@@ -31,8 +33,7 @@ public class ZeroOdometryFromVision implements Action
     @Override
     public void update()
     {
-        VisionUpdateManager.VisionUpdate visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
-        if (visionUpdate != null)
+        VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate().ifPresent(visionUpdate ->
         {
             mVisionCaptureTime = visionUpdate.frameCapturedTime;
             if (mVisionCaptureTime > mStartTime)
@@ -42,7 +43,7 @@ public class ZeroOdometryFromVision implements Action
 
                 mZeroed = true;
             }
-        }
+        });
     }
 
     @Override

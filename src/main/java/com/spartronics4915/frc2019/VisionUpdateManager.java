@@ -1,5 +1,7 @@
 package com.spartronics4915.frc2019;
 
+import java.util.Optional;
+
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.util.Logger;
@@ -47,9 +49,9 @@ public class VisionUpdateManager
     /**
      * @return the latest vision update _or_ null if there has not been an update yet
      */
-    public VisionUpdate getLatestVisionUpdate()
+    public Optional<VisionUpdate> getLatestVisionUpdate()
     {
-        return mLatestVisionUpdate;
+        return Optional.ofNullable(mLatestVisionUpdate);
     }
 
     public static class VisionUpdate

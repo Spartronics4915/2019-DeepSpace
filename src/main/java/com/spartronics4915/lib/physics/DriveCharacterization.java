@@ -4,7 +4,6 @@ import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.PolynomialRegression;
 import com.spartronics4915.lib.util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DriveCharacterization
@@ -71,9 +70,9 @@ public class DriveCharacterization
     }
 
     /**
-     * From "Practical Guide to State Space Control" section 4.5.2 We're solving for
-     * I (also known as J) in rma=Iα. Jared Russell has posted a similar equation
-     * that you can use to solve for J, but we're not using it.
+     * From "Practical Guide to State Space Control" section 4.5.2. We're solving
+     * for I (also known as J) in rma=Iα. Jared Russell has posted a similar
+     * equation that you can use to solve for J, but we're not using it.
      * 
      * @param linearAccelerationData  in rad/s^2
      * @param angularAccelerationData in rad/s^2
@@ -84,9 +83,12 @@ public class DriveCharacterization
     public static double calculateAngularInertia(List<AccelerationDataPoint> linearAccelerationData,
             List<AccelerationDataPoint> angularAccelerationData, double wheelRadius, double robotMass)
     {
+        // We currently throw out samples if things don't match up... FIXME?
+        int smallestLength = Math.min(angularAccelerationData.size(), linearAccelerationData.size());
         Logger.debug("Linear accel data has " + linearAccelerationData.size() + " samples, angular has " + angularAccelerationData.size());
-        double[] x = new double[angularAccelerationData.size()];
-        double[] y = new double[linearAccelerationData.size()];
+
+        double[] x = new double[smallestLength];
+        double[] y = new double[smallestLength];
 
         for (int i = 0; i < x.length; i++)
             x[i] = angularAccelerationData.get(i).acceleration;
