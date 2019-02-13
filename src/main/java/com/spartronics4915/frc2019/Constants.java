@@ -29,30 +29,25 @@ public class Constants
     public static final double kDriveWheelTrackWidthInches = 25.75;
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-    public static final double kTrackScrubFactor = 0.624; // Tune me!
+    public static final double kTrackScrubFactor = 1.202;
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 27.22; // kg (robot's mass, guessed to be 60 lbs == 27.22 kg) TODO tune
-    public static final double kRobotAngularInertia = 461; // kg m^2 (from an online calculator) TODO tune
+    public static final double kRobotLinearInertia = 17.75; // kg (robot's mass) TODO tune
+    public static final double kRobotAngularInertia = 1.13; // kg m^2 (use the moi auto mode) TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
     // Right
-    public static final double kDriveRightVIntercept = 0.9534; // V
-    public static final double kDriveRightKv = 0.2241; // V per rad/s
-    public static final double kDriveRightKa = 0.0036; // V per rad/s^2
+    public static final double kDriveRightVIntercept = 0.6519; // V
+    public static final double kDriveRightKv = 0.2417; // V per rad/s
+    public static final double kDriveRightKa = 0.0214; // V per rad/s^2
 
     // Left
-    public static final double kDriveLeftVIntercept = 0.3221; // V
-    public static final double kDriveLeftKv = 0.1337; // V per rad/s
-    public static final double kDriveLeftKa = 0.00468; // V per rad/s^2
+    public static final double kDriveLeftVIntercept = 0.7111; // V
+    public static final double kDriveLeftKv = 0.2447; // V per rad/s
+    public static final double kDriveLeftKa = 0.0300; // V per rad/s^2
 
-    public static final double kDriveLeftDeadband = 0.078;
-    public static final double kDriveRightDeadband = 0.068;
-
-    // Geometry
-    public static final double kCenterToFrontBumperDistance = 38.25 / 2.0;
-    public static final double kCenterToRearBumperDistance = 38.25 / 2.0;
-    public static final double kCenterToSideBumperDistance = 33.75 / 2.0;
+    public static final double kDriveLeftDeadband = 0.04;
+    public static final double kDriveRightDeadband = 0.04;
 
     // LIDAR CONSTANTS ----------------
     public static final IReferenceModel kSegmentReferenceModel = new SegmentReferenceModel(
@@ -70,7 +65,8 @@ public class Constants
     public static final double kDriveDownShiftAngularVelocity = Math.PI / 2.0; // rad/sec
     public static final double kDriveUpShiftVelocity = 11.0 * 12.0; // inches per second
 
-    public static final double kPathKX = 10.0; // units/s per unit of error
+    // Adaptive pure pursuit
+    public static final double kPathKX = 10.0; // units/s per unit of error... This is essentially a P gain on longitudinal error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
     public static final double kPathMinLookaheadDistance = 24.0; // inches
 
@@ -78,12 +74,23 @@ public class Constants
     // Units: setpoint, error, and output are in ticks per second.
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
-    public static final double kDriveVelocityKp = 5.0;
+
+    public static final double kDriveVelocityKp = 3.0;
     public static final double kDriveVelocityKi = 0.0;
     public static final double kDriveVelocityKd = 50.0;
     // The below should always be zero, because feedforward is dynamically produced by DriveMotionPlanner
     public static final double kDriveVelocityKf = 0.0;
     public static final int kDriveVelocityIZone = 0;
+
+    public static final double kDrivePositionKp = 8;
+    public static final double kDrivePositionKi = 0.0;
+    public static final double kDrivePositionKd = 0.0;
+    // Don't do feedforward on position control loops
+    public static final double kDrivePositionKf = 0.0;
+    public static final int kDrivePositionIZone = 0;
+    public static final double kTurnDegreeTolerance = 2; // Degrees
+    public static final double kTurnVelTolerance = 0.2; // in/sec
+
     public static final double kDriveVoltageRampRate = 0.0;
 
     /* I/O */

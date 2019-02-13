@@ -18,8 +18,8 @@ import java.util.List;
 public class CollectAccelerationData implements Action
 {
 
-    private static final double kPower = 0.25;
-    private static final double kTotalTime = 2.0; //how long to run the test for
+    private static final double kPower = 0.5;
+    private static final double kTotalTime = 3.0; //how long to run the test for
     private static final Drive mDrive = Drive.getInstance();
 
     private final ReflectingCSVWriter<DriveCharacterization.AccelerationDataPoint> mCSVWriter;
@@ -67,6 +67,7 @@ public class CollectAccelerationData implements Action
                 (mReverse ? -1.0 : 1.0) * (mTurn ? -1.0 : 1.0) * kPower));
         mStartTime = Timer.getFPGATimestamp();
         mPrevTime = mStartTime;
+        SmartDashboard.putBoolean("isDone", false);
         Logger.debug("Collecting acceleration data");
     }
 
@@ -100,7 +101,7 @@ public class CollectAccelerationData implements Action
 
         mAccelerationData.add(new DriveCharacterization.AccelerationDataPoint(
                 currentVelocity, // rads/sec
-                kPower * mSide.getVoltage(mDrive), //convert to volts
+                mSide.getVoltage(mDrive), //convert to volts
                 acceleration));
 
         mCSVWriter.add(mAccelerationData.get(mAccelerationData.size() - 1));
@@ -112,7 +113,7 @@ public class CollectAccelerationData implements Action
     @Override
     public boolean isFinished()
     {
-        return Timer.getFPGATimestamp() - mStartTime > kTotalTime;
+        return Timer.getFPGATimestamp() - mStartTime > kTotalTime || SmartDashboard.getBoolean("isDone", false);
     }
 
     @Override

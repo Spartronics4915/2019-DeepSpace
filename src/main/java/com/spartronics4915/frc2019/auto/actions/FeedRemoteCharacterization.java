@@ -41,17 +41,19 @@ public class FeedRemoteCharacterization implements Action
     {
         double now = Timer.getFPGATimestamp();
         
-        // The script says to use ft and ft/s, but we use inches because that works better for us
+        // The script says to use ft/s, but we use radians because that works better for us
 
-        double inToRads = 2/Constants.kDriveWheelDiameterInches;
+        // ft and rads/s
+        double leftPosition = mDrive.getLeftEncoderDistance() / 12;
+        double leftVelocity = mDrive.getLeftVelocityTicksPer100ms() / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
 
-        // in and in/s
-        double leftPosition = mDrive.getLeftEncoderDistance() * inToRads;
-        double leftVelocity = mDrive.getLeftLinearVelocity() * inToRads;
+        // ft and rad/s
+        double rightPosition = mDrive.getRightEncoderDistance() / 12;
+        double rightVelocity = mDrive.getRightVelocityTicksPer100ms() / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
 
-        // in and in/s
-        double rightPosition = mDrive.getRightEncoderDistance() * inToRads;
-        double rightVelocity = mDrive.getRightLinearVelocity() * inToRads;
+        // Yes, I know we're mixing ft and rad/s, but it's because the position value
+        // isn't used except to display a sanity check on the remote script. Radians
+        // are hard to read, so we use ft to make our sanity check more... sane.
 
         // volts
         double battery = RobotController.getBatteryVoltage();

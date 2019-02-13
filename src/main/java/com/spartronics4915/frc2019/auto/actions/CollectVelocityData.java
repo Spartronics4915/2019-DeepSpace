@@ -18,9 +18,8 @@ import java.util.List;
 public class CollectVelocityData implements Action
 {
 
-    private static final double kMaxPower = 0.5;
+    private static final double kMaxPower = 0.256;
     private static final double kRampRate = 0.02;
-    private static final double kMinVelocity = 0.5 * (1 / Constants.kDriveWheelDiameterInches) * (2 * Math.PI); // Convert in/sec to rads/sec
     private static final Drive mDrive = Drive.getInstance();
 
     private final ReflectingCSVWriter<DriveCharacterization.VelocityDataPoint> mCSVWriter;
@@ -62,6 +61,7 @@ public class CollectVelocityData implements Action
     public void start()
     {
         mStartTime = Timer.getFPGATimestamp();
+        SmartDashboard.putBoolean("isDone", false);
         Logger.debug("Collecting velocity data");
     }
 
@@ -88,7 +88,7 @@ public class CollectVelocityData implements Action
 
         mVelocityData.add(new DriveCharacterization.VelocityDataPoint(
                 velocity, // rads/sec
-                percentPower * mSide.getVoltage(mDrive) // convert to volts
+                mSide.getVoltage(mDrive) // convert to volts
         ));
         mCSVWriter.add(mVelocityData.get(mVelocityData.size() - 1));
 
@@ -97,7 +97,7 @@ public class CollectVelocityData implements Action
     @Override
     public boolean isFinished()
     {
-        return isFinished;
+        return isFinished || SmartDashboard.getBoolean("isDone", false);
     }
 
     @Override

@@ -83,9 +83,12 @@ public class DriveCharacterization
     public static double calculateAngularInertia(List<AccelerationDataPoint> linearAccelerationData,
             List<AccelerationDataPoint> angularAccelerationData, double wheelRadius, double robotMass)
     {
+        // We currently throw out samples if things don't match up... FIXME?
+        int smallestLength = Math.min(angularAccelerationData.size(), linearAccelerationData.size());
         Logger.debug("Linear accel data has " + linearAccelerationData.size() + " samples, angular has " + angularAccelerationData.size());
-        double[] x = new double[angularAccelerationData.size()];
-        double[] y = new double[linearAccelerationData.size()];
+
+        double[] x = new double[smallestLength];
+        double[] y = new double[smallestLength];
 
         for (int i = 0; i < x.length; i++)
             x[i] = angularAccelerationData.get(i).acceleration;
