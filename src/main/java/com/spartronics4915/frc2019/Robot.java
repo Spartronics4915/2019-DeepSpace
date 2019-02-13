@@ -332,19 +332,19 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
                 // )); XXX Conversions on Kv are wrong
                                 
-                if(mControlBoard.getEjectPanel())//1: 6
+                if(mControlBoard.getEjectPanel())// 1: 6
                     mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
-                if(mControlBoard.getIntake())//1: 2
+                if (mControlBoard.getIntake()) // 1: 2
                     mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
 
-                if(mControlBoard.getTestButtonOne())//2: 5
+                if (mControlBoard.getTestButtonOne()) // 2: 5
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
 
-                if(mControlBoard.getTestButtonThree())//2: 7
+                if (mControlBoard.getTestButtonThree()) // 2: 7
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
 
-                if(mControlBoard.getTestButtonTwo())
+                if (mControlBoard.getTestButtonTwo())
                     mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
 
                 if (mControlBoard.getClimb())

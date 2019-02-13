@@ -18,7 +18,7 @@ public class Constants
 
     public static final double kLooperDt = 0.01;
 
-    public static final Pose2d[] kVisionTargetLocations = 
+    public static final Pose2d[] kVisionTargetLocations =
     {
         new Pose2d(0, 0, Rotation2d.identity()),
     };
@@ -118,7 +118,7 @@ public class Constants
     public static final int kMainButtonBoardPort = 1;
     public static final double kJoystickThreshold = 0.5;
 
-    // PWMs
+    // PCMs
     public static final int kCargoHatchArmPCMId = 0;
     public static final int kClimberPCMId = 1;
 
@@ -131,29 +131,30 @@ public class Constants
     public static final int kCargoIntakeMotorRight = 6;
     public static final int kCargoIntakeMotorLeft = 7;
     public static final int kCargoIntakeSensor = 7;
-    public static final int kCargoIntakeSensorMinDistance = 100; //TODO: unit/value
-    public static final int kCargoIntakeSensorMaxDistance = 1000; //TODO: unit/value
+    public static final int kCargoIntakeSensorMinDistance = 100; // TODO: unit/value
+    public static final int kCargoIntakeSensorMaxDistance = 1000; // TODO: unit/value
     public static final double kShootTime = 4;
+    public static final double kTransitionTime = 1;
 
-    // Cargo Ramp
+    // Cargo Chute
     public static final int kRampMotorId = 5;
-    public static final int kFlipperSolenoidId = 3;
+    public static final int kRampSolenoidId = 3;
     public static final int kRampSensorId = 6;
-    public static final double kRampSpeed = 1.0;
-    public static final double kShootSpeed = 1.0; // tune
+    public static final double kRampSpeed = 1.0; // TODO: tune
+    public static final double kShootSpeed = 1.0; // TODO: tune
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
     public static final boolean kRampSolenoidExtend = false;
     public static final boolean kRampSolenoidRetract = true;
 
     // Climber
-    public static final int kFrontLeftSolenoidId1 = 0; //Extend
-    public static final int kFrontLeftSolenoidId2 = 1; //Retract
-    public static final int kFrontRightSolenoidId1 = 2; //Extend
-    public static final int kFrontRightSolenoidId2 = 3; //Retract
-    public static final int kRearLeftSolenoidId1 = 4; //Extend
-    public static final int kRearLeftSolenoid2 = 5; //Retract
-    public static final int kRearRightSolenoidId1 = 6; //Extend
-    public static final int kRearRightSolenoidId2 = 7; //Retract
+    public static final int kFrontLeftSolenoidId1 = 0; // Extend
+    public static final int kFrontLeftSolenoidId2 = 1; // Retract
+    public static final int kFrontRightSolenoidId1 = 2; // Extend
+    public static final int kFrontRightSolenoidId2 = 3; // Retract
+    public static final int kRearLeftSolenoidId1 = 4; // Extend
+    public static final int kRearLeftSolenoid2 = 5; // Retract
+    public static final int kRearRightSolenoidId1 = 6; // Extend
+    public static final int kRearRightSolenoidId2 = 7; // Retract
     public static final int kFrontLeftIRSensorId = 0;
     public static final int kFrontRightIRSensorId = 1;
     public static final int kDownwardFrontRightIRSensorId = 2;

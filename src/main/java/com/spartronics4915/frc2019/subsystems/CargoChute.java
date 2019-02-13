@@ -7,9 +7,21 @@
  * ✔ Don't keep shooting states running forever?
  * ✔ Fill out atTarget()
  * ✔ Fill out outputTelemetry()
- * Fix the BRING_BALL_TO_TOP: when checking to actually go into it, don't if in either manual wantedstate
- * cool, the chute can break the arm now. we gotta write code to stop that from happening.
+ * the chute can break the arm now. we gotta write code to stop that from happening.
+ * Mechanics have determined that we need ejecting wheels again.
  * T E S T
+ * - Both SHOOTs should... shoot. Solenoids and the ejecting wheels should work too.
+ * - Need to integrate with CargoIntake to prevent arm damage. (!!!thisisimportant!!!)
+ * - A21IR sensor should give us correct data (Austin has checked his A21s, but it's really really good to make sure)
+ * - BRING_BALL_TO_TOP should correctly transition with IR sensors (make sure readings are accurate beforehand)
+ * - MANUALs should correctly override
+ *     - If RampMotor moving at all go into MANUAL_HOLDING
+ *     - If RampMotor not moving go into MANUAL_RAMPING
+ *     - MUST not be overriden ~~by the A21 sensor detecting a ball~~ scratch that for now we afaik we aren't going to detect cargo
+ *     - Should switch with a click of a button
+ * - There should be a quick transition so that ramp motors do not go from full speed ahead to full speed behind
+ *
+ * After all this is completed: code review
  */
 
 package com.spartronics4915.frc2019.subsystems;
@@ -25,7 +37,6 @@ import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -60,7 +71,8 @@ public class CargoChute extends Subsystem
     private TalonSRX mRampMotor = null;
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
-    private Timer mShootTimer = new Timer();
+
+    private Timer mCargoTimer = new Timer();
 
     private boolean mStateChanged;
 
@@ -72,7 +84,7 @@ public class CargoChute extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
 
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
-            mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kFlipperSolenoidId);
+            mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
         }
         catch (Exception e)
@@ -119,7 +131,15 @@ public class CargoChute extends Subsystem
                         break;
                     case EJECTING:
                         if (mStateChanged)
+                        {
+                            mCargoTimer.start();
+                            mRampMotor.set(ControlMode.PercentOutput, 0);
+                        }
+                        if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime))
+                        {
+                            mCargoTimer.stop();
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+                        }
                         break;
                     case LOWERING:
                         if (mStateChanged)
@@ -127,21 +147,21 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
-                            mShootTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                            mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
-                            mShootTimer.start();
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
+                            mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
                         }
-                        if (mShootTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
+                        if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     default:
@@ -149,8 +169,8 @@ public class CargoChute extends Subsystem
                 }
                 if (newState != mSystemState)
                 {
-                    mShootTimer.stop();
-                    mShootTimer.reset();
+                    mCargoTimer.stop();
+                    mCargoTimer.reset();
                     mStateChanged = true;
                 }
                 else
@@ -238,7 +258,7 @@ public class CargoChute extends Subsystem
             case LOWER:
                 return mSystemState == SystemState.LOWERING;
             case SHOOT_BAY:
-                return mSystemState == SystemState.SHOOTING_BAY && mShootTimer.hasPeriodPassed(Constants.kShootTime);
+                return mSystemState == SystemState.SHOOTING_BAY && mCargoTimer.hasPeriodPassed(Constants.kShootTime);
             case SHOOT_ROCKET:
                 return mSystemState == SystemState.SHOOTING_ROCKET;
             default:
