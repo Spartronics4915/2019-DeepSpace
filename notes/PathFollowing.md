@@ -247,17 +247,54 @@ Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
             double max_voltage);
 ```
 
-Thus, `MotionPlanner` converts a small set of poses into a larger set of
+Thus, `MotionPlanner` converts a small set of waypoints into a larger set of
 timed poses with augmented curvature information.  In order to generate
 the trajectory, it takes into account the provided list of `TimingContraints`
 and the maximum allowances for velocity, acceleration and voltage.
 
-To accomplish this daunting task it first invokes [this method](#trajectoryfromsplinewaypoints):
+To accomplish this daunting task it first invokes this method:
 
 ```java
-trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(waypoints,
-                                            kMaxDx, kMaxDy, kMaxDTheta);
+/* from TrajectoryUtil.java */
+public static Trajectory<Pose2dWithCurvature>
+trajectoryFromSplineWaypoints(final List<Pose2d> waypoints, double maxDx,
+                                double maxDy, double maxDTheta)
+{
+    List<QuinticHermiteSpline> splines = new ArrayList<>(waypoints.size() - 1);
+    for (int i = 1; i < waypoints.size(); ++i)
+    {
+        splines.add(new QuinticHermiteSpline(waypoints.get(i - 1), waypoints.get(i)));
+    }
+    QuinticHermiteSpline.optimizeSpline(splines);
+    return trajectoryFromSplines(splines, maxDx, maxDy, maxDTheta);
+}
 ```
+
+The first step is to simply allocate our spline segments.  Note N waypoints
+produce N-1 segments. After populating our list of spline segments, each
+segment has our target values for position and orientation as provided
+by the Pose2d waypoints.  We haven't provided acceleration (curvature) data
+so at this point our splines still need some work.  This is the job of
+`optimizeSpline`.  Here's how it describes itself.
+
+```java
+/**
+ * optimizeSpline:
+ *  finds the optimal second derivative values for a set of splines to reduce
+ *  the sum of the change in curvature squared over the path.
+ */
+```
+
+So this is how it goes about computing acceleration/curvature values.
+The optimization step is interative and implements a form of gradient
+descent to achieve its ends.  After a nontrivial numerical struggle,
+we now assign values for second-derivative terms for our spline.  These
+are still not useable as velocity and acceleration targets since the
+initial poses only include orientation (tangent) information but not
+_speed_.
+
+
+
 
 Note that at this point, we haven't applied TimingConstraints and this
 means that the Trajectory has a list of poses that have been _geometrically
@@ -367,6 +404,7 @@ Our feedforward generation techniques used a dynamic model 2 of a skid-steer dri
 ## References
 
 ### splines
+* [cornell lecture on splines](http://www.cs.cornell.edu/courses/cs4620/2013fa/lectures/16spline-curves.pdf)
 * [cmu lecture slide on splines](http://www.cs.cmu.edu/afs/cs/academic/class/15462-s10/www/lec-slides/lec06.pdf)
 * [rose-hulman quintic hermite notes](https://www.rose-hulman.edu/~finn/CCLI/Notes/day09.pdf)
 * [online cubic hermite editor](https://www.desmos.com/calculator/v8hozhn35m)
