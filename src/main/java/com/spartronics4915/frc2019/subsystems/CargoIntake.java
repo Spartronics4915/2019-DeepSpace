@@ -103,8 +103,8 @@ public class CargoIntake extends Subsystem
                     case HOLDING://DS5
                         if (mStateChanged)
                         {
-                            mMotorRight.set(ControlMode.PercentOutput, 0);
-                            mMotorLeft.set(ControlMode.PercentOutput, 0);
+                            mMotorRight.set(ControlMode.PercentOutput, 0.0);
+                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                             setSolenoidsToUp();
                         }
                         break;
@@ -112,6 +112,8 @@ public class CargoIntake extends Subsystem
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
+                            mMotorRight.set(ControlMode.PercentOutput, 0.0);
+                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                         }
                         break;
                     case INTAKING://BB2
@@ -252,15 +254,15 @@ public class CargoIntake extends Subsystem
             mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
             Timer.delay(2);
             logNotice("Running motors at 0% for 2 seconds");
-            mMotorRight.set(ControlMode.PercentOutput, 0);
-            mMotorLeft.set(ControlMode.PercentOutput, 0);
+            mMotorRight.set(ControlMode.PercentOutput, 0.0);
+            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
             Timer.delay(2);
             logNotice("Running motors at -50% for 2 seconds");
             mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
             mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
             Timer.delay(2);
-            mMotorRight.set(ControlMode.PercentOutput, 0);
-            mMotorLeft.set(ControlMode.PercentOutput, 0);
+            mMotorRight.set(ControlMode.PercentOutput, 0.0);
+            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
             logNotice("CargoIntake Motor Check End");
         }
         catch (Exception e)
@@ -289,7 +291,7 @@ public class CargoIntake extends Subsystem
     {
         mSolenoid.set(kSolenoidRetract);
         mSolenoidClimb.set(kSolenoidRetract);
-        mMotorRight.set(ControlMode.PercentOutput, 0);
-        mMotorLeft.set(ControlMode.PercentOutput, 0);
+        mMotorRight.set(ControlMode.PercentOutput, 0.0);
+        mMotorLeft.set(ControlMode.PercentOutput, 0.0);
     }
 }
