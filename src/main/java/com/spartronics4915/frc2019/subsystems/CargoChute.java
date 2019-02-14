@@ -147,7 +147,7 @@ public class CargoChute extends Subsystem
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
                             newState = SystemState.RAMPING;
                         break;
-                    case EJECTING:
+                    case EJECTING: // We stop the motors for 1 second, then reverse them (this lessens the jerk)
                         if (mStateChanged)
                         {
                             mCargoTimer.start();
