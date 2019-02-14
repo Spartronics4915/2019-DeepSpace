@@ -365,7 +365,6 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getShootRocket())
                 {
-                    //To avoid collision due to design
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
                     // XXX: Timing is suspect
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
