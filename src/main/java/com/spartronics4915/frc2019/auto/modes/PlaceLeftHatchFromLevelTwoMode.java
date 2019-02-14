@@ -12,7 +12,7 @@ public class PlaceLeftHatchFromLevelTwoMode extends AutoModeBase {
 
     @Override
     protected void routine() throws AutoModeEndedException {
-        runAction(new DriveOffHABAndZero(AutoConstants.kDriveOffHabVelocity, AutoConstants.kDriveOffHabFeedforward, DriveOffHABAndZero.HABLevel.PLATFORM));
+        runAction(new DriveOffHABAndZero(AutoConstants.kDriveOffHabVelocity, AutoConstants.kDriveOffHabFeedforward, HABLevel.PLATFORM));
         runAction(new DriveVelocity(DriveSignal.BRAKE, DriveSignal.BRAKE));
     }
 

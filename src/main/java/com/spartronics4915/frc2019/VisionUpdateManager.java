@@ -1,8 +1,11 @@
 package com.spartronics4915.frc2019;
 
+import java.util.Optional;
+
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.lib.util.RobotStateMap;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
@@ -46,21 +49,21 @@ public class VisionUpdateManager
     /**
      * @return the latest vision update _or_ null if there has not been an update yet
      */
-    public VisionUpdate getLatestVisionUpdate()
+    public Optional<VisionUpdate> getLatestVisionUpdate()
     {
-        return mLatestVisionUpdate;
+        return Optional.ofNullable(mLatestVisionUpdate);
     }
 
     public static class VisionUpdate
     {
 
         public final double frameCapturedTime; // Time in seconds where the epoch the boot of the RoboRIO (getFPGATimestamp's epoch)
-        public final Pose2d targetRelativePosition; // The target's robot-relative position at frameCapturedTime (x and y in inches)
+        public final Pose2d targetRobotRelativePosition; // The target's robot-relative position at frameCapturedTime (x and y in inches)
 
         private VisionUpdate(double capturedTime, Pose2d targetRelativePosition)
         {
             this.frameCapturedTime = capturedTime;
-            this.targetRelativePosition = targetRelativePosition;
+            this.targetRobotRelativePosition = targetRelativePosition;
         }
 
         public static VisionUpdate fromRawUpdate(double[] rawVisionUpdate)
@@ -74,6 +77,38 @@ public class VisionUpdateManager
             Pose2d targetRelativePosition = new Pose2d(rawVisionUpdate[0], rawVisionUpdate[1], Rotation2d.fromDegrees(rawVisionUpdate[2]));
 
             return new VisionUpdate(frameCapTime, targetRelativePosition);
+        }
+
+        public Pose2d getFieldPosition(RobotStateMap stateMap)
+        {
+            return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(targetRobotRelativePosition);
+        }
+
+        public Pose2d getCorrectedRobotPose(Pose2d targetFieldPos, RobotStateMap stateMap, double timeToGetAt)
+        {
+            Pose2d robotPoseRelativeToLastVisionUpdate = stateMap.get(this.frameCapturedTime).pose.inverse().transformBy(stateMap.get(timeToGetAt).pose);
+            return this.targetRobotRelativePosition.inverse().transformBy(targetFieldPos).transformBy(robotPoseRelativeToLastVisionUpdate);
+        }
+
+        public Pose2d getCorrectedRobotPoseForClosestTarget(RobotStateMap stateMap, double timeToGetAt)
+        {
+            double smallestTargetDistance = Double.POSITIVE_INFINITY;
+            Pose2d closestTargetPose = null;
+            Pose2d robotPose = stateMap.getFieldToVehicle(timeToGetAt);
+
+            for (Pose2d targetPose : Constants.kVisionTargetLocations)
+            {
+                double distance = robotPose.distance(targetPose);
+                if (distance < smallestTargetDistance)
+                {
+                    closestTargetPose = targetPose;
+                    smallestTargetDistance = distance;
+                }
+            }
+
+            if (closestTargetPose == null) throw new RuntimeException("No vision targets are close! Is Constants.kVisionTargetLocations empty?");
+
+            return getCorrectedRobotPose(closestTargetPose, stateMap, timeToGetAt);
         }
 
     }
