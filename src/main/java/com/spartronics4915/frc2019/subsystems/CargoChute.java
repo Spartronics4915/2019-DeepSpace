@@ -167,6 +167,7 @@ public class CargoChute extends Subsystem
                     case LOWERING:
                         if (mStateChanged)
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                        break;
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
