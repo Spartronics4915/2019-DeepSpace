@@ -134,6 +134,18 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
+    public boolean getManualShootCargo()
+    {
+        return mButtonControlBoard.getManualShootCargo();
+    }
+
+    @Override
+    public boolean getManualToggleChuteHeight()
+    {
+        return mButtonControlBoard.getManualToggleChuteHeight();
+    }
+
+    @Override
     public boolean getIntakePanel()
     {
         return mButtonControlBoard.getIntakePanel();
@@ -143,5 +155,11 @@ public class ControlBoard implements IControlBoard
     public boolean getEjectPanel()
     {
         return mButtonControlBoard.getEjectPanel();
+    }
+
+    @Override
+    public boolean getInsideFramePerimeter()
+    {
+        return mButtonControlBoard.getInsideFramePerimeter();
     }
 }

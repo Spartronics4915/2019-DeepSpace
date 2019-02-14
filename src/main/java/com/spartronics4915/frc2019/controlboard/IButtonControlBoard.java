@@ -8,19 +8,26 @@ public interface IButtonControlBoard
     boolean getManualExtendAllClimbPneumatics();
 
     // INTAKE
-    boolean getIntakeCargo();
+    boolean getIntakeCargo(); // vision assisted (?)
 
     boolean getEjectCargo(); // shared between intake and cargo ramp subsystems
 
     // CARGO RAMP
     boolean getManualRamp(); // Toggles between MANUAL_RAMP and MANUAL_HOLD
 
-    boolean getShootRocket();
+    boolean getShootRocket(); // vision assisted
 
-    boolean getShootBay();
+    boolean getShootBay(); // vision assisted
+
+    boolean getManualShootCargo(); // just ejects the cargo, regardless of the chute height
+
+    boolean getManualToggleChuteHeight(); // toggles the chute height pneumatics
 
     // PANEL HANDLER
     boolean getIntakePanel();
 
-    boolean getEjectPanel();
+    boolean getEjectPanel(); // vision assisted
+
+    // EVERYTHING
+    boolean getInsideFramePerimeter();
 }
