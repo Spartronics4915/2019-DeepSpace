@@ -69,6 +69,38 @@ public class DriveCharacterization
         return rv;
     }
 
+    /**
+     * From "Practical Guide to State Space Control" section 4.5.2. We're solving
+     * for I (also known as J) in rma=Iα. Jared Russell has posted a similar
+     * equation that you can use to solve for J, but we're not using it.
+     * 
+     * @param linearAccelerationData  in rad/s^2
+     * @param angularAccelerationData in rad/s^2
+     * @param wheelRadius             in m
+     * @param robotMass               in kg
+     * @return moment of inertia (angular inertia) in kg m^2
+     */
+    public static double calculateAngularInertia(List<AccelerationDataPoint> linearAccelerationData,
+            List<AccelerationDataPoint> angularAccelerationData, double wheelRadius, double robotMass)
+    {
+        // We currently throw out samples if things don't match up... FIXME?
+        int smallestLength = Math.min(angularAccelerationData.size(), linearAccelerationData.size());
+        Logger.debug("Linear accel data has " + linearAccelerationData.size() + " samples, angular has " + angularAccelerationData.size());
+
+        double[] x = new double[smallestLength];
+        double[] y = new double[smallestLength];
+
+        for (int i = 0; i < x.length; i++)
+            x[i] = angularAccelerationData.get(i).acceleration;
+        for (int i = 0; i < y.length; i++)
+            y[i] = linearAccelerationData.get(i).acceleration;
+
+        PolynomialRegression p = new PolynomialRegression(x, y, 1);
+        Logger.notice("moi r^2: " + p.R2());
+
+        return p.beta(1) * (wheelRadius * robotMass);
+    }
+
     private static CharacterizationConstants getVelocityCharacterization(double[][] points)
     {
         CharacterizationConstants constants = new CharacterizationConstants();
