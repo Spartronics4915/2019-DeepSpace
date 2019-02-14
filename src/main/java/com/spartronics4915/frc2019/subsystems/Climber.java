@@ -62,8 +62,8 @@ public class Climber extends Subsystem
                     Constants.kRearLeftSolenoid2);
             mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1,
                     Constants.kRearRightSolenoidId2);
-            mFrontRightIRSensor = new A41IRSensor(Constants.kFrontLeftIRSensorId);
-            mFrontLeftIRSensor = new A21IRSensor(Constants.kFrontRightIRSensorId);
+            mFrontRightIRSensor = new A41IRSensor(Constants.kFrontRightIRSensorId);
+            mFrontLeftIRSensor = new A41IRSensor(Constants.kFrontLeftIRSensorId);
             mDownwardFrontLeftIRSensor = new A21IRSensor(Constants.kDownwardFrontLeftIRSensorId);
             mDownwardFrontRightIRSensor = new A21IRSensor(Constants.kDownwardFrontRightIRSensorId);
             mDownwardRearLeftIRSensor = new A21IRSensor(Constants.kDownwardRearLeftIRSensorId);
