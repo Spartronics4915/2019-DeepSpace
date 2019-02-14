@@ -24,8 +24,8 @@ public class PathTestMode extends AutoModeBase
                 Drive.getInstance().startLogging();
 
                 Trajectory<TimedState<Pose2dWithCurvature>> t = mCurved ?
-                        TrajectoryGenerator.getInstance().getTrajectorySet().curvedTest.get(true) :
-                        TrajectoryGenerator.getInstance().getTrajectorySet().straightTest.get(true);
+                        TrajectoryGenerator.getInstance().getTrajectorySet().curvedTest.get(false) :
+                        TrajectoryGenerator.getInstance().getTrajectorySet().straightTest.get(false);
                 runAction(new DriveTrajectory(t, true));
 
                 Drive.getInstance().stopLogging();
