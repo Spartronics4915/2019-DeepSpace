@@ -328,9 +328,9 @@ public class Robot extends TimedRobot
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
-                //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-                //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
-                // ));
+                //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
+                //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
+                // )); XXX Conversions on Kv are wrong
 
                 //Button Board
                 if(mControlBoard.getClimb())
@@ -341,9 +341,7 @@ public class Robot extends TimedRobot
                 {
 
                 }
-                //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-                //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
-                // )); XXX Conversions on Kv are wrong
+                
                                 
                 if(mControlBoard.getEjectPanel())// 1: 6
                     mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
@@ -387,9 +385,6 @@ public class Robot extends TimedRobot
                 {
                     // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO_BAY);
                 }
-
-                // TODO: Add eject panel
-                // TODO: Add intake
 
                 //Driver Joystick
                 if (mControlBoard.getReverseDirection())
