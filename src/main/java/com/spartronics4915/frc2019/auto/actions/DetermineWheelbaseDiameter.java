@@ -6,7 +6,7 @@ import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.frc2019.subsystems.Drive.DriveControlState;
 import com.spartronics4915.lib.util.DriveSignal;
 
-public class DetermineWheelbaseRadius implements Action
+public class DetermineWheelbaseDiameter implements Action
 {
     private final Drive mDrive = Drive.getInstance();
     private PigeonIMU mPigeon;
@@ -42,7 +42,7 @@ public class DetermineWheelbaseRadius implements Action
 
     @Override
     public void start() {
-        mDrive.setOpenLoop(new DriveSignal(0.5, -0.5));
+        mDrive.setOpenLoop(new DriveSignal(0.25, -0.25));
 
     }
     
