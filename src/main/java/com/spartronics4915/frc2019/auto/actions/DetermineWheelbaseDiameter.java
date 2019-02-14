@@ -3,6 +3,7 @@ package com.spartronics4915.frc2019.auto.actions;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Drive;
+import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.Units;
 
@@ -37,6 +38,7 @@ public class DetermineWheelbaseDiameter implements Action
     @Override
     public void start() {
         mDrive.setOpenLoop(new DriveSignal(0.25, -0.25));
+        mDrive.setHeading(Rotation2d.identity());
 
     }
     
