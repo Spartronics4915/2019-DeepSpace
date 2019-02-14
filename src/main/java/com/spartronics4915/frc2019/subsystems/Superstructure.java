@@ -83,13 +83,11 @@ public class Superstructure extends Subsystem
         DRIVER_CONTROLLING,
 
         /* Climbing */
-        // TODO: We could add align to climb and mount hab platform states, if the drivers want auto align for climbing
         LIFTING_TO_THREE,
         RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT,
         RETRACTING_FORWARD_STRUTS,
         DRIVING_UNTIL_PLATFORM_FULL_SUPPORT,
         RETRACTING_REAR_STRUTS,
-        // TODO: Should we have a "drive fully onto the platform"?
 
         /* Placing/intaking game pieces */
         // Alignment using vision+odometry (step 1)
