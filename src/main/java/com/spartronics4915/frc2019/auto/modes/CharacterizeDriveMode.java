@@ -1,5 +1,6 @@
 package com.spartronics4915.frc2019.auto.modes;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.auto.AutoModeBase;
 import com.spartronics4915.frc2019.auto.AutoModeEndedException;
 import com.spartronics4915.frc2019.auto.actions.CollectAccelerationData;
@@ -7,15 +8,15 @@ import com.spartronics4915.frc2019.auto.actions.CollectVelocityData;
 import com.spartronics4915.frc2019.auto.actions.WaitAction;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.physics.DriveCharacterization;
+import com.spartronics4915.lib.physics.DriveCharacterization.CharacterizationConstants;
 import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.lib.util.Units;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CharacterizeDriveMode extends AutoModeBase
 {
-
-    private static final boolean kAlwaysRunBothMotors = true;
 
     public enum SideToCharacterize
     {
@@ -26,10 +27,8 @@ public class CharacterizeDriveMode extends AutoModeBase
             switch (this)
             {
                 case BOTH:
-                    return (
-                        Math.abs(drive.getLeftVelocityTicksPer100ms()) +
-                        Math.abs(drive.getRightVelocityTicksPer100ms())
-                    ) / 2;
+                    return (Math.abs(drive.getLeftVelocityTicksPer100ms()) +
+                            Math.abs(drive.getRightVelocityTicksPer100ms())) / 2;
                 case LEFT:
                     return Math.abs(drive.getLeftVelocityTicksPer100ms());
                 case RIGHT:
@@ -40,17 +39,24 @@ public class CharacterizeDriveMode extends AutoModeBase
             }
         }
 
-        public boolean shouldRunRight()
+        public double getVoltage(Drive drive)
         {
-            return this == RIGHT || kAlwaysRunBothMotors || this == BOTH;
-        }
-
-        public boolean shouldRunLeft()
-        {
-            return this == LEFT || kAlwaysRunBothMotors || this == BOTH;
+            switch (this)
+            {
+                case BOTH:
+                    return (drive.getLeftOutputVoltage() + drive.getRightOutputVoltage()) / 2;
+                case LEFT:
+                    return drive.getLeftOutputVoltage();
+                case RIGHT:
+                    return drive.getRightOutputVoltage();
+                default:
+                    Logger.error("Unrecognized side to characterize " + this.toString());
+                    return -1;
+            }
         }
     }
-    
+
+    private final static boolean kReverse = false;
     private final SideToCharacterize mSide;
 
     public CharacterizeDriveMode(SideToCharacterize side)
@@ -63,17 +69,34 @@ public class CharacterizeDriveMode extends AutoModeBase
     {
         Logger.debug("Characterizing drivetrain: " + mSide);
 
-        List<DriveCharacterization.VelocityDataPoint> velocityData = new ArrayList<>();
-        List<DriveCharacterization.AccelerationDataPoint> accelerationData = new ArrayList<>();
+        List<DriveCharacterization.VelocityDataPoint> linearVelData = new ArrayList<>();
+        List<DriveCharacterization.AccelerationDataPoint> linearAccData = new ArrayList<>();
+        List<DriveCharacterization.AccelerationDataPoint> angularAccData = new ArrayList<>();
 
-        runAction(new CollectVelocityData(velocityData, false, true, mSide));
+        boolean turnInPlace;
+
+        // First collect linear data
+        Logger.debug("Collecting linear data");
+        turnInPlace = false;
+        runAction(new CollectVelocityData(linearVelData, kReverse, turnInPlace, mSide));
         runAction(new WaitAction(10));
-        runAction(new CollectAccelerationData(accelerationData, false, true, mSide));
+        runAction(new CollectAccelerationData(linearAccData, kReverse, turnInPlace, mSide));
+        runAction(new WaitAction(10));
 
-        DriveCharacterization.CharacterizationConstants constants = DriveCharacterization.characterizeDrive(velocityData, accelerationData);
+        // Next collect angular data... It doesn't make sense to do this unless we're characterizing both sides.
+        if (mSide == SideToCharacterize.BOTH)
+        {
+            Logger.debug("Collecting angular data");
+            turnInPlace = true;
+            runAction(new CollectAccelerationData(angularAccData, kReverse, turnInPlace, mSide));
+            double moi = DriveCharacterization.calculateAngularInertia(linearAccData, angularAccData,
+                    Units.inches_to_meters(Constants.kDriveWheelRadiusInches), Constants.kRobotLinearInertia);
+            Logger.notice("J: " + moi);
+        }
 
-        Logger.notice("ks: " + constants.ks);
-        Logger.notice("kv: " + constants.kv);
-        Logger.notice("ka: " + constants.ka);
+        CharacterizationConstants constants = DriveCharacterization.characterizeDrive(linearVelData, linearAccData);
+        Logger.notice("Ks: " + constants.ks);
+        Logger.notice("Kv: " + constants.kv);
+        Logger.notice("Ka: " + constants.ka);
     }
 }

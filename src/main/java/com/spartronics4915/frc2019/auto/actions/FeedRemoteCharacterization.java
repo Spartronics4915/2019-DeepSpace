@@ -1,5 +1,8 @@
 package com.spartronics4915.frc2019.auto.actions;
 
+import java.util.Arrays;
+
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.Logger;
@@ -16,7 +19,7 @@ public class FeedRemoteCharacterization implements Action
     private final NetworkTableEntry mAutoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
     private final NetworkTableEntry mTelemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
 
-    Number[] mOutputArray = new Number[9];
+    Number[] mOutputArray = new Number[10];
 
     /**
      * This feeds this python script: https://github.com/robotpy/robot-characterization
@@ -38,13 +41,19 @@ public class FeedRemoteCharacterization implements Action
     {
         double now = Timer.getFPGATimestamp();
         
-        // ft and ft/s
-        double leftPosition = mDrive.getLeftEncoderDistance() / 12;
-        double leftVelocity = mDrive.getLeftLinearVelocity() / 12;
+        // The script says to use ft/s, but we use radians because that works better for us
 
-        // ft and ft/s
+        // ft and rads/s
+        double leftPosition = mDrive.getLeftEncoderDistance() / 12;
+        double leftVelocity = mDrive.getLeftVelocityTicksPer100ms() / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
+
+        // ft and rad/s
         double rightPosition = mDrive.getRightEncoderDistance() / 12;
-        double rightVelocity = mDrive.getRightLinearVelocity() / 12;
+        double rightVelocity = mDrive.getRightVelocityTicksPer100ms() / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
+
+        // Yes, I know we're mixing ft and rad/s, but it's because the position value
+        // isn't used except to display a sanity check on the remote script. Radians
+        // are hard to read, so we use ft to make our sanity check more... sane.
 
         // volts
         double battery = RobotController.getBatteryVoltage();
@@ -54,20 +63,21 @@ public class FeedRemoteCharacterization implements Action
         double rightMotorVolts = mDrive.getRightOutputVoltage();
 
         // percent output on [-1 1]
-        double autospeed = mAutoSpeedEntry.getDouble(0);
+        double[] autospeed = mAutoSpeedEntry.getDoubleArray(new double[2]);
 
-        mDrive.setOpenLoop(new DriveSignal(autospeed, autospeed));
+        mDrive.setOpenLoop(new DriveSignal(autospeed[0], autospeed[1]));
 
         // send telemetry data array back to NT
 		mOutputArray[0] = now;
 		mOutputArray[1] = battery;
-		mOutputArray[2] = autospeed;
-		mOutputArray[3] = leftMotorVolts;
-		mOutputArray[4] = rightMotorVolts;
-		mOutputArray[5] = leftPosition;
-		mOutputArray[6] = rightPosition;
-		mOutputArray[7] = leftVelocity;
-        mOutputArray[8] = rightVelocity;
+        mOutputArray[2] = autospeed[0];
+        mOutputArray[3] = autospeed[1];
+		mOutputArray[4] = leftMotorVolts;
+		mOutputArray[5] = rightMotorVolts;
+		mOutputArray[6] = leftPosition;
+		mOutputArray[7] = rightPosition;
+		mOutputArray[8] = leftVelocity;
+        mOutputArray[9] = rightVelocity;
         mTelemetryEntry.setNumberArray(mOutputArray);
     }
 

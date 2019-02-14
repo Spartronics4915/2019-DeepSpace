@@ -5,6 +5,7 @@ import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
 import com.spartronics4915.frc2019.subsystems.CargoChute.WantedState;
+import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -35,6 +36,7 @@ public class Robot extends TimedRobot
     private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
     private LED mLED = null;
+    private RobotStateEstimator mRobotStateEstimator = null;
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
 
@@ -100,10 +102,11 @@ public class Robot extends TimedRobot
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
+                mRobotStateEstimator = RobotStateEstimator.getInstance();
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
-                                RobotStateEstimator.getInstance(),
+                                mRobotStateEstimator,
                                 mDrive,
                                 mPanelHandler,
                                 mCargoChute,
@@ -153,7 +156,7 @@ public class Robot extends TimedRobot
             }
 
             Drive.getInstance().zeroSensors();
-            RobotStateEstimator.getInstance().resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
 
             // Reset all auto mode state.
             mAutoModeExecutor = new AutoModeExecutor();
@@ -179,7 +182,7 @@ public class Robot extends TimedRobot
 
             mDisabledLooper.stop();
 
-            RobotStateEstimator.getInstance().resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
             Drive.getInstance().zeroSensors();
 
             mAutoModeExecutor.setAutoMode(AutoModeSelector.getSelectedAutoMode());
@@ -321,7 +324,7 @@ public class Robot extends TimedRobot
             if (mSuperstructure.isDriverControlled())
             {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle(), mControlBoard.getTurn(),
-                        true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/* .scale(6) */;
+                        true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(48)*/;
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
@@ -338,6 +341,27 @@ public class Robot extends TimedRobot
                 {
 
                 }
+                //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
+                //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
+                // )); XXX Conversions on Kv are wrong
+                                
+                if(mControlBoard.getEjectPanel())// 1: 6
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+
+                //test button
+                // if (mControlBoard.getIntake()) // 1: 2
+                //     mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+
+                if (mControlBoard.getTestButtonOne()) // 2: 5
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+
+                if (mControlBoard.getTestButtonThree()) // 2: 7
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+
+                if (mControlBoard.getTestButtonTwo())
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+
+                    
                 else if(mControlBoard.getIntakeCargo())
                 {
                     // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
@@ -347,6 +371,7 @@ public class Robot extends TimedRobot
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
+
                 else if (mControlBoard.getManualRamp())
                 {
                     if (!mCargoChute.isRampRunning())
@@ -363,6 +388,9 @@ public class Robot extends TimedRobot
                     // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO_BAY);
                 }
 
+                // TODO: Add eject panel
+                // TODO: Add intake
+
                 //Driver Joystick
                 if (mControlBoard.getReverseDirection())
                 {
@@ -370,7 +398,7 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
                 }
             }
             else if (mControlBoard.getReturnToDriverControl())

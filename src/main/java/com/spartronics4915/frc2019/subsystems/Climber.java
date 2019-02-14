@@ -5,8 +5,11 @@ import com.spartronics4915.frc2019.ControlBoard;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.A41IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
+import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
+
+import edu.wpi.first.hal.sim.mockdata.PCMDataJNI;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -51,16 +54,18 @@ public class Climber extends Subsystem
     private Climber()
 
     {
-        boolean success = true;
+        boolean success = false;
         try
         {
-            mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontLeftSolenoidId1,
+            if (!CANProbe.getInstance().validatePCMId(Constants.kClimberPCMId)) throw new RuntimeException("Climber PCM isn't on the CAN bus!");
+
+            mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kFrontLeftSolenoidId1,
                     Constants.kFrontLeftSolenoidId2);
-            mFrontRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kFrontRightSolenoidId1,
+            mFrontRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kFrontRightSolenoidId1,
                     Constants.kFrontRightSolenoidId2);
-            mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearLeftSolenoidId1,
+            mRearLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kRearLeftSolenoidId1,
                     Constants.kRearLeftSolenoid2);
-            mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPWMId, Constants.kRearRightSolenoidId1,
+            mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kRearRightSolenoidId1,
                     Constants.kRearRightSolenoidId2);
             mFrontRightIRSensor = new A41IRSensor(Constants.kFrontLeftIRSensorId);
             mFrontLeftIRSensor = new A21IRSensor(Constants.kFrontRightIRSensorId);
@@ -106,7 +111,7 @@ public class Climber extends Subsystem
                         // match)
                         // Make sure tanks are at acceptable levels for climbing (Check before intiating
                         // CLIMBING)
-                        if (mStateChanged == true)
+                        if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
                             mFrontRightClimberSolenoid.set(Value.kReverse);
@@ -120,20 +125,20 @@ public class Climber extends Subsystem
                         // the height required to get to L3
                         // Must be done when robot is flushed with L3 (Done with distance sensors and a
                         // backup encoder reading)
-                        if (mStateChanged == true)
+                        if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kForward);
                             mFrontRightClimberSolenoid.set(Value.kForward);
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
                         }
-                        mDownwardFrontLeftIRSensor.getVoltage();
+                        mDownwardFrontLeftIRSensor.getVoltage(); // XXX: What are you doing with this? It just returns a double.
                         break;
 
                     case RETRACTING_FRONT_STRUTS:
                         // Solenoids from the front struts will retract when they become flushed with L3
                         // Done with distance sensors and backup driver vision
-                        if (mStateChanged == true)
+                        if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
@@ -154,15 +159,11 @@ public class Climber extends Subsystem
                     default:
                         logError("Unhandled system state!");
                 }
-                mSystemState = newState;
+                mSystemState = newState; // XXX: Are you sure it's like this?
                 if (newState != mSystemState)
-                {
                     mStateChanged = false;
-                }
                 else
-                {
                     mStateChanged = true;
-                }
             }
         }
 
@@ -216,23 +217,15 @@ public class Climber extends Subsystem
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
                 if (mDownwardFrontLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
-                {
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
-                }
                 else
-                {
                     return false;
-                }
             case RETRACT_REAR_STRUTS:
-            {
+            { // XXX: unless there's a serious reason for having brackets that I am unaware of, probably remove these
                 if (mDownwardRearLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
-                {
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
-                }
                 else
-                {
                     return false;
-                }
             }
             default:
                 logError("Climber in unhandled Wanted State!");
@@ -249,7 +242,7 @@ public class Climber extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
-        logNotice("Lifitng for 5 Seconds");
+        logNotice("Lifting for 5 Seconds");
         mFrontLeftClimberSolenoid.set(Value.kForward);
         mFrontRightClimberSolenoid.set(Value.kForward);
         mRearLeftClimberSolenoid.set(Value.kForward);
