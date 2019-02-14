@@ -365,7 +365,6 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getShootRocket())
                 {
-                    mCargoIntake.setSystemState(CargoIntake.SystemState.HOLDING);
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 }
