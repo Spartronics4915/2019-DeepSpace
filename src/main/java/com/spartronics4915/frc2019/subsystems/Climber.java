@@ -159,11 +159,11 @@ public class Climber extends Subsystem
                     default:
                         logError("Unhandled system state!");
                 }
-                mSystemState = newState; // XXX: Are you sure it's like this?
                 if (newState != mSystemState)
-                    mStateChanged = false;
-                else
                     mStateChanged = true;
+                else
+                    mStateChanged = false;
+                mSystemState = newState;
             }
         }
 

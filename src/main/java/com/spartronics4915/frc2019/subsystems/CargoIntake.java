@@ -49,10 +49,8 @@ public class CargoIntake extends Subsystem
 
     private Solenoid mSolenoid = null;
     private Solenoid mSolenoidClimb = null;
-
     private TalonSRX mMotorRight = null;
     private TalonSRX mMotorLeft = null;
-
     private IRSensor mSensor = null;
 
     private boolean mStateChanged;
