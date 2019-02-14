@@ -366,6 +366,7 @@ public class Robot extends TimedRobot
                 else if (mControlBoard.getShootRocket())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+                    //FIXME: Timing will not work yet, fix this
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 }
                 else if (mControlBoard.getEjectCargo())
