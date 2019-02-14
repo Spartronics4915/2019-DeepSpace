@@ -129,17 +129,21 @@ public class CargoChute extends Subsystem
                 {
                     case RAMPING:
                         if (mStateChanged)
+                        {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                             mShootMotorLeft.set(ControlMode.PercentOutput, 0.0);
                             mShootMotorRight.set(ControlMode.PercentOutput, 0.0);
+                        }
                         if (ballInPosition() && !isInManual() && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
                     case HOLDING:
                         if (mStateChanged)
+                        {
                             mRampMotor.set(ControlMode.PercentOutput, 0.0);
                             mShootMotorLeft.set(ControlMode.PercentOutput, 0.0);
                             mShootMotorRight.set(ControlMode.PercentOutput, 0.0);
+                        }
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
                             newState = SystemState.RAMPING;
                         break;
