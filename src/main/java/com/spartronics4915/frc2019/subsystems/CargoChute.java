@@ -133,6 +133,8 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                         {
                             mCargoTimer.start();
+                            //To avoid collision due to design
+                            mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mRampMotor.set(ControlMode.PercentOutput, 0);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime))
