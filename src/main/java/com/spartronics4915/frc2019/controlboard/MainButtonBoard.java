@@ -24,7 +24,7 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualExtendAllClimbPneumatics()
     {
-        return mButtonBoard.getRawButtonPressed(9);
+        return mButtonBoard.getRawButtonPressed(10);
     }
 
     @Override
