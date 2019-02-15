@@ -365,6 +365,8 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getShootRocket())
                 {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+                    // XXX: Timing is suspect
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 }
                 else if (mControlBoard.getEjectCargo())
@@ -382,7 +384,7 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
                 }
                 else if (mControlBoard.getClimb())
                 {
