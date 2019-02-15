@@ -139,6 +139,7 @@ public class CargoChute extends Subsystem
                     case EJECTING: // We stop the motors for 1 second, then reverse them (this lessens the jerk)
                         if (mStateChanged)
                         {
+                            /*
                             mCargoTimer.start();
                             mRampMotor.set(ControlMode.PercentOutput, 0.0);
                         }
@@ -146,6 +147,7 @@ public class CargoChute extends Subsystem
                         {
                             mCargoTimer.stop();
                             mCargoTimer.reset(); // I believe we need this reset here per above comment
+                            */
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
                         }
                         break;
