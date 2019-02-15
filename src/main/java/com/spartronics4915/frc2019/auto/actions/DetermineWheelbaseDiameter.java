@@ -20,7 +20,7 @@ public class DetermineWheelbaseDiameter implements Action
 
     @Override
     public boolean isFinished() {
-        return (Math.abs(mAccumYawPitchRoll[2]) - Math.abs(mInitialYawPitchRoll[2]) >= 3600);
+        return Math.abs(mAccumYawPitchRoll[2] - mInitialYawPitchRoll[2]) >= 360;
     }
 
     @Override
@@ -33,18 +33,20 @@ public class DetermineWheelbaseDiameter implements Action
     public void done() {
         mDrive.setOpenLoop(DriveSignal.BRAKE);
 
-        mEffectiveWheelbaseDiameter = (Constants.kDriveWheelRadiusInches * 
-            Math.abs(mDrive.getLeftEncoderDistance() - mDrive.getRightEncoderDistance()))
-            / Math.abs(Units.degrees_to_radians(mAccumYawPitchRoll[2]));
+        mEffectiveWheelbaseDiameter = Constants.kDriveWheelRadiusInches * 
+            (mDrive.getRightEncoderDistance() - mDrive.getLeftEncoderDistance())
+            / Units.degrees_to_radians(mAccumYawPitchRoll[2] - mInitialYawPitchRoll[2]);
         Logger.info("Effective Wheelbase Diameter is: " + mEffectiveWheelbaseDiameter);
         SmartDashboard.putString("Effective Wheelbase Diameter", "" + mEffectiveWheelbaseDiameter);
     }
 
     @Override
     public void start() {
-        mDrive.setOpenLoop(new DriveSignal(0.25, -0.25));
+        mDrive.zeroSensors();
         mDrive.setHeading(Rotation2d.identity());
         mDrive.getAccumGyro(mInitialYawPitchRoll);
+        mDrive.getAccumGyro(mAccumYawPitchRoll);
+        mDrive.setOpenLoop(new DriveSignal(0.25, -0.25));
     }
     
 }
