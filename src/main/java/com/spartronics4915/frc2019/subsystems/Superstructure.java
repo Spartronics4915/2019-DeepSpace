@@ -370,6 +370,7 @@ public class Superstructure extends Subsystem
                 break;
             case ALIGN_AND_EJECT_PANEL:
                 if (mSystemState == SystemState.ALIGNING_CLOSEST_REVERSE_TARGET ||
+                        mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL ||
                         mSystemState == SystemState.EJECTING_PANEL)
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
