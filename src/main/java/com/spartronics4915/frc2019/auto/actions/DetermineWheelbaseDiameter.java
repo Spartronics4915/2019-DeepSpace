@@ -2,7 +2,6 @@ package com.spartronics4915.frc2019.auto.actions;
 
 import java.util.Arrays;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.geometry.Rotation2d;
@@ -38,12 +37,11 @@ public class DetermineWheelbaseDiameter implements Action
             Math.abs(mDrive.getLeftEncoderDistance() - mDrive.getRightEncoderDistance()))
             / Math.abs(Units.degrees_to_radians(mAccumYawPitchRoll[2]));
         Logger.info("Effective Wheelbase Diameter is: " + mEffectiveWheelbaseDiameter);
-
+        SmartDashboard.putString("Effective Wheelbase Diameter", "" + mEffectiveWheelbaseDiameter);
     }
 
     @Override
     public void start() {
-        Logger.error("bar");
         mDrive.setOpenLoop(new DriveSignal(0.25, -0.25));
         mDrive.setHeading(Rotation2d.identity());
         mDrive.getAccumGyro(mInitialYawPitchRoll);
