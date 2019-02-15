@@ -2,9 +2,12 @@ package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.util.DriveSignal;
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.Util;
 
-public class DriveOffHABAndZero implements Action {
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+public class DriveOffHAB implements Action {
 
     public enum HABLevel {
         PLATFORM(1), LEVEL_TWO(2);
@@ -16,7 +19,8 @@ public class DriveOffHABAndZero implements Action {
         }
     }
     
-    private static final double kBumpEpsilon = 5.0; // Degrees
+    private static final double kBumpMinDegrees = 5; // Degrees
+    private static final double kOffBumpEpsilon = 3;
 
     private final Drive mDrive;
     private final double mVelocity;
@@ -25,7 +29,7 @@ public class DriveOffHABAndZero implements Action {
     private int mNumBumps = 0;
     private boolean mOnSlope = false;
 
-    public DriveOffHABAndZero(double velocity, double feedforward, HABLevel startingLevel)
+    public DriveOffHAB(double velocity, double feedforward, HABLevel startingLevel)
     {
         mVelocity = velocity;
         mFeedforward = feedforward;
@@ -47,13 +51,17 @@ public class DriveOffHABAndZero implements Action {
     @Override
     public void update()
     {
-        if (!mOnSlope && Math.abs(mDrive.getPitch().getDegrees()) > kBumpEpsilon)
+        double pitch = mDrive.getPitch().getDegrees();
+        SmartDashboard.putNumber("Pitch", pitch);
+
+        if (!mOnSlope && Math.abs(pitch) > kBumpMinDegrees)
         {
+                Logger.debug("on bump");
                 mOnSlope = true;
         }
-        
-        else if (Math.abs(mDrive.getPitch().getDegrees()) < kBumpEpsilon && mOnSlope)
+        else if (Util.epsilonEquals(kOffBumpEpsilon, 0) && mOnSlope)
         {
+            Logger.debug("off bump");
             mOnSlope = false;
             mNumBumps++;
         }
