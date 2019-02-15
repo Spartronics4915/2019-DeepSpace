@@ -136,8 +136,6 @@ public class Constants
 
     // Cargo Chute
     public static final int kRampMotorId = 5;
-    public static final int kShootMotorLeftId = 8;
-    public static final int kShootMotorRightId = 9;
     public static final int kRampSolenoidId = 3;
     public static final int kRampSensorId = 6;
     public static final double kRampSpeed = 1.0; // TODO: tune
