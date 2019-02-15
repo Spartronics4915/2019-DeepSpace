@@ -132,7 +132,7 @@ public class Climber extends Subsystem
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
                         }
-                        mDownwardFrontLeftIRSensor.getVoltage(); // XXX: What are you doing with this? It just returns a double.
+                        mDownwardFrontLeftIRSensor.getVoltage(); // TODO: What are you doing with this? It just returns a double.
                         break;
 
                     case RETRACTING_FRONT_STRUTS:
@@ -221,12 +221,10 @@ public class Climber extends Subsystem
                 else
                     return false;
             case RETRACT_REAR_STRUTS:
-            { // XXX: unless there's a serious reason for having brackets that I am unaware of, probably remove these
                 if (mDownwardRearLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 else
                     return false;
-            }
             default:
                 logError("Climber in unhandled Wanted State!");
                 return false;

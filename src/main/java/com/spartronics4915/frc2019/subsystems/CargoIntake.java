@@ -60,7 +60,8 @@ public class CargoIntake extends Subsystem
         boolean success = true; // IR sensor anolog port 7 to detect cargo going into chute
         try
         {
-            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("CargoIntake PCM isn't on the CAN bus!");
+            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
+                throw new RuntimeException("CargoIntake PCM isn't on the CAN bus!");
 
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
@@ -283,7 +284,7 @@ public class CargoIntake extends Subsystem
     }
 
     @Override
-    public void stop()
+    public void stop() // TODO: This may interfere with the CargoChute
     {
         mSolenoid.set(kSolenoidRetract);
         mSolenoidClimb.set(kSolenoidRetract);
