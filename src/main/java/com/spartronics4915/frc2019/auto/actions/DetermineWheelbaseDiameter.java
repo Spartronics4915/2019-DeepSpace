@@ -11,42 +11,44 @@ import com.spartronics4915.lib.util.Units;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class DetermineWheelbaseDiameter implements Action
-{
+public class DetermineWheelbaseDiameter implements Action {
     private final Drive mDrive = Drive.getInstance();
-    private double[] mAccumYawPitchRoll = new double [3];
-    private double[] mInitialYawPitchRoll = new double [3];
+    private double[] mAccumYawPitchRoll = new double[3];
+    private double[] mInitialYawPitchRoll = new double[3];
     private double mEffectiveWheelbaseDiameter;
 
     @Override
-    public boolean isFinished() {
-        return Math.abs(mAccumYawPitchRoll[2] - mInitialYawPitchRoll[2]) >= 360;
+    public boolean isFinished()
+    {
+        return Math.abs(mAccumYawPitchRoll[2] - mInitialYawPitchRoll[2]) >= 3600;
     }
 
     @Override
-    public void update() {
+    public void update()
+    {
         SmartDashboard.putString("accumHeading", Arrays.toString(mAccumYawPitchRoll));
         mDrive.getAccumGyro(mAccumYawPitchRoll);
     }
 
     @Override
-    public void done() {
+    public void done()
+    {
         mDrive.setOpenLoop(DriveSignal.BRAKE);
 
-        mEffectiveWheelbaseDiameter = Constants.kDriveWheelRadiusInches * 
-            (mDrive.getRightEncoderDistance() - mDrive.getLeftEncoderDistance())
-            / Units.degrees_to_radians(mAccumYawPitchRoll[2] - mInitialYawPitchRoll[2]);
+        mEffectiveWheelbaseDiameter = (mDrive.getRightEncoderDistance() - mDrive.getLeftEncoderDistance())
+                / Units.degrees_to_radians(mAccumYawPitchRoll[2] - mInitialYawPitchRoll[2]);
         Logger.info("Effective Wheelbase Diameter is: " + mEffectiveWheelbaseDiameter);
         SmartDashboard.putString("Effective Wheelbase Diameter", "" + mEffectiveWheelbaseDiameter);
     }
 
     @Override
-    public void start() {
+    public void start()
+    {
         mDrive.zeroSensors();
         mDrive.setHeading(Rotation2d.identity());
         mDrive.getAccumGyro(mInitialYawPitchRoll);
         mDrive.getAccumGyro(mAccumYawPitchRoll);
         mDrive.setOpenLoop(new DriveSignal(0.25, -0.25));
     }
-    
+
 }
