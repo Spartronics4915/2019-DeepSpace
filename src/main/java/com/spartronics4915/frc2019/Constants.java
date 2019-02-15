@@ -155,7 +155,7 @@ public class Constants
     public static final int kRearLeftSolenoid2 = 5; // Retract
     public static final int kRearRightSolenoidId1 = 6; // Extend
     public static final int kRearRightSolenoidId2 = 7; // Retract
-    public static final int kDownwardFrontIRSensorID = 0;
-    public static final int kDownwardRearIRSensorID = 1;
+    public static final int kDownwardFrontIRSensorID = 2;
+    public static final int kDownwardRearIRSensorID = 3;
     public static final double kIRSensorTriggerDistance = 2.5;
 }
