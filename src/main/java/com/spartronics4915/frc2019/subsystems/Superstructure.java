@@ -83,13 +83,11 @@ public class Superstructure extends Subsystem
         DRIVER_CONTROLLING,
 
         /* Climbing */
-        // TODO: We could add align to climb and mount hab platform states, if the drivers want auto align for climbing
         LIFTING_TO_THREE,
         RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT,
         RETRACTING_FORWARD_STRUTS,
         DRIVING_UNTIL_PLATFORM_FULL_SUPPORT,
         RETRACTING_REAR_STRUTS,
-        // TODO: Should we have a "drive fully onto the platform"?
 
         /* Placing/intaking game pieces */
         // Alignment using vision+odometry (step 1)
@@ -216,6 +214,7 @@ public class Superstructure extends Subsystem
                         if (mWantedState == WantedState.ALIGN_AND_INTAKE_CARGO && (mDrive.isDoneWithTrajectory() || mCargoChute.atTarget()))
                         {
                             mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                            mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                             mDrive.setOpenLoop(DriveSignal.BRAKE);
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
@@ -223,6 +222,7 @@ public class Superstructure extends Subsystem
                         break;
                     case ALIGNING_CLOSEST_REVERSE_TARGET:
                         mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                        mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                         if (mStateChanged)
                             makeAndDrivePath(Pose2d.identity(), true);
                         // TODO: Target selection/vision integration
@@ -268,10 +268,13 @@ public class Superstructure extends Subsystem
                         if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY)
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                         else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
+                        {
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
+                            //Brings arm down to avoid collision
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+                        }
                         else
                             break;
-
                         if (mCargoChute.atTarget())
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
