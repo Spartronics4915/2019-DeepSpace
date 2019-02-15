@@ -342,7 +342,7 @@ public class Robot extends TimedRobot
                 }
                 else if(mControlBoard.getManualExtendAllClimbPneumatics())
                 {
-                    //TODO: add this functionality
+                    mClimber.setWantedState(Climber.WantedState.CLIMB);
                 }
 
                 // INTAKE
@@ -374,15 +374,15 @@ public class Robot extends TimedRobot
                 }
                 else if(mControlBoard.getManualShootCargo())
                 {
-                    
+                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                 }
                 else if(mControlBoard.getManualChuteUp())
                 {
-
+                    //TODO: add this functionality
                 }
                 else if(mControlBoard.getManualChuteDown())
                 {
-
+                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                 }
 
                 // PANEL HANDLER
@@ -396,13 +396,14 @@ public class Robot extends TimedRobot
                 }
                 else if(mControlBoard.getManualEjectPanel())
                 {
-
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
                 }
 
                 // EVERYTHING
                 if(mControlBoard.getInsideFramePerimeter())
                 {
-
+                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
                 }
                 if (mControlBoard.getTestButtonOne()) // 2: 5
                 {
