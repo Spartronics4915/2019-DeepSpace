@@ -261,9 +261,9 @@ public class CargoChute extends Subsystem
             case HOLD_MANUAL:
                 return mSystemState == SystemState.HOLDING;
             case EJECT_BACK:
-               return mSystemState == SystemState.EJECTING && !ballInPosition();
+               return mSystemState == SystemState.EJECTING && !ballInPosition(); // TODO: i'm slightly unclear on how atTarget works but it seems like this should check the CargoIntake sensor
             case BRING_BALL_TO_TOP:
-                return mSystemState == SystemState.RAMPING && ballInPosition();
+                return mSystemState == SystemState.HOLDING && ballInPosition();
             case LOWER:
                 return mSystemState == SystemState.LOWERING;
             case SHOOT_BAY:
