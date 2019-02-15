@@ -322,17 +322,24 @@ public class Superstructure extends Subsystem
 
     private void makeAndDrivePath(Pose2d goalPose, boolean reversed)
     {
-        ArrayList<Pose2d> waypoints = new ArrayList<>();
-        waypoints.add(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()));
-        waypoints.add(goalPose);
+        try
+        {
+            ArrayList<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()));
+            waypoints.add(goalPose);
 
-        double startTime = Timer.getFPGATimestamp();
-        TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
-                new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(reversed, waypoints)))));
-        // TODO: Maybe plug in our current velocity as the start veloicty of the path?
-        Logger.info("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
+            double startTime = Timer.getFPGATimestamp();
+            TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
+                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(reversed, waypoints)))));
+            // TODO: Maybe plug in our current velocity as the start veloicty of the path?
+            Logger.info("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
 
-        mDrive.setTrajectory(t);
+            mDrive.setTrajectory(t);
+        }
+        catch (Exception e)
+        {
+            logException("Tried to drive an invalid path!", e);
+        }
     }
 
     private SystemState defaultStateTransfer()
