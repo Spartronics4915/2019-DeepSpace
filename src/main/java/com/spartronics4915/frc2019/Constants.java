@@ -29,11 +29,11 @@ public class Constants
     public static final double kDriveWheelTrackWidthInches = 25.75;
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-    public static final double kTrackScrubFactor = 1.202;
+    public static final double kTrackScrubFactor = 1.1393;
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 17.75; // kg (robot's mass) TODO tune
-    public static final double kRobotAngularInertia = 1.13; // kg m^2 (use the moi auto mode) TODO tune
+    public static final double kRobotLinearInertia = 17.75; // kg (robot's mass)
+    public static final double kRobotAngularInertia = 1.13; // kg m^2 (use the moi auto mode)
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
     // Right
@@ -133,8 +133,6 @@ public class Constants
     public static final int kCargoIntakeSensor = 7;
     public static final int kCargoIntakeSensorMinDistance = 100; // TODO: unit/value
     public static final int kCargoIntakeSensorMaxDistance = 1000; // TODO: unit/value
-    public static final double kShootTime = 4;
-    public static final double kTransitionTime = 1;
 
     // Cargo Chute
     public static final int kRampMotorId = 5;
@@ -142,6 +140,8 @@ public class Constants
     public static final int kRampSensorId = 6;
     public static final double kRampSpeed = 1.0; // TODO: tune
     public static final double kShootSpeed = 1.0; // TODO: tune
+    public static final double kShootTime = 4.0;
+    public static final double kTransitionTime = 1.0;
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
     public static final boolean kRampSolenoidExtend = false;
     public static final boolean kRampSolenoidRetract = true;
