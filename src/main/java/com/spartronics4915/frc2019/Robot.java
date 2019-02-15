@@ -382,7 +382,7 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
                 }
                 else if (mControlBoard.getClimb())
                 {
