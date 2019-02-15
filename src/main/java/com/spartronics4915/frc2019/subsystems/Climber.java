@@ -132,7 +132,6 @@ public class Climber extends Subsystem
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
                         }
-                        mDownwardFrontLeftIRSensor.getVoltage(); // TODO: What are you doing with this? It just returns a double.
                         break;
 
                     case RETRACTING_FRONT_STRUTS:
