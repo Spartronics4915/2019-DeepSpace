@@ -29,7 +29,7 @@ public class Constants
     public static final double kDriveWheelTrackWidthInches = 25.75;
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-    public static final double kTrackScrubFactor = 1.202;
+    public static final double kTrackScrubFactor = 1.220;
 
     // Tuned dynamics
     public static final double kRobotLinearInertia = 17.75; // kg (robot's mass) TODO tune
