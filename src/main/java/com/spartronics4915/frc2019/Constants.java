@@ -32,8 +32,8 @@ public class Constants
     public static final double kTrackScrubFactor = 1.220;
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 17.75; // kg (robot's mass) TODO tune
-    public static final double kRobotAngularInertia = 1.13; // kg m^2 (use the moi auto mode) TODO tune
+    public static final double kRobotLinearInertia = 17.75; // kg (robot's mass)
+    public static final double kRobotAngularInertia = 1.13; // kg m^2 (use the moi auto mode)
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
     // Right
