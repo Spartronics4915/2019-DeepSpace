@@ -338,7 +338,7 @@ public class Robot extends TimedRobot
                 // CLIMBING
                 if(mControlBoard.getClimb())
                 {
-                    // mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
                 }
                 else if(mControlBoard.getManualExtendAllClimbPneumatics())
                 {
@@ -348,33 +348,33 @@ public class Robot extends TimedRobot
                 // INTAKE
                 if(mControlBoard.getAssistedIntakeCargo())
                 {
-                    // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
                 }
                 else if(mControlBoard.getGroundEjectCargo())
                 {
-                    // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-                    // mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
                 
                 // CARGO RAMP
                 if(mControlBoard.getManualRamp())
                 {
-                    // if (!mCargoChute.isRampRunning())
-                    //     mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
-                    // else
-                    //     mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
+                    if (!mCargoChute.isRampRunning())
+                        mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
+                    else
+                        mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
                 else if(mControlBoard.getAssistedShootRocket())
                 {
-                    // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO_ROCKET);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET);
                 }
                 else if(mControlBoard.getAssistedShootBay())
                 {
-                    // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO_BAY);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_BAY);
                 }
                 else if(mControlBoard.getManualShootCargo())
                 {
-
+                    
                 }
                 else if(mControlBoard.getManualChuteUp())
                 {
@@ -388,11 +388,11 @@ public class Robot extends TimedRobot
                 // PANEL HANDLER
                 if(mControlBoard.getAssistedIntakePanel())
                 {
-
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
                 }
                 else if(mControlBoard.getAssistedEjectPanel())
                 {
-
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
                 }
                 else if(mControlBoard.getManualEjectPanel())
                 {
