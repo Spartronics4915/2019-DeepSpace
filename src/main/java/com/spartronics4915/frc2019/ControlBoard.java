@@ -104,15 +104,15 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getIntakeCargo()
+    public boolean getAssistedIntakeCargo()
     {
-        return mButtonControlBoard.getIntakeCargo();
+        return mButtonControlBoard.getAssistedIntakeCargo();
     }
 
     @Override
-    public boolean getEjectCargo()
+    public boolean getGroundEjectCargo()
     {
-        return mButtonControlBoard.getEjectCargo();
+        return mButtonControlBoard.getGroundEjectCargo();
     }
 
     @Override
@@ -122,15 +122,15 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getShootRocket()
+    public boolean getAssistedShootRocket()
     {
-        return mButtonControlBoard.getShootRocket();
+        return mButtonControlBoard.getAssistedShootRocket();
     }
 
     @Override
-    public boolean getShootBay()
+    public boolean getAssistedShootBay()
     {
-        return mButtonControlBoard.getShootBay();
+        return mButtonControlBoard.getAssistedShootBay();
     }
 
     @Override
@@ -140,21 +140,33 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getManualToggleChuteHeight()
+    public boolean getManualChuteUp()
     {
-        return mButtonControlBoard.getManualToggleChuteHeight();
+        return mButtonControlBoard.getManualChuteUp();
     }
 
     @Override
-    public boolean getIntakePanel()
+    public boolean getManualChuteDown()
     {
-        return mButtonControlBoard.getIntakePanel();
+        return mButtonControlBoard.getManualChuteDown();
     }
 
     @Override
-    public boolean getEjectPanel()
+    public boolean getAssistedIntakePanel()
     {
-        return mButtonControlBoard.getEjectPanel();
+        return mButtonControlBoard.getAssistedIntakePanel();
+    }
+
+    @Override
+    public boolean getAssistedEjectPanel()
+    {
+        return mButtonControlBoard.getAssistedEjectPanel();
+    }
+
+    @Override
+    public boolean getManualEjectPanel()
+    {
+        return mButtonControlBoard.getManualEjectPanel();
     }
 
     @Override

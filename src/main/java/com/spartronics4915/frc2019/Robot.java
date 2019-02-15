@@ -332,68 +332,95 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
                 // )); XXX Conversions on Kv are wrong
 
-                //Button Board
+
+                //Button Board ----------------------------------------------------------
+
+                // CLIMBING
                 if(mControlBoard.getClimb())
                 {
                     // mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
                 }
                 else if(mControlBoard.getManualExtendAllClimbPneumatics())
                 {
-
+                    //TODO: add this functionality
                 }
-                
-                                
-                if(mControlBoard.getEjectPanel())// 1: 6
-                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
-                //test button
-                // if (mControlBoard.getIntake()) // 1: 2
-                //     mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
-
-                if (mControlBoard.getTestButtonOne()) // 2: 5
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-
-                if (mControlBoard.getTestButtonThree()) // 2: 7
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-
-                if (mControlBoard.getTestButtonTwo())
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
-
-                    
-                else if(mControlBoard.getIntakeCargo())
+                // INTAKE
+                if(mControlBoard.getAssistedIntakeCargo())
                 {
                     // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
                 }
-                else if(mControlBoard.getEjectCargo())
+                else if(mControlBoard.getGroundEjectCargo())
                 {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                    // mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
-
-                else if (mControlBoard.getManualRamp())
+                
+                // CARGO RAMP
+                if(mControlBoard.getManualRamp())
                 {
-                    if (!mCargoChute.isRampRunning())
-                        mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
-                    else
-                        mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
+                    // if (!mCargoChute.isRampRunning())
+                    //     mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
+                    // else
+                    //     mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
-                else if (mControlBoard.getShootRocket())
+                else if(mControlBoard.getAssistedShootRocket())
                 {
                     // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO_ROCKET);
                 }
-                else if (mControlBoard.getShootBay())
+                else if(mControlBoard.getAssistedShootBay())
                 {
                     // mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_CARGO_BAY);
                 }
+                else if(mControlBoard.getManualShootCargo())
+                {
 
-                //Driver Joystick
+                }
+                else if(mControlBoard.getManualChuteUp())
+                {
+
+                }
+                else if(mControlBoard.getManualChuteDown())
+                {
+
+                }
+
+                // PANEL HANDLER
+                if(mControlBoard.getAssistedIntakePanel())
+                {
+
+                }
+                else if(mControlBoard.getAssistedEjectPanel())
+                {
+
+                }
+                else if(mControlBoard.getManualEjectPanel())
+                {
+
+                }
+
+                // EVERYTHING
+                if(mControlBoard.getInsideFramePerimeter())
+                {
+
+                }
+                if (mControlBoard.getTestButtonOne()) // 2: 5
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                }
+                if (mControlBoard.getTestButtonTwo())
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                }
+                if (mControlBoard.getTestButtonThree()) // 2: 7
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                }
+
+                //Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
                 {
                      mSuperstructure.reverseDrivingDirection();
-                }
-                else if (mControlBoard.getDriveToSelectedTarget())
-                {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
                 }
             }
             else if (mControlBoard.getReturnToDriverControl())
