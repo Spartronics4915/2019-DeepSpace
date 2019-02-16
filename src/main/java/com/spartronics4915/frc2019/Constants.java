@@ -7,6 +7,7 @@ import com.spartronics4915.lib.lidar.icp.IReferenceModel;
 import com.spartronics4915.lib.lidar.icp.Point;
 import com.spartronics4915.lib.lidar.icp.Segment;
 import com.spartronics4915.lib.lidar.icp.SegmentReferenceModel;
+import com.spartronics4915.lib.util.Units;
 
 /**
  * A list of constants used by the rest of the robot code. This include physics
@@ -23,6 +24,42 @@ public class Constants
         new Pose2d(0, 0, Rotation2d.identity()),
     };
 
+    /* Measurement units are in millimeters */
+    public enum FieldLandmark
+    {
+        LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO(2419.991, 1625.60, 0.0),
+        RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO(LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO),
+        LEFT_LOADING_STATION(0.0, 3436.239, 0.0),
+        RIGHT_LOADING_STATION(LEFT_LOADING_STATION),
+        LEFT_ROCKET_CLOSE_FACE(5448.066, 3629.264, 28.75),
+        RIGHT_ROCKET_CLOSE_FACE(LEFT_ROCKET_CLOSE_FACE),
+        LEFT_ROCKET_MIDDLE_FACE(5819.775, 3392.382, 90),
+        RIGHT_ROCKET_MIDDLE_FACE(LEFT_ROCKET_MIDDLE_FACE),
+        LEFT_ROCKET_FAR_FACE(6191.484, 3629.264, 118.75),
+        RIGHT_ROCKET_FAR_FACE(LEFT_ROCKET_FAR_FACE),
+        LEFT_DRIVERSTATION_PARALLEL_CARGO_BAY(5598.319, 276.225, 0.0),
+        RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY(LEFT_DRIVERSTATION_PARALLEL_CARGO_BAY),
+        LEFT_CLOSE_CARGO_BAY(6623.05, 708.25, 90.0),
+        RIGHT_CLOSE_CARGO_BAY(LEFT_CLOSE_CARGO_BAY),
+        LEFT_MIDDLE_CARGO_BAY(7175.50, 708.025, 90.0),
+        RIGHT_MIDDLE_CARGO_BAY(LEFT_MIDDLE_CARGO_BAY),
+        LEFT_FAR_CARGO_BAY(7727.95, 708.025, 90.0),
+        RIGHT_FAR_CARGO_BAY(LEFT_FAR_CARGO_BAY);
+
+
+        public final Pose2d fieldPose;
+        
+        private FieldLandmark(double x, double y, double rotationDegrees)
+        {
+            this.fieldPose = new Pose2d(Units.millimeters_to_inches(x), Units.millimeters_to_inches(y), Rotation2d.fromDegrees(rotationDegrees));
+        }
+
+        private FieldLandmark (FieldLandmark other)
+        {
+            this.fieldPose = new Pose2d(other.fieldPose.mirror());
+        }
+    }
+
     /* ROBOT PHYSICAL CONSTANTS */
 
     // Wheels
@@ -30,6 +67,10 @@ public class Constants
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.1393;
+
+    //Chassis in Inches
+    public static final double kRobotCenterToForward = 30.0;
+    public static final double kRobotCenterToSide = 30.0;
 
     // Tuned dynamics
     public static final double kRobotLinearInertia = 17.75; // kg (robot's mass)

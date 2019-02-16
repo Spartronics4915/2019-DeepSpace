@@ -539,11 +539,6 @@ public class Drive extends Subsystem
 
     }
 
-    public Rotation2d getPitch()
-    {
-        return mPeriodicIO.gyro_pitch;
-    }
-
     public synchronized void reloadGains(TalonSRX talon)
     {
         talon.config_kP(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKp, Constants.kLongCANTimeoutMs);
