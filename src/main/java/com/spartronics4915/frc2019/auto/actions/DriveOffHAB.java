@@ -28,7 +28,6 @@ public class DriveOffHAB implements Action {
     private final HABLevel mStartingLevel;
     private int mNumBumps = 0;
     private boolean mOnSlope = false;
-    private double[] mYawPitchRollAccum = new double[3];
     private double[] mYawPitchRollInitial = new double[3];
 
     public DriveOffHAB(double velocity, double feedforward, HABLevel startingLevel)
@@ -53,16 +52,16 @@ public class DriveOffHAB implements Action {
     @Override
     public void update()
     {
-        mDrive.getAccumGyro(mYawPitchRollAccum); // TODO: Remove getPitch from Drive
-        SmartDashboard.putNumber("Pitch", mYawPitchRollAccum[1]);
-        SmartDashboard.putNumber("Pitch Adjusted", mYawPitchRollAccum[1] - mYawPitchRollInitial[1]);
+        double[] ypr = mDrive.getAccumGyro();
 
-        if (!mOnSlope && Math.abs(mYawPitchRollAccum[1] - mYawPitchRollInitial[1]) > kBumpMinDegrees)
+        SmartDashboard.putNumber("Actions/DriveOffHAB/pitch", ypr[1] - mYawPitchRollInitial[1]);
+
+        if (!mOnSlope && Math.abs(ypr[1] - mYawPitchRollInitial[1]) > kBumpMinDegrees)
         {
                 Logger.debug("on bump");
                 mOnSlope = true;
         }
-        else if (Util.epsilonEquals(mYawPitchRollAccum[1] - mYawPitchRollInitial[1], 0, kOffBumpEpsilon) && mOnSlope)
+        else if (Util.epsilonEquals(ypr[1] - mYawPitchRollInitial[1], 0, kOffBumpEpsilon) && mOnSlope)
         {
             Logger.debug("off bump");
             mOnSlope = false;
@@ -81,7 +80,7 @@ public class DriveOffHAB implements Action {
     public void start()
     {
         mDrive.setVelocity(new DriveSignal(mVelocity, mVelocity), new DriveSignal(mFeedforward, mFeedforward));
-        mDrive.getAccumGyro(mYawPitchRollInitial);
+        mYawPitchRollInitial = mDrive.getAccumGyro();
     }
 
 }

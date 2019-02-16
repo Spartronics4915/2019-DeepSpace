@@ -116,13 +116,13 @@ public class TrajectoryGenerator
 
         public final MirrorableTrajectory straightTest;
         public final MirrorableTrajectory curvedTest;
-        public final MirrorableTrajectory DriveToDriverStationParallelHatch;
+        public final MirrorableTrajectory driveToDriverStationParallelHatch;
 
         private TrajectorySet()
         {
             straightTest = new MirrorableTrajectory(getStraightTest());
             curvedTest = new MirrorableTrajectory(getCurvedTest());
-            DriveToDriverStationParallelHatch = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
+            driveToDriverStationParallelHatch = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
@@ -144,10 +144,9 @@ public class TrajectoryGenerator
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDriverStationParallelHatch()
         {
             List<Pose2d> waypoints = new ArrayList<>();
-
-                waypoints.add(Constants.FieldLandmark.LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose);
-                waypoints.add(Constants.FieldLandmark.LEFT_DRIVERSTATION_PARALLEL_CARGO_BAY.fieldPose);
-            
+            waypoints.add(Constants.FieldLandmark.RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose.transformBy(Constants.kRobotCenterToForward));
+            waypoints.add(
+                    Constants.FieldLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.fieldPose.transformBy(Constants.kRobotCenterToForward.inverse()));
 
             return generateTrajectory(false, waypoints);
         }

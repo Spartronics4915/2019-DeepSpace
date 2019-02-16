@@ -68,9 +68,9 @@ public class Constants
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.1393;
 
-    //Chassis in Inches
-    public static final double kRobotCenterToForward = 30.0;
-    public static final double kRobotCenterToSide = 30.0;
+    // Chassis parameters in inches (these are Pose2ds for convenience)
+    public static final Pose2d kRobotCenterToForward = new Pose2d(30.0, 0.0, Rotation2d.identity());
+    public static final Pose2d kRobotCenterToSide = new Pose2d(0.0, 30.0, Rotation2d.identity());
 
     // Tuned dynamics
     public static final double kRobotLinearInertia = 17.75; // kg (robot's mass)
