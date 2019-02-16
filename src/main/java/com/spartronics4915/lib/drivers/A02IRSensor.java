@@ -1,9 +1,9 @@
 package com.spartronics4915.lib.drivers;
 
-public class A41IRSensor extends IRSensor
+public class A02IRSensor extends IRSensor
 {
 
-    public A41IRSensor(int port)
+    public A02IRSensor(int port)
     {
         super(port);
     }
@@ -16,8 +16,7 @@ public class A41IRSensor extends IRSensor
         // 
         //double cm = 1.0 / getVoltage() - .42; // warning blows up when v == 0
         double volt = getVoltage();
-       // double cm = 59.06 - (94.11 * volt) + (57.60 * Math.pow(volt, 2.0)) - (11.65 * Math.pow(volt, 3.0));
-        double cm = 50.9443 - (65.28722 * volt) + (32.55266 * Math.pow(volt, 2.0)) - (5.497291 * Math.pow(volt, 3.0));
-       return cm;
+        double cm = 56.2958 - (79.12745 * volt) + (43.04363 * Math.pow(volt, 2.0)) - (7.753581 * Math.pow(volt, 3.0));
+       return cm / 2.54;
     }
 }
