@@ -232,30 +232,46 @@ public class Climber extends Subsystem
     public boolean checkSystem(String variant)
     {
         logNotice("Lifting for 5 Seconds");
-        mFrontLeftClimberSolenoid.set(Value.kForward);
-        mFrontRightClimberSolenoid.set(Value.kForward);
-        mRearLeftClimberSolenoid.set(Value.kForward);
-        mRearRightClimberSolenoid.set(Value.kForward);
-        Timer.delay(5);
-        mFrontLeftClimberSolenoid.set(Value.kReverse);
-        mFrontRightClimberSolenoid.set(Value.kReverse);
-        mRearLeftClimberSolenoid.set(Value.kReverse);
-        mRearRightClimberSolenoid.set(Value.kReverse);
-        Timer.delay(2);
+        try
+        {
+            mFrontLeftClimberSolenoid.set(Value.kForward);
+            mFrontRightClimberSolenoid.set(Value.kForward);
+            mRearLeftClimberSolenoid.set(Value.kForward);
+            mRearRightClimberSolenoid.set(Value.kForward);
+            Timer.delay(5);
+            mFrontLeftClimberSolenoid.set(Value.kReverse);
+            mFrontRightClimberSolenoid.set(Value.kReverse);
+            mRearLeftClimberSolenoid.set(Value.kReverse);
+            mRearRightClimberSolenoid.set(Value.kReverse);
+            Timer.delay(2);
+        }
+        catch (Exception e)
+        {
+            logException("Did not pass lifting check:", e);
+            return false;
+        }
 
         logNotice("Testing IR Sensors");
+        try
+        {
+            Timer.delay(5);
+            mDownwardFrontIRSensor.getDistance();
+            mDownwardFrontIRSensor.getVoltage();
+            logNotice("Downward Front IR Sensor Distance is " + mDownwardFrontIRSensor.getDistance()
+                    + " and Voltage is " + mDownwardFrontIRSensor.getVoltage());
+            Timer.delay(5);
+            mDownwardRearIRSensor.getDistance();
+            mDownwardRearIRSensor.getVoltage();
+            logNotice("Downward Rear IR Sensor Distance is " + mDownwardRearIRSensor.getDistance()
+                    + " and Voltage is " + mDownwardRearIRSensor.getVoltage());
+            Timer.delay(5);
+        }
+        catch (Exception e)
+        {
+            logException("Did not pass IR sensor check: ", e);
+            return false;
+        }
 
-        Timer.delay(5);
-        mDownwardFrontIRSensor.getDistance();
-        mDownwardFrontIRSensor.getVoltage();
-        logNotice("Downward Front Left IR Sensor Distance is " + mDownwardFrontIRSensor.getDistance()
-                + " and Voltage is " + mDownwardFrontIRSensor.getVoltage());
-        Timer.delay(5);
-        mDownwardRearIRSensor.getDistance();
-        mDownwardRearIRSensor.getVoltage();
-        logNotice("Downward Rear Left IR Sensor Distance is " + mDownwardRearIRSensor.getDistance()
-                + " and Voltage is " + mDownwardRearIRSensor.getVoltage());
-        Timer.delay(5);
         return true;
     }
 
