@@ -40,4 +40,16 @@ public interface IButtonControlBoard
 
     // EVERYTHING
     boolean getInsideFramePerimeter();
+
+
+
+
+    //TEST
+    boolean getTESTClimbExtendAllPneumatics();
+
+    boolean getTESTClimbIntake();
+
+    boolean getTESTClimbRetractFrontPneumatics();
+
+    boolean getTESTClimbRetractBackPneumatics();
 }

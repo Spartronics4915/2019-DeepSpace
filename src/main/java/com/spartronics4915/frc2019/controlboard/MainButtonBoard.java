@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 public class MainButtonBoard implements IButtonControlBoard
 {
     private final Joystick mButtonBoard;
+    private final Joystick mTestButtonBoard;
     
     private double mPreviousAxis1;
     private double mPreviousAxis2;
@@ -18,6 +19,7 @@ public class MainButtonBoard implements IButtonControlBoard
     public MainButtonBoard()
     {
         mButtonBoard = new Joystick(Constants.kMainButtonBoardPort);
+        mTestButtonBoard = new Joystick(1);
 
         mPreviousAxis1 = 0.0;
         mPreviousAxis2 = 0.0;
@@ -141,5 +143,30 @@ public class MainButtonBoard implements IButtonControlBoard
         return mButtonBoard.getRawButtonPressed(15);
     }
 
-    
+
+
+    //TEST BUTTON BOARD
+    @Override
+    public boolean getTESTClimbExtendAllPneumatics()
+    {
+        return mButtonBoard.getRawButtonPressed(1);
+    }
+
+    @Override
+    public boolean getTESTClimbIntake()
+    {
+        return mButtonBoard.getRawButtonPressed(2);
+    }
+
+    @Override
+    public boolean getTESTClimbRetractFrontPneumatics()
+    {
+        return mButtonBoard.getRawButtonPressed(3);
+    }
+
+    @Override
+    public boolean getTESTClimbRetractBackPneumatics()
+    {
+        return mButtonBoard.getRawButtonPressed(4);
+    }
 }
