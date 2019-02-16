@@ -99,24 +99,20 @@ public class Climber extends Subsystem
                 switch (mSystemState)
                 {
                     case DISABLING:
-                        // Climber is disabled (Will be like this until the last 30 seconds of the
-                        // match)
-                        // Make sure tanks are at acceptable levels for climbing (Check before intiating
-                        // CLIMBING)
+                        // Climber is disabled (Will be like this until the last 30 seconds of the match)
+                        // Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
-                            mFrontRightClimberSolenoid.set(Value.kReverse);
+                            mFrontRightClimberSolenoid.set(Value.kReverse); // TODO: robit fall might hurt
                             mRearLeftClimberSolenoid.set(Value.kReverse);
                             mRearRightClimberSolenoid.set(Value.kReverse);
                         }
                         break;
 
                     case CLIMBING:
-                        // Struts will extend from their dormant position to allow the robot to reach
-                        // the height required to get to L3
-                        // Must be done when robot is flushed with L3 (Done with distance sensors and a
-                        // backup encoder reading)
+                        // Struts will extend from their dormant position to allow the robot to reach the height required to get to L3
+                        // Must be done when robot is flushed with L3 (Done with distance sensors and a backup encoder reading)
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kForward);
@@ -137,8 +133,7 @@ public class Climber extends Subsystem
                         break;
 
                     case RETRACTING_REAR_STRUTS:
-                        // Solenoids from the rear struts will retract when the robot can support its
-                        // own weight on L3
+                        // Solenoids from the rear struts will retract when the robot can support its own weight on L3
                         // Done primarily with driver vision, but distance sensor might be used
                         if (mStateChanged)
                         {
@@ -196,6 +191,11 @@ public class Climber extends Subsystem
     public synchronized void setWantedState(WantedState wantedState)
     {
         mWantedState = wantedState;
+    }
+
+    public boolean isClimbing()
+    {
+        return !(mWantedState == Climber.WantedState.DISABLE);
     }
 
     public synchronized boolean atTarget()
