@@ -192,6 +192,9 @@ public class Superstructure extends Subsystem
                         break;
                     case RETRACTING_REAR_STRUTS:
                         mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                        mDrive.setOpenLoop(DriveSignal.BRAKE);
+
                         if (mWantedState == WantedState.CLIMB && mClimber.atTarget())
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
@@ -249,6 +252,7 @@ public class Superstructure extends Subsystem
 
                         if (newState == mSystemState && mCargoChute.atTarget())
                             newState = SystemState.EJECTING_PANEL;
+                        break;
                     case EJECTING_PANEL:
                         mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
 
@@ -395,6 +399,7 @@ public class Superstructure extends Subsystem
                 if (mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL
                         || mSystemState == SystemState.EJECTING_PANEL)
                     newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
+                break;
             default:
                 logError("Unhandled wanted state in default state transfer!");
                 newState = SystemState.DRIVER_CONTROLLING;
