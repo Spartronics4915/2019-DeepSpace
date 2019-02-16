@@ -64,12 +64,12 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, SHOOT_BAY, SHOOT_ROCKET,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, SHOOT_ROCKET, SHOOT_BAY,
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, LOWERING, SHOOTING_BAY, SHOOTING_ROCKET,
+        RAMPING, HOLDING, EJECTING, LOWERING, SHOOTING_ROCKET, SHOOTING_BAY,
     }
 
     private WantedState mWantedState = WantedState.BRING_BALL_TO_TOP;
@@ -88,7 +88,8 @@ public class CargoChute extends Subsystem
         boolean success = true;
         try
         {
-            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
+            if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
+                throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
 
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
@@ -155,7 +156,7 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                         break;
-                    case SHOOTING_BAY:
+                    case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
@@ -165,7 +166,7 @@ public class CargoChute extends Subsystem
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
-                    case SHOOTING_ROCKET:
+                    case SHOOTING_BAY:
                         if (mStateChanged)
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
@@ -236,11 +237,11 @@ public class CargoChute extends Subsystem
                 break;
             case LOWER:
                 newState = SystemState.LOWERING;
-            case SHOOT_BAY:
-                newState = SystemState.SHOOTING_BAY;
-                break;
             case SHOOT_ROCKET:
                 newState = SystemState.SHOOTING_ROCKET;
+                break;
+            case SHOOT_BAY:
+                newState = SystemState.SHOOTING_BAY;
                 break;
             default:
                 newState = SystemState.HOLDING;
@@ -268,10 +269,10 @@ public class CargoChute extends Subsystem
                 return mSystemState == SystemState.HOLDING && ballInPosition();
             case LOWER:
                 return mSystemState == SystemState.LOWERING;
+            case SHOOT_ROCKET:
+                return mSystemState == SystemState.SHOOTING_ROCKET && mCargoTimer.hasPeriodPassed(Constants.kShootTime);
             case SHOOT_BAY:
                 return mSystemState == SystemState.SHOOTING_BAY && mCargoTimer.hasPeriodPassed(Constants.kShootTime);
-            case SHOOT_ROCKET:
-                return mSystemState == SystemState.SHOOTING_ROCKET;
             default:
                 logError("CargoChute atTarget for unknown WantedState: " + mWantedState);
                 return false;

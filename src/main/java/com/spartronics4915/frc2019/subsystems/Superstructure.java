@@ -264,13 +264,12 @@ public class Superstructure extends Subsystem
                         break;
                     case EJECTING_CARGO:
                         if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY)
-                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
-                        else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
                         {
-                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
-                            //Brings arm down to avoid collision
-                            mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET); // Brings arm down to avoid collision
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                         }
+                        else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
                         else
                             break;
                         if (mCargoChute.atTarget())

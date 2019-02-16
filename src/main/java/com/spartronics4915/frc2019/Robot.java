@@ -333,86 +333,64 @@ public class Robot extends TimedRobot
                 // )); XXX Conversions on Kv are wrong
 
 
-                //Button Board ----------------------------------------------------------
+                // Button Board ----------------------------------------------------------
 
                 // CLIMBING
-                if(mControlBoard.getClimb())
-                {
+                if (mControlBoard.getClimb())
                     mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
-                }
-                else if(mControlBoard.getManualExtendAllClimbPneumatics())
-                {
+                else if (mControlBoard.getManualExtendAllClimbPneumatics())
                     mClimber.setWantedState(Climber.WantedState.CLIMB);
-                }
 
                 // INTAKE
-                if(mControlBoard.getAssistedIntakeCargo())
-                {
+                if (mControlBoard.getAssistedIntakeCargo())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
-                }
-                else if(mControlBoard.getGroundEjectCargo())
+                else if (mControlBoard.getGroundEjectCargo())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
-                
+
                 // CARGO RAMP
-                if(mControlBoard.getManualRamp())
+                if (mControlBoard.getManualRamp())
                 {
                     if (!mCargoChute.isRampRunning())
                         mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
                     else
                         mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
-                else if(mControlBoard.getAssistedShootRocket())
-                {
+                else if (mControlBoard.getAssistedShootRocket())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET);
-                }
-                else if(mControlBoard.getAssistedShootBay())
-                {
+                else if (mControlBoard.getAssistedShootBay())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_BAY);
-                }
-                else if(mControlBoard.getSelectLeftVisionTarget())
+                else if (mControlBoard.getSelectLeftVisionTarget())
                 {
                     //TODO: add this functionality
                 }
-                else if(mControlBoard.getSelectRightVisionTarget())
+                else if (mControlBoard.getSelectRightVisionTarget())
                 {
                     //TODO: add this functionality
                 }
-                else if(mControlBoard.getManualShootCargoBay())
-                {
-                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
-                }
-                else if(mControlBoard.getManualShootCargoRocket())
-                {
+                else if (mControlBoard.getManualShootCargoBay())
+                    mCargoChute.setWaSHOOTING_BAYntedState(CargoChute.WantedState.SHOOT_BAY);
+                else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
-                }
-                else if(mControlBoard.getManualChuteUp())
+                else if (mControlBoard.getManualChuteUp())
                 {
                     //TODO: add this functionality
                 }
-                else if(mControlBoard.getManualChuteDown())
-                {
+                else if (mControlBoard.getManualChuteDown())
                     mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-                }
 
                 // PANEL HANDLER
-                if(mControlBoard.getAssistedIntakePanel())
-                {
+                if (mControlBoard.getAssistedIntakePanel())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
-                }
-                else if(mControlBoard.getAssistedEjectPanel())
-                {
+                else if (mControlBoard.getAssistedEjectPanel())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
-                }
-                else if(mControlBoard.getManualEjectPanel())
-                {
+                else if (mControlBoard.getManualEjectPanel())
                     mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
-                }
 
                 // EVERYTHING
-                if(mControlBoard.getInsideFramePerimeter())
+                if (mControlBoard.getInsideFramePerimeter())
                 {
                     mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
@@ -430,16 +408,12 @@ public class Robot extends TimedRobot
                     // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                 }
 
-                //Driver Joystick-----------------------------------------------------------
+                // Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
-                {
                      mSuperstructure.reverseDrivingDirection();
-                }
             }
             else if (mControlBoard.getReturnToDriverControl())
-            {
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
-            }
         }
         catch (Throwable t)
         {
