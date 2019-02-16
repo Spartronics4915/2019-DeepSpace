@@ -17,7 +17,7 @@ public class OneJoystickControlBoard implements IDriveControlBoard
     @Override
     public double getThrottle()
     {
-        return mJoystick.getY();
+        return mJoystick.getY() * -1; //this means pushing forwards moves the robot forwards
     }
 
     @Override

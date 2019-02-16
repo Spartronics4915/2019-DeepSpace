@@ -115,8 +115,6 @@ public class Superstructure extends Subsystem
     private RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
 
     private static final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
-    private static final double kDriveUntilPlatformContactDuration = 1; // Seconds TODO: Tune me
-    private static final double kDriveUntilPlatformFullSupportDuration = 1; // Seconds TODO: Tune me
 
     private static final DriveSignal kPlatformDriveSpeed = new DriveSignal(1, 1);
 
@@ -178,8 +176,8 @@ public class Superstructure extends Subsystem
                             newState = SystemState.RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT;
                         break;
                     case RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT:
-                        mDrive.setOpenLoop(kPlatformDriveSpeed);
-                        if (mStateChangedTimer.hasPeriodPassed(kDriveUntilPlatformContactDuration) && newState == mSystemState)
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                        if (mClimber.atTarget() && newState == mSystemState)
                             newState = SystemState.RETRACTING_FORWARD_STRUTS;
                         break;
                     case RETRACTING_FORWARD_STRUTS:
@@ -189,7 +187,7 @@ public class Superstructure extends Subsystem
                         break;
                     case DRIVING_UNTIL_PLATFORM_FULL_SUPPORT:
                         mDrive.setOpenLoop(kPlatformDriveSpeed);
-                        if (mStateChangedTimer.hasPeriodPassed(kDriveUntilPlatformFullSupportDuration) && newState == mSystemState)
+                        if (mClimber.atTarget() && newState == mSystemState)
                             newState = SystemState.RETRACTING_REAR_STRUTS;
                         break;
                     case RETRACTING_REAR_STRUTS:
