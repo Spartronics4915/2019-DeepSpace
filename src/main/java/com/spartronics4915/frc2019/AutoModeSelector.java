@@ -38,8 +38,8 @@ public class AutoModeSelector
             new AutoModeCreator("All: Do nothing", () -> new DoNothingMode());
     private static final AutoModeCreator[] mAllModes = {
             mDefaultMode,
-            new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceLeftHatchFromPlatformMode()),
-            new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceRightHatchFromPlatformMode()),
+            new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(true)),
+            new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(false)),
 
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),
             new AutoModeCreator("Other: Curved Path Test", () -> new PathTestMode(true)),
