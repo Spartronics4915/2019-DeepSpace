@@ -352,6 +352,11 @@ public class Drive extends Subsystem
         return mPeriodicIO.gyro_heading;
     }
 
+    public synchronized void getAccumGyro(double[] YawPitchRoll)
+    {
+        mPigeon.getAccumGyro(YawPitchRoll);
+    }
+
     public synchronized void setHeading(Rotation2d heading)
     {
         logDebug("SET HEADING: " + heading.getDegrees());

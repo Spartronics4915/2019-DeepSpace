@@ -46,7 +46,8 @@ public class AutoModeSelector
             new AutoModeCreator("Other: Characterize Drivetrain (Both+MOI)", () -> new CharacterizeDriveMode(SideToCharacterize.BOTH)),
             new AutoModeCreator("Other: Characterize Drivetrain (Left)", () -> new CharacterizeDriveMode(SideToCharacterize.LEFT)),
             new AutoModeCreator("Other: Characterize Drivetrain (Right)", () -> new CharacterizeDriveMode(SideToCharacterize.RIGHT)),
-            new AutoModeCreator("Other: Characterize Drivetrain (Remote)", () -> new CharacterizeDriveRemoteMode())
+            new AutoModeCreator("Other: Characterize Drivetrain (Remote)", () -> new CharacterizeDriveRemoteMode()),
+            new AutoModeCreator("Other: Find Effective Wheelbase Diameter", () -> new FindEffectiveWheelbaseDiameter())
 
             // e.g. new AutoModeCreator(C: Drive To Hopper", () -> new DriveToHopperMode()),
     };
