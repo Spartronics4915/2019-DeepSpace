@@ -18,8 +18,14 @@ public interface IButtonControlBoard
     boolean getAssistedShootRocket(); // vision assisted
 
     boolean getAssistedShootBay(); // vision assisted
+    
+    boolean getSelectLeftVisionTarget();
 
-    boolean getManualShootCargo(); // just ejects the cargo, regardless of the chute height
+    boolean getSelectRightVisionTarget();
+
+    boolean getManualShootCargoBay();
+
+    boolean getManualShootCargoRocket();
 
     boolean getManualChuteUp();
 

@@ -372,9 +372,21 @@ public class Robot extends TimedRobot
                 {
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_BAY);
                 }
-                else if(mControlBoard.getManualShootCargo())
+                else if(mControlBoard.getSelectLeftVisionTarget())
                 {
-                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+                    //TODO: add this functionality
+                }
+                else if(mControlBoard.getSelectRightVisionTarget())
+                {
+                    //TODO: add this functionality
+                }
+                else if(mControlBoard.getManualShootCargoBay())
+                {
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                }
+                else if(mControlBoard.getManualShootCargoRocket())
+                {
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 }
                 else if(mControlBoard.getManualChuteUp())
                 {

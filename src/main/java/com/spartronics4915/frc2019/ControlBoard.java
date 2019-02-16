@@ -134,9 +134,27 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getManualShootCargo()
+    public boolean getSelectLeftVisionTarget()
     {
-        return mButtonControlBoard.getManualShootCargo();
+        return mButtonControlBoard.getSelectLeftVisionTarget();
+    }
+
+    @Override
+    public boolean getSelectRightVisionTarget()
+    {
+        return mButtonControlBoard.getSelectRightVisionTarget();
+    }
+
+    @Override
+    public boolean getManualShootCargoBay()
+    {
+        return mButtonControlBoard.getManualShootCargoBay();
+    }
+
+    @Override
+    public boolean getManualShootCargoRocket()
+    {
+        return mButtonControlBoard.getManualShootCargoRocket();
     }
 
     @Override
