@@ -14,10 +14,14 @@ import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
+import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
+import com.spartronics4915.lib.util.Units;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -37,7 +41,6 @@ public class Drive extends Subsystem
     private PigeonIMU mPigeon;
     // Control states
     private DriveControlState mDriveControlState;
-    private DifferentialDrive mDifferentialDrive;
     // Hardware states
     private PeriodicIO mPeriodicIO;
     private boolean mIsBrakeMode;
@@ -46,8 +49,7 @@ public class Drive extends Subsystem
     private Rotation2d mGyroOffset = Rotation2d.identity();
     private boolean mOverrideTrajectory = false;
     private double[] mYawPitchRoll = new double[3];
-
-
+    private double mTargetHeading = 0; // Degrees, for closed-loop turning
 
     private final ILoop mLoop = new ILoop()
     {
@@ -77,6 +79,8 @@ public class Drive extends Subsystem
                         break;
                     case VELOCITY:
                         updateVelocity();
+                        break;
+                    case TURN:
                         break;
                     default:
                         logError("Unexpected drive control state: " + mDriveControlState);
@@ -192,13 +196,28 @@ public class Drive extends Subsystem
 
     private static double ticksPer100msToInchesPerSecond(double t)
     {
-        return (t /  Constants.kDriveEncoderPPR) * 10 * (Constants.kDriveWheelDiameterInches * Math.PI);
+        return (t / Constants.kDriveEncoderPPR) * 10 * (Constants.kDriveWheelDiameterInches * Math.PI);
     }
 
     @Override
     public void registerEnabledLoops(ILooper in)
     {
         in.register(mLoop);
+    }
+
+    public synchronized void setWantTurn(Rotation2d heading)
+    {
+        if (mDriveControlState != DriveControlState.TURN)
+        {
+            logDebug("Switching to robot relative turn: " + heading);
+            mDriveControlState = DriveControlState.TURN;
+            updateTalonsForPosition();
+        }
+        mTargetHeading = heading.getDegrees();
+
+        WheelState w = mMotionPlanner.getModel().solveInverseKinematics(new ChassisState(0.0, heading.getRadians()));
+        mPeriodicIO.left_demand = (getLeftEncoderRotations() + inchesToRotations(Units.meters_to_inches(w.left / 10))) * Constants.kDriveEncoderPPR;
+        mPeriodicIO.right_demand = (getRightEncoderRotations() + inchesToRotations(Units.meters_to_inches(w.right / 10))) * Constants.kDriveEncoderPPR;
     }
 
     /**
@@ -246,15 +265,16 @@ public class Drive extends Subsystem
      * Configure talons for velocity control without paths
      *
      * @param inchesPerSecVelocity Desired velocity in inches per second
-     * @param feedforwardVoltage Voltage (0-12) to apply arbitrarily to velocity PID output
+     * @param feedforwardVoltage   Voltage (0-12) to apply arbitrarily to velocity
+     *                             PID output
      */
     public synchronized void setVelocity(DriveSignal inchesPerSecVelocity, DriveSignal feedforwardVoltage)
     {
         if (mDriveControlState != DriveControlState.VELOCITY)
         {
             logDebug("Switching to closed loop velocity. Target: " +
-            inchesPerSecVelocity.toString() +
-                ", Arbitrary feedforward: " + feedforwardVoltage.toString());
+                    inchesPerSecVelocity.toString() +
+                    ", Arbitrary feedforward: " + feedforwardVoltage.toString());
             updateTalonsForVelocity();
             mDriveControlState = DriveControlState.VELOCITY;
         }
@@ -270,6 +290,13 @@ public class Drive extends Subsystem
         setBrakeMode(true);
         mLeftMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
         mRightMaster.selectProfileSlot(Constants.kVelocityPIDSlot, 0);
+    }
+
+    private void updateTalonsForPosition()
+    {
+        setBrakeMode(true);
+        mLeftMaster.selectProfileSlot(Constants.kPositionPIDSlot, 0);
+        mRightMaster.selectProfileSlot(Constants.kPositionPIDSlot, 0);
     }
 
     public synchronized void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory)
@@ -291,6 +318,14 @@ public class Drive extends Subsystem
             return false;
         }
         return mMotionPlanner.isDone() || mOverrideTrajectory;
+    }
+
+    public boolean isDoneTurning()
+    {
+        return mDriveControlState == DriveControlState.TURN &&
+                Math.abs(mTargetHeading - mPeriodicIO.gyro_heading.getDegrees()) < Constants.kTurnDegreeTolerance &&
+                Math.abs(getLeftLinearVelocity()) < Constants.kTurnVelTolerance &&
+                Math.abs(getRightLinearVelocity()) < Constants.kTurnVelTolerance;
     }
 
     public boolean isBrakeMode()
@@ -315,6 +350,11 @@ public class Drive extends Subsystem
     public synchronized Rotation2d getHeading()
     {
         return mPeriodicIO.gyro_heading;
+    }
+
+    public synchronized void getAccumGyro(double[] YawPitchRoll)
+    {
+        mPigeon.getAccumGyro(YawPitchRoll);
     }
 
     public synchronized void setHeading(Rotation2d heading)
@@ -456,7 +496,7 @@ public class Drive extends Subsystem
             final double now = Timer.getFPGATimestamp();
 
             DriveMotionPlanner.Output output =
-                mMotionPlanner.update(now, RobotStateEstimator.getInstance().getEncoderRobotStateMap().getFieldToVehicle(now));
+                    mMotionPlanner.update(now, RobotStateEstimator.getInstance().getEncoderRobotStateMap().getFieldToVehicle(now));
 
             // DriveSignal signal = new DriveSignal(demand.left_feedforward_voltage / 12.0, demand.right_feedforward_voltage / 12.0);
 
@@ -469,7 +509,7 @@ public class Drive extends Subsystem
                         new DriveSignal(radiansPerSecondToTicksPer100ms(output.left_velocity),
                                 radiansPerSecondToTicksPer100ms(output.right_velocity)),
                         new DriveSignal(output.left_feedforward_voltage / 12.0,
-                                        output.right_feedforward_voltage / 12.0));
+                                output.right_feedforward_voltage / 12.0));
 
                 // if accel is rads per sec^2, why divide by 1000 (and not 100?)
                 mPeriodicIO.left_accel = radiansPerSecondToTicksPer100ms(output.left_accel) / 1000.0;
@@ -511,6 +551,12 @@ public class Drive extends Subsystem
         talon.config_kD(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKd, Constants.kLongCANTimeoutMs);
         talon.config_kF(Constants.kVelocityPIDSlot, Constants.kDriveVelocityKf, Constants.kLongCANTimeoutMs);
         talon.config_IntegralZone(Constants.kVelocityPIDSlot, Constants.kDriveVelocityIZone, Constants.kLongCANTimeoutMs);
+
+        talon.config_kP(Constants.kPositionPIDSlot, Constants.kDrivePositionKp, Constants.kLongCANTimeoutMs);
+        talon.config_kI(Constants.kPositionPIDSlot, Constants.kDrivePositionKi, Constants.kLongCANTimeoutMs);
+        talon.config_kD(Constants.kPositionPIDSlot, Constants.kDrivePositionKd, Constants.kLongCANTimeoutMs);
+        talon.config_kF(Constants.kPositionPIDSlot, Constants.kDrivePositionKf, Constants.kLongCANTimeoutMs);
+        talon.config_IntegralZone(Constants.kPositionPIDSlot, Constants.kDrivePositionIZone, Constants.kLongCANTimeoutMs);
     }
 
     @Override
@@ -558,26 +604,30 @@ public class Drive extends Subsystem
             mCSVWriter.add(mPeriodicIO);
         }
 
-
         // System.out.println("control state: " + mDriveControlState + ", left: " + mPeriodicIO.left_demand + ", right: " + mPeriodicIO.right_demand);
     }
 
     @Override
     public synchronized void writePeriodicOutputs()
     {
-        /* NB: this is where the rubber hits the road. ie: here are direct
-            controls over the talon to power the drive train.  The rest of
-            this file orchestrates the periodic updateing of our inputs:
-
-            mDriveControlState
-            mPeriodicIO.left_demand, right_demand (pct or vel or pos)
-            mPeriodicIO.left_accel, right_accel (used with *Kd* in velocity mode)
-
+        /*
+         * NB: this is where the rubber hits the road. ie: here are direct
+         * controls over the talon to power the drive train. The rest of
+         * this file orchestrates the periodic updateing of our inputs:
+         * mDriveControlState
+         * mPeriodicIO.left_demand, right_demand (pct or vel or pos)
+         * mPeriodicIO.left_accel, right_accel (used with *Kd* in velocity mode)
          */
         if (mDriveControlState == DriveControlState.OPEN_LOOP)
         {
             mLeftMaster.set(ControlMode.PercentOutput, mPeriodicIO.left_demand, DemandType.ArbitraryFeedForward, 0.0);
             mRightMaster.set(ControlMode.PercentOutput, mPeriodicIO.right_demand, DemandType.ArbitraryFeedForward, 0.0);
+        }
+
+        else if (mDriveControlState == DriveControlState.TURN)
+        {
+            mLeftMaster.set(ControlMode.Position, mPeriodicIO.left_demand);
+            mRightMaster.set(ControlMode.Position, mPeriodicIO.right_demand);
         }
         else
         {
@@ -594,13 +644,13 @@ public class Drive extends Subsystem
             mLeftMaster.set(ControlMode.Velocity,
                     mPeriodicIO.left_demand,
                     DemandType.ArbitraryFeedForward,
-                        mPeriodicIO.left_feedforward +
-                            Constants.kDriveVelocityKd*mPeriodicIO.left_accel/1023.0);
+                    mPeriodicIO.left_feedforward +
+                            Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0);
             mRightMaster.set(ControlMode.Velocity,
                     mPeriodicIO.right_demand,
                     DemandType.ArbitraryFeedForward,
-                        mPeriodicIO.right_feedforward +
-                            Constants.kDriveVelocityKd*mPeriodicIO.right_accel/1023.0);
+                    mPeriodicIO.right_feedforward +
+                            Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0);
             //
             // Following can be used to debug the feedback term without the
             // Talon-side PID.
@@ -615,16 +665,16 @@ public class Drive extends Subsystem
     @Override
     public boolean checkSystem(String variant)
     {
-        if(!isInitialized())
+        if (!isInitialized())
         {
             logWarning("can't check uninitialized system");
             return false;
         }
         boolean success = true;
-        DriveSignal zero = new DriveSignal(0,0);
+        DriveSignal zero = new DriveSignal(0, 0);
         DriveSignal feedfwd = zero;
         logNotice("checkSystem " + variant + " ---------------");
-        if(variant.equals("velocityControl"))
+        if (variant.equals("velocityControl"))
         {
             Timer timer = new Timer();
             logNotice("  enter velocity control mode");
@@ -727,43 +777,43 @@ public class Drive extends Subsystem
         else
         {
             boolean leftSide = TalonSRXChecker.CheckTalons(this,
-                new ArrayList<TalonSRXChecker.TalonSRXConfig>()
-                {
-
+                    new ArrayList<TalonSRXChecker.TalonSRXConfig>()
                     {
-                        add(new TalonSRXChecker.TalonSRXConfig("left_master", mLeftMaster));
-                        add(new TalonSRXChecker.TalonSRXConfig("left_slave", mLeftSlave));
-                    }
-                }, new TalonSRXChecker.CheckerConfig()
-                {
 
+                        {
+                            add(new TalonSRXChecker.TalonSRXConfig("left_master", mLeftMaster));
+                            add(new TalonSRXChecker.TalonSRXConfig("left_slave", mLeftSlave));
+                        }
+                    }, new TalonSRXChecker.CheckerConfig()
                     {
-                        mCurrentFloor = 2;
-                        mRPMFloor = 1500;
-                        mCurrentEpsilon = 2.0;
-                        mRPMEpsilon = 250;
-                        mRPMSupplier = () -> mLeftMaster.getSelectedSensorVelocity(0);
-                    }
-                });
+
+                        {
+                            mCurrentFloor = 2;
+                            mRPMFloor = 1500;
+                            mCurrentEpsilon = 2.0;
+                            mRPMEpsilon = 250;
+                            mRPMSupplier = () -> mLeftMaster.getSelectedSensorVelocity(0);
+                        }
+                    });
             boolean rightSide = TalonSRXChecker.CheckTalons(this,
-                new ArrayList<TalonSRXChecker.TalonSRXConfig>()
-                {
-
+                    new ArrayList<TalonSRXChecker.TalonSRXConfig>()
                     {
-                        add(new TalonSRXChecker.TalonSRXConfig("right_master", mRightMaster));
-                        add(new TalonSRXChecker.TalonSRXConfig("right_slave", mRightSlave));
-                    }
-                }, new TalonSRXChecker.CheckerConfig()
-                {
 
+                        {
+                            add(new TalonSRXChecker.TalonSRXConfig("right_master", mRightMaster));
+                            add(new TalonSRXChecker.TalonSRXConfig("right_slave", mRightSlave));
+                        }
+                    }, new TalonSRXChecker.CheckerConfig()
                     {
-                        mCurrentFloor = 2;
-                        mRPMFloor = 1500;
-                        mCurrentEpsilon = 2.0;
-                        mRPMEpsilon = 250;
-                        mRPMSupplier = () -> mRightMaster.getSelectedSensorVelocity(0);
-                    }
-                });
+
+                        {
+                            mCurrentFloor = 2;
+                            mRPMFloor = 1500;
+                            mCurrentEpsilon = 2.0;
+                            mRPMEpsilon = 250;
+                            mRPMSupplier = () -> mRightMaster.getSelectedSensorVelocity(0);
+                        }
+                    });
             success = leftSide && rightSide;
         }
         return success;
@@ -792,6 +842,7 @@ public class Drive extends Subsystem
         OPEN_LOOP, // open loop voltage control
         PATH_FOLLOWING, // velocity PID control from a path
         VELOCITY, // constant velocity from not a path
+        TURN, // turning to a field-relative heading
     }
 
     public static class PeriodicIO

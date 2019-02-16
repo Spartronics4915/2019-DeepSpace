@@ -126,7 +126,7 @@ public class TrajectoryGenerator
         {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
-            waypoints.add(new Pose2d(60d, 0d, Rotation2d.identity()));
+            waypoints.add(new Pose2d(120d, 0d, Rotation2d.identity()));
             return generateTrajectory(false, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
                     kMaxVelocity, kMaxAccel, kMaxVoltage);
@@ -137,7 +137,7 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
             waypoints.add(new Pose2d(78d, 78d, Rotation2d.fromDegrees(90)));
-            return generateTrajectory(true, waypoints,
+            return generateTrajectory(false, waypoints,
                     Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
                     kMaxVelocity, kMaxAccel, kMaxVoltage);
         }

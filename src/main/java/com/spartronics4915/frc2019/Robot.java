@@ -4,6 +4,8 @@ import com.spartronics4915.frc2019.auto.AutoModeExecutor;
 import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
+import com.spartronics4915.frc2019.subsystems.CargoChute.WantedState;
+import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -22,6 +24,7 @@ import java.util.jar.Manifest;
 
 public class Robot extends TimedRobot
 {
+
     private Looper mEnabledLooper = new Looper();
     private Looper mDisabledLooper = new Looper();
     private IControlBoard mControlBoard = null;
@@ -33,6 +36,7 @@ public class Robot extends TimedRobot
     private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
     private LED mLED = null;
+    private RobotStateEstimator mRobotStateEstimator = null;
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
 
@@ -98,11 +102,15 @@ public class Robot extends TimedRobot
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
+<<<<<<< HEAD
                 mLED.setDriveState(LED.DriveLEDState.FORWARDS);
+=======
+                mRobotStateEstimator = RobotStateEstimator.getInstance();
+>>>>>>> e5baee087f9c7036cfc43028538c59d5de658bb7
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
-                                RobotStateEstimator.getInstance(),
+                                mRobotStateEstimator,
                                 mDrive,
                                 mPanelHandler,
                                 mCargoChute,
@@ -113,7 +121,7 @@ public class Robot extends TimedRobot
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
                 SmartDashboard.putString(kRobotTestModeOptions,
-                                         "None,Drive,All");
+                        "None,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
 
@@ -152,7 +160,7 @@ public class Robot extends TimedRobot
             }
 
             Drive.getInstance().zeroSensors();
-            RobotStateEstimator.getInstance().resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
 
             // Reset all auto mode state.
             mAutoModeExecutor = new AutoModeExecutor();
@@ -178,7 +186,7 @@ public class Robot extends TimedRobot
 
             mDisabledLooper.stop();
 
-            RobotStateEstimator.getInstance().resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
             Drive.getInstance().zeroSensors();
 
             mAutoModeExecutor.setAutoMode(AutoModeSelector.getSelectedAutoMode());
@@ -321,13 +329,65 @@ public class Robot extends TimedRobot
             if (mSuperstructure.isDriverControlled())
             {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle(), mControlBoard.getTurn(),
-                    true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(6)*/;
+                        true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(48)*/;
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
-                //     command.scale(Constants.kDriveLeftKv).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-                //     command.scale(Constants.kDriveLeftKv).getRight() + Math.copySign(Constants.kDriveLeftVIntercept, command.getRight())
-                // ));
+                //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
+                //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
+                // )); XXX Conversions on Kv are wrong
+
+                if (mControlBoard.getEjectPanel()) // 1: 6
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+
+                if (mControlBoard.getIntake()) // 1: 2
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+
+                if (mControlBoard.getTestButtonOne()) // 2: 5
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+
+                if (mControlBoard.getTestButtonThree()) // 2: 7
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+
+                if (mControlBoard.getTestButtonTwo())
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+
+                if (mControlBoard.getClimb())
+                {
+                    if (!mClimber.isClimbing())
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                    else
+                    {
+                        mClimber.setWantedState(Climber.WantedState.CLIMB);
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                    }
+                }
+
+                else if (mControlBoard.getManualRamp())
+                {
+                    if (!mCargoChute.isRampRunning())
+                        mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
+                    else
+                        mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
+                }
+                else if (mControlBoard.getShootBay())
+                {
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                }
+                else if (mControlBoard.getShootRocket())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+                    // XXX: Timing is suspect
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
+                }
+                else if (mControlBoard.getEjectCargo())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                }
+
+                // TODO: Add eject panel
+                // TODO: Add intake
 
                 if(mControlBoard.getTestButtonOne())
                 {
@@ -344,9 +404,9 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getDriveToSelectedTarget())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
                 }
-                else if (mControlBoard.getClimb()) 
+                else if (mControlBoard.getClimb())
                 {
                     mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
                 }
@@ -372,7 +432,7 @@ public class Robot extends TimedRobot
         outputToSmartDashboard();
     }
 
-     /**
+    /**
      * Unused but required function. Plays a similar role to our
      * allPeriodic method. Presumably the timing in IterativeRobotBase wasn't
      * to the liking of initial designers of this system. Perhaps because
@@ -389,8 +449,8 @@ public class Robot extends TimedRobot
         mSubsystemManager.outputToTelemetry();
         mEnabledLooper.outputToSmartDashboard();
         SmartDashboard.putNumber("Robot/BatteryVoltage",
-            RobotController.getBatteryVoltage());
+                RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("Robot/InputCurrent",
-            RobotController.getInputCurrent());
+                RobotController.getInputCurrent());
     }
 }

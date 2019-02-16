@@ -2,19 +2,21 @@ package com.spartronics4915.frc2019.controlboard;
 
 public interface IButtonControlBoard
 {
-    //CLIMBING
+    // CLIMBING
     boolean getClimb();
 
-    //INTAKE
+    // INTAKE
     boolean getIntake();
 
-    boolean getEjectCargo(); //intake and cargo ramp subsystems
+    boolean getEjectCargo(); // shared between intake and cargo ramp subsystems
 
-    //CARGO RAMP
+    // CARGO RAMP
+    boolean getManualRamp(); // Toggles between MANUAL_RAMP and MANUAL_HOLD
+
     boolean getShootRocket();
 
     boolean getShootBay();
 
-    //PANEL HANDLER
+    // PANEL HANDLER
     boolean getEjectPanel();
 }

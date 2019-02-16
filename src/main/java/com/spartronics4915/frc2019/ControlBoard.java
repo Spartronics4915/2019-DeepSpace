@@ -15,6 +15,7 @@ public class ControlBoard implements IControlBoard
     {
         // Possibly use Joystick::getType instead of Joystick::getName
         String joyName = new Joystick(Constants.kDriveJoystickPort).getName();
+        Logger.notice("joyName = " + joyName);
         switch (joyName)
         {
             case "Controller (Xbox One For Windows)": // Names of joysticks are the same as the names in the driver station program
@@ -109,6 +110,12 @@ public class ControlBoard implements IControlBoard
     public boolean getEjectCargo()
     {
         return mButtonControlBoard.getEjectCargo();
+    }
+
+    @Override
+    public boolean getManualRamp()
+    {
+        return mButtonControlBoard.getManualRamp();
     }
 
     @Override
