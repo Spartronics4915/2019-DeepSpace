@@ -102,11 +102,10 @@ public class Robot extends TimedRobot
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
-<<<<<<< HEAD
-                mLED.setDriveState(LED.DriveLEDState.FORWARDS);
-=======
                 mRobotStateEstimator = RobotStateEstimator.getInstance();
->>>>>>> e5baee087f9c7036cfc43028538c59d5de658bb7
+
+                mLED.setDriveState(LED.DriveLEDState.FORWARDS);
+
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(

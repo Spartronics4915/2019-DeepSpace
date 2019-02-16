@@ -50,7 +50,7 @@ public class LED extends Subsystem
         try
         {
             // mSerialPort = new SerialPort(9600, SerialPort.Port.kUSB);
-            mSerialPort = new FileOutputStream("/dev/ttyACM0");
+            //mSerialPort = new FileOutputStream("/dev/ttyACM0");
         }
         catch (Exception e)
         {
@@ -63,21 +63,15 @@ public class LED extends Subsystem
 
     public synchronized void setDriveState(DriveLEDState driveState)
     {
-        /** mDriveState = driveState;
-        dashboardPutString("Byte value", Arrays.toString(mDriveState.serialSignal));
-        dashboardPutNumber("Bytes sent", mSerialPort.write(mDriveState.serialSignal, mDriveState.serialSignal.length));
-        // dashboardPutNumber("Bytes sent", mSerialPort.write(new byte[] {'2'}, 1));
-        mSerialPort.flush();
-        dashboardPutNumber("Bytes in response", mSerialPort.getBytesReceived());*/
-        try
-        {
-            mSerialPort.write(driveState.serialSignal);
-        }
-        catch(IOException e)
-        {
-            logException("We didn't think this would work anyways, but we did hope",  e);
-        }
-        }
+        // try
+        // {
+        //     mSerialPort.write(driveState.serialSignal);
+        // }
+        // catch(IOException e)
+        // {
+        //     logException("We didn't think this would work anyways, but we did hope",  e);
+        // }
+    }
 
     @Override
     public void registerEnabledLoops(ILooper enabledLooper)
