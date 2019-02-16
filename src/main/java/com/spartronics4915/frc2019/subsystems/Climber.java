@@ -198,6 +198,16 @@ public class Climber extends Subsystem
         return !(mWantedState == Climber.WantedState.DISABLE);
     }
 
+    public boolean frontSensorsInRange()
+    {
+        return mDownwardFrontIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorFrontMaxDistance);
+    }
+
+    public boolean rearSensorsInRange()
+    {
+        return mDownwardRearIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorRearMaxDistance);
+    }
+
     public synchronized boolean atTarget()
     {
         switch (mWantedState)
@@ -207,12 +217,12 @@ public class Climber extends Subsystem
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
-                if (mDownwardFrontIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
+                if (mDownwardFrontIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
                 else
                     return false;
             case RETRACT_REAR_STRUTS:
-                if (mDownwardRearIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
+                if (mDownwardRearIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 else
                     return false;

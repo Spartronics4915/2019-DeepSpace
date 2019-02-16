@@ -348,15 +348,7 @@ public class Robot extends TimedRobot
                     mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
 
                 if (mControlBoard.getClimb())
-                {
-                    if (!mClimber.isClimbing())
-                        mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-                    else
-                    {
-                        mClimber.setWantedState(Climber.WantedState.CLIMB);
-                        mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
-                    }
-                }
+                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
 
                 else if (mControlBoard.getManualRamp())
                 {
