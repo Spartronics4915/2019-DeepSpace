@@ -155,11 +155,8 @@ public class Constants
     public static final int kRearLeftSolenoid2 = 5; // Retract
     public static final int kRearRightSolenoidId1 = 6; // Extend
     public static final int kRearRightSolenoidId2 = 7; // Retract
-    public static final int kFrontLeftIRSensorId = 0;
-    public static final int kFrontRightIRSensorId = 1;
-    public static final int kDownwardFrontRightIRSensorId = 2;
-    public static final int kDownwardFrontLeftIRSensorId = 3;
-    public static final int kDownwardRearRightIRSensorId = 4;
-    public static final int kDownwardRearLeftIRSensorId = 5;
-    public static final double kIRSensorTriggerDistance = 2.5;
+    public static final int kDownwardFrontIRSensorID = 2;
+    public static final int kDownwardRearIRSensorID = 3;
+    public static final double kClimberSensorFrontMaxDistance = 2.5;
+    public static final double kClimberSensorRearMaxDistance = 2.5; // Kenneth told me that the sensors will not be mounted at the same height
 }
