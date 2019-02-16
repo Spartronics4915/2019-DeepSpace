@@ -20,15 +20,15 @@ public class DetermineWheelbaseDiameter implements Action {
     @Override
     public boolean isFinished()
     {
+        mAccumYawPitchRoll = mDrive.getAccumGyro();
+        SmartDashboard.putNumber("Actions/DetermineWheelbaseDiameter/accumHeading", mAccumYawPitchRoll[2]);
+
         return Math.abs(mAccumYawPitchRoll[2] - mInitialYawPitchRoll[2]) >= 3600;
     }
 
     @Override
     public void update()
-    {
-        SmartDashboard.putString("accumHeading", Arrays.toString(mAccumYawPitchRoll));
-        mDrive.getAccumGyro(mAccumYawPitchRoll);
-    }
+    {}
 
     @Override
     public void done()
@@ -46,8 +46,9 @@ public class DetermineWheelbaseDiameter implements Action {
     {
         mDrive.zeroSensors();
         mDrive.setHeading(Rotation2d.identity());
-        mDrive.getAccumGyro(mInitialYawPitchRoll);
-        mDrive.getAccumGyro(mAccumYawPitchRoll);
+        mInitialYawPitchRoll = mDrive.getAccumGyro();
+        mAccumYawPitchRoll = mDrive.getAccumGyro();
+
         mDrive.setOpenLoop(new DriveSignal(0.25, -0.25));
     }
 

@@ -336,85 +336,88 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
                 // )); XXX Conversions on Kv are wrong
 
-                if (mControlBoard.getEjectPanel()) // 1: 6
-                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
-                if (mControlBoard.getIntake()) // 1: 2
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+                // Button Board ----------------------------------------------------------
 
-                if (mControlBoard.getTestButtonOne()) // 2: 5
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-
-                if (mControlBoard.getTestButtonThree()) // 2: 7
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-
-                if (mControlBoard.getTestButtonTwo())
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
-
+                // CLIMBING
                 if (mControlBoard.getClimb())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
+                else if (mControlBoard.getManualExtendAllClimbPneumatics())
+                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+
+                // INTAKE
+                if (mControlBoard.getAssistedIntakeCargo())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
+                else if (mControlBoard.getGroundEjectCargo())
                 {
-                    if (!mClimber.isClimbing())
-                        mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-                    else
-                    {
-                        mClimber.setWantedState(Climber.WantedState.CLIMB);
-                        mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
-                    }
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
                 }
 
-                else if (mControlBoard.getManualRamp())
+                // CARGO RAMP
+                if (mControlBoard.getManualRamp())
                 {
                     if (!mCargoChute.isRampRunning())
                         mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
                     else
                         mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
-                else if (mControlBoard.getShootBay())
+                else if (mControlBoard.getAssistedShootRocket())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET);
+                else if (mControlBoard.getAssistedShootBay())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_BAY);
+                else if (mControlBoard.getSelectLeftVisionTarget())
                 {
+                    //TODO: add this functionality
+                }
+                else if (mControlBoard.getSelectRightVisionTarget())
+                {
+                    //TODO: add this functionality
+                }
+                else if (mControlBoard.getManualShootCargoBay())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
-                }
-                else if (mControlBoard.getShootRocket())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
-                    // XXX: Timing is suspect
+                else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
-                }
-                else if (mControlBoard.getEjectCargo())
+                else if (mControlBoard.getManualChuteUp())
                 {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                    //TODO: add this functionality
                 }
+                else if (mControlBoard.getManualChuteDown())
+                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
 
-                // TODO: Add eject panel
-                // TODO: Add intake
-
-                if(mControlBoard.getTestButtonOne())
-                {
-                    mLED.setDriveState(mSuperstructure.isDrivingReversed() ? LED.DriveLEDState.BACKWARDS : LED.DriveLEDState.FORWARDS);
-                }
-                else {
-                    mLED.setDriveState(mSuperstructure.isDrivingReversed() ? LED.DriveLEDState.BACKWARDS : LED.DriveLEDState.BACKWARDS);
-                }
-
-                if (mControlBoard.getReverseDirection())
-                {
-                    mSuperstructure.reverseDrivingDirection();
-                    mLED.setDriveState(mSuperstructure.isDrivingReversed() ? LED.DriveLEDState.BACKWARDS : LED.DriveLEDState.FORWARDS);
-                }
-                else if (mControlBoard.getDriveToSelectedTarget())
-                {
+                // PANEL HANDLER
+                if (mControlBoard.getAssistedIntakePanel())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
+                else if (mControlBoard.getAssistedEjectPanel())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
-                }
-                else if (mControlBoard.getClimb())
+                else if (mControlBoard.getManualEjectPanel())
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+
+                // EVERYTHING
+                if (mControlBoard.getInsideFramePerimeter())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
+                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
                 }
-                // TODO (for button person): add buttons for all superstructure wanted states
+                if (mControlBoard.getTestButtonOne()) // 2: 5
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                }
+                if (mControlBoard.getTestButtonTwo())
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                }
+                if (mControlBoard.getTestButtonThree()) // 2: 7
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                }
+
+                // Driver Joystick-----------------------------------------------------------
+                if (mControlBoard.getReverseDirection())
+                     mSuperstructure.reverseDrivingDirection();
             }
             else if (mControlBoard.getReturnToDriverControl())
-            {
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
-            }
         }
         catch (Throwable t)
         {
