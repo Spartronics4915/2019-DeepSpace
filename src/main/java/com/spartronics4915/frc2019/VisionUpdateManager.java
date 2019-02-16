@@ -1,7 +1,9 @@
 package com.spartronics4915.frc2019;
 
+import java.util.Arrays;
 import java.util.Optional;
 
+import com.spartronics4915.frc2019.Constants.FieldLandmark;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.util.Logger;
@@ -14,8 +16,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class VisionUpdateManager
 {
-
-    public static VisionUpdateManager forwardVisionManager = new VisionUpdateManager("Forward");
     public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse");
 
     private static final int kRawUpdateNumDoubles = 4; // 2 for x y, 1 for rotation, and 1 for processing time
@@ -25,7 +25,7 @@ public class VisionUpdateManager
 
     private VisionUpdateManager(String coprocessorID)
     {
-        kNetworkTablesKey = "/SmartDashboard/Vision/" + coprocessorID + "/solvePNP/offset";
+        kNetworkTablesKey = "/SmartDashboard/Vision/" + coprocessorID + "/solvePNP";
 
         NetworkTableInstance.getDefault().addEntryListener(kNetworkTablesKey, (e) -> visionKeyChangedCallback(e),
                 EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
@@ -35,7 +35,7 @@ public class VisionUpdateManager
     {
         try
         {
-            double[] rawVisionUpdate = entryNotification.value.getDoubleArray();
+            String rawVisionUpdate = entryNotification.value.getString();
             mLatestVisionUpdate = VisionUpdate.fromRawUpdate(rawVisionUpdate);
         }
         catch (Exception e)
@@ -66,13 +66,14 @@ public class VisionUpdateManager
             this.targetRobotRelativePosition = targetRelativePosition;
         }
 
-        public static VisionUpdate fromRawUpdate(double[] rawVisionUpdate)
+        public static VisionUpdate fromRawUpdate(String vu)
         {
+            Double[] rawVisionUpdate = Arrays.stream(vu.split(",")).map(Double::parseDouble).toArray(Double[]::new);
+
             if (rawVisionUpdate.length < kRawUpdateNumDoubles)
                 throw new RuntimeException("A vision update must have at least " + kRawUpdateNumDoubles + " doubles in the array. This one has "
                         + rawVisionUpdate.length + ".");
 
-            // TODO: Maybe use NetworkTableValue.getTime()
             double frameCapTime = Timer.getFPGATimestamp() - rawVisionUpdate[3];
             Pose2d targetRelativePosition = new Pose2d(rawVisionUpdate[0], rawVisionUpdate[1], Rotation2d.fromDegrees(rawVisionUpdate[2]));
 
@@ -96,12 +97,12 @@ public class VisionUpdateManager
             Pose2d closestTargetPose = null;
             Pose2d robotPose = stateMap.getFieldToVehicle(timeToGetAt);
 
-            for (Pose2d targetPose : Constants.kVisionTargetLocations)
+            for (FieldLandmark l : Constants.FieldLandmark.class.getEnumConstants())
             {
-                double distance = robotPose.distance(targetPose);
+                double distance = robotPose.distance(l.fieldPose);
                 if (distance < smallestTargetDistance)
                 {
-                    closestTargetPose = targetPose;
+                    closestTargetPose = l.fieldPose;
                     smallestTargetDistance = distance;
                 }
             }

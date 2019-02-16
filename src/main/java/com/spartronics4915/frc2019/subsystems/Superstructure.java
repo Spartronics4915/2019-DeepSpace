@@ -468,5 +468,6 @@ public class Superstructure extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
+        dashboardPutBoolean("Reverse", mIsReversed);
     }
 }

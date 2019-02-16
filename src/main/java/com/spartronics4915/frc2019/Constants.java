@@ -19,11 +19,6 @@ public class Constants
 
     public static final double kLooperDt = 0.01;
 
-    public static final Pose2d[] kVisionTargetLocations =
-    {
-        new Pose2d(0, 0, Rotation2d.identity()),
-    };
-
     /* Measurement units are in millimeters */
     public enum FieldLandmark
     {
@@ -46,15 +41,14 @@ public class Constants
         LEFT_FAR_CARGO_BAY(7727.95, 708.025, 90.0),
         RIGHT_FAR_CARGO_BAY(LEFT_FAR_CARGO_BAY);
 
-
         public final Pose2d fieldPose;
-        
+
         private FieldLandmark(double x, double y, double rotationDegrees)
         {
             this.fieldPose = new Pose2d(Units.millimeters_to_inches(x), Units.millimeters_to_inches(y), Rotation2d.fromDegrees(rotationDegrees));
         }
 
-        private FieldLandmark (FieldLandmark other)
+        private FieldLandmark(FieldLandmark other)
         {
             this.fieldPose = new Pose2d(other.fieldPose.mirror());
         }
