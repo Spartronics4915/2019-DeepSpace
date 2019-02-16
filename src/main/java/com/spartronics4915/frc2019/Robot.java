@@ -331,8 +331,8 @@ public class Robot extends TimedRobot
                 //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
                 // )); XXX Conversions on Kv are wrong
-                                
-                if(mControlBoard.getEjectPanel())// 1: 6
+
+                if (mControlBoard.getEjectPanel()) // 1: 6
                     mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
                 if (mControlBoard.getIntake()) // 1: 2
@@ -349,7 +349,13 @@ public class Robot extends TimedRobot
 
                 if (mControlBoard.getClimb())
                 {
-                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                    if (!mClimber.isClimbing())
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                    else
+                    {
+                        mClimber.setWantedState(Climber.WantedState.CLIMB);
+                        mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                    }
                 }
 
                 else if (mControlBoard.getManualRamp())
