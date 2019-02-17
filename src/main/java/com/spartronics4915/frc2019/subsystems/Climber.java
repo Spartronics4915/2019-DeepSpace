@@ -3,7 +3,6 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.ControlBoard;
 import com.spartronics4915.lib.drivers.A21IRSensor;
-import com.spartronics4915.lib.drivers.A41IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
@@ -44,12 +43,8 @@ public class Climber extends Subsystem
     private DoubleSolenoid mFrontRightClimberSolenoid = null;
     private DoubleSolenoid mRearLeftClimberSolenoid = null;
     private DoubleSolenoid mRearRightClimberSolenoid = null;
-    public IRSensor mFrontRightIRSensor = null;
-    public IRSensor mFrontLeftIRSensor = null;
-    public IRSensor mDownwardFrontLeftIRSensor = null;
-    public IRSensor mDownwardFrontRightIRSensor = null;
-    public IRSensor mDownwardRearLeftIRSensor = null;
-    public IRSensor mDownwardRearRightIRSensor = null;
+    public IRSensor mClimberFrontIRSensor = null;
+    public IRSensor mClimberRearIRSensor = null;
 
     private Climber()
 
@@ -57,7 +52,8 @@ public class Climber extends Subsystem
         boolean success = false;
         try
         {
-            if (!CANProbe.getInstance().validatePCMId(Constants.kClimberPCMId)) throw new RuntimeException("Climber PCM isn't on the CAN bus!");
+            if (!CANProbe.getInstance().validatePCMId(Constants.kClimberPCMId))
+                throw new RuntimeException("Climber PCM isn't on the CAN bus!");
 
             mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kFrontLeftSolenoidId1,
                     Constants.kFrontLeftSolenoidId2);
@@ -67,12 +63,8 @@ public class Climber extends Subsystem
                     Constants.kRearLeftSolenoid2);
             mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kRearRightSolenoidId1,
                     Constants.kRearRightSolenoidId2);
-            mFrontRightIRSensor = new A41IRSensor(Constants.kFrontLeftIRSensorId);
-            mFrontLeftIRSensor = new A21IRSensor(Constants.kFrontRightIRSensorId);
-            mDownwardFrontLeftIRSensor = new A21IRSensor(Constants.kDownwardFrontLeftIRSensorId);
-            mDownwardFrontRightIRSensor = new A21IRSensor(Constants.kDownwardFrontRightIRSensorId);
-            mDownwardRearLeftIRSensor = new A21IRSensor(Constants.kDownwardRearLeftIRSensorId);
-            mDownwardRearRightIRSensor = new A21IRSensor(Constants.kDownwardRearRightIRSensorId);
+            mClimberFrontIRSensor = new A21IRSensor(Constants.kClimberFrontIRSensorID);
+            mClimberRearIRSensor = new A21IRSensor(Constants.kClimberRearIRSensorID);
         }
         catch (Exception e)
         {
@@ -106,11 +98,8 @@ public class Climber extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case DISABLING:
-                        // Climber is disabled (Will be like this until the last 30 seconds of the
-                        // match)
-                        // Make sure tanks are at acceptable levels for climbing (Check before intiating
-                        // CLIMBING)
+                    case DISABLING: // Climber is disabled until last 30 seconds of the match
+                        // TODO: Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
@@ -121,10 +110,8 @@ public class Climber extends Subsystem
                         break;
 
                     case CLIMBING:
-                        // Struts will extend from their dormant position to allow the robot to reach
-                        // the height required to get to L3
-                        // Must be done when robot is flushed with L3 (Done with distance sensors and a
-                        // backup encoder reading)
+                        // Struts will extend from their dormant position to allow the robot to reach the height required to get to L3
+                        // Must be done when robot is flushed with L3 (Done with distance sensors and a backup encoder reading)
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kForward);
@@ -145,8 +132,7 @@ public class Climber extends Subsystem
                         break;
 
                     case RETRACTING_REAR_STRUTS:
-                        // Solenoids from the rear struts will retract when the robot can support its
-                        // own weight on L3
+                        // Solenoids from the rear struts will retract when the robot can support its own weight on L3
                         // Done primarily with driver vision, but distance sensor might be used
                         if (mStateChanged)
                         {
@@ -206,6 +192,21 @@ public class Climber extends Subsystem
         mWantedState = wantedState;
     }
 
+    public boolean isClimbing()
+    {
+        return !(mWantedState == Climber.WantedState.DISABLE);
+    }
+
+    public boolean frontSensorsInRange()
+    {
+        return mClimberFrontIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorFrontMaxDistance);
+    }
+
+    public boolean rearSensorsInRange()
+    {
+        return mClimberRearIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorRearMaxDistance);
+    }
+
     public synchronized boolean atTarget()
     {
         switch (mWantedState)
@@ -215,12 +216,12 @@ public class Climber extends Subsystem
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
-                if (mDownwardFrontLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
+                if (mClimberFrontIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
                 else
                     return false;
             case RETRACT_REAR_STRUTS:
-                if (mDownwardRearLeftIRSensor.getDistance() <= Constants.kIRSensorTriggerDistance)
+                if (mClimberRearIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 else
                     return false;
@@ -240,48 +241,46 @@ public class Climber extends Subsystem
     public boolean checkSystem(String variant)
     {
         logNotice("Lifting for 5 Seconds");
-        mFrontLeftClimberSolenoid.set(Value.kForward);
-        mFrontRightClimberSolenoid.set(Value.kForward);
-        mRearLeftClimberSolenoid.set(Value.kForward);
-        mRearRightClimberSolenoid.set(Value.kForward);
-        Timer.delay(5);
-        mFrontLeftClimberSolenoid.set(Value.kReverse);
-        mFrontRightClimberSolenoid.set(Value.kReverse);
-        mRearLeftClimberSolenoid.set(Value.kReverse);
-        mRearRightClimberSolenoid.set(Value.kReverse);
-        Timer.delay(2);
+        try
+        {
+            mFrontLeftClimberSolenoid.set(Value.kForward);
+            mFrontRightClimberSolenoid.set(Value.kForward);
+            mRearLeftClimberSolenoid.set(Value.kForward);
+            mRearRightClimberSolenoid.set(Value.kForward);
+            Timer.delay(5);
+            mFrontLeftClimberSolenoid.set(Value.kReverse);
+            mFrontRightClimberSolenoid.set(Value.kReverse);
+            mRearLeftClimberSolenoid.set(Value.kReverse);
+            mRearRightClimberSolenoid.set(Value.kReverse);
+            Timer.delay(2);
+        }
+        catch (Exception e)
+        {
+            logException("Did not pass lifting check:", e);
+            return false;
+        }
 
         logNotice("Testing IR Sensors");
-        mFrontLeftIRSensor.getDistance();
-        mFrontLeftIRSensor.getVoltage();
-        logNotice("Front Left IR Sensor Distance is " + mFrontLeftIRSensor.getDistance() + " and Voltage is "
-                + mFrontLeftIRSensor.getVoltage());
-        Timer.delay(5);
-        mFrontRightIRSensor.getDistance();
-        mFrontRightIRSensor.getVoltage();
-        logNotice("Front Right IR Sensor Distance is " + mFrontRightIRSensor.getDistance() + " and Voltage is "
-                + mFrontRightIRSensor.getVoltage());
-        Timer.delay(5);
-        mDownwardFrontLeftIRSensor.getDistance();
-        mDownwardFrontLeftIRSensor.getVoltage();
-        logNotice("Downward Front Left IR Sensor Distance is " + mDownwardFrontLeftIRSensor.getDistance()
-                + " and Voltage is " + mDownwardFrontLeftIRSensor.getVoltage());
-        Timer.delay(5);
-        mDownwardFrontRightIRSensor.getDistance();
-        mDownwardFrontRightIRSensor.getVoltage();
-        logNotice("Downward Front Right IR Sensor Distance is " + mDownwardFrontRightIRSensor.getDistance()
-                + " and Voltage is " + mDownwardFrontRightIRSensor.getVoltage());
-        Timer.delay(5);
-        mDownwardRearLeftIRSensor.getDistance();
-        mDownwardRearLeftIRSensor.getVoltage();
-        logNotice("Downward Rear Left IR Sensor Distance is " + mDownwardRearLeftIRSensor.getDistance()
-                + " and Voltage is " + mDownwardRearLeftIRSensor.getVoltage());
-        Timer.delay(5);
-        mDownwardRearRightIRSensor.getDistance();
-        mDownwardRearRightIRSensor.getVoltage();
-        logNotice("Downward Rear Right Sensor Distance is " + mDownwardRearRightIRSensor.getDistance()
-                + " and Voltage is " + mDownwardRearRightIRSensor.getVoltage());
-        Timer.delay(5);
+        try
+        {
+            Timer.delay(5);
+            mClimberFrontIRSensor.getDistance();
+            mClimberFrontIRSensor.getVoltage();
+            logNotice("Downward Front IR Sensor Distance is " + mClimberFrontIRSensor.getDistance()
+                    + " and Voltage is " + mClimberFrontIRSensor.getVoltage());
+            Timer.delay(5);
+            mClimberRearIRSensor.getDistance();
+            mClimberRearIRSensor.getVoltage();
+            logNotice("Downward Rear IR Sensor Distance is " + mClimberRearIRSensor.getDistance()
+                    + " and Voltage is " + mClimberRearIRSensor.getVoltage());
+            Timer.delay(5);
+        }
+        catch (Exception e)
+        {
+            logException("Did not pass IR sensor check: ", e);
+            return false;
+        }
+
         return true;
     }
 
@@ -290,8 +289,6 @@ public class Climber extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
-        dashboardPutNumber("Voltage of IR Sensor is ", mFrontLeftIRSensor.getVoltage());
-        dashboardPutNumber("Distance readout of IR Sensor is ", mFrontLeftIRSensor.getDistance());
     }
 
     @Override

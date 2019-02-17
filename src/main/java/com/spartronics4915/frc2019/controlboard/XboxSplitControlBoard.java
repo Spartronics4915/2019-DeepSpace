@@ -17,8 +17,7 @@ public class XboxSplitControlBoard implements IDriveControlBoard
     @Override
     public double getThrottle()
     {
-        // TODO: Is this the right way to do this?
-        return mController.getX(Hand.kLeft);
+        return mController.getY(Hand.kLeft) * -1; //this means pushing forwards moves the robot forwards
     }
 
     @Override
