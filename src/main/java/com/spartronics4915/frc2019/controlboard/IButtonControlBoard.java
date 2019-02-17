@@ -52,4 +52,12 @@ public interface IButtonControlBoard
     boolean getTESTClimbRetractFrontPneumatics();
 
     boolean getTESTClimbRetractBackPneumatics();
+
+    
+    boolean getTESTIntakeArm_Down();
+
+    boolean getTESTIntakeIntake();
+
+    boolean getTESTIntakeHOLD();
+    
 }

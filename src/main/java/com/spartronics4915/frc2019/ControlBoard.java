@@ -215,8 +215,20 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getTESTClimbRetractBackPneumatics()
+    public boolean getTESTIntakeArm_Down()
     {
-        return mButtonControlBoard.getTESTClimbRetractBackPneumatics();
+        return mButtonControlBoard.getTESTIntakeArm_Down();
+    }
+
+    @Override
+    public boolean getTESTIntakeIntake()
+    {
+        return mButtonControlBoard.getTESTIntakeIntake();
+    }
+
+    @Override
+    public boolean getTESTIntakeHOLD()
+    {
+        return mButtonControlBoard.getTESTIntakeHOLD();
     }
 }

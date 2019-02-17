@@ -168,24 +168,37 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getTESTClimbExtendAllPneumatics()
     {
-        return mButtonBoard.getRawButtonPressed(5);
+        return mTestButtonBoard.getRawButtonPressed(5);
     }
 
     @Override
     public boolean getTESTClimbIntake()
     {
-        return mButtonBoard.getRawButtonPressed(3);
+        return mTestButtonBoard.getRawButtonPressed(3);
     }
 
     @Override
     public boolean getTESTClimbRetractFrontPneumatics()
     {
-        return mButtonBoard.getRawButtonPressed(4);
+        return mTestButtonBoard.getRawButtonPressed(4);
     }
 
     @Override
-    public boolean getTESTClimbRetractBackPneumatics()
+    public boolean getTESTIntakeArm_Down()
     {
-        return mButtonBoard.getRawButtonPressed(6);
+        return mTestButtonBoard.getRawButtonPressed(7);
     }
+
+    @Override
+    public boolean getTESTIntakeIntake()
+    {
+        return mTestButtonBoard.getRawButtonPressed(8);
+    }
+
+    @Override
+    public boolean getTESTIntakeHOLD()
+    {
+        return mTestButtonBoard.getRawButtonPressed(9);
+    }
+
 }
