@@ -100,10 +100,11 @@ an _angular velocity_, often measured in rotations per minute (RPM) or
 radians per second (rad/s).  As in the linear case, if we wish to change
 angular velocity we must apply a force and this results in _angular acceleration_.
 We have a special name, `torque`, for the force applied to achieve angular
-acceleration and it's one trickiest topics in the field of physics. Even
-the idea of mass is trickier and physicists use the term `Moment of Inertia`
-(often referred to as `J` or `I`) to characterize the amount that the
-mass within an object affects its angular motion.
+acceleration and it's one of the trickiest topics in physics. In the context
+of angular acceleration,  even the idea of mass is trickier and physicists
+use the term `Moment of Inertia` (often referred to as `J` or `I`) to
+characterize the amount that the mass within an object affects its
+angular motion.
 
 #### One With the Force
 
@@ -125,16 +126,17 @@ Happily, there are a number of FRC-centric resources available to assist us with
 drive characterization.  First and foremost is the [FRC Whitepaper On Drive Characterization](https://www.chiefdelphi.com/uploads/default/original/3X/f/7/f79d24101e6f1487e76099774e4ba60683e86cda.pdf5).
 This paper is referenced by most other resources and is a great resource if
 you want to understand some of the physical principles behind robot characterization.
-Another great resource is chapter 4 of [Practical Guide to State-space Control](https://github.com/calcmogul/state-space-guide).  Equations you'll find there
-are a little intimidating but some are quite central to our endeavor. Finally,
-there are canned drive characterization procedures built into our
-Team254-based codebase as well as in the [FRC Drive Characterization github](https://github.com/robotpy/robot-characterization).
+Another great resource is chapter 4 of [Practical Guide to State-space Control](https://github.com/calcmogul/state-space-guide).  
+Equations you'll find there are a little intimidating but some are quite central
+to our endeavor. Finally, there are canned drive characterization procedures
+built into our Team254-based codebase as well as in the
+[FRC Drive Characterization github](https://github.com/robotpy/robot-characterization).
 
 At the end of the day, the goal described by these resources is to
 characterize a robot drive for straight linear motion via this formula:
 
 ```java
-    Vapp = Ks + Kv*velocity + Ka*acceleration;
+    V = Ks + Kv*velocity + Ka*acceleration;
 ```
 
 This bears a strong resemblence to our physics formula for linear motion and for
@@ -149,7 +151,7 @@ requirement (and thus a feedforward term) without specifying both a target
 velocity and a target acceleration. Here are the meanings and units for
 the terms of this formula:
 
-* Vapp - the voltage to request, we'll need to convert this to Kf
+* V - the voltage to request, we'll need to convert this to Kf
 * Ks - the voltage required to break static friction (ie start moving)
 * Kv - a velocity scaling term, measured in Volts/velocity
 * Ka - an acceleration scaling term, measured in Volts/accel or Volts/vel/sec
