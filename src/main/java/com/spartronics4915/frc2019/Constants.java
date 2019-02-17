@@ -1,10 +1,8 @@
 package com.spartronics4915.frc2019;
 
-import java.util.Arrays;
-
+import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
-import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.lidar.icp.IReferenceModel;
 import com.spartronics4915.lib.lidar.icp.Point;
 import com.spartronics4915.lib.lidar.icp.Segment;
@@ -21,11 +19,9 @@ public class Constants
 
     public static final double kLooperDt = 0.01;
 
-    /* Measurement units are in millimeters */
-    public enum FieldLandmark
+    /**** Careful! Measurement units are in millimeters ****/
+    public enum ScorableLandmark
     {
-        LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO(2419.991, 1625.60, 180),
-        RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO(LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO),
         LEFT_LOADING_STATION(0.0, 3436.239, 0.0),
         RIGHT_LOADING_STATION(LEFT_LOADING_STATION),
         LEFT_ROCKET_CLOSE_FACE(5448.066, 3629.264, 28.75),
@@ -44,16 +40,31 @@ public class Constants
         RIGHT_FAR_CARGO_BAY(LEFT_FAR_CARGO_BAY);
 
         public final Pose2d fieldPose;
+        public final Pose2d robotLengthCorrectedPose;
 
-        private FieldLandmark(double x, double y, double rotationDegrees)
+        private ScorableLandmark(double x, double y, double rotationDegrees)
         {
             this.fieldPose = new Pose2d(Units.millimeters_to_inches(x), Units.millimeters_to_inches(y), Rotation2d.fromDegrees(rotationDegrees));
+            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
         }
 
-        private FieldLandmark(FieldLandmark other)
+        private ScorableLandmark(ScorableLandmark other)
         {
             this.fieldPose = new Pose2d(other.fieldPose.mirror());
+            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
         }
+    }
+
+    // Not technically a scorable landmark (this is in inches)
+    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward, -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+
+
+    public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
+    {
+        return new Pose2d(
+                oldpose.getRotation().cos() * Constants.kRobotCenterToForward + oldpose.getTranslation().x(),
+                oldpose.getRotation().sin() * Constants.kRobotCenterToForward + oldpose.getTranslation().y(),
+                oldpose.getRotation());
     }
 
     /* ROBOT PHYSICAL CONSTANTS */
@@ -64,9 +75,9 @@ public class Constants
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.063; // TODO tune
 
-    // Chassis parameters in inches (these are Pose2ds for convenience)
-    public static final Pose2d kRobotCenterToForward = new Pose2d(30.0, 0.0, Rotation2d.identity());
-    public static final Pose2d kRobotCenterToSide = new Pose2d(0.0, 30.0, Rotation2d.identity());
+    // Chassis with bumper size
+    public static final double kRobotCenterToForward = 15.0; // in TODO tune
+    public static final double kRobotCenterToSide = 15.0; // in TODO tune
 
     // Tuned dynamics
     public static final double kRobotLinearInertia = 27.93; // kg (robot's mass) TODO tune
