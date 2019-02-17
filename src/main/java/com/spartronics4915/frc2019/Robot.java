@@ -117,7 +117,7 @@ public class Robot extends TimedRobot
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
                 SmartDashboard.putString(kRobotTestModeOptions,
-                        "None,Drive,All");
+                   "None,CargoChute,CargoIntake,Climber,PanelHandler,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
 
@@ -259,6 +259,26 @@ public class Robot extends TimedRobot
             if (testMode.equals("Drive") || testMode.equals("All"))
             {
                 success &= mDrive.checkSystem(testVariant);
+            }
+            else
+            if(testMode.equals("CargoChute") || testMode.equals("All"))
+            {
+                success &= mCargoChute.checkSystem(testVariant);
+            }
+            else
+            if(testMode.equals("CargoIntake") || testMode.equals("All"))
+            {
+                success &= mCargoIntake.checkSystem(testVariant);
+            }
+            else
+            if(testMode.equals("Climber") || testMode.equals("All"))
+            {
+                success &= mClimber.checkSystem(testVariant);
+            }
+            else
+            if(testMode.equals("PanelHandler") || testMode.equals("All"))
+            {
+                success &= mPanelHandler.checkSystem(testVariant);
             }
 
             if (!success)
