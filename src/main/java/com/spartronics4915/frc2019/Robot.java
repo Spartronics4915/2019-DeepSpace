@@ -260,22 +260,18 @@ public class Robot extends TimedRobot
             {
                 success &= mDrive.checkSystem(testVariant);
             }
-            else
             if(testMode.equals("CargoChute") || testMode.equals("All"))
             {
                 success &= mCargoChute.checkSystem(testVariant);
             }
-            else
             if(testMode.equals("CargoIntake") || testMode.equals("All"))
             {
                 success &= mCargoIntake.checkSystem(testVariant);
             }
-            else
             if(testMode.equals("Climber") || testMode.equals("All"))
             {
                 success &= mClimber.checkSystem(testVariant);
             }
-            else
             if(testMode.equals("PanelHandler") || testMode.equals("All"))
             {
                 success &= mPanelHandler.checkSystem(testVariant);
