@@ -31,7 +31,7 @@ public class RobotStateEstimator extends Subsystem
     private RobotStateMap mEncoderRobotState = new RobotStateMap();
     private RobotStateMap mLidarRobotState = new RobotStateMap();
     private Drive mDrive;
-    private LidarProcessor mLidarProcessor;
+    private LidarProcessor mLidarProcessor = null;
     private double mLeftPrevDist = 0.0;
     private double mRightPrevDist = 0.0;
 
@@ -45,6 +45,7 @@ public class RobotStateEstimator extends Subsystem
             This may need to be deferred until autonomousInit or
             something (because of the rules).
         */
+        /* disable Lidar for 2019 robot
         final Pose2d vehicleToLidar = new Pose2d(
             Constants.kLidarXOffset, Constants.kLidarYOffset,
             Rotation2d.fromDegrees(Constants.kLidarYawAngleDegrees)
@@ -55,6 +56,7 @@ public class RobotStateEstimator extends Subsystem
                             mLidarRobotState,
                             vehicleToLidar,
                             () -> Timer.getFPGATimestamp());
+        */
         
         logInitialized(true);
     }
@@ -112,7 +114,8 @@ public class RobotStateEstimator extends Subsystem
     public void registerEnabledLoops(ILooper looper)
     {
         looper.register(new EnabledLoop());
-        looper.register(mLidarProcessor);
+        if(mLidarProcessor != null)
+            looper.register(mLidarProcessor);
     }
 
     private class EnabledLoop implements ILoop
