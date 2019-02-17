@@ -408,7 +408,6 @@ public class Robot extends TimedRobot
                     // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                 }
 
-<<<<<<< HEAD
 
                 //TEST BUTTONBOARD
                 if(mControlBoard.getTESTClimbExtendAllPneumatics())
@@ -430,9 +429,6 @@ public class Robot extends TimedRobot
 
 
                 //Driver Joystick-----------------------------------------------------------
-=======
-                // Driver Joystick-----------------------------------------------------------
->>>>>>> 02adbc94ee3f19c5f54f15e190d8ae74300d9ec2
                 if (mControlBoard.getReverseDirection())
                      mSuperstructure.reverseDrivingDirection();
             }

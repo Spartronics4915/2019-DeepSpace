@@ -19,7 +19,7 @@ public class MainButtonBoard implements IButtonControlBoard
     public MainButtonBoard()
     {
         mButtonBoard = new Joystick(Constants.kMainButtonBoardPort);
-        mTestButtonBoard = new Joystick(1);
+        mTestButtonBoard = new Joystick(3);
 
         mPreviousAxis1 = 0.0;
         mPreviousAxis2 = 0.0;
@@ -149,24 +149,24 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getTESTClimbExtendAllPneumatics()
     {
-        return mButtonBoard.getRawButtonPressed(1);
+        return mButtonBoard.getRawButtonPressed(5);
     }
 
     @Override
     public boolean getTESTClimbIntake()
     {
-        return mButtonBoard.getRawButtonPressed(2);
+        return mButtonBoard.getRawButtonPressed(3);
     }
 
     @Override
     public boolean getTESTClimbRetractFrontPneumatics()
     {
-        return mButtonBoard.getRawButtonPressed(3);
+        return mButtonBoard.getRawButtonPressed(4);
     }
 
     @Override
     public boolean getTESTClimbRetractBackPneumatics()
     {
-        return mButtonBoard.getRawButtonPressed(4);
+        return mButtonBoard.getRawButtonPressed(6);
     }
 }
