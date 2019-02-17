@@ -3,7 +3,7 @@ package com.spartronics4915.frc2019;
 import java.util.Arrays;
 import java.util.Optional;
 
-import com.spartronics4915.frc2019.Constants.FieldLandmark;
+import com.spartronics4915.frc2019.Constants.ScorableLandmark;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.util.Logger;
@@ -85,7 +85,7 @@ public class VisionUpdateManager
             return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(targetRobotRelativePosition);
         }
 
-        public Pose2d getCorrectedRobotPose(FieldLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
+        public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
         {
             Pose2d robotPoseRelativeToLastVisionUpdate = stateMap.get(this.frameCapturedTime).pose.inverse().transformBy(stateMap.get(timeToGetAt).pose);
             return this.targetRobotRelativePosition.inverse().transformBy(landmark.fieldPose).transformBy(robotPoseRelativeToLastVisionUpdate);
@@ -94,10 +94,10 @@ public class VisionUpdateManager
         public Pose2d getCorrectedRobotPoseForClosestTarget(RobotStateMap stateMap, double timeToGetAt)
         {
             double smallestTargetDistance = Double.POSITIVE_INFINITY;
-            FieldLandmark closestTargetPose = null;
+            ScorableLandmark closestTargetPose = null;
             Pose2d robotPose = stateMap.getFieldToVehicle(timeToGetAt);
 
-            for (FieldLandmark l : Constants.FieldLandmark.class.getEnumConstants())
+            for (ScorableLandmark l : Constants.ScorableLandmark.class.getEnumConstants())
             {
                 double distance = robotPose.distance(l.fieldPose);
                 if (distance < smallestTargetDistance)

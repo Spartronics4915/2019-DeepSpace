@@ -227,13 +227,13 @@ public class Superstructure extends Subsystem
                     case ALIGNING_CLOSEST_REVERSE_TARGET:
                         mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
                         mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-                        if (mStateChanged /*|| !mGotVisionUpdate*/)
+                        if (mStateChanged || !mGotVisionUpdate)
                         {
-                            makeAndDrivePath(Pose2d.identity(), true);
-                            // Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
+                            // makeAndDrivePath(Pose2d.identity(), true);
+                            Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
 
-                            // mGotVisionUpdate = visionUpdate.isPresent();
-                            // visionUpdate.ifPresent(v -> makeAndDrivePath(v.getFieldPosition(mRobotStateMap), false)); // TODO make not reversed
+                            mGotVisionUpdate = visionUpdate.isPresent();
+                            visionUpdate.ifPresent(v -> makeAndDrivePath(Drive.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true)); // TODO make not reversed
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
