@@ -79,6 +79,7 @@ public class CargoChute extends Subsystem
         {
             synchronized (CargoChute.this)
             {
+                mStateChanged = true;
                 mWantedState = WantedState.LOWER;
                 mSystemState = SystemState.LOWERING;
             }
@@ -322,6 +323,7 @@ public class CargoChute extends Subsystem
         dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor distance: ", mRampSensor.getDistance());
+        dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
     }
 
     @Override

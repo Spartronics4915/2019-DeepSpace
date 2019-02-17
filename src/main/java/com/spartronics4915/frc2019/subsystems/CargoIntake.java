@@ -86,6 +86,7 @@ public class CargoIntake extends Subsystem
         {
             synchronized (CargoIntake.this)
             {
+                mStateChanged = true;
                 mWantedState = WantedState.HOLD;
                 mSystemState = SystemState.HOLDING;
             }
@@ -240,13 +241,13 @@ public class CargoIntake extends Subsystem
         logNotice("Starting CargoIntake Solenoid Check");
         try
         {
-            logNotice("Extending solenoids for 2 seconds");
+            logNotice("Extending solenoids for 4 seconds");
             mSolenoid.set(kSolenoidExtend);
             mSolenoidClimb.set(kSolenoidExtend);
-            Timer.delay(2);
-            logNotice("Retracting solenoids for 2 seconds");
+            Timer.delay(4);
+            logNotice("Retracting solenoids for 4 seconds");
             setSolenoidsToUp();
-            Timer.delay(2);
+            Timer.delay(4);
             logNotice("CargoIntake Solenoid Check End");
             logNotice("Running motors at 50% for 2 seconds");
             mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
@@ -288,8 +289,7 @@ public class CargoIntake extends Subsystem
     @Override
     public void stop() // TODO: This may interfere with the CargoChute
     {
-        mSolenoid.set(kSolenoidRetract);
-        mSolenoidClimb.set(kSolenoidRetract);
+        setSolenoidsToUp();
         mMotorRight.set(ControlMode.PercentOutput, 0.0);
         mMotorLeft.set(ControlMode.PercentOutput, 0.0);
     }

@@ -65,6 +65,7 @@ public class Climber extends Subsystem
                     Constants.kRearRightSolenoidId2);
             mClimberFrontIRSensor = new A21IRSensor(Constants.kClimberFrontIRSensorID);
             mClimberRearIRSensor = new A21IRSensor(Constants.kClimberRearIRSensorID);
+            success = true;
         }
         catch (Exception e)
         {
@@ -85,6 +86,7 @@ public class Climber extends Subsystem
         {
             synchronized (Climber.this)
             {
+                mStateChanged = true;
                 mWantedState = WantedState.DISABLE;
                 mSystemState = SystemState.DISABLING;
             }
@@ -289,6 +291,10 @@ public class Climber extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
+        dashboardPutNumber("Forward sensor distance: ", mClimberFrontIRSensor.getDistance());
+        dashboardPutNumber("Forward sensor voltage: ", mClimberFrontIRSensor.getVoltage());
+        dashboardPutNumber("Rear sensor distance: ", mClimberRearIRSensor.getDistance());
+        dashboardPutNumber("Rear sensor voltage: ", mClimberRearIRSensor.getVoltage());
     }
 
     @Override

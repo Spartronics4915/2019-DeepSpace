@@ -54,6 +54,7 @@ public class PanelHandler extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
+            success = true;
         }
         catch (Exception e)
         {
@@ -74,6 +75,7 @@ public class PanelHandler extends Subsystem
             synchronized (PanelHandler.this)
             {
                 mSolenoid.set(kSolenoidRetract);
+                mStateChanged = true;
                 mWantedState = WantedState.RETRACT;
                 mSystemState = SystemState.RETRACTING;
             }

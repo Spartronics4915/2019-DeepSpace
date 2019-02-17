@@ -174,14 +174,14 @@ public class Constants
     // Cargo Chute
     public static final int kRampMotorId = 5;
     public static final int kRampSolenoidId = 3;
-    public static final int kRampSensorId = 2;
+    public static final int kRampSensorId = 0;
     public static final double kRampSpeed = 1.0; // TODO: tune
     public static final double kShootSpeed = 1.0; // TODO: tune
     public static final double kShootTime = 4.0;
     public static final double kTransitionTime = 1.0;
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
-    public static final boolean kRampSolenoidExtend = false;
-    public static final boolean kRampSolenoidRetract = true;
+    public static final boolean kRampSolenoidExtend = true;
+    public static final boolean kRampSolenoidRetract = false;
 
     // Climber
     public static final int kFrontLeftSolenoidId1 = 0; // Extend
