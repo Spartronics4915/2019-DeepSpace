@@ -1,36 +1,3 @@
-/* TODOS
- * ✔ Mechanics removed the ShootMotors - remove these
- * ✔ Read through the CheckSystem method and ask questions
- * ✔ Use TalonSRXFactory to instansiate Talons (ask Declan)
- * ✔ Instantiate sensors
- * ✔ Use the sensors in places
- * ✔ Don't keep shooting states running forever?
- * ✔ Fill out atTarget()
- * ✔ Fill out outputTelemetry()
- * the chute can break the arm now. we gotta write code to stop that from happening.
- * - Make sure that CargoChute lowers the arm before extending to the rocket height, and additionally...
- *     - Lowers the chute immediately after successfully shooting the cargo, but...
- *     - Does not allow for the arm to be retracted during that time.
- * - Make sure that anywhere _using_ the cargo chute or arm won't break either
- *     - Places include CheckSystem and and some superstructure?
- * ✔ Mechanics added the ShootMotors - add these
- * ✔ Mechanics removed the ShootMotors - remove these
- *
- * T E S T
- * - Both SHOOTs should... shoot. Solenoids and the ejecting wheels should work too.
- * - Need to integrate with CargoIntake to prevent arm damage. (!!!thisisimportant!!!)
- * - A21IR sensor should give us correct data (Austin has checked his A21s, but it's really really good to make sure)
- * - BRING_BALL_TO_TOP should correctly transition with IR sensors (make sure readings are accurate beforehand)
- * - MANUALs should correctly override
- *     - If RampMotor moving at all go into MANUAL_HOLDING
- *     - If RampMotor not moving go into MANUAL_RAMPING
- *     - MUST not be overriden ~~by the A21 sensor detecting a ball~~ scratch that for now we afaik we aren't going to detect cargo
- *     - Should switch with a click of a button
- * - There should be a quick transition so that ramp motors do not go from full speed ahead to full speed behind
- *
- * After all this is completed: code review
- */
-
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
