@@ -184,6 +184,12 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
+    public boolean getTESTClimbRetractBackPneumatics()
+    {
+        return mTestButtonBoard.getRawButtonPressed(6);
+    }
+
+    @Override
     public boolean getTESTIntakeArm_Down()
     {
         return mTestButtonBoard.getRawButtonPressed(7);
