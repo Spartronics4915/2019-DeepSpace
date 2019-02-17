@@ -168,6 +168,14 @@ public class Drive extends Subsystem
         return mInstance;
     }
 
+    public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
+    {
+        return new Pose2d(
+                oldpose.getRotation().cos() * Constants.kRobotCenterToForward + oldpose.getTranslation().x(),
+                oldpose.getRotation().sin() * Constants.kRobotCenterToForward + oldpose.getTranslation().y(),
+                oldpose.getRotation());
+    }
+
     private static double rotationsToInches(double rotations)
     {
         return rotations * (Constants.kDriveWheelDiameterInches * Math.PI);

@@ -233,7 +233,7 @@ public class Superstructure extends Subsystem
                             Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
-                            visionUpdate.ifPresent(v -> makeAndDrivePath(v.getFieldPosition(mRobotStateMap), false)); // TODO make not reversed
+                            visionUpdate.ifPresent(v -> makeAndDrivePath(Drive.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true)); // TODO make not reversed
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
