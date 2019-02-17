@@ -1,11 +1,3 @@
-/* TODOs
- *
- * Don't let us climb until last 30 seconds of match
- * Use sensors to transition
- * Write code such that climb can be resumed if interrupted
- * T E S T
- */
-
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
