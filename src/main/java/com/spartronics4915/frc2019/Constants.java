@@ -24,7 +24,7 @@ public class Constants
     /* Measurement units are in millimeters */
     public enum FieldLandmark
     {
-        LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO(2419.991, 1625.60, 0.0),
+        LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO(2419.991, 1625.60, 180),
         RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO(LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO),
         LEFT_LOADING_STATION(0.0, 3436.239, 0.0),
         RIGHT_LOADING_STATION(LEFT_LOADING_STATION),
