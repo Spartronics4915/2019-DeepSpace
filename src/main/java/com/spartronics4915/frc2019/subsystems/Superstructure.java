@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.VisionUpdateManager;
 import com.spartronics4915.frc2019.VisionUpdateManager.VisionUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
@@ -233,7 +234,7 @@ public class Superstructure extends Subsystem
                             Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
-                            visionUpdate.ifPresent(v -> makeAndDrivePath(v.getFieldPosition(mRobotStateMap), false)); // TODO make not reversed
+                            visionUpdate.ifPresent(v -> makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true)); // TODO make not reversed
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
