@@ -3,7 +3,6 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.ControlBoard;
 import com.spartronics4915.lib.drivers.A21IRSensor;
-import com.spartronics4915.lib.drivers.A41IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
@@ -44,8 +43,8 @@ public class Climber extends Subsystem
     private DoubleSolenoid mFrontRightClimberSolenoid = null;
     private DoubleSolenoid mRearLeftClimberSolenoid = null;
     private DoubleSolenoid mRearRightClimberSolenoid = null;
-    public IRSensor mDownwardFrontIRSensor = null;
-    public IRSensor mDownwardRearIRSensor = null;
+    public IRSensor mClimberFrontIRSensor = null;
+    public IRSensor mClimberRearIRSensor = null;
 
     private Climber()
 
@@ -53,7 +52,8 @@ public class Climber extends Subsystem
         boolean success = false;
         try
         {
-            if (!CANProbe.getInstance().validatePCMId(Constants.kClimberPCMId)) throw new RuntimeException("Climber PCM isn't on the CAN bus!");
+            if (!CANProbe.getInstance().validatePCMId(Constants.kClimberPCMId))
+                throw new RuntimeException("Climber PCM isn't on the CAN bus!");
 
             mFrontLeftClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kFrontLeftSolenoidId1,
                     Constants.kFrontLeftSolenoidId2);
@@ -63,8 +63,8 @@ public class Climber extends Subsystem
                     Constants.kRearLeftSolenoid2);
             mRearRightClimberSolenoid = new DoubleSolenoid(Constants.kClimberPCMId, Constants.kRearRightSolenoidId1,
                     Constants.kRearRightSolenoidId2);
-            mDownwardFrontIRSensor = new A21IRSensor(Constants.kDownwardFrontIRSensorID);
-            mDownwardRearIRSensor = new A21IRSensor(Constants.kDownwardRearIRSensorID);
+            mClimberFrontIRSensor = new A21IRSensor(Constants.kClimberFrontIRSensorID);
+            mClimberRearIRSensor = new A21IRSensor(Constants.kClimberRearIRSensorID);
         }
         catch (Exception e)
         {
@@ -98,13 +98,12 @@ public class Climber extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case DISABLING:
-                        // Climber is disabled (Will be like this until the last 30 seconds of the match)
-                        // Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
+                    case DISABLING: // Climber is disabled until last 30 seconds of the match
+                        // TODO: Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
-                            mFrontRightClimberSolenoid.set(Value.kReverse); // TODO: robit fall might hurt
+                            mFrontRightClimberSolenoid.set(Value.kReverse);
                             mRearLeftClimberSolenoid.set(Value.kReverse);
                             mRearRightClimberSolenoid.set(Value.kReverse);
                         }
@@ -200,12 +199,12 @@ public class Climber extends Subsystem
 
     public boolean frontSensorsInRange()
     {
-        return mDownwardFrontIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorFrontMaxDistance);
+        return mClimberFrontIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorFrontMaxDistance);
     }
 
     public boolean rearSensorsInRange()
     {
-        return mDownwardRearIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorRearMaxDistance);
+        return mClimberRearIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorRearMaxDistance);
     }
 
     public synchronized boolean atTarget()
@@ -217,12 +216,12 @@ public class Climber extends Subsystem
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
-                if (mDownwardFrontIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
+                if (mClimberFrontIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
                 else
                     return false;
             case RETRACT_REAR_STRUTS:
-                if (mDownwardRearIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
+                if (mClimberRearIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 else
                     return false;
@@ -265,15 +264,15 @@ public class Climber extends Subsystem
         try
         {
             Timer.delay(5);
-            mDownwardFrontIRSensor.getDistance();
-            mDownwardFrontIRSensor.getVoltage();
-            logNotice("Downward Front IR Sensor Distance is " + mDownwardFrontIRSensor.getDistance()
-                    + " and Voltage is " + mDownwardFrontIRSensor.getVoltage());
+            mClimberFrontIRSensor.getDistance();
+            mClimberFrontIRSensor.getVoltage();
+            logNotice("Downward Front IR Sensor Distance is " + mClimberFrontIRSensor.getDistance()
+                    + " and Voltage is " + mClimberFrontIRSensor.getVoltage());
             Timer.delay(5);
-            mDownwardRearIRSensor.getDistance();
-            mDownwardRearIRSensor.getVoltage();
-            logNotice("Downward Rear IR Sensor Distance is " + mDownwardRearIRSensor.getDistance()
-                    + " and Voltage is " + mDownwardRearIRSensor.getVoltage());
+            mClimberRearIRSensor.getDistance();
+            mClimberRearIRSensor.getVoltage();
+            logNotice("Downward Rear IR Sensor Distance is " + mClimberRearIRSensor.getDistance()
+                    + " and Voltage is " + mClimberRearIRSensor.getVoltage());
             Timer.delay(5);
         }
         catch (Exception e)
