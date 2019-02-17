@@ -148,6 +148,9 @@ public class CargoChute extends Subsystem
                 }
                 if (newState != mSystemState)
                 {
+                    if (mSystemState == CargoChute.SystemState.SHOOTING_BAY)
+                        mRampSolenoid.set(Constants.kRampSolenoidRetract);
+
                     mCargoTimer.stop();
                     mCargoTimer.reset();
                     mStateChanged = true;

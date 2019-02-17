@@ -272,14 +272,14 @@ public class Superstructure extends Subsystem
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
                         break;
-                    case EJECTING_CARGO:
+                    case EJECTING_CARGO: // why is this called ejecting come on
                         if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY)
                         {
-                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET); // Brings arm down to avoid collision
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN); // Brings arm down to avoid collision
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                         }
                         else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
-                            mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                         else
                             break;
                         if (mCargoChute.atTarget())
