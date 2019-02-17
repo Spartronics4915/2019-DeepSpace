@@ -146,7 +146,7 @@ public class PanelHandler extends Subsystem
         mWantedState = wantedState;
     }
 
-    public synchronized boolean atTarget()
+    public synchronized boolean atTarget() // Add Limit switch
     {
         return mSystemState == SystemState.RETRACTING && mWantedState == WantedState.RETRACT;
     }
