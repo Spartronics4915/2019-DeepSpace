@@ -44,7 +44,8 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getClimb()
     {
-        return mButtonBoard.getRawButtonPressed(1);
+        // return mButtonBoard.getRawButtonPressed(1);
+        return false;
     }
 
     @Override
@@ -130,7 +131,7 @@ public class MainButtonBoard implements IButtonControlBoard
     {
         current = mButtonBoard.getRawAxis(0);
         result = (mPreviousAxis0 != current) && (current == 1.0);
-        mPreviousAxis1 = current;
+        mPreviousAxis0 = current;
         return result;
     }
 
@@ -139,7 +140,7 @@ public class MainButtonBoard implements IButtonControlBoard
     {
         current = mButtonBoard.getRawAxis(0);
         result = (mPreviousAxis0 != current) && (current == -1.0);
-        mPreviousAxis1 = current;
+        mPreviousAxis0 = current;
         return result;
     }
 
