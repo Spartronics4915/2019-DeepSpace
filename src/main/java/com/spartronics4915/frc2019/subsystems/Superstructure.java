@@ -7,8 +7,10 @@ import com.spartronics4915.lib.util.Units;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 import com.spartronics4915.frc2019.VisionUpdateManager;
+import com.spartronics4915.frc2019.VisionUpdateManager.VisionUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.geometry.Pose2d;
@@ -131,6 +133,7 @@ public class Superstructure extends Subsystem
     private SystemState mSystemState = SystemState.DRIVER_CONTROLLING;
     // We don't have a DRIVER_CONTROL_FORWARD and ..._REVERSE becase we need to persist driving direction across state changes
     private boolean mIsReversed = false;
+    private boolean mGotVisionUpdate = false;
 
     private Superstructure()
     {
@@ -224,11 +227,14 @@ public class Superstructure extends Subsystem
                     case ALIGNING_CLOSEST_REVERSE_TARGET:
                         mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
                         mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-                        if (mStateChanged)
-                            makeAndDrivePath(Pose2d.identity(), true);
-                        // TODO: Target selection/vision integration
-                        // VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate()
-                        //         .ifPresent(v -> makeAndDrivePath(v.getFieldPosition(mRobotStateMap)), true);
+                        if (mStateChanged || !mGotVisionUpdate)
+                        {
+                            // makeAndDrivePath(Pose2d.identity(), true);
+                            Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
+
+                            mGotVisionUpdate = visionUpdate.isPresent();
+                            visionUpdate.ifPresent(v -> makeAndDrivePath(v.getFieldPosition(mRobotStateMap), false)); // TODO make not reversed
+                        }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
                         {
@@ -322,6 +328,7 @@ public class Superstructure extends Subsystem
         public void onStop(double timestamp)
         {
             stop();
+            mGotVisionUpdate = false;
         }
     };
 
@@ -337,7 +344,7 @@ public class Superstructure extends Subsystem
             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
                     new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(reversed, waypoints)))));
             // TODO: Maybe plug in our current velocity as the start veloicty of the path?
-            Logger.info("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
+            Logger.notice("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
 
             mDrive.setTrajectory(t);
         }

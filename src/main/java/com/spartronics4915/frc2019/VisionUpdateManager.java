@@ -74,7 +74,7 @@ public class VisionUpdateManager
                 throw new RuntimeException("A vision update must have at least " + kRawUpdateNumDoubles + " doubles in the array. This one has "
                         + rawVisionUpdate.length + ".");
 
-            double frameCapTime = Timer.getFPGATimestamp() - rawVisionUpdate[3];
+            double frameCapTime = 0;//Timer.getFPGATimestamp() - rawVisionUpdate[3]; TODO
             Pose2d targetRelativePosition = new Pose2d(rawVisionUpdate[0], rawVisionUpdate[1], Rotation2d.fromDegrees(rawVisionUpdate[2]));
 
             return new VisionUpdate(frameCapTime, targetRelativePosition);
