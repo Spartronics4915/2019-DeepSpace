@@ -41,6 +41,7 @@ public class AutoModeSelector
             new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(true)),
             new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(false)),
 
+            new AutoModeCreator("Other: Drive Off Hab Test", () -> new DriveOffHABTestMode()),
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),
             new AutoModeCreator("Other: Curved Path Test", () -> new PathTestMode(true)),
             new AutoModeCreator("Other: Velocity Test", () -> new VelocityTestMode()),
