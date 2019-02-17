@@ -1,7 +1,5 @@
 package com.spartronics4915.frc2019;
 
-import java.util.Arrays;
-
 import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
@@ -21,7 +19,7 @@ public class Constants
 
     public static final double kLooperDt = 0.01;
 
-    /* Measurement units are in millimeters */
+    /**** Careful! Measurement units are in millimeters ****/
     public enum ScorableLandmark
     {
         LEFT_LOADING_STATION(0.0, 3436.239, 0.0),
@@ -47,18 +45,27 @@ public class Constants
         private ScorableLandmark(double x, double y, double rotationDegrees)
         {
             this.fieldPose = new Pose2d(Units.millimeters_to_inches(x), Units.millimeters_to_inches(y), Rotation2d.fromDegrees(rotationDegrees));
-            this.robotLengthCorrectedPose = Drive.getRobotLengthCorrectedPose(this.fieldPose);
+            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
         }
 
         private ScorableLandmark(ScorableLandmark other)
         {
             this.fieldPose = new Pose2d(other.fieldPose.mirror());
-            this.robotLengthCorrectedPose = Drive.getRobotLengthCorrectedPose(this.fieldPose);
+            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
         }
     }
 
-    // Not technically a scorable landmark
-    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(2419.991, 1625.60, Rotation2d.fromDegrees(180));
+    // Not technically a scorable landmark (this is in inches)
+    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622-Constants.kRobotCenterToSide, 64, Rotation2d.fromDegrees(180));
+
+
+    public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
+    {
+        return new Pose2d(
+                oldpose.getRotation().cos() * Constants.kRobotCenterToForward + oldpose.getTranslation().x(),
+                oldpose.getRotation().sin() * Constants.kRobotCenterToForward + oldpose.getTranslation().y(),
+                oldpose.getRotation());
+    }
 
     /* ROBOT PHYSICAL CONSTANTS */
 
