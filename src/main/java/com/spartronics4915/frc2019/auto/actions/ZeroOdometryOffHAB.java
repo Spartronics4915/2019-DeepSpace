@@ -41,12 +41,14 @@ public class ZeroOdometryOffHAB implements Action
         if (mStartOnLeft)
         {
             mStateMap.reset(Timer.getFPGATimestamp(),
-                    Constants.FieldLandmark.LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose);
+                    Constants.FieldLandmark.LEFT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose.transformBy(
+                        Constants.kRobotCenterToForward));
         }
         else
         {
             mStateMap.reset(Timer.getFPGATimestamp(),
-                    Constants.FieldLandmark.RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose);
+                    Constants.FieldLandmark.RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose.transformBy(
+                        Constants.kRobotCenterToForward));
         }
     }
 

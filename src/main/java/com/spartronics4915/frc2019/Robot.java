@@ -408,7 +408,27 @@ public class Robot extends TimedRobot
                     // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                 }
 
-                // Driver Joystick-----------------------------------------------------------
+
+                //TEST BUTTONBOARD
+                if(mControlBoard.getTESTClimbExtendAllPneumatics())
+                {
+                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                }
+                else if(mControlBoard.getTESTClimbIntake())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                }
+                else if(mControlBoard.getTESTClimbRetractFrontPneumatics())
+                {
+                    mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
+                }
+                else if(mControlBoard.getTESTClimbRetractBackPneumatics())
+                {
+                    mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
+                }
+
+
+                //Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
                      mSuperstructure.reverseDrivingDirection();
             }
