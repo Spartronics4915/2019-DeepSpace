@@ -30,12 +30,12 @@ public class CargoIntake extends Subsystem
 
     public enum WantedState
     {
-        HOLD, ARM_DOWN, INTAKE, EJECT, CLIMB, MOTORS_STOP
+        HOLD, ARM_DOWN, INTAKE, EJECT, CLIMB, //MOTORS_STOP
     }
 
     private enum SystemState
     {
-        HOLDING, ARM_DOWNING, INTAKING, EJECTING, CLIMBING, MOTORS_STOPPING
+        HOLDING, ARM_DOWNING, INTAKING, EJECTING, CLIMBING, //MOTORS_STOPPING
     }
 
     private WantedState mWantedState = WantedState.HOLD;
@@ -107,13 +107,13 @@ public class CargoIntake extends Subsystem
                             setSolenoidsToUp();
                         }
                         break;
-                    case MOTORS_STOPPING:
+                    /*case MOTORS_STOPPING:
                         if (mStateChanged)
                         {
                             mMotorRight.set(ControlMode.PercentOutput, 0.0);
                             mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                         }
-                        break;
+                        break;*/
                     case ARM_DOWNING:
                         if (mStateChanged)
                         {
@@ -129,10 +129,10 @@ public class CargoIntake extends Subsystem
                             mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
                         }
-                        if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance))
+                        /*if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance))
                         {
                             setWantedState(WantedState.MOTORS_STOP);
-                        }
+                        }*/
                         break;
                     case EJECTING://BB3
                         if (mStateChanged)
@@ -141,10 +141,10 @@ public class CargoIntake extends Subsystem
                             mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
                             mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
                         }
-                        if (!mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance))
+                        /*if (!mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance))
                         {
                             setWantedState(WantedState.MOTORS_STOP);
-                        }
+                        }*/
                         break;
                     case CLIMBING:
                         if (mStateChanged)
@@ -199,9 +199,9 @@ public class CargoIntake extends Subsystem
             case HOLD:
                 newState = SystemState.HOLDING;
                 break;
-            case MOTORS_STOP:
+            /*case MOTORS_STOP:
                 newState = SystemState.MOTORS_STOPPING;
-                break;
+                break;*/
             case ARM_DOWN:
                 newState = SystemState.ARM_DOWNING;
                 break;
@@ -232,12 +232,12 @@ public class CargoIntake extends Subsystem
         {
             case HOLD:
                 return mSystemState == SystemState.HOLDING;
-            case MOTORS_STOP:
-                return mSystemState == SystemState.MOTORS_STOPPING;
+            /*case MOTORS_STOP:
+                return mSystemState == SystemState.MOTORS_STOPPING;*/
             case ARM_DOWN:
                 return mSystemState == SystemState.ARM_DOWNING;
             case INTAKE:
-                return mSystemState == SystemState.INTAKING && !mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance);
+                return mSystemState == SystemState.INTAKING && /*!*/mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance);
             case EJECT:
                 return mSystemState == SystemState.EJECTING && mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance);
             case CLIMB:
