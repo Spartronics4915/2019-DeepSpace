@@ -129,7 +129,7 @@ public class Climber extends Subsystem
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
-                            mFrontLeftClimberSolenoid.set(Value.kReverse);
+                            mFrontRightClimberSolenoid.set(Value.kReverse);
                         }
                         break;
 
