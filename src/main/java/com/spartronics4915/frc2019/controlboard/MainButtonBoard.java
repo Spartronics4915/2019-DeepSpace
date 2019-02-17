@@ -8,10 +8,10 @@ public class MainButtonBoard implements IButtonControlBoard
     private final Joystick mButtonBoard;
     private final Joystick mTestButtonBoard;
     
+    private double mPreviousAxis0;
     private double mPreviousAxis1;
     private double mPreviousAxis2;
     private double mPreviousAxis3;
-    private double mPreviousAxis4;
 
     private double current;
     private boolean result;
@@ -21,10 +21,10 @@ public class MainButtonBoard implements IButtonControlBoard
         mButtonBoard = new Joystick(Constants.kMainButtonBoardPort);
         mTestButtonBoard = new Joystick(3);
 
+        mPreviousAxis0 = 0.0;
         mPreviousAxis1 = 0.0;
         mPreviousAxis2 = 0.0;
         mPreviousAxis3 = 0.0;
-        mPreviousAxis4 = 0.0;
 
         current = 0.0;
         result = false;
@@ -35,10 +35,10 @@ public class MainButtonBoard implements IButtonControlBoard
 
     // public boolean REFERENCEAXISMETHOD()
     // {
-    //     current = mButtonBoard.getRawAxis(1);
-    //     result = (mPreviousAxis1 != current) && (current == 1.0);
-    //     mPreviousAxis1 = current;
-    //     return result;
+        // current = mButtonBoard.getRawAxis(1);
+        // result = (mPreviousAxis1 != current) && (current == 1.0);
+        // mPreviousAxis1 = current;
+        // return result;
     // }
 
     @Override
@@ -86,55 +86,73 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getSelectLeftVisionTarget()
     {
-        return mButtonBoard.getRawButtonPressed(16);
+        return mButtonBoard.getRawButtonPressed(8);
     }
 
     @Override
     public boolean getSelectRightVisionTarget()
     {
-        return mButtonBoard.getRawButtonPressed(17);
+        return mButtonBoard.getRawButtonPressed(9);
     }
 
     @Override
     public boolean getManualShootCargoBay()
     {
-        return mButtonBoard.getRawButtonPressed(8);
+        return mButtonBoard.getRawButtonPressed(10);
     }
 
     @Override
     public boolean getManualShootCargoRocket()
     {
-        return mButtonBoard.getRawButtonPressed(9);
+        current = mButtonBoard.getRawAxis(2);
+        result = (mPreviousAxis2 != current) && (current == 1.0);
+        mPreviousAxis2 = current;
+        return result;
     }
 
     @Override
     public boolean getManualChuteUp()
     {
-        return mButtonBoard.getRawButtonPressed(10);
+        current = mButtonBoard.getRawAxis(3);
+        result = (mPreviousAxis3 != current) && (current == 1.0);
+        mPreviousAxis3 = current;
+        return result;
     }
 
     @Override
     public boolean getManualChuteDown()
     {
-        return mButtonBoard.getRawButtonPressed(11);
+        current = mButtonBoard.getRawAxis(0);
+        result = (mPreviousAxis0 != current) && (current == 1.0);
+        mPreviousAxis1 = current;
+        return result;
     }
 
     @Override
     public boolean getAssistedIntakePanel()
     {
-        return mButtonBoard.getRawButtonPressed(12);
+        current = mButtonBoard.getRawAxis(0);
+        result = (mPreviousAxis0 != current) && (current == -1.0);
+        mPreviousAxis1 = current;
+        return result;
     }
 
     @Override
     public boolean getAssistedEjectPanel()
     {
-        return mButtonBoard.getRawButtonPressed(13);
+        current = mButtonBoard.getRawAxis(1);
+        result = (mPreviousAxis1 != current) && (current == 1.0);
+        mPreviousAxis1 = current;
+        return result;
     }
 
     @Override
     public boolean getManualEjectPanel()
     {
-        return mButtonBoard.getRawButtonPressed(14);
+        current = mButtonBoard.getRawAxis(1);
+        result = (mPreviousAxis1 != current) && (current == -1.0);
+        mPreviousAxis1 = current;
+        return result;
     }
 
     @Override
