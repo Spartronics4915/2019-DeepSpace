@@ -43,9 +43,9 @@ public class CargoIntake extends Subsystem
 
     private static final boolean kSolenoidExtend = true;
     private static final boolean kSolenoidRetract = false;
-    private static final double kIntakeSpeed = 0.5;
-    private static final double kEjectSpeed = -0.5;
-    private static final double kIntakeClimbSpeed = 0.5;
+    private static final double kIntakeSpeed = -0.5;
+    private static final double kEjectSpeed = 0.5;
+    private static final double kIntakeClimbSpeed = -0.5;
 
     private Solenoid mSolenoid = null;
     private Solenoid mSolenoidClimb = null;

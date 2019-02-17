@@ -148,6 +148,7 @@ public class Constants
     public static final int kRightDriveMasterId = 1;
     public static final int kRightDriveSlaveAId = 2;
     public static final double kDriveEncoderPPR = 1440.0; // PPR (1440) = CPR (360) * 4 (because quadrature)
+    public static final int kPidgeonId = 10;
 
     // Control Board
     public static final int kDriveJoystickPort = 0;
@@ -173,7 +174,7 @@ public class Constants
     // Cargo Chute
     public static final int kRampMotorId = 5;
     public static final int kRampSolenoidId = 3;
-    public static final int kRampSensorId = 6;
+    public static final int kRampSensorId = 2;
     public static final double kRampSpeed = 1.0; // TODO: tune
     public static final double kShootSpeed = 1.0; // TODO: tune
     public static final double kShootTime = 4.0;
