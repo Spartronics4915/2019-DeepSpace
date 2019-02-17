@@ -1,7 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.lib.drivers.A41IRSensor;
+import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.CANProbe;
@@ -57,7 +57,7 @@ public class CargoIntake extends Subsystem
 
     private CargoIntake()
     {
-        boolean success = true; // IR sensor anolog port 7 to detect cargo going into chute
+        boolean success = true; // IR sensor anolog port 6 to detect cargo going into chute. Used by chute as well.
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -67,7 +67,7 @@ public class CargoIntake extends Subsystem
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoid);
             mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoidClimb);
-            mSensor = new A41IRSensor(Constants.kCargoIntakeSensor);
+            mSensor = new A21IRSensor(Constants.kRampSensorId);
         }
         catch (Exception e)
         {
