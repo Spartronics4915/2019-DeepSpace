@@ -38,7 +38,9 @@ public class AutoModeSelector
             new AutoModeCreator("All: Do nothing", () -> new DoNothingMode());
     private static final AutoModeCreator[] mAllModes = {
             mDefaultMode,
-            new AutoModeCreator("A: Drive Off Hab and Place Left Panel", () -> new PlaceLeftHatchFromLevelTwoMode()),
+            new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(true)),
+            new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(false)),
+
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),
             new AutoModeCreator("Other: Curved Path Test", () -> new PathTestMode(true)),
             new AutoModeCreator("Other: Velocity Test", () -> new VelocityTestMode()),
@@ -46,7 +48,8 @@ public class AutoModeSelector
             new AutoModeCreator("Other: Characterize Drivetrain (Both+MOI)", () -> new CharacterizeDriveMode(SideToCharacterize.BOTH)),
             new AutoModeCreator("Other: Characterize Drivetrain (Left)", () -> new CharacterizeDriveMode(SideToCharacterize.LEFT)),
             new AutoModeCreator("Other: Characterize Drivetrain (Right)", () -> new CharacterizeDriveMode(SideToCharacterize.RIGHT)),
-            new AutoModeCreator("Other: Characterize Drivetrain (Remote)", () -> new CharacterizeDriveRemoteMode())
+            new AutoModeCreator("Other: Characterize Drivetrain (Remote)", () -> new CharacterizeDriveRemoteMode()),
+            new AutoModeCreator("Other: Find Effective Wheelbase Diameter", () -> new FindEffectiveWheelbaseDiameter())
 
             // e.g. new AutoModeCreator(C: Drive To Hopper", () -> new DriveToHopperMode()),
     };

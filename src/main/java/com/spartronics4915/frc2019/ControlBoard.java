@@ -15,7 +15,6 @@ public class ControlBoard implements IControlBoard
     {
         // Possibly use Joystick::getType instead of Joystick::getName
         String joyName = new Joystick(Constants.kDriveJoystickPort).getName();
-        Logger.notice("joyName = " + joyName);
         switch (joyName)
         {
             case "Controller (Xbox One For Windows)": // Names of joysticks are the same as the names in the driver station program
@@ -32,8 +31,6 @@ public class ControlBoard implements IControlBoard
                 break;
         }
         Logger.notice("Found joystick " + joyName + " on port 0, selected IControlBoard implementer " + mDriveControlBoard.getClass().getName());
-
-        mDriveControlBoard = new OneJoystickControlBoard();
 
         mButtonControlBoard = new MainButtonBoard();
     }
@@ -101,15 +98,21 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getIntake()
+    public boolean getManualExtendAllClimbPneumatics()
     {
-        return mButtonControlBoard.getIntake();
+        return mButtonControlBoard.getManualExtendAllClimbPneumatics();
     }
 
     @Override
-    public boolean getEjectCargo()
+    public boolean getAssistedIntakeCargo()
     {
-        return mButtonControlBoard.getEjectCargo();
+        return mButtonControlBoard.getAssistedIntakeCargo();
+    }
+
+    @Override
+    public boolean getGroundEjectCargo()
+    {
+        return mButtonControlBoard.getGroundEjectCargo();
     }
 
     @Override
@@ -119,20 +122,101 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getShootRocket()
+    public boolean getAssistedShootRocket()
     {
-        return mButtonControlBoard.getShootRocket();
+        return mButtonControlBoard.getAssistedShootRocket();
     }
 
     @Override
-    public boolean getShootBay()
+    public boolean getAssistedShootBay()
     {
-        return mButtonControlBoard.getShootBay();
+        return mButtonControlBoard.getAssistedShootBay();
     }
 
     @Override
-    public boolean getEjectPanel()
+    public boolean getSelectLeftVisionTarget()
     {
-        return mButtonControlBoard.getEjectPanel();
+        return mButtonControlBoard.getSelectLeftVisionTarget();
+    }
+
+    @Override
+    public boolean getSelectRightVisionTarget()
+    {
+        return mButtonControlBoard.getSelectRightVisionTarget();
+    }
+
+    @Override
+    public boolean getManualShootCargoBay()
+    {
+        return mButtonControlBoard.getManualShootCargoBay();
+    }
+
+    @Override
+    public boolean getManualShootCargoRocket()
+    {
+        return mButtonControlBoard.getManualShootCargoRocket();
+    }
+
+    @Override
+    public boolean getManualChuteUp()
+    {
+        return mButtonControlBoard.getManualChuteUp();
+    }
+
+    @Override
+    public boolean getManualChuteDown()
+    {
+        return mButtonControlBoard.getManualChuteDown();
+    }
+
+    @Override
+    public boolean getAssistedIntakePanel()
+    {
+        return mButtonControlBoard.getAssistedIntakePanel();
+    }
+
+    @Override
+    public boolean getAssistedEjectPanel()
+    {
+        return mButtonControlBoard.getAssistedEjectPanel();
+    }
+
+    @Override
+    public boolean getManualEjectPanel()
+    {
+        return mButtonControlBoard.getManualEjectPanel();
+    }
+
+    @Override
+    public boolean getInsideFramePerimeter()
+    {
+        return mButtonControlBoard.getInsideFramePerimeter();
+    }
+
+
+    
+    //TEST BUTTON BOARD
+    @Override
+    public boolean getTESTClimbExtendAllPneumatics()
+    {
+        return mButtonControlBoard.getTESTClimbExtendAllPneumatics();
+    }
+
+    @Override
+    public boolean getTESTClimbIntake()
+    {
+        return mButtonControlBoard.getTESTClimbIntake();
+    }
+
+    @Override
+    public boolean getTESTClimbRetractFrontPneumatics()
+    {
+        return mButtonControlBoard.getTESTClimbRetractFrontPneumatics();
+    }
+
+    @Override
+    public boolean getTESTClimbRetractBackPneumatics()
+    {
+        return mButtonControlBoard.getTESTClimbRetractBackPneumatics();
     }
 }

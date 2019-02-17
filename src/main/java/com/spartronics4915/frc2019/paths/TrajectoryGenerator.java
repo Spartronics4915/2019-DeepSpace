@@ -10,6 +10,7 @@ import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstrai
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.trajectory.timing.TimingConstraint;
 import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.frc2019.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,11 +116,17 @@ public class TrajectoryGenerator
 
         public final MirrorableTrajectory straightTest;
         public final MirrorableTrajectory curvedTest;
+        public final MirrorableTrajectory driveToDriverStationParallelHatch;
+        public final MirrorableTrajectory driveToLoadingStation;
+        public final MirrorableTrajectory driveToCloseCargoShipPort;
 
         private TrajectorySet()
         {
             straightTest = new MirrorableTrajectory(getStraightTest());
             curvedTest = new MirrorableTrajectory(getCurvedTest());
+            driveToDriverStationParallelHatch = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
+            driveToLoadingStation = new MirrorableTrajectory(getDriveToCargoBay());
+            driveToCloseCargoShipPort = new MirrorableTrajectory(getDriveToCloseCargoShipPort());
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
@@ -127,9 +134,7 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
             waypoints.add(new Pose2d(120d, 0d, Rotation2d.identity()));
-            return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
-                    kMaxVelocity, kMaxAccel, kMaxVoltage);
+            return generateTrajectory(false, waypoints);
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getCurvedTest()
@@ -137,10 +142,32 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
             waypoints.add(new Pose2d(78d, 78d, Rotation2d.fromDegrees(90)));
-            return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
-                    kMaxVelocity, kMaxAccel, kMaxVoltage);
+            return generateTrajectory(false, waypoints);
         }
 
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDriverStationParallelHatch()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.FieldLandmark.RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose.transformBy(Constants.kRobotCenterToForward));
+            waypoints.add(Constants.FieldLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.fieldPose.transformBy(Constants.kRobotCenterToForward.inverse()));
+
+            return generateTrajectory(true, waypoints);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToCargoBay()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(new Pose2d(60.0, 90.0, Rotation2d.fromDegrees(10)));
+            waypoints.add(Constants.FieldLandmark.RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose.transformBy(Constants.kRobotCenterToForward));
+            return generateTrajectory(false, waypoints);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToCloseCargoShipPort()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.FieldLandmark.RIGHT_CLOSE_CARGO_BAY.fieldPose.transformBy(Constants.kRobotCenterToForward));
+            waypoints.add(new Pose2d(60.0, 90.0, Rotation2d.fromDegrees(10)));
+            return generateTrajectory(true, waypoints);
+        }
     }
 }
