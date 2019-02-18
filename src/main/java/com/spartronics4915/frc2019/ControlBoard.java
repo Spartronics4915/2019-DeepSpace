@@ -194,7 +194,7 @@ public class ControlBoard implements IControlBoard
     }
 
 
-    
+
     //TEST BUTTON BOARD
     @Override
     public boolean getTESTClimbExtendAllPneumatics()
@@ -236,5 +236,11 @@ public class ControlBoard implements IControlBoard
     public boolean getTESTIntakeHOLD()
     {
         return mButtonControlBoard.getTESTIntakeHOLD();
+    }
+
+    @Override
+    public boolean getTESTIntakeSTOPMOTORS()
+    {
+        return mButtonControlBoard.getTESTIntakeSTOPMOTORS();
     }
 }

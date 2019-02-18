@@ -454,6 +454,10 @@ public class Robot extends TimedRobot
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
                 }
+                else if(mControlBoard.getTESTIntakeSTOPMOTORS())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
+                }
 
 
 

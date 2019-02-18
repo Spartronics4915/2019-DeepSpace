@@ -7,7 +7,7 @@ public class MainButtonBoard implements IButtonControlBoard
 {
     private final Joystick mButtonBoard;
     private final Joystick mTestButtonBoard;
-    
+
     private double mPreviousAxis0;
     private double mPreviousAxis1;
     private double mPreviousAxis2;
@@ -207,5 +207,13 @@ public class MainButtonBoard implements IButtonControlBoard
     {
         return mTestButtonBoard.getRawButtonPressed(9);
     }
+
+    @Override
+    public boolean getTESTIntakeSTOPMOTORS()
+    {
+        return mTestButtonBoard.getRawButtonPressed(10);
+    }
+
+
 
 }
