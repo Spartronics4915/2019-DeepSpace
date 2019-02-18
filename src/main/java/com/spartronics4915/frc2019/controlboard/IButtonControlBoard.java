@@ -5,18 +5,61 @@ public interface IButtonControlBoard
     // CLIMBING
     boolean getClimb();
 
-    // INTAKE
-    boolean getIntake();
+    boolean getManualExtendAllClimbPneumatics();
 
-    boolean getEjectCargo(); // shared between intake and cargo ramp subsystems
+    // INTAKE
+    boolean getAssistedIntakeCargo(); // vision assisted (?)
+
+    boolean getGroundEjectCargo();
+
+    boolean getManualIntakeCargo();
 
     // CARGO RAMP
     boolean getManualRamp(); // Toggles between MANUAL_RAMP and MANUAL_HOLD
 
-    boolean getShootRocket();
+    boolean getAssistedShootRocket(); // vision assisted
 
-    boolean getShootBay();
+    boolean getAssistedShootBay(); // vision assisted
+
+    boolean getSelectLeftVisionTarget();
+
+    boolean getSelectRightVisionTarget();
+
+    boolean getManualShootCargoBay();
+
+    boolean getManualShootCargoRocket();
+
+    boolean getManualChuteUp();
+
+    boolean getManualChuteDown();
 
     // PANEL HANDLER
-    boolean getEjectPanel();
+    boolean getAssistedIntakePanel(); // assisted
+
+    boolean getAssistedEjectPanel(); // vision assisted
+
+    boolean getManualEjectPanel();
+
+    // EVERYTHING
+    boolean getInsideFramePerimeter();
+
+
+
+
+    //TEST
+    boolean getTESTClimbExtendAllPneumatics();
+
+    boolean getTESTClimbIntake();
+
+    boolean getTESTClimbRetractFrontPneumatics();
+
+    boolean getTESTClimbRetractBackPneumatics();
+
+
+    boolean getTESTIntakeArm_Down();
+
+    boolean getTESTIntakeHOLD();
+
+    boolean getTESTIntakeSTOPMOTORS();
+
 }

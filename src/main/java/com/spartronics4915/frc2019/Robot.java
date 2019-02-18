@@ -117,7 +117,7 @@ public class Robot extends TimedRobot
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
                 SmartDashboard.putString(kRobotTestModeOptions,
-                        "None,Drive,All");
+                   "None,CargoChute,CargoIntake,Climber,PanelHandler,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
 
@@ -260,6 +260,22 @@ public class Robot extends TimedRobot
             {
                 success &= mDrive.checkSystem(testVariant);
             }
+            if(testMode.equals("CargoChute") || testMode.equals("All"))
+            {
+                success &= mCargoChute.checkSystem(testVariant);
+            }
+            if(testMode.equals("CargoIntake") || testMode.equals("All"))
+            {
+                success &= mCargoIntake.checkSystem(testVariant);
+            }
+            if(testMode.equals("Climber") || testMode.equals("All"))
+            {
+                success &= mClimber.checkSystem(testVariant);
+            }
+            if(testMode.equals("PanelHandler") || testMode.equals("All"))
+            {
+                success &= mPanelHandler.checkSystem(testVariant);
+            }
 
             if (!success)
             {
@@ -323,79 +339,134 @@ public class Robot extends TimedRobot
         {
             if (mSuperstructure.isDriverControlled())
             {
-                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle(), mControlBoard.getTurn(),
-                        true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(48)*/;
+                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
+                        true /* TODO: Decide squared inputs or not */)/*.scale(48)*/;
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
                 //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
                 // )); XXX Conversions on Kv are wrong
-                                
-                if(mControlBoard.getEjectPanel())// 1: 6
-                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
 
-                if (mControlBoard.getIntake()) // 1: 2
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
 
-                if (mControlBoard.getTestButtonOne()) // 2: 5
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                // Button Board ----------------------------------------------------------
 
-                if (mControlBoard.getTestButtonThree()) // 2: 7
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-
-                if (mControlBoard.getTestButtonTwo())
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
-
+                // CLIMBING
                 if (mControlBoard.getClimb())
-                {
+                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
+                else if (mControlBoard.getManualExtendAllClimbPneumatics())
                     mClimber.setWantedState(Climber.WantedState.CLIMB);
+
+                // INTAKE
+                if (mControlBoard.getAssistedIntakeCargo())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
+                else if (mControlBoard.getGroundEjectCargo())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                }
+                else if (mControlBoard.getManualIntakeCargo())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
                 }
 
-                else if (mControlBoard.getManualRamp())
+                // CARGO RAMP
+                if (mControlBoard.getManualRamp())
                 {
                     if (!mCargoChute.isRampRunning())
                         mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
                     else
                         mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
-                else if (mControlBoard.getShootBay())
+                else if (mControlBoard.getAssistedShootRocket())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET);
+                else if (mControlBoard.getAssistedShootBay())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_BAY);
+                else if (mControlBoard.getSelectLeftVisionTarget())
                 {
-                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                    //TODO: add this functionality
                 }
-                else if (mControlBoard.getShootRocket())
+                else if (mControlBoard.getSelectRightVisionTarget())
+                {
+                    //TODO: add this functionality
+                }
+                else if (mControlBoard.getManualShootCargoBay())
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                else if (mControlBoard.getManualShootCargoRocket())
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
+                else if (mControlBoard.getManualChuteUp())
+                {
+                    //TODO: add this functionality
+                }
+                else if (mControlBoard.getManualChuteDown())
+                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+
+                // PANEL HANDLER
+                if (mControlBoard.getAssistedIntakePanel())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
+                else if (mControlBoard.getAssistedEjectPanel())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
+                else if (mControlBoard.getManualEjectPanel())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.EJECT_PANEL);
+
+                // EVERYTHING
+                if (mControlBoard.getInsideFramePerimeter())
+                {
+                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                }
+                if (mControlBoard.getTestButtonOne()) // 2: 5
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                }
+                if (mControlBoard.getTestButtonTwo())
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                }
+                if (mControlBoard.getTestButtonThree()) // 2: 7
+                {
+                    // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                }
+
+
+                //TEST BUTTONBOARD
+                if (mControlBoard.getTESTClimbExtendAllPneumatics())
+                {
+                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                }
+                else if (mControlBoard.getTESTClimbIntake())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+                }
+                else if (mControlBoard.getTESTClimbRetractFrontPneumatics())
+                {
+                    mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
+                }
+                else if (mControlBoard.getTESTClimbRetractBackPneumatics())
+                {
+                    mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
+                }
+                else if (mControlBoard.getTESTIntakeArm_Down())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
-                    // XXX: Timing is suspect
-                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 }
-                else if (mControlBoard.getEjectCargo())
+                else if (mControlBoard.getTESTIntakeHOLD())
                 {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                }
+                else if (mControlBoard.getTESTIntakeSTOPMOTORS())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
                 }
 
-                // TODO: Add eject panel
-                // TODO: Add intake
 
+
+                //Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
-                {
                      mSuperstructure.reverseDrivingDirection();
-                }
-                else if (mControlBoard.getDriveToSelectedTarget())
-                {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
-                }
-                else if (mControlBoard.getClimb())
-                {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
-                }
-                // TODO (for button person): add buttons for all superstructure wanted states
             }
             else if (mControlBoard.getReturnToDriverControl())
-            {
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
-            }
         }
         catch (Throwable t)
         {

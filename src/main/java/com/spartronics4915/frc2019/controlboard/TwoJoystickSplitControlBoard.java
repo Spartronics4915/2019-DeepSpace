@@ -18,7 +18,7 @@ public class TwoJoystickSplitControlBoard implements IDriveControlBoard
     @Override
     public double getThrottle()
     {
-        return mThrottleJoystick.getY();
+        return mThrottleJoystick.getY() * -1;//this means pushing forwards moves the robot forwards
     }
 
     @Override

@@ -18,6 +18,16 @@ public class Units
         return inches * 0.0254;
     }
 
+    public static double millimeters_to_inches(double millimeters)
+    {
+        return meters_to_inches(millimeters / 1000);
+    }
+
+    public static double inches_to_millimeters(double inches)
+    {
+        return inches_to_meters(inches) * 1000;
+    }
+
     public static double meters_to_inches(double meters)
     {
         return meters / 0.0254;

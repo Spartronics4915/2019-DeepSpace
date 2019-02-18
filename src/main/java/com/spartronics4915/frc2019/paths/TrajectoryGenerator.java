@@ -10,6 +10,7 @@ import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstrai
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.trajectory.timing.TimingConstraint;
 import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.frc2019.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,7 +91,7 @@ public class TrajectoryGenerator
     // +x is towards the center of the field.
     // +y is to the left.
     // ALL POSES DEFINED FOR THE CASE THAT ROBOT STARTS ON RIGHT! (mirrored about +x axis for LEFT)
-    // TODO: Add critical poses here
+    private static final Pose2d kCargoDepotIntakePose = new Pose2d(60.0, 90.0, Rotation2d.fromDegrees(10));
 
     public class TrajectorySet
     {
@@ -115,11 +116,17 @@ public class TrajectoryGenerator
 
         public final MirrorableTrajectory straightTest;
         public final MirrorableTrajectory curvedTest;
+        public final MirrorableTrajectory driveToDriverStationParallelHatch;
+        public final MirrorableTrajectory driveToClosestCargoShipBay;
+        public final MirrorableTrajectory driveToDepot;
 
         private TrajectorySet()
         {
             straightTest = new MirrorableTrajectory(getStraightTest());
             curvedTest = new MirrorableTrajectory(getCurvedTest());
+            driveToDriverStationParallelHatch = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
+            driveToClosestCargoShipBay = new MirrorableTrajectory(getDriveToClosestCargoShipBay());
+            driveToDepot = new MirrorableTrajectory(getDriveToDepot());
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
@@ -127,9 +134,7 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
             waypoints.add(new Pose2d(120d, 0d, Rotation2d.identity()));
-            return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
-                    kMaxVelocity, kMaxAccel, kMaxVoltage);
+            return generateTrajectory(false, waypoints);
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getCurvedTest()
@@ -137,10 +142,32 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
             waypoints.add(new Pose2d(78d, 78d, Rotation2d.fromDegrees(90)));
-            return generateTrajectory(false, waypoints,
-                    Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
-                    kMaxVelocity, kMaxAccel, kMaxVoltage);
+            return generateTrajectory(false, waypoints);
         }
 
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDriverStationParallelHatch()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.kRightRobotLocationOffPlatform);
+            waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
+
+            return generateTrajectory(true, waypoints);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToClosestCargoShipBay()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kCargoDepotIntakePose);
+            waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
+            return generateTrajectory(true, waypoints);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDepot()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
+            waypoints.add(kCargoDepotIntakePose);
+            return generateTrajectory(false, waypoints);
+        }
     }
 }
