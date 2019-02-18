@@ -205,6 +205,6 @@ public class Constants
     public static final int kRearRightSolenoidId2 = 7; // Retract
     public static final int kClimberFrontIRSensorID = 2;
     public static final int kClimberRearIRSensorID = 3;
-    public static final double kClimberSensorFrontMaxDistance = 2.5;
-    public static final double kClimberSensorRearMaxDistance = 2.5; // Kenneth told me that the sensors will not be mounted at the same height
+    public static final double kClimberSensorFrontMaxDistance = 2.5; // actual amount around 3
+    public static final double kClimberSensorRearMaxDistance = 1.5; // actual amount around 2
 }

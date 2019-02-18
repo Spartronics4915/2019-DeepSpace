@@ -261,10 +261,11 @@ public class Superstructure extends Subsystem
                             newState = SystemState.EJECTING_PANEL;
                         break;
                     case EJECTING_PANEL:
-                        mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-
-                        if (mCargoChute.atTarget())
+                        if (mStateChanged)
+                        {
+                            mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                             mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+                        }
 
                         if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration)
                                 && mCargoChute.atTarget() && mPanelHandler.atTarget())
@@ -404,9 +405,9 @@ public class Superstructure extends Subsystem
                 newState = SystemState.LIFTING_TO_THREE;
                 break;
             case EJECT_PANEL:
-                if (mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL
-                        || mSystemState == SystemState.EJECTING_PANEL)
-                    newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
+                if (mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL || mSystemState == SystemState.EJECTING_PANEL)
+                    break;
+                newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
                 break;
             default:
                 logError("Unhandled wanted state in default state transfer!");

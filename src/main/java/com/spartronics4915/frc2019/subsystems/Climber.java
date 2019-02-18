@@ -125,7 +125,7 @@ public class Climber extends Subsystem
                         {
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
-                            Timer.delay(0.05);
+                            // Timer.delay(0.01);
                             mFrontLeftClimberSolenoid.set(Value.kForward);
                             mFrontRightClimberSolenoid.set(Value.kForward);
                         }
@@ -226,12 +226,12 @@ public class Climber extends Subsystem
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
-                if (mClimberFrontIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
+                if (mClimberFrontIRSensor.getVoltage() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
                 else
                     return false;
             case RETRACT_REAR_STRUTS:
-                if (mClimberRearIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
+                if (mClimberRearIRSensor.getVoltage() <= Constants.kClimberSensorRearMaxDistance)
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 else
                     return false;
