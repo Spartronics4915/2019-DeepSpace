@@ -26,14 +26,14 @@ public class PlaceHatchFromPlatformMode extends AutoModeBase
     @Override
     protected void routine() throws AutoModeEndedException
     {
-        // runAction(new DriveOffHAB(AutoConstants.kDriveOffHabVelocity, AutoConstants.kDriveOffHabFeedforward, HABLevel.PLATFORM));
+        runAction(new DriveOffHAB(AutoConstants.kDriveOffHabVelocity, AutoConstants.kDriveOffHabFeedforward, HABLevel.PLATFORM));
         runAction(new ZeroOdometryOffHAB(mIsLeft));
         
         runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDriverStationParallelHatch.get(mIsLeft)));
         // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
         //  () -> Superstructure.getInstance().isDriverControlled()));
-         runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDepot.get(mIsLeft)));
-         runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToClosestCargoShipBay.get(mIsLeft)));
+        // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDepot.get(mIsLeft)));
+        // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToClosestCargoShipBay.get(mIsLeft)));
 
     }
 
