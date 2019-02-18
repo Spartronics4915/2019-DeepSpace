@@ -70,14 +70,14 @@ public class Constants
     /* ROBOT PHYSICAL CONSTANTS */
 
     // Wheels
-    public static final double kDriveWheelTrackWidthInches = 25.75; // TODO tune
+    public static final double kDriveWheelTrackWidthInches = 23.75; // TODO tune
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
     public static final double kTrackScrubFactor = 1.063; // TODO tune
 
     // Chassis with bumper size
-    public static final double kRobotCenterToForward = 15.0; // in TODO tune
-    public static final double kRobotCenterToSide = 15.0; // in TODO tune
+    public static final double kRobotCenterToForward = 16.125; // in TODO tune
+    public static final double kRobotCenterToSide = 13.75; // in TODO tune
 
     // Tuned dynamics
     public static final double kRobotLinearInertia = 27.93; // kg (robot's mass) TODO tune
