@@ -239,7 +239,8 @@ public class Superstructure extends Subsystem
                             Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
-                            visionUpdate.ifPresent(v -> makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true)); // TODO make not reversed
+                            visionUpdate.ifPresent(
+                                    v -> makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true)); // TODO make not reversed
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
@@ -273,7 +274,7 @@ public class Superstructure extends Subsystem
                         }
 
                         if ((mWantedState == WantedState.ALIGN_AND_EJECT_PANEL || mWantedState == WantedState.EJECT_PANEL)
-                            && mCargoChute.atTarget() && mPanelHandler.atTarget())
+                                && mCargoChute.atTarget() && mPanelHandler.atTarget())
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
@@ -355,6 +356,10 @@ public class Superstructure extends Subsystem
     {
         try
         {
+            if (!reversed)
+                goalPose = new Pose2d(goalPose.getTranslation().x(), goalPose.getTranslation().y(),
+                        goalPose.getRotation().rotateBy(Rotation2d.fromDegrees(180)));
+
             ArrayList<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()));
             waypoints.add(goalPose);
@@ -463,7 +468,7 @@ public class Superstructure extends Subsystem
 
     public synchronized boolean isDriverControlled()
     {
-        return mSystemState == SystemState.DRIVER_CONTROLLING;
+        return mWantedState == WantedState.INTAKE_CARGO || mWantedState == WantedState.EJECT_PANEL || mWantedState == WantedState.DRIVER_CONTROL;
     }
 
     @Override

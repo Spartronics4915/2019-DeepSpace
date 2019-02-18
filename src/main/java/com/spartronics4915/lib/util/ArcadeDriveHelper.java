@@ -27,7 +27,7 @@ public class ArcadeDriveHelper
         if (curveInputs)
         {
             xSpeed = Math.copySign(Math.pow(Math.abs(xSpeed), 5.0/2.0), xSpeed);
-            zRotation = Math.copySign(Math.pow(Math.abs(zRotation), 5.0/1.5), zRotation);
+            zRotation = Math.copySign(Math.pow(Math.abs(zRotation), 5.0/3), zRotation);
         }
 
         double leftMotorOutput;

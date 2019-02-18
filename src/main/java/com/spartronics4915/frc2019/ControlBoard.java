@@ -227,9 +227,9 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getTESTIntakeIntake()
+    public boolean getManualIntakeCargo()
     {
-        return mButtonControlBoard.getTESTIntakeIntake();
+        return mButtonControlBoard.getManualIntakeCargo();
     }
 
     @Override
