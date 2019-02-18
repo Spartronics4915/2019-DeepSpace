@@ -35,7 +35,6 @@ public class Robot extends TimedRobot
     private CargoChute mCargoChute = null;
     private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
-    private LED mLED = null;
     private RobotStateEstimator mRobotStateEstimator = null;
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
@@ -100,11 +99,8 @@ public class Robot extends TimedRobot
                 mCargoChute = CargoChute.getInstance();
                 mCargoIntake = CargoIntake.getInstance();
                 mClimber = Climber.getInstance();
-                mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
                 mRobotStateEstimator = RobotStateEstimator.getInstance();
-
-                mLED.setDriveState(LED.DriveLEDState.FORWARDS);
 
 
                 mSubsystemManager = new SubsystemManager(
@@ -209,7 +205,6 @@ public class Robot extends TimedRobot
         {
             Logger.logTeleopInit();
             Logger.setVerbosity(SmartDashboard.getString(kRobotLogVerbosity, "NOTICE"));
-            mLED.setDriveState(LED.DriveLEDState.BACKWARDS);
 
             mDisabledLooper.stop();
             if (mAutoModeExecutor != null)
