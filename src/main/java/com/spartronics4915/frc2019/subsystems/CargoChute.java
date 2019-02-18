@@ -4,7 +4,7 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
-import com.spartronics4915.lib.util.Logger; 
+import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.ctre.phoenix.ErrorCode;
@@ -33,12 +33,12 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, SHOOT_ROCKET, SHOOT_BAY,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY,
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, LOWERING, SHOOTING_ROCKET, SHOOTING_BAY,
+        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY,
     }
 
     private WantedState mWantedState = WantedState.LOWER;
@@ -126,6 +126,10 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                         break;
+                    case RAISING:
+                        if (mStateChanged)
+                            mRampSolenoid.set(Constants.kRampSolenoidExtend);
+                        break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
@@ -210,6 +214,9 @@ public class CargoChute extends Subsystem
             case LOWER:
                 newState = SystemState.LOWERING;
                 break;
+            case RAISE:
+                newState = SystemState.RAISING;
+                break;
             case SHOOT_ROCKET:
                 newState = SystemState.SHOOTING_ROCKET;
                 break;
@@ -225,7 +232,6 @@ public class CargoChute extends Subsystem
 
     public synchronized void setWantedState(WantedState wantedState)
     {
-        logError("Wanted state to " + wantedState);
         mWantedState = wantedState;
     }
 
@@ -243,6 +249,8 @@ public class CargoChute extends Subsystem
                 return mSystemState == SystemState.HOLDING && ballInPosition();
             case LOWER:
                 return mSystemState == SystemState.LOWERING;
+            case RAISE:
+                return mSystemState == SystemState.RAISING;
             case SHOOT_ROCKET:
                 return mSystemState == SystemState.SHOOTING_ROCKET && mCargoTimer.hasPeriodPassed(Constants.kShootTime);
             case SHOOT_BAY:

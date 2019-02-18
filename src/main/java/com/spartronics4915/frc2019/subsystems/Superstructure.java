@@ -257,7 +257,7 @@ public class Superstructure extends Subsystem
                     case MOVING_CHUTE_TO_EJECT_PANEL:
                         mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
 
-                        if (newState == mSystemState && mCargoChute.atTarget())
+                        if (newState == mSystemState && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration) && mCargoChute.atTarget())
                             newState = SystemState.EJECTING_PANEL;
                         break;
                     case EJECTING_PANEL:
@@ -267,8 +267,8 @@ public class Superstructure extends Subsystem
                             mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
                         }
 
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration)
-                                && mCargoChute.atTarget() && mPanelHandler.atTarget())
+                        if ((mWantedState == WantedState.ALIGN_AND_EJECT_PANEL || mWantedState == WantedState.EJECT_PANEL)
+                            && mCargoChute.atTarget() && mPanelHandler.atTarget())
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
