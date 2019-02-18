@@ -7,6 +7,7 @@ import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+//import edu.wpi.first.wpilibj.DigitalInput;
 
 
 /** 2 pneumatics to eject panels
@@ -44,6 +45,8 @@ public class PanelHandler extends Subsystem
 
     private Solenoid mSolenoid = null;
 
+    //private DigitalInput mLimitSwitch = null;
+
     private boolean mStateChanged;
 
     private PanelHandler()
@@ -54,6 +57,7 @@ public class PanelHandler extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
+            //mLimitSwitch = new DigitalInput(25); //TODO: Change this value
         }
         catch (Exception e)
         {
@@ -184,6 +188,7 @@ public class PanelHandler extends Subsystem
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
         dashboardPutBoolean("mSolenoid1 Extended", mSolenoid.get());
+        //dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
     }
 
     @Override
