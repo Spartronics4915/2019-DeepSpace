@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
  * panels held on by velcro */
 
 public class PanelHandler extends Subsystem
-{ 
+{
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -57,11 +57,7 @@ public class PanelHandler extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
-<<<<<<< HEAD
             success = true;
-=======
-            //mLimitSwitch = new DigitalInput(25); //TODO: Change this value
->>>>>>> 44e5e7b42200a78b6811662c80e3ac81af2b5ae2
         }
         catch (Exception e)
         {
