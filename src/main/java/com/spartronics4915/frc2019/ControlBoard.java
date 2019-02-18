@@ -192,4 +192,55 @@ public class ControlBoard implements IControlBoard
     {
         return mButtonControlBoard.getInsideFramePerimeter();
     }
+
+
+
+    //TEST BUTTON BOARD
+    @Override
+    public boolean getTESTClimbExtendAllPneumatics()
+    {
+        return mButtonControlBoard.getTESTClimbExtendAllPneumatics();
+    }
+
+    @Override
+    public boolean getTESTClimbIntake()
+    {
+        return mButtonControlBoard.getTESTClimbIntake();
+    }
+
+    @Override
+    public boolean getTESTClimbRetractFrontPneumatics()
+    {
+        return mButtonControlBoard.getTESTClimbRetractFrontPneumatics();
+    }
+
+    @Override
+    public boolean getTESTClimbRetractBackPneumatics()
+    {
+        return mButtonControlBoard.getTESTClimbRetractBackPneumatics();
+    }
+
+    @Override
+    public boolean getTESTIntakeArm_Down()
+    {
+        return mButtonControlBoard.getTESTIntakeArm_Down();
+    }
+
+    @Override
+    public boolean getTESTIntakeIntake()
+    {
+        return mButtonControlBoard.getTESTIntakeIntake();
+    }
+
+    @Override
+    public boolean getTESTIntakeHOLD()
+    {
+        return mButtonControlBoard.getTESTIntakeHOLD();
+    }
+
+    @Override
+    public boolean getTESTIntakeSTOPMOTORS()
+    {
+        return mButtonControlBoard.getTESTIntakeSTOPMOTORS();
+    }
 }

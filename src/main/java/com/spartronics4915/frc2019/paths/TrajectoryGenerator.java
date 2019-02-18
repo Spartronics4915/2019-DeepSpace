@@ -91,7 +91,7 @@ public class TrajectoryGenerator
     // +x is towards the center of the field.
     // +y is to the left.
     // ALL POSES DEFINED FOR THE CASE THAT ROBOT STARTS ON RIGHT! (mirrored about +x axis for LEFT)
-    // TODO: Add critical poses here
+    private static final Pose2d kCargoDepotIntakePose = new Pose2d(60.0, 90.0, Rotation2d.fromDegrees(10));
 
     public class TrajectorySet
     {
@@ -117,12 +117,16 @@ public class TrajectoryGenerator
         public final MirrorableTrajectory straightTest;
         public final MirrorableTrajectory curvedTest;
         public final MirrorableTrajectory driveToDriverStationParallelHatch;
+        public final MirrorableTrajectory driveToClosestCargoShipBay;
+        public final MirrorableTrajectory driveToDepot;
 
         private TrajectorySet()
         {
             straightTest = new MirrorableTrajectory(getStraightTest());
             curvedTest = new MirrorableTrajectory(getCurvedTest());
             driveToDriverStationParallelHatch = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
+            driveToClosestCargoShipBay = new MirrorableTrajectory(getDriveToClosestCargoShipBay());
+            driveToDepot = new MirrorableTrajectory(getDriveToDepot());
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
@@ -144,10 +148,25 @@ public class TrajectoryGenerator
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDriverStationParallelHatch()
         {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(Constants.FieldLandmark.RIGHT_ROBOT_LOCATION_OFF_LEVEL_TWO.fieldPose.transformBy(Constants.kRobotCenterToForward));
-            waypoints.add(
-                    Constants.FieldLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.fieldPose.transformBy(Constants.kRobotCenterToForward.inverse()));
+            waypoints.add(Constants.kRightRobotLocationOffPlatform);
+            waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
 
+            return generateTrajectory(true, waypoints);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToClosestCargoShipBay()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(kCargoDepotIntakePose);
+            waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
+            return generateTrajectory(true, waypoints);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDepot()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
+            waypoints.add(kCargoDepotIntakePose);
             return generateTrajectory(false, waypoints);
         }
     }
