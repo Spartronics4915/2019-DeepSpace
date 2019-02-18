@@ -210,9 +210,7 @@ public class CargoChute extends Subsystem
 
     private boolean ballInPosition()
     {
-        //double v = mRampSensor.getVoltage();
-        //return mRampSensor.getVoltage() >= Constants.kMaxChuteBallVoltageThreshold;
-        return mRampSensor.getDistance() <= Constants.kMaxChuteBallDistanceThreshold;
+        return mRampSensor.getVoltage() >= Constants.kMaxChuteBallVoltageThreshold;
     }
 
     public boolean isRampRunning()
