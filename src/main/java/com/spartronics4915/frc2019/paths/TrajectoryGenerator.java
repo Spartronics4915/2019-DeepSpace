@@ -158,7 +158,6 @@ public class TrajectoryGenerator
         {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(kRightCargoDepotIntakePose);
-            //waypoints.add(new Pose2d(*, *, -115)); // Intermediary point to ensure robot stays in necessary area
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
             return generateTrajectory(true, waypoints);
         }
