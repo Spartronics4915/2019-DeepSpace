@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.spartronics4915.lib.drivers.A21IRSensor;
+
 public class CargoChute extends Subsystem
 {
 
@@ -176,6 +178,8 @@ public class CargoChute extends Subsystem
 
     private boolean ballInPosition()
     {
+        //double v = mRampSensor.getVoltage();
+        //return mRampSensor.getVoltage() >= Constants.kMaxChuteBallVoltageThreshold;
         return mRampSensor.getDistance() <= Constants.kMaxChuteBallDistanceThreshold;
     }
 
@@ -320,6 +324,7 @@ public class CargoChute extends Subsystem
         dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor distance: ", mRampSensor.getDistance());
+        dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
     }
 
     @Override
