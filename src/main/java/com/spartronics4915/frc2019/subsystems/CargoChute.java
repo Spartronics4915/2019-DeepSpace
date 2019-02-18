@@ -4,7 +4,7 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
-import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.lib.util.Logger; 
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.ctre.phoenix.ErrorCode;

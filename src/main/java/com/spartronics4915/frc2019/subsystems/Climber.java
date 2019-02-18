@@ -1,3 +1,10 @@
+/* TODOs
+ *
+ * Create a voltage range for CargoChute
+ *
+ *
+ */
+
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
@@ -116,10 +123,11 @@ public class Climber extends Subsystem
                         // Must be done when robot is flushed with L3 (Done with distance sensors and a backup encoder reading)
                         if (mStateChanged)
                         {
-                            mFrontLeftClimberSolenoid.set(Value.kForward);
-                            mFrontRightClimberSolenoid.set(Value.kForward);
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
+                            Timer.delay(0.05);
+                            mFrontLeftClimberSolenoid.set(Value.kForward);
+                            mFrontRightClimberSolenoid.set(Value.kForward);
                         }
                         break;
 

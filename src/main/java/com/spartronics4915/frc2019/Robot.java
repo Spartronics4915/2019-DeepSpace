@@ -403,7 +403,7 @@ public class Robot extends TimedRobot
                 else if (mControlBoard.getAssistedEjectPanel())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
                 else if (mControlBoard.getManualEjectPanel())
-                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.EJECT_PANEL);
 
                 // EVERYTHING
                 if (mControlBoard.getInsideFramePerimeter())
