@@ -8,7 +8,7 @@ public class A21IRSensor extends IRSensor
         super(port);
     }
 
-    //We got his by the same method as used in the A51 sensor, using the sensor to measure 9 different cm values 
+    //We got this by the same method as used in the A51 sensor, using the sensor to measure 9 different cm values 
     //and put it through a cubic regression.
 
     @Override

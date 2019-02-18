@@ -56,7 +56,8 @@ public class Constants
     }
 
     // Not technically a scorable landmark (this is in inches)
-    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward, -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward,
+         -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
 
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
@@ -191,6 +192,7 @@ public class Constants
     public static final double kShootTime = 4.0;
     public static final double kTransitionTime = 1.0;
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
+    public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
 
