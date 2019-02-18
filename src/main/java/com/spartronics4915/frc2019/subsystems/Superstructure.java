@@ -343,7 +343,7 @@ public class Superstructure extends Subsystem
             double startTime = Timer.getFPGATimestamp();
             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
                     new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(reversed, waypoints)))));
-            // TODO: Maybe plug in our current velocity as the start veloicty of the path?
+            // TODO: Maybe plug in our current velocity as the start velocity of the path?
             Logger.notice("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
 
             mDrive.setTrajectory(t);

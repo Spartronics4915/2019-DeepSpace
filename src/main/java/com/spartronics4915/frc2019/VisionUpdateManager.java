@@ -16,18 +16,20 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class VisionUpdateManager
 {
-    public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse");
+    public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse", new Pose2d(-10, 0, Rotation2d.fromDegrees(180)));
 
     private static final int kRawUpdateNumDoubles = 4; // 2 for x y, 1 for rotation, and 1 for processing time
 
-    private final String kNetworkTablesKey;
+    private final String mNetworkTablesKey;
+    private final Pose2d mCameraOffset;
     private VisionUpdate mLatestVisionUpdate = null;
 
-    private VisionUpdateManager(String coprocessorID)
+    private VisionUpdateManager(String coprocessorID, Pose2d cameraOffset)
     {
-        kNetworkTablesKey = "/SmartDashboard/Vision/" + coprocessorID + "/solvePNP";
+        mNetworkTablesKey = "/SmartDashboard/Vision/" + coprocessorID + "/solvePNP";
+        mCameraOffset = cameraOffset;
 
-        NetworkTableInstance.getDefault().addEntryListener(kNetworkTablesKey, (e) -> visionKeyChangedCallback(e),
+        NetworkTableInstance.getDefault().addEntryListener(mNetworkTablesKey, (e) -> visionKeyChangedCallback(e),
                 EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
 
@@ -82,7 +84,7 @@ public class VisionUpdateManager
 
         public Pose2d getFieldPosition(RobotStateMap stateMap)
         {
-            return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(targetRobotRelativePosition);
+            return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(mCameraOffset).transformBy(targetRobotRelativePosition);
         }
 
         public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
