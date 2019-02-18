@@ -39,10 +39,6 @@ public class PanelHandler extends Subsystem
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
-    private final double kEjectTime = 2.5; // Seconds TODO: Tune me
-    private static final boolean kSolenoidExtend = true;
-    private static final boolean kSolenoidRetract = false;
-
     private Solenoid mSolenoid = null;
 
     //private DigitalInput mLimitSwitch = null;
@@ -77,7 +73,7 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
-                mSolenoid.set(kSolenoidRetract);
+                mSolenoid.set(Constants.kPanelSolenoidRetract);
                 mStateChanged = true;
                 mWantedState = WantedState.RETRACT;
                 mSystemState = SystemState.RETRACTING;
@@ -95,16 +91,16 @@ public class PanelHandler extends Subsystem
                     case RETRACTING:
                         if (mStateChanged)
                         {
-                            mSolenoid.set(kSolenoidRetract);
+                            mSolenoid.set(Constants.kPanelSolenoidRetract);
                         }
                         break;
                     case EJECTING://BB6
                         if (mStateChanged)
                         {
-                            mSolenoid.set(kSolenoidExtend);
+                            mSolenoid.set(Constants.kPanelSolenoidExtend);
                             mEjectTime = Timer.getFPGATimestamp();
                         }
-                        else if (Timer.getFPGATimestamp() > mEjectTime + kEjectTime && newState == mSystemState)
+                        else if (Timer.getFPGATimestamp() > mEjectTime + Constants.kPanelEjectTime && newState == mSystemState)
                             setWantedState(WantedState.RETRACT);
                         break;
                     default:
@@ -169,10 +165,10 @@ public class PanelHandler extends Subsystem
         try
         {
             logNotice("Extending solenoid for 2 seconds");
-            mSolenoid.set(kSolenoidExtend);
+            mSolenoid.set(Constants.kPanelSolenoidExtend);
             Timer.delay(2);
             logNotice("Retracting solenoid for 2 seconds");
-            mSolenoid.set(kSolenoidRetract);
+            mSolenoid.set(Constants.kPanelSolenoidRetract);
         }
         catch (Exception e)
         {
@@ -195,6 +191,6 @@ public class PanelHandler extends Subsystem
     @Override
     public void stop()
     {
-        mSolenoid.set(kSolenoidRetract);
+        mSolenoid.set(Constants.kPanelSolenoidRetract);
     }
 }
