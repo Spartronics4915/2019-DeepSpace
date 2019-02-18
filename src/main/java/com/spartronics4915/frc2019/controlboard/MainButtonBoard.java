@@ -62,6 +62,15 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
+    public boolean getManualIntakeCargo()
+    {
+        current = mButtonBoard.getRawAxis(2);
+        result = (mPreviousAxis2 != current) && (current == 1.0);
+        mPreviousAxis2 = current;
+        return result;
+    }
+
+    @Override
     public boolean getGroundEjectCargo()
     {
         return mButtonBoard.getRawButtonPressed(3);
@@ -191,15 +200,6 @@ public class MainButtonBoard implements IButtonControlBoard
     public boolean getTESTIntakeArm_Down()
     {
         return mButtonBoard.getRawButtonPressed(5);
-    }
-
-    @Override
-    public boolean getTESTIntakeIntake()
-    {
-        current = mButtonBoard.getRawAxis(2);
-        result = (mPreviousAxis2 != current) && (current == 1.0);
-        mPreviousAxis2 = current;
-        return result;
     }
 
     @Override

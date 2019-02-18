@@ -76,6 +76,8 @@ public class Superstructure extends Subsystem
         CLIMB,
         // Panel ejecting (no auto align)
         EJECT_PANEL,
+        // Intaking
+        INTAKE_CARGO,
     };
 
     // Internal state of the system
@@ -105,6 +107,9 @@ public class Superstructure extends Subsystem
         // Backing out and turning (step 3, PANEL panels only)
         BACKING_OUT_FROM_LOADING,
         TURNING_AROUND,
+
+        /* Intaking cargo */
+        INTAKING_CARGO,
     }
 
     // Superstructure doesn't own the drive, but needs to access it
@@ -307,6 +312,19 @@ public class Superstructure extends Subsystem
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
                         break;
+
+                    /* Intaking cargo */
+                    case INTAKING_CARGO:
+                        if (mStateChanged)
+                        {
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+                            mCargoChute.setWantedState(CargoChute.WantedState.BRING_BALL_TO_TOP);
+                        }
+
+                        if (mCargoChute.atTarget())
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+
+                        break;
                     default:
                         logError("Unhandled system state!");
                         break;
@@ -409,6 +427,10 @@ public class Superstructure extends Subsystem
                     break;
                 newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
                 break;
+            case INTAKE_CARGO:
+                if (mSystemState == SystemState.INTAKING_CARGO)
+                    break;
+                newState = SystemState.INTAKING_CARGO;
             default:
                 logError("Unhandled wanted state in default state transfer!");
                 newState = SystemState.DRIVER_CONTROLLING;

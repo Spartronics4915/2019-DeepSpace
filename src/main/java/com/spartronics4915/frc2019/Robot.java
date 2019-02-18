@@ -339,8 +339,8 @@ public class Robot extends TimedRobot
         {
             if (mSuperstructure.isDriverControlled())
             {
-                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle(), mControlBoard.getTurn(),
-                        true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(48)*/;
+                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
+                        true /* TODO: Decide squared inputs or not */)/*.scale(48)*/;
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
@@ -364,6 +364,10 @@ public class Robot extends TimedRobot
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                }
+                else if (mControlBoard.getManualIntakeCargo())
+                {
+                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
                 }
 
                 // CARGO RAMP
@@ -445,10 +449,6 @@ public class Robot extends TimedRobot
                 else if (mControlBoard.getTESTIntakeArm_Down())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
-                }
-                else if (mControlBoard.getTESTIntakeIntake())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
                 }
                 else if (mControlBoard.getTESTIntakeHOLD())
                 {
