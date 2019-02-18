@@ -257,7 +257,7 @@ public class Superstructure extends Subsystem
                     case MOVING_CHUTE_TO_EJECT_PANEL:
                         mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
 
-                        if (newState == mSystemState && mCargoChute.atTarget())
+                        if (newState == mSystemState && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration) && mCargoChute.atTarget())
                             newState = SystemState.EJECTING_PANEL;
                         break;
                     case EJECTING_PANEL:
@@ -267,8 +267,8 @@ public class Superstructure extends Subsystem
                             mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
                         }
 
-                        if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration)
-                                && mCargoChute.atTarget() && mPanelHandler.atTarget())
+                        if ((mWantedState == WantedState.ALIGN_AND_EJECT_PANEL || mWantedState == WantedState.EJECT_PANEL)
+                            && mCargoChute.atTarget() && mPanelHandler.atTarget())
                         {
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
@@ -277,11 +277,11 @@ public class Superstructure extends Subsystem
                     case EJECTING_CARGO:
                         if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY)
                         {
-                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET); // Brings arm down to avoid collision
+                            mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN); // Brings arm down to avoid collision
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                         }
                         else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
-                            mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                         else
                             break;
                         if (mCargoChute.atTarget())
@@ -405,9 +405,9 @@ public class Superstructure extends Subsystem
                 newState = SystemState.LIFTING_TO_THREE;
                 break;
             case EJECT_PANEL:
-                if (mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL
-                        || mSystemState == SystemState.EJECTING_PANEL)
-                    newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
+                if (mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL || mSystemState == SystemState.EJECTING_PANEL)
+                    break;
+                newState = SystemState.MOVING_CHUTE_TO_EJECT_PANEL;
                 break;
             default:
                 logError("Unhandled wanted state in default state transfer!");

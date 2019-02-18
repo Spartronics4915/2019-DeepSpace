@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.spartronics4915.lib.drivers.A21IRSensor;
+
 public class CargoChute extends Subsystem
 {
 
@@ -31,16 +33,16 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, SHOOT_ROCKET, SHOOT_BAY,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY,
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, LOWERING, SHOOTING_ROCKET, SHOOTING_BAY,
+        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY,
     }
 
-    private WantedState mWantedState = WantedState.BRING_BALL_TO_TOP;
-    private SystemState mSystemState = SystemState.HOLDING;
+    private WantedState mWantedState = WantedState.LOWER;
+    private SystemState mSystemState = SystemState.LOWERING;
 
     private TalonSRX mRampMotor = null;
     private Solenoid mRampSolenoid = null;
@@ -79,8 +81,9 @@ public class CargoChute extends Subsystem
         {
             synchronized (CargoChute.this)
             {
-                mWantedState = WantedState.BRING_BALL_TO_TOP;
-                mSystemState = SystemState.HOLDING;
+                mStateChanged = true;
+                mWantedState = WantedState.LOWER;
+                mSystemState = SystemState.LOWERING;
             }
         }
 
@@ -122,6 +125,10 @@ public class CargoChute extends Subsystem
                     case LOWERING:
                         if (mStateChanged)
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                        break;
+                    case RAISING:
+                        if (mStateChanged)
+                            mRampSolenoid.set(Constants.kRampSolenoidExtend);
                         break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
@@ -176,6 +183,8 @@ public class CargoChute extends Subsystem
 
     private boolean ballInPosition()
     {
+        //double v = mRampSensor.getVoltage();
+        //return mRampSensor.getVoltage() >= Constants.kMaxChuteBallVoltageThreshold;
         return mRampSensor.getDistance() <= Constants.kMaxChuteBallDistanceThreshold;
     }
 
@@ -204,6 +213,10 @@ public class CargoChute extends Subsystem
                 break;
             case LOWER:
                 newState = SystemState.LOWERING;
+                break;
+            case RAISE:
+                newState = SystemState.RAISING;
+                break;
             case SHOOT_ROCKET:
                 newState = SystemState.SHOOTING_ROCKET;
                 break;
@@ -236,6 +249,8 @@ public class CargoChute extends Subsystem
                 return mSystemState == SystemState.HOLDING && ballInPosition();
             case LOWER:
                 return mSystemState == SystemState.LOWERING;
+            case RAISE:
+                return mSystemState == SystemState.RAISING;
             case SHOOT_ROCKET:
                 return mSystemState == SystemState.SHOOTING_ROCKET && mCargoTimer.hasPeriodPassed(Constants.kShootTime);
             case SHOOT_BAY:
@@ -281,7 +296,7 @@ public class CargoChute extends Subsystem
         }
         logNotice("Ramp check complete.");
 
-        logNotice("Beginning pneumatic check: "); // TODO: oh shoot this might hurt the intake arm
+        logNotice("Beginning pneumatic check: "); // TODO: oh chute this might hurt the intake arm
         try
         {
             logNotice("Sending ramp pneumatics up for three seconds: ");
@@ -320,13 +335,14 @@ public class CargoChute extends Subsystem
         dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor distance: ", mRampSensor.getDistance());
+        dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
     }
 
     @Override
     public void stop()
     {
         // Stop your hardware here
-        mWantedState = WantedState.BRING_BALL_TO_TOP;
+        mWantedState = WantedState.LOWER;
         mSystemState = SystemState.HOLDING;
         mRampMotor.set(ControlMode.PercentOutput, 0.0);
         mRampSolenoid.set(Constants.kRampSolenoidRetract);
