@@ -38,7 +38,7 @@ public class VisionUpdateManager
     {
         try
         {
-            String rawVisionUpdate = entryNotification.value.getString();
+            double[] rawVisionUpdate = entryNotification.value.getDoubleArray();
             mLatestVisionUpdate = VisionUpdate.fromRawUpdate(rawVisionUpdate, mCameraOffset);
         }
         catch (Exception e)
@@ -62,8 +62,14 @@ public class VisionUpdateManager
 
         public final double frameCapturedTime; // Time in seconds where the epoch the boot of the RoboRIO (getFPGATimestamp's epoch)
         public final Pose2d[] targetRobotRelativePositions; // The target's robot-relative position at frameCapturedTime (x and y in inches)
-
         private final Pose2d mCameraOffset;
+
+        private VisionUpdate()
+        {
+            frameCapturedTime = 0;
+            mCameraOffset = null;
+            targetRobotRelativePositions = null;
+        }
 
         private VisionUpdate(double capturedTime, Pose2d cameraOffset,
                 Pose2d... targetRelativePositions)
@@ -74,30 +80,24 @@ public class VisionUpdateManager
             mCameraOffset = cameraOffset;
         }
 
-        public static VisionUpdate fromRawUpdate(String vu, Pose2d cameraOffset)
+        public static VisionUpdate fromRawUpdate(double[] values, Pose2d cameraOffset)
         {
-            String[] fields = vu.split(";"); // expect 2 or 3 fields
-            int ntargets = fields.length - 1;
+            // a target is 3 numbers, we also expect one time, so
+            // the valid lengths are 1, 4, 7  => 0, 1, 2 targets
+            int len = values.length;
+            int ntargets = (len == 7) ? 2 : (len == 4) ? 1 : 0;
             if (ntargets <= 0)
-                throw new RuntimeException("A vision update must have at least one target");
+            {
+                Logger.warning("A vision update must have at least one target");
+                return new VisionUpdate();
+            }
 
             // last field is timestamp
-            double frameCapTime = Double.parseDouble(fields[ntargets]);
-
+            double frameCapTime = values[len - 1];
             Pose2d[] targets = new Pose2d[ntargets];
-            for (int i = 0; i < ntargets; i++)
+            for (int i = 0, j=0; i < ntargets; i++, j+=3)
             {
-                Double[] targetNumbers = Arrays.stream(fields[i].split(",")).map(Double::parseDouble).toArray(Double[]::new);
-                if (targetNumbers.length < kRawUpdateNumDoubles)
-                {
-                    targets[i] = new Pose2d(targetNumbers[0], targetNumbers[1], Rotation2d.fromDegrees(targetNumbers[2]));
-                }
-                else
-                {
-                    throw new RuntimeException("A vision update must have at least " +
-                            kRawUpdateNumDoubles + " doubles in the array. This one has " +
-                            targetNumbers.length + ".");
-                }
+                targets[i] = new Pose2d(values[j+0], values[j+1], Rotation2d.fromDegrees(values[j+2]));
             }
             return new VisionUpdate(frameCapTime, cameraOffset, targets);
         }
