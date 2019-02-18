@@ -4,7 +4,7 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.util.ILooper;
-import com.spartronics4915.lib.util.Logger;
+import com.spartronics4915.lib.util.Logger; 
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.ctre.phoenix.ErrorCode;
@@ -41,8 +41,8 @@ public class CargoChute extends Subsystem
         RAMPING, HOLDING, EJECTING, LOWERING, SHOOTING_ROCKET, SHOOTING_BAY,
     }
 
-    private WantedState mWantedState = WantedState.BRING_BALL_TO_TOP;
-    private SystemState mSystemState = SystemState.HOLDING;
+    private WantedState mWantedState = WantedState.LOWER;
+    private SystemState mSystemState = SystemState.LOWERING;
 
     private TalonSRX mRampMotor = null;
     private Solenoid mRampSolenoid = null;
@@ -81,8 +81,9 @@ public class CargoChute extends Subsystem
         {
             synchronized (CargoChute.this)
             {
-                mWantedState = WantedState.BRING_BALL_TO_TOP;
-                mSystemState = SystemState.HOLDING;
+                mStateChanged = true;
+                mWantedState = WantedState.LOWER;
+                mSystemState = SystemState.LOWERING;
             }
         }
 
@@ -208,6 +209,7 @@ public class CargoChute extends Subsystem
                 break;
             case LOWER:
                 newState = SystemState.LOWERING;
+                break;
             case SHOOT_ROCKET:
                 newState = SystemState.SHOOTING_ROCKET;
                 break;
@@ -223,6 +225,7 @@ public class CargoChute extends Subsystem
 
     public synchronized void setWantedState(WantedState wantedState)
     {
+        logError("Wanted state to " + wantedState);
         mWantedState = wantedState;
     }
 
@@ -285,7 +288,7 @@ public class CargoChute extends Subsystem
         }
         logNotice("Ramp check complete.");
 
-        logNotice("Beginning pneumatic check: "); // TODO: oh shoot this might hurt the intake arm
+        logNotice("Beginning pneumatic check: "); // TODO: oh chute this might hurt the intake arm
         try
         {
             logNotice("Sending ramp pneumatics up for three seconds: ");
@@ -331,7 +334,7 @@ public class CargoChute extends Subsystem
     public void stop()
     {
         // Stop your hardware here
-        mWantedState = WantedState.BRING_BALL_TO_TOP;
+        mWantedState = WantedState.LOWER;
         mSystemState = SystemState.HOLDING;
         mRampMotor.set(ControlMode.PercentOutput, 0.0);
         mRampSolenoid.set(Constants.kRampSolenoidRetract);

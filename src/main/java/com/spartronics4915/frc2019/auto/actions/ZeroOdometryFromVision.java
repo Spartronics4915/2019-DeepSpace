@@ -37,7 +37,7 @@ public class ZeroOdometryFromVision implements Action
             if (mVisionCaptureTime > mStartTime)
             {
                 double now = Timer.getFPGATimestamp();
-                mStateMap.reset(now, visionUpdate.getCorrectedRobotPose(kTargetLandmark, mStateMap, now));
+                mStateMap.reset(now, visionUpdate.getCorrectedRobotPose(0, kTargetLandmark, mStateMap, now));
 
                 mZeroed = true;
             }

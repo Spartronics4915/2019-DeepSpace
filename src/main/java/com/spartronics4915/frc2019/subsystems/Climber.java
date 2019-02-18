@@ -1,3 +1,10 @@
+/* TODOs
+ *
+ * Create a voltage range for CargoChute
+ *
+ *
+ */
+
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
@@ -65,6 +72,7 @@ public class Climber extends Subsystem
                     Constants.kRearRightSolenoidId2);
             mClimberFrontIRSensor = new A21IRSensor(Constants.kClimberFrontIRSensorID);
             mClimberRearIRSensor = new A21IRSensor(Constants.kClimberRearIRSensorID);
+            success = true;
         }
         catch (Exception e)
         {
@@ -85,6 +93,7 @@ public class Climber extends Subsystem
         {
             synchronized (Climber.this)
             {
+                mStateChanged = true;
                 mWantedState = WantedState.DISABLE;
                 mSystemState = SystemState.DISABLING;
             }
@@ -114,10 +123,11 @@ public class Climber extends Subsystem
                         // Must be done when robot is flushed with L3 (Done with distance sensors and a backup encoder reading)
                         if (mStateChanged)
                         {
-                            mFrontLeftClimberSolenoid.set(Value.kForward);
-                            mFrontRightClimberSolenoid.set(Value.kForward);
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
+                            // Timer.delay(0.01);
+                            mFrontLeftClimberSolenoid.set(Value.kForward);
+                            mFrontRightClimberSolenoid.set(Value.kForward);
                         }
                         break;
 
@@ -127,7 +137,7 @@ public class Climber extends Subsystem
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
-                            mFrontLeftClimberSolenoid.set(Value.kReverse);
+                            mFrontRightClimberSolenoid.set(Value.kReverse);
                         }
                         break;
 
@@ -216,12 +226,12 @@ public class Climber extends Subsystem
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
-                if (mClimberFrontIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
+                if (mClimberFrontIRSensor.getVoltage() <= Constants.kClimberSensorFrontMaxDistance)
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
                 else
                     return false;
             case RETRACT_REAR_STRUTS:
-                if (mClimberRearIRSensor.getDistance() <= Constants.kClimberSensorFrontMaxDistance)
+                if (mClimberRearIRSensor.getVoltage() <= Constants.kClimberSensorRearMaxDistance)
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 else
                     return false;
@@ -289,6 +299,10 @@ public class Climber extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
+        dashboardPutNumber("Forward sensor distance: ", mClimberFrontIRSensor.getDistance());
+        dashboardPutNumber("Forward sensor voltage: ", mClimberFrontIRSensor.getVoltage());
+        dashboardPutNumber("Rear sensor distance: ", mClimberRearIRSensor.getDistance());
+        dashboardPutNumber("Rear sensor voltage: ", mClimberRearIRSensor.getVoltage());
     }
 
     @Override

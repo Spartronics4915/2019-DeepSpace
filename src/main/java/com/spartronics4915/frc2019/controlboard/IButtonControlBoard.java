@@ -18,7 +18,7 @@ public interface IButtonControlBoard
     boolean getAssistedShootRocket(); // vision assisted
 
     boolean getAssistedShootBay(); // vision assisted
-    
+
     boolean getSelectLeftVisionTarget();
 
     boolean getSelectRightVisionTarget();
@@ -53,11 +53,13 @@ public interface IButtonControlBoard
 
     boolean getTESTClimbRetractBackPneumatics();
 
-    
+
     boolean getTESTIntakeArm_Down();
 
     boolean getTESTIntakeIntake();
 
     boolean getTESTIntakeHOLD();
-    
+
+    boolean getTESTIntakeSTOPMOTORS();
+
 }
