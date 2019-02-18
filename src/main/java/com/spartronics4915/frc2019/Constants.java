@@ -143,7 +143,7 @@ public class Constants
     public static final double kShootTime = 4.0;
     public static final double kTransitionTime = 1.0;
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
-    public static final double kMaxChuteBallVoltageThreshold = 1.3; // This SHOULD be good
+    public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = false;
     public static final boolean kRampSolenoidRetract = true;
 
