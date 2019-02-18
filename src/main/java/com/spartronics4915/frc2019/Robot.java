@@ -426,35 +426,35 @@ public class Robot extends TimedRobot
 
 
                 //TEST BUTTONBOARD
-                if(mControlBoard.getTESTClimbExtendAllPneumatics())
+                if (mControlBoard.getTESTClimbExtendAllPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.CLIMB);
                 }
-                else if(mControlBoard.getTESTClimbIntake())
+                else if (mControlBoard.getTESTClimbIntake())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
                 }
-                else if(mControlBoard.getTESTClimbRetractFrontPneumatics())
+                else if (mControlBoard.getTESTClimbRetractFrontPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
                 }
-                else if(mControlBoard.getTESTClimbRetractBackPneumatics())
+                else if (mControlBoard.getTESTClimbRetractBackPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
                 }
-                else if(mControlBoard.getTESTIntakeArm_Down())
+                else if (mControlBoard.getTESTIntakeArm_Down())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
                 }
-                else if(mControlBoard.getTESTIntakeIntake())
+                else if (mControlBoard.getTESTIntakeIntake())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
                 }
-                else if(mControlBoard.getTESTIntakeHOLD())
+                else if (mControlBoard.getTESTIntakeHOLD())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
                 }
-                else if(mControlBoard.getTESTIntakeSTOPMOTORS())
+                else if (mControlBoard.getTESTIntakeSTOPMOTORS())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
                 }

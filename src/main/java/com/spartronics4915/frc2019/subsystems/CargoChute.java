@@ -288,7 +288,7 @@ public class CargoChute extends Subsystem
         }
         logNotice("Ramp check complete.");
 
-        logNotice("Beginning pneumatic check: "); // TODO: oh shoot this might hurt the intake arm
+        logNotice("Beginning pneumatic check: "); // TODO: oh chute this might hurt the intake arm
         try
         {
             logNotice("Sending ramp pneumatics up for three seconds: ");
