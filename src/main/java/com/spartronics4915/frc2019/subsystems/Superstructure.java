@@ -261,10 +261,11 @@ public class Superstructure extends Subsystem
                             newState = SystemState.EJECTING_PANEL;
                         break;
                     case EJECTING_PANEL:
-                        mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-
-                        if (mCargoChute.atTarget())
+                        if (mStateChanged)
+                        {
+                            mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                             mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
+                        }
 
                         if (mWantedState == WantedState.ALIGN_AND_EJECT_PANEL && mStateChangedTimer.hasPeriodPassed(kPanelHandlingDuration)
                                 && mCargoChute.atTarget() && mPanelHandler.atTarget())

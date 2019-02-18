@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class VisionUpdateManager
 {
+
     public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse", new Pose2d(-10, 0, Rotation2d.fromDegrees(180)));
 
     private static final int kRawUpdateNumDoubles = 4; // 2 for x y, 1 for rotation, and 1 for processing time
@@ -38,7 +39,7 @@ public class VisionUpdateManager
         try
         {
             String rawVisionUpdate = entryNotification.value.getString();
-            mLatestVisionUpdate = VisionUpdate.fromRawUpdate(rawVisionUpdate);
+            mLatestVisionUpdate = VisionUpdate.fromRawUpdate(rawVisionUpdate, mCameraOffset);
         }
         catch (Exception e)
         {
@@ -49,7 +50,7 @@ public class VisionUpdateManager
     }
 
     /**
-     * @return the latest vision update _or_ null if there has not been an update yet
+     * @return either empty or contains the latest vision update
      */
     public Optional<VisionUpdate> getLatestVisionUpdate()
     {
@@ -62,13 +63,17 @@ public class VisionUpdateManager
         public final double frameCapturedTime; // Time in seconds where the epoch the boot of the RoboRIO (getFPGATimestamp's epoch)
         public final Pose2d targetRobotRelativePosition; // The target's robot-relative position at frameCapturedTime (x and y in inches)
 
-        private VisionUpdate(double capturedTime, Pose2d targetRelativePosition)
+        private final Pose2d mCameraOffset;
+
+        private VisionUpdate(double capturedTime, Pose2d targetRelativePosition, Pose2d cameraOffset)
         {
             this.frameCapturedTime = capturedTime;
             this.targetRobotRelativePosition = targetRelativePosition;
+
+            mCameraOffset = cameraOffset;
         }
 
-        public static VisionUpdate fromRawUpdate(String vu)
+        public static VisionUpdate fromRawUpdate(String vu, Pose2d cameraOffset)
         {
             Double[] rawVisionUpdate = Arrays.stream(vu.split(",")).map(Double::parseDouble).toArray(Double[]::new);
 
@@ -79,7 +84,7 @@ public class VisionUpdateManager
             double frameCapTime = 0;//Timer.getFPGATimestamp() - rawVisionUpdate[3]; TODO
             Pose2d targetRelativePosition = new Pose2d(rawVisionUpdate[0], rawVisionUpdate[1], Rotation2d.fromDegrees(rawVisionUpdate[2]));
 
-            return new VisionUpdate(frameCapTime, targetRelativePosition);
+            return new VisionUpdate(frameCapTime, targetRelativePosition, cameraOffset);
         }
 
         public Pose2d getFieldPosition(RobotStateMap stateMap)
@@ -89,7 +94,8 @@ public class VisionUpdateManager
 
         public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
         {
-            Pose2d robotPoseRelativeToLastVisionUpdate = stateMap.get(this.frameCapturedTime).pose.inverse().transformBy(stateMap.get(timeToGetAt).pose);
+            Pose2d robotPoseRelativeToLastVisionUpdate =
+                    stateMap.get(this.frameCapturedTime).pose.transformBy(mCameraOffset).inverse().transformBy(stateMap.get(timeToGetAt).pose);
             return this.targetRobotRelativePosition.inverse().transformBy(landmark.fieldPose).transformBy(robotPoseRelativeToLastVisionUpdate);
         }
 
@@ -109,7 +115,8 @@ public class VisionUpdateManager
                 }
             }
 
-            if (closestTargetPose == null) throw new RuntimeException("No vision targets are close! Is Constants.kVisionTargetLocations empty?");
+            if (closestTargetPose == null)
+                throw new RuntimeException("No vision targets are close! Is Constants.kVisionTargetLocations empty?");
 
             return getCorrectedRobotPose(closestTargetPose, stateMap, timeToGetAt);
         }
