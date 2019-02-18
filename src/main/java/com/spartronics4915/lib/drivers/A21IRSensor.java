@@ -7,7 +7,6 @@ public class A21IRSensor extends IRSensor
     {
         super(port);
     }
-
     @Override
     public double getDistance()
     {
