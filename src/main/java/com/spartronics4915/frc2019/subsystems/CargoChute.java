@@ -183,9 +183,7 @@ public class CargoChute extends Subsystem
 
     private boolean ballInPosition()
     {
-        //double v = mRampSensor.getVoltage();
-        //return mRampSensor.getVoltage() >= Constants.kMaxChuteBallVoltageThreshold;
-        return mRampSensor.getDistance() <= Constants.kMaxChuteBallDistanceThreshold;
+        return mRampSensor.getVoltage() >= Constants.kMinBallInChuteVoltage;
     }
 
     public boolean isRampRunning()
@@ -334,8 +332,8 @@ public class CargoChute extends Subsystem
         dashboardPutWantedState(mWantedState.toString());
         dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
-        dashboardPutNumber("mRampSensor distance: ", mRampSensor.getDistance());
         dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
+        dashboardPutBoolean("Ball in position: ", ballInPosition());
     }
 
     @Override
