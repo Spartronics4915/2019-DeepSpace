@@ -354,7 +354,7 @@ public class CargoChute extends Subsystem
         dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
-        dashboardPutNumber("Ball in position: ", mRampSensor.getVoltage());
+        dashboardPutBoolean("Ball in position: ", ballInPosition());
     }
 
     @Override
