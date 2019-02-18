@@ -7,15 +7,14 @@ import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
+
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.spartronics4915.lib.drivers.A21IRSensor;
 
 public class CargoChute extends Subsystem
 {
@@ -107,20 +106,9 @@ public class CargoChute extends Subsystem
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
                             newState = SystemState.RAMPING;
                         break;
-                    case EJECTING: // We stop the motors for 1 second, then reverse them (this lessens the jerk)
+                    case EJECTING:
                         if (mStateChanged)
-                        {
-                            /*
-                            mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
-                        }
-                        if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime)) // Does the period still pass if the timer is stopped?
-                        {
-                            mCargoTimer.stop();
-                            mCargoTimer.reset(); // I believe we need this reset here per above comment
-                            */
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
-                        }
                         break;
                     case LOWERING:
                         if (mStateChanged)
@@ -188,7 +176,10 @@ public class CargoChute extends Subsystem
 
     public boolean isRampRunning()
     {
-        return mSystemState == SystemState.RAMPING || mSystemState == SystemState.EJECTING || mSystemState == SystemState.SHOOTING_BAY || mSystemState == SystemState.SHOOTING_ROCKET;
+        return mSystemState == SystemState.RAMPING
+            || mSystemState == SystemState.EJECTING
+            || mSystemState == SystemState.SHOOTING_BAY
+            || mSystemState == SystemState.SHOOTING_ROCKET;
     }
 
     private SystemState defaultStateTransfer()
@@ -330,7 +321,7 @@ public class CargoChute extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
-        dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
+        dashboardPutBoolean("mRampSolenoid extended: ", mRampSolenoid.get());
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
         dashboardPutBoolean("Ball in position: ", ballInPosition());
