@@ -16,18 +16,21 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class VisionUpdateManager
 {
-    public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse");
+
+    public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse", new Pose2d(-10, 0, Rotation2d.fromDegrees(180)));
 
     private static final int kRawUpdateNumDoubles = 4; // 2 for x y, 1 for rotation, and 1 for processing time
 
-    private final String kNetworkTablesKey;
+    private final String mNetworkTablesKey;
+    private final Pose2d mCameraOffset;
     private VisionUpdate mLatestVisionUpdate = null;
 
-    private VisionUpdateManager(String coprocessorID)
+    private VisionUpdateManager(String coprocessorID, Pose2d cameraOffset)
     {
-        kNetworkTablesKey = "/SmartDashboard/Vision/" + coprocessorID + "/solvePNP";
+        mNetworkTablesKey = "/SmartDashboard/Vision/" + coprocessorID + "/solvePNP";
+        mCameraOffset = cameraOffset;
 
-        NetworkTableInstance.getDefault().addEntryListener(kNetworkTablesKey, (e) -> visionKeyChangedCallback(e),
+        NetworkTableInstance.getDefault().addEntryListener(mNetworkTablesKey, (e) -> visionKeyChangedCallback(e),
                 EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
 
@@ -36,7 +39,7 @@ public class VisionUpdateManager
         try
         {
             String rawVisionUpdate = entryNotification.value.getString();
-            mLatestVisionUpdate = VisionUpdate.fromRawUpdate(rawVisionUpdate);
+            mLatestVisionUpdate = VisionUpdate.fromRawUpdate(rawVisionUpdate, mCameraOffset);
         }
         catch (Exception e)
         {
@@ -47,7 +50,7 @@ public class VisionUpdateManager
     }
 
     /**
-     * @return the latest vision update _or_ null if there has not been an update yet
+     * @return either empty or contains the latest vision update
      */
     public Optional<VisionUpdate> getLatestVisionUpdate()
     {
@@ -58,73 +61,65 @@ public class VisionUpdateManager
     {
 
         public final double frameCapturedTime; // Time in seconds where the epoch the boot of the RoboRIO (getFPGATimestamp's epoch)
-        public final Pose2d targetRobotRelativePosition1; // The target's robot-relative position at frameCapturedTime (x and y in inches)
-        public final Pose2d targetRobotRelativePosition2; // The target's robot-relative position at frameCapturedTime (x and y in inches)
+        public final Pose2d[] targetRobotRelativePositions; // The target's robot-relative position at frameCapturedTime (x and y in inches)
 
-        private VisionUpdate(double capturedTime, 
-                            Pose2d targetRelativePosition)
+        private final Pose2d mCameraOffset;
+
+        private VisionUpdate(double capturedTime, Pose2d cameraOffset,
+                Pose2d... targetRelativePositions)
         {
             this.frameCapturedTime = capturedTime;
-            this.targetRobotRelativePosition1 = targetRelativePosition;
-            this.targetRobotRelativePosition2 = null;
+            this.targetRobotRelativePositions = targetRelativePositions;
+
+            mCameraOffset = cameraOffset;
         }
 
-        private VisionUpdate(double capturedTime, Pose2d pose1, Pose2d pose2)
-        {
-            this.frameCapturedTime = capturedTime;
-            this.targetRobotRelativePosition1 = pose1;
-            this.targetRobotRelativePosition2 = pose2;
-        }
-
-        public static VisionUpdate fromRawUpdate(String vu)
+        public static VisionUpdate fromRawUpdate(String vu, Pose2d cameraOffset)
         {
             String[] fields = vu.split(";"); // expect 2 or 3 fields
-            int ntargets = fields.length - 1; 
-            if(ntargets <= 0)
+            int ntargets = fields.length - 1;
+            if (ntargets <= 0)
                 throw new RuntimeException("A vision update must have at least one target");
+
             // last field is timestamp
             double frameCapTime = Double.parseDouble(fields[ntargets]);
-            Pose2d pose1=null, pose2=null;
-            for(int i=0;i<ntargets;i++)
+
+            Pose2d[] targets = new Pose2d[ntargets];
+            for (int i = 0; i < ntargets; i++)
             {
                 Double[] targetNumbers = Arrays.stream(fields[i].split(",")).map(Double::parseDouble).toArray(Double[]::new);
                 if (targetNumbers.length < kRawUpdateNumDoubles)
                 {
-                    if(pose1 == null)
-                        pose1 = new Pose2d(targetNumbers[0], targetNumbers[1], 
-                                                Rotation2d.fromDegrees(targetNumbers[2]));
-                    else
-                    if(pose2 == null)
-                        pose2 = new Pose2d(targetNumbers[0], targetNumbers[1], 
-                                            Rotation2d.fromDegrees(targetNumbers[2]));
-                    else
-                        Logger.warning("VisionUpdate received too many samples");
+                    targets[i] = new Pose2d(targetNumbers[0], targetNumbers[1], Rotation2d.fromDegrees(targetNumbers[2]));
                 }
                 else
                 {
-                    throw new RuntimeException("A vision update must have at least " + 
+                    throw new RuntimeException("A vision update must have at least " +
                             kRawUpdateNumDoubles + " doubles in the array. This one has " +
                             targetNumbers.length + ".");
                 }
             }
-           return new VisionUpdate(frameCapTime, pose1, pose2);
+            return new VisionUpdate(frameCapTime, cameraOffset, targets);
         }
 
-        public Pose2d getFieldPosition(int index, RobotStateMap stateMap)
+        public Pose2d getFieldPosition(RobotStateMap stateMap)
         {
-            if(index == 0)
-                return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(targetRobotRelativePosition1);
-            else
-                return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(targetRobotRelativePosition2);
+            // TODO: Look at NetworkTables to decide
+            int index = 0;
+            if (this.targetRobotRelativePositions.length <= index) throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
+
+            return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(mCameraOffset).transformBy(this.targetRobotRelativePositions[index]);
         }
 
-        public Pose2d getCorrectedRobotPose(int index, ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
+        public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
         {
-            Pose2d robotPoseRelativeToLastVisionUpdate = stateMap.get(this.frameCapturedTime).pose.inverse().transformBy(stateMap.get(timeToGetAt).pose);
-            if(index == 0)
-                return this.targetRobotRelativePosition1.inverse().transformBy(landmark.fieldPose).transformBy(robotPoseRelativeToLastVisionUpdate);
-            else
-                return this.targetRobotRelativePosition2.inverse().transformBy(landmark.fieldPose).transformBy(robotPoseRelativeToLastVisionUpdate);
+            // TODO: Look at NetworkTables to decide
+            int index = 0;
+            if (this.targetRobotRelativePositions.length <= index) throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
+
+            Pose2d robotPoseRelativeToLastVisionUpdate =
+                    stateMap.get(this.frameCapturedTime).pose.transformBy(mCameraOffset).inverse().transformBy(stateMap.get(timeToGetAt).pose);
+            return this.targetRobotRelativePositions[index].inverse().transformBy(landmark.fieldPose).transformBy(robotPoseRelativeToLastVisionUpdate);
         }
 
         public Pose2d getCorrectedRobotPoseForClosestTarget(RobotStateMap stateMap, double timeToGetAt)
@@ -143,10 +138,11 @@ public class VisionUpdateManager
                 }
             }
 
-            if (closestTargetPose == null) 
+            if (closestTargetPose == null)
                 throw new RuntimeException("No vision targets are close! Is Constants.kVisionTargetLocations empty?");
 
-            return getCorrectedRobotPose(0, closestTargetPose, stateMap, timeToGetAt);
+            // TODO: Use NetworkTables to decide
+            return getCorrectedRobotPose(closestTargetPose, stateMap, timeToGetAt);
         }
 
     }
