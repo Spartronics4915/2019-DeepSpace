@@ -12,13 +12,15 @@ public interface IButtonControlBoard
 
     boolean getGroundEjectCargo();
 
+    boolean getManualIntakeCargo();
+
     // CARGO RAMP
     boolean getManualRamp(); // Toggles between MANUAL_RAMP and MANUAL_HOLD
 
     boolean getAssistedShootRocket(); // vision assisted
 
     boolean getAssistedShootBay(); // vision assisted
-    
+
     boolean getSelectLeftVisionTarget();
 
     boolean getSelectRightVisionTarget();
@@ -53,11 +55,11 @@ public interface IButtonControlBoard
 
     boolean getTESTClimbRetractBackPneumatics();
 
-    
+
     boolean getTESTIntakeArm_Down();
 
-    boolean getTESTIntakeIntake();
-
     boolean getTESTIntakeHOLD();
-    
+
+    boolean getTESTIntakeSTOPMOTORS();
+
 }

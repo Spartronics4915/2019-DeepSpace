@@ -7,7 +7,7 @@ public class MainButtonBoard implements IButtonControlBoard
 {
     private final Joystick mButtonBoard;
     private final Joystick mTestButtonBoard;
-    
+
     private double mPreviousAxis0;
     private double mPreviousAxis1;
     private double mPreviousAxis2;
@@ -51,13 +51,23 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualExtendAllClimbPneumatics()
     {
-        return mButtonBoard.getRawButtonPressed(15);
+        // return mButtonBoard.getRawButtonPressed(15);
+        return false;
     }
 
     @Override
     public boolean getAssistedIntakeCargo()
     {
-        return mButtonBoard.getRawButtonPressed(2);
+        return false;
+    }
+
+    @Override
+    public boolean getManualIntakeCargo()
+    {
+        current = mButtonBoard.getRawAxis(2);
+        result = (mPreviousAxis2 != current) && (current == 1.0);
+        mPreviousAxis2 = current;
+        return result;
     }
 
     @Override
@@ -69,19 +79,19 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualRamp()
     {
-        return mButtonBoard.getRawButtonPressed(4);
+        return mButtonBoard.getRawButtonPressed(6);
     }
 
     @Override
     public boolean getAssistedShootRocket()
     {
-        return mButtonBoard.getRawButtonPressed(5);
+        return false;
     }
 
     @Override
     public boolean getAssistedShootBay()
     {
-        return mButtonBoard.getRawButtonPressed(6);
+        return false;
     }
 
     @Override
@@ -111,10 +121,7 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualChuteUp()
     {
-        current = mButtonBoard.getRawAxis(2);
-        result = (mPreviousAxis2 != current) && (current == 1.0);
-        mPreviousAxis2 = current;
-        return result;
+        return false;
     }
 
     @Override
@@ -129,19 +136,19 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getAssistedIntakePanel()
     {
-        current = mButtonBoard.getRawAxis(0);
-        result = (mPreviousAxis0 != current) && (current == 1.0);
-        mPreviousAxis0 = current;
-        return result;
+        // current = mButtonBoard.getRawAxis(0);
+        // result = (mPreviousAxis0 != current) && (current == 1.0);
+        // mPreviousAxis0 = current;
+        return false;
     }
 
     @Override
     public boolean getAssistedEjectPanel()
     {
-        current = mButtonBoard.getRawAxis(0);
-        result = (mPreviousAxis0 != current) && (current == -1.0);
-        mPreviousAxis0 = current;
-        return result;
+        // current = mButtonBoard.getRawAxis(0);
+        // result = (mPreviousAxis0 != current) && (current == -1.0);
+        // mPreviousAxis0 = current;
+        return false;
     }
 
     @Override
@@ -192,19 +199,21 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getTESTIntakeArm_Down()
     {
-        return mTestButtonBoard.getRawButtonPressed(7);
-    }
-
-    @Override
-    public boolean getTESTIntakeIntake()
-    {
-        return mTestButtonBoard.getRawButtonPressed(8);
+        return mButtonBoard.getRawButtonPressed(5);
     }
 
     @Override
     public boolean getTESTIntakeHOLD()
     {
-        return mTestButtonBoard.getRawButtonPressed(9);
+        return mButtonBoard.getRawButtonPressed(1);
     }
+
+    @Override
+    public boolean getTESTIntakeSTOPMOTORS()
+    {
+        return mButtonBoard.getRawButtonPressed(2);
+    }
+
+
 
 }

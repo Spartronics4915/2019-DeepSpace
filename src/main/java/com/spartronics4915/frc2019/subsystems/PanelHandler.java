@@ -7,13 +7,14 @@ import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+//import edu.wpi.first.wpilibj.DigitalInput;
 
 
 /** 2 pneumatics to eject panels
  * panels held on by velcro */
 
 public class PanelHandler extends Subsystem
-{ 
+{
     private static PanelHandler mInstance = null;
 
     public static PanelHandler getInstance()
@@ -38,11 +39,13 @@ public class PanelHandler extends Subsystem
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
-    private final double kEjectTime = 0.3; // Seconds TODO: Tune me
+    private final double kEjectTime = 2.5; // Seconds TODO: Tune me
     private static final boolean kSolenoidExtend = true;
     private static final boolean kSolenoidRetract = false;
 
     private Solenoid mSolenoid = null;
+
+    //private DigitalInput mLimitSwitch = null;
 
     private boolean mStateChanged;
 
@@ -54,6 +57,7 @@ public class PanelHandler extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
+            success = true;
         }
         catch (Exception e)
         {
@@ -74,6 +78,7 @@ public class PanelHandler extends Subsystem
             synchronized (PanelHandler.this)
             {
                 mSolenoid.set(kSolenoidRetract);
+                mStateChanged = true;
                 mWantedState = WantedState.RETRACT;
                 mSystemState = SystemState.RETRACTING;
             }
@@ -184,6 +189,7 @@ public class PanelHandler extends Subsystem
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
         dashboardPutBoolean("mSolenoid1 Extended", mSolenoid.get());
+        //dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
     }
 
     @Override
