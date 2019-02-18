@@ -32,8 +32,8 @@ public class PlaceHatchFromPlatformMode extends AutoModeBase
         runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDriverStationParallelHatch.get(mIsLeft)));
         // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
         //  () -> Superstructure.getInstance().isDriverControlled()));
-        // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToLoadingStation.get(mIsLeft)));
-        // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToCloseCargoShipPort.get(mIsLeft)));
+         runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDepot.get(mIsLeft)));
+         runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToClosestCargoShipBay.get(mIsLeft)));
 
     }
 

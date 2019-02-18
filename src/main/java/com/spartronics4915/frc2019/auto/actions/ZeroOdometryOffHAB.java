@@ -1,7 +1,9 @@
 package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.subsystems.Drive;
 import com.spartronics4915.frc2019.subsystems.RobotStateEstimator;
+import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.RobotStateMap;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -38,17 +40,20 @@ public class ZeroOdometryOffHAB implements Action
     @Override
     public void start()
     {
-
+        Pose2d pose;
         if (mStartOnLeft)
         {
+            pose = Constants.kRightRobotLocationOffPlatform.mirror();
             mStateMap.reset(Timer.getFPGATimestamp(),
-                    Constants.kRightRobotLocationOffPlatform.mirror());
+                    pose);
         }
         else
         {
+            pose = Constants.kRightRobotLocationOffPlatform;
             mStateMap.reset(Timer.getFPGATimestamp(),
-                    Constants.kRightRobotLocationOffPlatform);
+                    pose);
         }
+        Drive.getInstance().setHeading(pose.getRotation());
     }
 
 }

@@ -56,11 +56,8 @@ public class Constants
     }
 
     // Not technically a scorable landmark (this is in inches)
-<<<<<<< HEAD
-    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180.0));
-=======
-    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward, -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
->>>>>>> 5e211b972e727f5c16cae87756716e30e69f2bd4
+    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward,
+         -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
 
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
@@ -80,13 +77,8 @@ public class Constants
     public static final double kTrackScrubFactor = 1.063; // TODO tune
 
     // Chassis with bumper size
-<<<<<<< HEAD
     public static final double kRobotCenterToForward = 16.125; // in TODO tune
     public static final double kRobotCenterToSide = 13.75; // in TODO tune
-=======
-    public static final double kRobotCenterToForward = 15.0; // in TODO tune
-    public static final double kRobotCenterToSide = 15.0; // in TODO tune
->>>>>>> 5e211b972e727f5c16cae87756716e30e69f2bd4
 
     // Tuned dynamics
     public static final double kRobotLinearInertia = 27.93; // kg (robot's mass) TODO tune
