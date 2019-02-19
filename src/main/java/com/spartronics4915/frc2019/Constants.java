@@ -172,6 +172,9 @@ public class Constants
 
     // Panel Handler
     public static final int kPanelHandlerSolenoid = 2;
+    public static final double kPanelEjectTime = 2.5; // Seconds TODO: tune me
+    public static final boolean kPanelSolenoidExtend = true;
+    public static final boolean kPanelSolenoidRetract = false;
 
     // Cargo Intake
     public static final int kCargoIntakeSolenoid = 0;
@@ -181,6 +184,11 @@ public class Constants
     public static final int kCargoIntakeSensor = 7;
     public static final int kCargoIntakeSensorMinDistance = 100; // TODO: unit/value
     public static final int kCargoIntakeSensorMaxDistance = 1000; // TODO: unit/value
+    public static final boolean kCargoIntakeSolenoidExtend = true;
+    public static final boolean kCargoIntakeSolenoidRetract = false;
+    public static final double kCargoIntakeSpeed = -0.5;
+    public static final double kCargoEjectSpeed = 0.5;
+    public static final double kCargoIntakeClimbSpeed = -0.2;
 
     // Cargo Chute
     public static final int kRampMotorId = 5;
@@ -206,6 +214,6 @@ public class Constants
     public static final int kRearRightSolenoidId2 = 7; // Retract
     public static final int kClimberFrontIRSensorID = 2;
     public static final int kClimberRearIRSensorID = 3;
-    public static final double kClimberSensorFrontMaxDistance = 2.5; // actual amount around 3
-    public static final double kClimberSensorRearMaxDistance = 1.5; // actual amount around 2
+    public static final double kClimberSensorFrontMinVoltage = 2.5; // actual amount around 3
+    public static final double kClimberSensorRearMinVoltage = 1.5; // actual amount around 2
 }
