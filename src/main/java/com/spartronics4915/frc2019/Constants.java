@@ -214,6 +214,6 @@ public class Constants
     public static final int kRearRightSolenoidId2 = 7; // Retract
     public static final int kClimberFrontIRSensorID = 2;
     public static final int kClimberRearIRSensorID = 3;
-    public static final double kClimberSensorFrontMaxDistance = 2.5; // actual amount around 3
-    public static final double kClimberSensorRearMaxDistance = 1.5; // actual amount around 2
+    public static final double kClimberSensorFrontMinVoltage = 2.5; // actual amount around 3
+    public static final double kClimberSensorRearMinVoltage = 1.5; // actual amount around 2
 }
