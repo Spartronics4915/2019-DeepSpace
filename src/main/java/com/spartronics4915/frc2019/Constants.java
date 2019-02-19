@@ -56,7 +56,8 @@ public class Constants
     }
 
     // Not technically a scorable landmark (this is in inches)
-    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward, -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward,
+         -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
 
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
@@ -122,7 +123,7 @@ public class Constants
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
 
-    public static final double kDriveVelocityKp = 3.0;
+    public static final double kDriveVelocityKp = 5.0;
     public static final double kDriveVelocityKi = 0.0;
     public static final double kDriveVelocityKd = 50.0;
     // The below should always be zero, because feedforward is dynamically produced by DriveMotionPlanner
@@ -172,6 +173,9 @@ public class Constants
 
     // Panel Handler
     public static final int kPanelHandlerSolenoid = 2;
+    public static final double kPanelEjectTime = 2.5; // Seconds TODO: tune me
+    public static final boolean kPanelSolenoidExtend = true;
+    public static final boolean kPanelSolenoidRetract = false;
 
     // Cargo Intake
     public static final int kCargoIntakeSolenoid = 0;
@@ -181,6 +185,11 @@ public class Constants
     public static final int kCargoIntakeSensor = 7;
     public static final int kCargoIntakeSensorMinDistance = 100; // TODO: unit/value
     public static final int kCargoIntakeSensorMaxDistance = 1000; // TODO: unit/value
+    public static final boolean kCargoIntakeSolenoidExtend = true;
+    public static final boolean kCargoIntakeSolenoidRetract = false;
+    public static final double kCargoIntakeSpeed = -0.5;
+    public static final double kCargoEjectSpeed = 0.5;
+    public static final double kCargoIntakeClimbSpeed = -0.2;
 
     // Cargo Chute
     public static final int kRampMotorId = 5;
@@ -191,6 +200,7 @@ public class Constants
     public static final double kShootTime = 4.0;
     public static final double kTransitionTime = 1.0;
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
+    public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
 
@@ -205,6 +215,6 @@ public class Constants
     public static final int kRearRightSolenoidId2 = 7; // Retract
     public static final int kClimberFrontIRSensorID = 2;
     public static final int kClimberRearIRSensorID = 3;
-    public static final double kClimberSensorFrontMaxDistance = 2.5; // actual amount around 3
-    public static final double kClimberSensorRearMaxDistance = 1.5; // actual amount around 2
+    public static final double kClimberSensorFrontMinVoltage = 2.5; // actual amount around 3
+    public static final double kClimberSensorRearMinVoltage = 1.5; // actual amount around 2
 }

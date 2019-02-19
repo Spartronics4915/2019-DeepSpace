@@ -1,10 +1,3 @@
-/* TODOs
- *
- * Create a voltage range for CargoChute
- *
- *
- */
-
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
@@ -36,12 +29,12 @@ public class Climber extends Subsystem
 
     public enum WantedState
     {
-        DISABLE, CLIMB, RETRACT_FRONT_STRUTS, RETRACT_REAR_STRUTS,
+        DISABLE, CLIMB, RETRACT_FRONT_STRUTS, RETRACT_REAR_STRUTS
     }
 
     private enum SystemState
     {
-        DISABLING, CLIMBING, RETRACTING_FRONT_STRUTS, RETRACTING_REAR_STRUTS,
+        DISABLING, CLIMBING, RETRACTING_FRONT_STRUTS, RETRACTING_REAR_STRUTS
     }
 
     private WantedState mWantedState = WantedState.DISABLE;
@@ -77,7 +70,7 @@ public class Climber extends Subsystem
         catch (Exception e)
         {
             success = false;
-            logException("Couldn't instantiate hardware", e);
+            logException("Couldn't instantiate hardware: ", e);
         }
 
         logInitialized(success);
@@ -107,8 +100,7 @@ public class Climber extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case DISABLING: // Climber is disabled until last 30 seconds of the match
-                        // TODO: Make sure tanks are at acceptable levels for climbing (Check before intiating CLIMBING)
+                    case DISABLING: // Only used when starting, cannot be transitioned into
                         if (mStateChanged)
                         {
                             mFrontLeftClimberSolenoid.set(Value.kReverse);
@@ -125,7 +117,6 @@ public class Climber extends Subsystem
                         {
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
-                            // Timer.delay(0.01);
                             mFrontLeftClimberSolenoid.set(Value.kForward);
                             mFrontRightClimberSolenoid.set(Value.kForward);
                         }
@@ -191,7 +182,7 @@ public class Climber extends Subsystem
                 break;
             default:
                 newState = SystemState.DISABLING;
-                logNotice("Robot is in an Unhandled Wanted State!");
+                logNotice("Robot is in an unhandled WantedState!");
                 break;
         }
         return newState;
@@ -209,12 +200,14 @@ public class Climber extends Subsystem
 
     public boolean frontSensorsInRange()
     {
-        return mClimberFrontIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorFrontMaxDistance);
+        return mClimberFrontIRSensor.isTargetInVoltageRange(Constants.kClimberSensorFrontMinVoltage,
+            Constants.kClimberSensorFrontMinVoltage+1);
     }
 
     public boolean rearSensorsInRange()
     {
-        return mClimberRearIRSensor.isTargetInDistanceRange(0, Constants.kClimberSensorRearMaxDistance);
+        return mClimberRearIRSensor.isTargetInVoltageRange(Constants.kClimberSensorRearMinVoltage,
+            Constants.kClimberSensorRearMinVoltage+1);
     }
 
     public synchronized boolean atTarget()
@@ -226,12 +219,12 @@ public class Climber extends Subsystem
             case CLIMB:
                 return mSystemState == SystemState.CLIMBING;
             case RETRACT_FRONT_STRUTS:
-                if (mClimberFrontIRSensor.getVoltage() >= Constants.kClimberSensorFrontMaxDistance)
+                if (frontSensorsInRange())
                     return mSystemState == SystemState.RETRACTING_FRONT_STRUTS;
                 else
                     return false;
             case RETRACT_REAR_STRUTS:
-                if (mClimberRearIRSensor.getVoltage() >= Constants.kClimberSensorRearMaxDistance)
+                if (rearSensorsInRange())
                     return mSystemState == SystemState.RETRACTING_REAR_STRUTS;
                 else
                     return false;

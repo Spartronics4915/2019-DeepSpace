@@ -367,7 +367,7 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getManualIntakeCargo())
                 {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO);
                 }
 
                 // CARGO RAMP
