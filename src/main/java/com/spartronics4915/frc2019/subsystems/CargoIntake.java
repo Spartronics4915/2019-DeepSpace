@@ -41,12 +41,6 @@ public class CargoIntake extends Subsystem
     private WantedState mWantedState = WantedState.HOLD;
     private SystemState mSystemState = SystemState.HOLDING;
 
-    private static final boolean kSolenoidExtend = true;
-    private static final boolean kSolenoidRetract = false;
-    private static final double kIntakeSpeed = -0.5;
-    private static final double kEjectSpeed = 0.5;
-    private static final double kIntakeClimbSpeed = -0.2;
-
     private Solenoid mSolenoid = null;
     private Solenoid mSolenoidClimb = null;
     private TalonSRX mMotorRight = null; // right and left are switched?
@@ -127,8 +121,8 @@ public class CargoIntake extends Subsystem
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
-                            mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
-                            mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
+                            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
                         }
                         /*if (mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance))
                         {
@@ -139,8 +133,8 @@ public class CargoIntake extends Subsystem
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
-                            mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
-                            mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
+                            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
                         }
                         /*if (!mSensor.isTargetInDistanceRange(Constants.kCargoIntakeSensorMinDistance, Constants.kCargoIntakeSensorMaxDistance))
                         {
@@ -150,10 +144,10 @@ public class CargoIntake extends Subsystem
                     case CLIMBING:
                         if (mStateChanged)
                         {
-                            mMotorRight.set(ControlMode.PercentOutput, kIntakeClimbSpeed);
-                            mMotorLeft.set(ControlMode.PercentOutput, kIntakeClimbSpeed);
-                            mSolenoid.set(kSolenoidExtend);
-                            mSolenoidClimb.set(kSolenoidExtend);
+                            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
+                            mSolenoid.set(Constants.kCargoIntakeSolenoidExtend);
+                            mSolenoidClimb.set(Constants.kCargoIntakeSolenoidExtend);
                         }
                         break;
                     default:
@@ -182,14 +176,14 @@ public class CargoIntake extends Subsystem
 
     private void setSolenoidsToUp()
     {
-        mSolenoid.set(kSolenoidRetract);
-        mSolenoidClimb.set(kSolenoidRetract);
+        mSolenoid.set(Constants.kCargoIntakeSolenoidRetract);
+        mSolenoidClimb.set(Constants.kCargoIntakeSolenoidRetract);
     }
 
     private void setSolenoidsToDown()
     {
-        mSolenoid.set(kSolenoidExtend);
-        mSolenoidClimb.set(kSolenoidRetract);
+        mSolenoid.set(Constants.kCargoIntakeSolenoidExtend);
+        mSolenoidClimb.set(Constants.kCargoIntakeSolenoidRetract);
     }
 
     private SystemState defaultStateTransfer()
@@ -262,24 +256,24 @@ public class CargoIntake extends Subsystem
         try
         {
             logNotice("Extending solenoids for 4 seconds");
-            mSolenoid.set(kSolenoidExtend);
-            mSolenoidClimb.set(kSolenoidExtend);
+            mSolenoid.set(Constants.kCargoIntakeSolenoidExtend);
+            mSolenoidClimb.set(Constants.kCargoIntakeSolenoidExtend);
             Timer.delay(4);
             logNotice("Retracting solenoids for 4 seconds");
             setSolenoidsToUp();
             Timer.delay(4);
             logNotice("CargoIntake Solenoid Check End");
             logNotice("Running motors at 50% for 2 seconds");
-            mMotorRight.set(ControlMode.PercentOutput, kIntakeSpeed);
-            mMotorLeft.set(ControlMode.PercentOutput, kIntakeSpeed);
+            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
+            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
             Timer.delay(2);
             logNotice("Running motors at 0% for 2 seconds");
             mMotorRight.set(ControlMode.PercentOutput, 0.0);
             mMotorLeft.set(ControlMode.PercentOutput, 0.0);
             Timer.delay(2);
             logNotice("Running motors at -50% for 2 seconds");
-            mMotorRight.set(ControlMode.PercentOutput, kEjectSpeed);
-            mMotorLeft.set(ControlMode.PercentOutput, kEjectSpeed);
+            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
+            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
             Timer.delay(2);
             mMotorRight.set(ControlMode.PercentOutput, 0.0);
             mMotorLeft.set(ControlMode.PercentOutput, 0.0);
