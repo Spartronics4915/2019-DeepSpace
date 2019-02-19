@@ -30,12 +30,12 @@ public class CargoIntake extends Subsystem
 
     public enum WantedState
     {
-        HOLD, ARM_DOWN, INTAKE, EJECT, CLIMB, MOTORS_STOP
+        HOLD, ARM_DOWN, INTAKE, EJECT, CLIMB, MOTORS_STOP,
     }
 
     private enum SystemState
     {
-        HOLDING, ARM_DOWNING, INTAKING, EJECTING, CLIMBING, MOTORS_STOPPING
+        HOLDING, ARM_DOWNING, INTAKING, EJECTING, CLIMBING, MOTORS_STOPPING,
     }
 
     private WantedState mWantedState = WantedState.HOLD;
@@ -154,10 +154,7 @@ public class CargoIntake extends Subsystem
                         logError("Unhandled system state!");
                 }
                 if (newState != mSystemState)
-                {
                     mStateChanged = true;
-                    logNotice("System state to " + newState);
-                }
                 else
                     mStateChanged = false;
                 mSystemState = newState;
