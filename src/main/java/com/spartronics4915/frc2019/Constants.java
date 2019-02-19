@@ -74,26 +74,26 @@ public class Constants
     public static final double kDriveWheelTrackWidthInches = 23.75; // TODO tune
     public static final double kDriveWheelDiameterInches = 6;
     public static final double kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-    public static final double kTrackScrubFactor = 1.037; // TODO tune
+    public static final double kTrackScrubFactor = 1.063; // TODO tune
 
     // Chassis with bumper size
     public static final double kRobotCenterToForward = 16.125; // in TODO tune
     public static final double kRobotCenterToSide = 13.75; // in TODO tune
 
     // Tuned dynamics
-    public static final double kRobotLinearInertia = 67.81205; // kg (robot's mass) TODO tune
-    public static final double kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode) TODO tune
+    public static final double kRobotLinearInertia = 27.93; // kg (robot's mass) TODO tune
+    public static final double kRobotAngularInertia = 1.7419; // kg m^2 (use the moi auto mode) TODO tune
     public static final double kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
     // Right
-    public static final double kDriveRightVIntercept = 1.5820; // V TODO tune
-    public static final double kDriveRightKv = 0.2437; // V per rad/s TODO tune
-    public static final double kDriveRightKa = 0.0763; // V per rad/s^2 TODO tune
+    public static final double kDriveRightVIntercept = 0.7714; // V TODO tune
+    public static final double kDriveRightKv = 0.1920; // V per rad/s TODO tune
+    public static final double kDriveRightKa = 0.0533; // V per rad/s^2 TODO tune
 
     // Left
-    public static final double kDriveLeftVIntercept = 1.4756; // V TODO tune
-    public static final double kDriveLeftKv = 0.2156; // V per rad/s TODO tune
-    public static final double kDriveLeftKa = 0.0920; // V per rad/s^2 TODO tune
+    public static final double kDriveLeftVIntercept = 0.7939; // V TODO tune
+    public static final double kDriveLeftKv = 0.1849; // V per rad/s TODO tune
+    public static final double kDriveLeftKa = 0.0350; // V per rad/s^2 TODO tune
 
     public static final double kDriveLeftDeadband = 0.04;
     public static final double kDriveRightDeadband = 0.04;
