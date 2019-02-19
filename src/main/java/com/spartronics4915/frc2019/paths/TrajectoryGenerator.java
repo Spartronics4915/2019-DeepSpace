@@ -91,7 +91,7 @@ public class TrajectoryGenerator
     // +x is towards the center of the field.
     // +y is to the left.
     // ALL POSES DEFINED FOR THE CASE THAT ROBOT STARTS ON RIGHT! (mirrored about +x axis for LEFT)
-    private static final Pose2d kCargoDepotIntakePose = new Pose2d(60.0, 90.0, Rotation2d.fromDegrees(10));
+    private static final Pose2d kRightCargoDepotIntakePose = new Pose2d(60.0, -90.0, Rotation2d.fromDegrees(160));
 
     public class TrajectorySet
     {
@@ -157,7 +157,7 @@ public class TrajectoryGenerator
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToClosestCargoShipBay()
         {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(kCargoDepotIntakePose);
+            waypoints.add(kRightCargoDepotIntakePose);
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
             return generateTrajectory(true, waypoints);
         }
@@ -166,7 +166,7 @@ public class TrajectoryGenerator
         {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
-            waypoints.add(kCargoDepotIntakePose);
+            waypoints.add(kRightCargoDepotIntakePose);
             return generateTrajectory(false, waypoints);
         }
     }
