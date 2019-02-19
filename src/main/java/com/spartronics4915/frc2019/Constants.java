@@ -38,7 +38,7 @@ public class Constants
         RIGHT_MIDDLE_CARGO_BAY(LEFT_MIDDLE_CARGO_BAY),
         LEFT_FAR_CARGO_BAY(7727.95, 708.025, 90.0),
         RIGHT_FAR_CARGO_BAY(LEFT_FAR_CARGO_BAY);
-
+  
         public final Pose2d fieldPose;
         public final Pose2d robotLengthCorrectedPose;
 
@@ -112,7 +112,7 @@ public class Constants
     public static final double kDriveDownShiftVelocity = 9.5 * 12.0; // inches per second
     public static final double kDriveDownShiftAngularVelocity = Math.PI / 2.0; // rad/sec
     public static final double kDriveUpShiftVelocity = 11.0 * 12.0; // inches per second
-
+    
     // Adaptive pure pursuit
     public static final double kPathKX = 10.0; // units/s per unit of error... This is essentially a P gain on longitudinal error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
@@ -138,11 +138,11 @@ public class Constants
     public static final int kDrivePositionIZone = 0;
     public static final double kTurnDegreeTolerance = 2; // Degrees
     public static final double kTurnVelTolerance = 0.2; // in/sec
+    // (Note that if multiple talons are dedicated to a mechanism, any sensors
 
     public static final double kDriveVoltageRampRate = 0.0;
 
     /* I/O */
-    // (Note that if multiple talons are dedicated to a mechanism, any sensors
     // are attached to the master)
 
     public static final int kCANTimeoutMs = 10; //use for on the fly updates
