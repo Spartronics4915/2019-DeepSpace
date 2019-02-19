@@ -463,7 +463,13 @@ public class Superstructure extends Subsystem
 
     public synchronized void reverseDrivingDirection()
     {
-        mIsReversed = !mIsReversed;
+        mIsReversed = !mIsReversed
+        if(mIsReversed == true) {
+          dashboardPutBoolean("IsDriveReversed", true);
+        }
+        else if(mIsReversed == false) {
+          dashboardPutBoolean("IsDriveReversed", false);
+        }
     }
 
     public synchronized boolean isDrivingReversed()
