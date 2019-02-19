@@ -240,7 +240,10 @@ public class Superstructure extends Subsystem
 
                             mGotVisionUpdate = visionUpdate.isPresent();
                             visionUpdate.ifPresent(
-                                    v -> makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true)); // TODO make not reversed
+                                    v -> {
+                                        makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
+                                        dashboardPutString("TargetPose", Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)).toString());
+                                    }); // TODO make not reversed
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)

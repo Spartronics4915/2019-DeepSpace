@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class VisionUpdateManager
 {
 
-    public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse", new Pose2d(-10, 0, Rotation2d.fromDegrees(180)));
+    public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse", new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180)));
 
     private static final int kRawUpdateNumDoubles = 4; // 2 for x y, 1 for rotation, and 1 for processing time
 
@@ -95,9 +95,11 @@ public class VisionUpdateManager
             // last field is timestamp
             double frameCapTime = values[len - 1];
             Pose2d[] targets = new Pose2d[ntargets];
-            for (int i = 0, j=0; i < ntargets; i++, j+=3)
+            for (int i = 0, j = 0; i < ntargets; i++, j += 3)
             {
-                targets[i] = new Pose2d(values[j+0], values[j+1], Rotation2d.fromDegrees(values[j+2]));
+                // We flip by 180 because I assumed that the vector pointed into the target, but they delivered
+                // it so that it points out of the target... Oh well.
+                targets[i] = new Pose2d(values[j + 0], values[j + 1], Rotation2d.fromDegrees(values[j + 2] + 180));
             }
             return new VisionUpdate(frameCapTime, cameraOffset, targets);
         }
@@ -106,20 +108,24 @@ public class VisionUpdateManager
         {
             // TODO: Look at NetworkTables to decide
             int index = 0;
-            if (this.targetRobotRelativePositions.length <= index) throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
+            if (this.targetRobotRelativePositions.length <= index)
+                throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
 
-            return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(mCameraOffset).transformBy(this.targetRobotRelativePositions[index]);
+            return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(mCameraOffset)
+                    .transformBy(this.targetRobotRelativePositions[index]);
         }
 
         public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
         {
             // TODO: Look at NetworkTables to decide
             int index = 0;
-            if (this.targetRobotRelativePositions.length <= index) throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
+            if (this.targetRobotRelativePositions.length <= index)
+                throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
 
             Pose2d robotPoseRelativeToLastVisionUpdate =
                     stateMap.get(this.frameCapturedTime).pose.transformBy(mCameraOffset).inverse().transformBy(stateMap.get(timeToGetAt).pose);
-            return this.targetRobotRelativePositions[index].inverse().transformBy(landmark.fieldPose).transformBy(robotPoseRelativeToLastVisionUpdate);
+            return this.targetRobotRelativePositions[index].inverse().transformBy(landmark.fieldPose)
+                    .transformBy(robotPoseRelativeToLastVisionUpdate);
         }
 
         public Pose2d getCorrectedRobotPoseForClosestTarget(RobotStateMap stateMap, double timeToGetAt)
