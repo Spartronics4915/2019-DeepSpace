@@ -331,8 +331,7 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic()
     {
-        // SmartDashboard.putString("Robot/GamePhase", "TELEOP");
-        double[] codeTimes = new double[10];
+        double[] codeTimes = new double[20]; // for diagnosing loop time consumption
         int nctr = 0;
         mCodeTimer.reset();
         mCodeTimer.start();
@@ -439,7 +438,7 @@ public class Robot extends TimedRobot
                 {
                     // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                 }
-                codeTimes[nctr++] = mCodeTimer.get(); // 6 after everythning
+                codeTimes[nctr++] = mCodeTimer.get(); // 6 after subsystems
 
 
                 //TEST BUTTONBOARD
@@ -481,7 +480,7 @@ public class Robot extends TimedRobot
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
 
-            codeTimes[nctr++] = mCodeTimer.get(); // 8 at of driver-ctl
+            codeTimes[nctr++] = mCodeTimer.get(); // 8 at end
         }
         catch (Throwable t)
         {
@@ -491,14 +490,18 @@ public class Robot extends TimedRobot
 
         outputToSmartDashboard();
         codeTimes[nctr++] = mCodeTimer.get(); // 9 after telemetry
-        if(mCodeTimer.get() > .20)
+        double loopTime = codeTimes[nctr-1];
+        if(loopTime > .025)
         {
             String str = "looptime overrun, offenders:\n";
             for(int i=0;i<nctr;i++)
             {
                 str += "  " + i + " " + codeTimes[i] + "\n";
             }
-            Logger.info(str);
+            if(loopTime > .1)
+                Logger.notice("BIG " + str);
+            else
+                Logger.debug(str);
         }
     }
 
@@ -522,8 +525,8 @@ public class Robot extends TimedRobot
 
     public void outputToSmartDashboard()
     {
-        mSubsystemManager.outputToTelemetry();
-        mEnabledLooper.outputToSmartDashboard();
+        mEnabledLooper.outputToSmartDashboard(); // outputs _dt
+        mSubsystemManager.outputToTelemetry(true/*round-robin*/);
         SmartDashboard.putNumber("Robot/BatteryVoltage",
                 RobotController.getBatteryVoltage());
         SmartDashboard.putNumber("Robot/InputCurrent",
