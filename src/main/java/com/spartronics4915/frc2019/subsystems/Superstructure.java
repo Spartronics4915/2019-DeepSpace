@@ -323,7 +323,11 @@ public class Superstructure extends Subsystem
                         }
 
                         if (mCargoChute.atTarget())
+                        {
                             mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
 
                         break;
                     default:
@@ -436,6 +440,7 @@ public class Superstructure extends Subsystem
                 if (mSystemState == SystemState.INTAKING_CARGO)
                     break;
                 newState = SystemState.INTAKING_CARGO;
+                break;
             default:
                 logError("Unhandled wanted state in default state transfer!");
                 newState = SystemState.DRIVER_CONTROLLING;
