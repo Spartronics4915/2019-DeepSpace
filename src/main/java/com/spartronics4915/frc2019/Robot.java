@@ -332,8 +332,6 @@ public class Robot extends TimedRobot
     public void teleopPeriodic()
     {
         // SmartDashboard.putString("Robot/GamePhase", "TELEOP");
-        double throttle = mControlBoard.getThrottle();
-        double turn = mControlBoard.getTurn();
         double[] codeTimes = new double[10];
         int nctr = 0;
         mCodeTimer.reset();
@@ -342,10 +340,10 @@ public class Robot extends TimedRobot
         {
             if (mSuperstructure.isDriverControlled())
             {
-                DriveSignal command = ArcadeDriveHelper.arcadeDrive(throttle, turn,
-                        true /* TODO: Decide squared inputs or not */).scale(mSuperstructure.isDrivingReversed() ? -1 : 1)/*.scale(48)*/;
-                    
-                codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcade drive
+                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
+                        true /* TODO: Decide squared inputs or not */)/*.scale(48)*/;
+
+                codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
@@ -373,6 +371,10 @@ public class Robot extends TimedRobot
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                     mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+                }
+                else if (mControlBoard.getManualIntakeCargo())
+                {
+                    mSuperstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO);
                 }
                 codeTimes[nctr++] = mCodeTimer.get(); // 3 after intake
 
@@ -460,10 +462,6 @@ public class Robot extends TimedRobot
                 else if (mControlBoard.getTESTIntakeArm_Down())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
-                }
-                else if (mControlBoard.getTESTIntakeIntake())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
                 }
                 else if (mControlBoard.getTESTIntakeHOLD())
                 {
