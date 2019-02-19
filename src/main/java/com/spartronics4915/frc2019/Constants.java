@@ -122,7 +122,7 @@ public class Constants
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
 
-    public static final double kDriveVelocityKp = 3.0;
+    public static final double kDriveVelocityKp = 5.0;
     public static final double kDriveVelocityKi = 0.0;
     public static final double kDriveVelocityKd = 50.0;
     // The below should always be zero, because feedforward is dynamically produced by DriveMotionPlanner

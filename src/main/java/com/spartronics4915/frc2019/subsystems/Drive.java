@@ -649,9 +649,9 @@ public class Drive extends Subsystem
             // Talon-side PID.
             //
             // mLeftMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
-            //      mPeriodicIO.left_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
+            //      mPeriodicIO.leftFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
             // mRightMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
-            //      mPeriodicIO.right_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
+            //      mPeriodicIO.rightFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
         }
     }
 
