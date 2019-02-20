@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +41,7 @@ public class Robot extends TimedRobot
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
     private Timer mCodeTimer = new Timer();
+    private PowerDistributionPanel mPDP = new PowerDistributionPanel();
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -529,7 +531,7 @@ public class Robot extends TimedRobot
         mSubsystemManager.outputToTelemetry(true/*round-robin*/);
         SmartDashboard.putNumber("Robot/BatteryVoltage",
                 RobotController.getBatteryVoltage());
-        SmartDashboard.putNumber("Robot/InputCurrent",
-                RobotController.getInputCurrent());
+        SmartDashboard.putNumber("Robot/BatteryCurrent",
+                mPDP.getTotalCurrent());
     }
 }
