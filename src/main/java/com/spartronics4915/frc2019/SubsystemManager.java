@@ -15,19 +15,38 @@ public class SubsystemManager implements ILooper
 
     private final List<Subsystem> mAllSubsystems;
     private List<ILoop> mLoops = new ArrayList<>();
+    private int mTelemetrySelector = 0;
 
     public SubsystemManager(List<Subsystem> allSubsystems)
     {
         mAllSubsystems = allSubsystems;
     }
 
-    public void outputToTelemetry()
+    public void outputToTelemetry(boolean roundRobin)
     {
-        mAllSubsystems.forEach((s) ->
+        // To reduce looptime spent in telemetry, we optionally round-robin 
+        // telemetry requests to each subystem.  
+        // For 10 sub subsystems with 20ms looptimes, we get updates from
+        // each subsystem every 200ms.
+        int nSys = 0;
+        for(int i=0;i<mAllSubsystems.size();i++)
         {
+            Subsystem s = mAllSubsystems.get(i);
             if (s.isInitialized())
-                s.outputTelemetry();
-        });
+            {
+                if(roundRobin)
+                {
+                    if(nSys++ == this.mTelemetrySelector)
+                        s.outputTelemetry();
+                }
+                else
+                    s.outputTelemetry();
+
+            }
+        }
+        this.mTelemetrySelector++;
+        if(this.mTelemetrySelector == nSys)
+            this.mTelemetrySelector = 0;
     }
 
     public void writeToLog()
