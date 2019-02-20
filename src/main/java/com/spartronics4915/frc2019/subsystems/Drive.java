@@ -105,7 +105,7 @@ public class Drive extends Subsystem
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(true);
+        talon.setSensorPhase(Constants.kIsTestChassis);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
@@ -143,7 +143,7 @@ public class Drive extends Subsystem
             mLeftMaster.configNeutralDeadband(Constants.kDriveLeftDeadband, 0);
             mRightMaster.configNeutralDeadband(Constants.kDriveRightDeadband, 0);
 
-            mPigeon = new PigeonIMU(mLeftSlave);
+            mPigeon = Constants.kIsTestChassis ? new PigeonIMU(mLeftSlave) : new PigeonIMU(Constants.kPidgeonId);
             mLeftSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
 
             setOpenLoop(DriveSignal.NEUTRAL);
