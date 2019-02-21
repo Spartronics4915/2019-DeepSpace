@@ -32,12 +32,12 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY,
+        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY
     }
 
     private WantedState mWantedState = WantedState.LOWER;
@@ -53,7 +53,7 @@ public class CargoChute extends Subsystem
 
     private CargoChute()
     {
-        boolean success = true;
+        boolean success = false;
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -62,6 +62,7 @@ public class CargoChute extends Subsystem
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
+            success = true;
         }
         catch (Exception e)
         {

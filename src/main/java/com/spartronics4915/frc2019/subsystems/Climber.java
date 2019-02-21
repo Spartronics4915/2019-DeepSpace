@@ -257,7 +257,7 @@ public class Climber extends Subsystem
         }
         catch (Exception e)
         {
-            logException("Did not pass lifting check:", e);
+            logException("Did not pass lifting check: ", e);
             return false;
         }
 

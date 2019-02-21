@@ -53,7 +53,7 @@ public class CargoIntake extends Subsystem
 
     private CargoIntake()
     {
-        boolean success = true; // IR sensor anolog port 6 to detect cargo going into chute. Used by chute as well.
+        boolean success = false; // IR sensor anolog port 6 to detect cargo going into chute. Used by chute as well.
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -63,11 +63,12 @@ public class CargoIntake extends Subsystem
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoid);
             mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoidClimb);
+            success = true;
         }
         catch (Exception e)
         {
             success = false;
-            logException("Couldn't instantiate hardware", e);
+            logException("Couldn't instantiate hardware: ", e);
         }
 
         logInitialized(success);
@@ -271,7 +272,7 @@ public class CargoIntake extends Subsystem
         }
         catch (Exception e)
         {
-            logException("Trouble instantiating hardware ", e);
+            logException("Trouble instantiating hardware: ", e);
             return false;
         }
         return true;
