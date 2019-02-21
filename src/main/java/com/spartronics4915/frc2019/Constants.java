@@ -172,7 +172,7 @@ public class Constants
 
     // Panel Handler
     public static final int kPanelHandlerSolenoid = 2;
-    public static final double kPanelEjectTime = 2.5; // Seconds TODO: tune me
+    public static final double kPanelEjectTime = 2.5; // Seconds
     public static final boolean kPanelSolenoidExtend = true;
     public static final boolean kPanelSolenoidRetract = false;
 

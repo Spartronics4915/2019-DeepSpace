@@ -33,12 +33,12 @@ public class CargoIntake extends Subsystem
 
     public enum WantedState
     {
-        HOLD, ARM_DOWN, INTAKE, EJECT, CLIMB, MOTORS_STOP,
+        HOLD, ARM_DOWN, INTAKE, EJECT, CLIMB, MOTORS_STOP
     }
 
     private enum SystemState
     {
-        HOLDING, ARM_DOWNING, INTAKING, EJECTING, CLIMBING, MOTORS_STOPPING,
+        HOLDING, ARM_DOWNING, INTAKING, EJECTING, CLIMBING, MOTORS_STOPPING
     }
 
     private WantedState mWantedState = WantedState.HOLD;
@@ -289,7 +289,7 @@ public class CargoIntake extends Subsystem
     }
 
     @Override
-    public void stop() // TODO: This may interfere with the CargoChute
+    public void stop()
     {
         setSolenoidsToUp();
         mMotorRight.set(ControlMode.PercentOutput, 0.0);
