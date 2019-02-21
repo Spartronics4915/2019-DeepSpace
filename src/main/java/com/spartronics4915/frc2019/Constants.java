@@ -182,21 +182,20 @@ public class Constants
     public static final int kCargoIntakeMotorRight = 6;
     public static final int kCargoIntakeMotorLeft = 7;
     public static final int kCargoIntakeSensor = 7;
-    public static final boolean kCargoIntakeSolenoidExtend = true;
-    public static final boolean kCargoIntakeSolenoidRetract = false;
     public static final double kCargoIntakeSpeed = -0.5;
     public static final double kCargoEjectSpeed = 0.5;
     public static final double kCargoIntakeClimbSpeed = -0.2;
+    public static final boolean kCargoIntakeSolenoidExtend = true;
+    public static final boolean kCargoIntakeSolenoidRetract = false;
 
     // Cargo Chute
     public static final int kRampMotorId = 5;
     public static final int kRampSolenoidId = 3;
     public static final int kRampSensorId = 0;
-    public static final double kRampSpeed = 1.0; // TODO: tune
-    public static final double kShootSpeed = 1.0; // TODO: tune
+    public static final double kRampSpeed = 1.0;
+    public static final double kShootSpeed = 1.0;
     public static final double kShootTime = 4.0;
     public static final double kTransitionTime = 1.0;
-    public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
     public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
