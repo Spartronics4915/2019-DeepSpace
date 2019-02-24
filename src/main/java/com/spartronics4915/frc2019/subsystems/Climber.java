@@ -47,7 +47,6 @@ public class Climber extends Subsystem
     public IRSensor mClimberRearIRSensor = null;
 
     private Climber()
-
     {
         boolean success = false;
         try
@@ -255,28 +254,23 @@ public class Climber extends Subsystem
             mFrontRightClimberSolenoid.set(Value.kReverse);
             mRearLeftClimberSolenoid.set(Value.kReverse);
             mRearRightClimberSolenoid.set(Value.kReverse);
-            Timer.delay(2);
         }
         catch (Exception e)
         {
-            logException("Did not pass lifting check:", e);
+            logException("Did not pass lifting check: ", e);
             return false;
         }
 
         logNotice("Testing IR Sensors");
         try
         {
-            Timer.delay(5);
-            mClimberFrontIRSensor.getDistance();
+            Timer.delay(2);
             mClimberFrontIRSensor.getVoltage();
-            logNotice("Downward Front IR Sensor Distance is " + mClimberFrontIRSensor.getDistance()
-                    + " and Voltage is " + mClimberFrontIRSensor.getVoltage());
-            Timer.delay(5);
-            mClimberRearIRSensor.getDistance();
+            logNotice("Downward Front IR Sensor Voltage is " + mClimberFrontIRSensor.getVoltage());
+            Timer.delay(2);
             mClimberRearIRSensor.getVoltage();
-            logNotice("Downward Rear IR Sensor Distance is " + mClimberRearIRSensor.getDistance()
-                    + " and Voltage is " + mClimberRearIRSensor.getVoltage());
-            Timer.delay(5);
+            logNotice("Downward Rear IR Sensor Voltage is " + mClimberRearIRSensor.getVoltage());
+            Timer.delay(2);
         }
         catch (Exception e)
         {
@@ -292,10 +286,10 @@ public class Climber extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
-        dashboardPutNumber("Forward sensor distance: ", mClimberFrontIRSensor.getDistance());
         dashboardPutNumber("Forward sensor voltage: ", mClimberFrontIRSensor.getVoltage());
-        dashboardPutNumber("Rear sensor distance: ", mClimberRearIRSensor.getDistance());
+        dashboardPutBoolean("Forward sensor in range: ", frontSensorsInRange());
         dashboardPutNumber("Rear sensor voltage: ", mClimberRearIRSensor.getVoltage());
+        dashboardPutBoolean("Rear sensor in range: ", rearSensorsInRange());
     }
 
     @Override
