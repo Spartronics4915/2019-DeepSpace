@@ -1,7 +1,7 @@
 package com.spartronics4915.frc2019;
 
-import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 import com.spartronics4915.frc2019.Constants.ScorableLandmark;
 import com.spartronics4915.lib.geometry.Pose2d;
@@ -14,21 +14,25 @@ import edu.wpi.first.networktables.EntryNotification;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 
-public class VisionUpdateManager
+public class VisionUpdateManager<U extends IVisionUpdate>
 {
+    private static final Pose2d kReverseCameraOffset = new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180));
+    private static final RuntimeException kEmptyUpdateException = new RuntimeException("VisionUpdate targets is null or doesn't have specified index!");
 
-    public static VisionUpdateManager reverseVisionManager = new VisionUpdateManager("Reverse", new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180)));
-
-    private static final int kRawUpdateNumDoubles = 4; // 2 for x y, 1 for rotation, and 1 for processing time
+    public static VisionUpdateManager<PNPVisionUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPVisionUpdate::new, "Reverse", "solvePNP", kReverseCameraOffset);
+    public static VisionUpdateManager<HeadingVisionUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingVisionUpdate::new, "Reverse", "heading", kReverseCameraOffset);
 
     private final String mNetworkTablesKey;
     private final Pose2d mCameraOffset;
-    private VisionUpdate mLatestVisionUpdate = null;
+    private final BiFunction<double[], Pose2d, U> mUpdateConstructor;
 
-    private VisionUpdateManager(String coprocessorID, Pose2d cameraOffset)
+    private U mLatestVisionUpdate = null;
+
+    private VisionUpdateManager(BiFunction<double[], Pose2d, U> updateConstructor, String coprocessorID, String updateTypeName, Pose2d cameraOffset)
     {
         mNetworkTablesKey = "/SmartDashboard/Vision/" + coprocessorID + "/solvePNP";
         mCameraOffset = cameraOffset;
+        mUpdateConstructor = updateConstructor;
 
         NetworkTableInstance.getDefault().addEntryListener(mNetworkTablesKey, (e) -> visionKeyChangedCallback(e),
                 EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
@@ -39,48 +43,30 @@ public class VisionUpdateManager
         try
         {
             double[] rawVisionUpdate = entryNotification.value.getDoubleArray();
-            mLatestVisionUpdate = VisionUpdate.fromRawUpdate(rawVisionUpdate, mCameraOffset);
+            mLatestVisionUpdate = mUpdateConstructor.apply(rawVisionUpdate, mCameraOffset);
         }
         catch (Exception e)
         {
             Logger.exception(e);
-            return;
         }
-
     }
 
     /**
      * @return either empty or contains the latest vision update
      */
-    public Optional<VisionUpdate> getLatestVisionUpdate()
+    public Optional<U> getLatestVisionUpdate()
     {
-        return Optional.ofNullable(mLatestVisionUpdate);
+        return mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty() ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
     }
 
-    public static class VisionUpdate
+    public static class PNPVisionUpdate implements IVisionUpdate
     {
+        public  final double frameCapturedTime;
 
-        public final double frameCapturedTime; // Time in seconds where the epoch the boot of the RoboRIO (getFPGATimestamp's epoch)
-        public final Pose2d[] targetRobotRelativePositions; // The target's robot-relative position at frameCapturedTime (x and y in inches)
+        private final Pose2d[] mTargets;
         private final Pose2d mCameraOffset;
 
-        private VisionUpdate()
-        {
-            frameCapturedTime = 0;
-            mCameraOffset = null;
-            targetRobotRelativePositions = null;
-        }
-
-        private VisionUpdate(double capturedTime, Pose2d cameraOffset,
-                Pose2d... targetRelativePositions)
-        {
-            this.frameCapturedTime = capturedTime;
-            this.targetRobotRelativePositions = targetRelativePositions;
-
-            mCameraOffset = cameraOffset;
-        }
-
-        public static VisionUpdate fromRawUpdate(double[] values, Pose2d cameraOffset)
+        public PNPVisionUpdate(double[] values, Pose2d cameraOffset)
         {
             // a target is 3 numbers, we also expect one time, so
             // the valid lengths are 1, 4, 7  => 0, 1, 2 targets
@@ -88,8 +74,12 @@ public class VisionUpdateManager
             int ntargets = (len == 7) ? 2 : (len == 4) ? 1 : 0;
             if (ntargets <= 0)
             {
-                Logger.warning("A vision update must have at least one target");
-                return new VisionUpdate();
+                Logger.warning("A PNP vision update must have 1, 4, or 7 doubles");
+
+                this.frameCapturedTime = 0;
+                mTargets = null;
+                mCameraOffset = null;
+                return;
             }
 
             // last field is timestamp
@@ -101,30 +91,33 @@ public class VisionUpdateManager
                 // it so that it points out of the target... Oh well.
                 targets[i] = new Pose2d(values[j + 0], values[j + 1], Rotation2d.fromDegrees(values[j + 2] + 180));
             }
-            return new VisionUpdate(frameCapTime, cameraOffset, targets);
+
+            this.frameCapturedTime = frameCapTime;
+            mTargets = targets;
+            mCameraOffset = cameraOffset;
         }
 
         public Pose2d getFieldPosition(RobotStateMap stateMap)
         {
             // TODO: Look at NetworkTables to decide
             int index = 0;
-            if (this.targetRobotRelativePositions.length <= index)
-                throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
+            if (isEmpty() && mTargets.length <= index)
+                throw kEmptyUpdateException;
 
             return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(mCameraOffset)
-                    .transformBy(this.targetRobotRelativePositions[index]);
+                    .transformBy(mTargets[index]);
         }
 
         public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
         {
             // TODO: Look at NetworkTables to decide
             int index = 0;
-            if (this.targetRobotRelativePositions.length <= index)
-                throw new RuntimeException("targetRobotRelativePositions doesn't have index " + index + "!");
+            if (isEmpty() && mTargets.length <= index)
+                throw kEmptyUpdateException;
 
             Pose2d robotPoseRelativeToLastVisionUpdate =
                     stateMap.get(this.frameCapturedTime).pose.transformBy(mCameraOffset).inverse().transformBy(stateMap.get(timeToGetAt).pose);
-            return this.targetRobotRelativePositions[index].inverse().transformBy(landmark.fieldPose)
+            return mTargets[index].inverse().transformBy(landmark.fieldPose)
                     .transformBy(robotPoseRelativeToLastVisionUpdate);
         }
 
@@ -151,5 +144,65 @@ public class VisionUpdateManager
             return getCorrectedRobotPose(closestTargetPose, stateMap, timeToGetAt);
         }
 
+        @Override
+        public boolean isEmpty()
+        {
+            return mTargets != null && mTargets.length > 0;
+        }
+
     }
+
+    public static class HeadingVisionUpdate implements IVisionUpdate
+    {
+        private final TargetInfo[] mTargets;
+
+        // cameraOffset translation is unused
+        public HeadingVisionUpdate(double[] values, Pose2d cameraOffset)
+        {
+            if (values.length <= 0 && values.length % 2 == 0)
+            {
+                Logger.warning("A heading vision update must have an even, positive number of doubles");
+
+                mTargets = null;
+                return;
+            }
+
+            // last field is timestamp
+            TargetInfo[] targets = new TargetInfo[values.length];
+            for (int i = 0, j = 0; i < values.length; i++, j += 2)
+                targets[i] = new TargetInfo(Rotation2d.fromDegrees(values[j]).rotateBy(cameraOffset.getRotation()), values[j + 1]);
+
+            mTargets = targets;
+        }
+
+        public TargetInfo getTargetInfo()
+        {
+            // TODO: Look at NetworkTables
+            int index = 0;
+            if (isEmpty() && mTargets.length <= index)
+                throw kEmptyUpdateException;
+
+            return mTargets[index];
+        }
+
+        @Override
+        public boolean isEmpty()
+        {
+            return mTargets != null && mTargets.length > 0;
+        }
+        
+        public class TargetInfo
+        {
+            public final Rotation2d fieldHeading;
+            public final double height; // Inches
+
+            public TargetInfo(Rotation2d heading, double height)
+            {
+                this.fieldHeading = heading;
+                this.height = height;
+            }
+        }
+
+    }
+    
 }

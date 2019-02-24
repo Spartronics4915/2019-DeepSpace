@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.VisionUpdateManager;
-import com.spartronics4915.frc2019.VisionUpdateManager.VisionUpdate;
+import com.spartronics4915.frc2019.VisionUpdateManager.PNPVisionUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.geometry.Pose2d;
@@ -236,7 +236,7 @@ public class Superstructure extends Subsystem
                         if (mStateChanged || !mGotVisionUpdate)
                         {
                             // makeAndDrivePath(Pose2d.identity(), true);
-                            Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
+                            Optional<PNPVisionUpdate> visionUpdate = VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
                             visionUpdate.ifPresent(
