@@ -234,9 +234,9 @@ public class Constants
         {
             config = "default";
         }
-
-        if(config == "TestChassis")
+        switch(config)
         {
+        case "TestChassis":
             kIsTestChassis = true;
             kDriveWheelTrackWidthInches = 23.75;
             kDriveWheelDiameterInches = 6;
@@ -256,9 +256,9 @@ public class Constants
             kDriveLeftVIntercept = 0.7939; // V TODO tune
             kDriveLeftKv = 0.1849; // V per rad/s TODO tune
             kDriveLeftKa = 0.0350; // V per rad/s^2 TODO tune
-        }
-        else
-        {
+            break;
+
+        default:
             kIsTestChassis = false;
             kDriveWheelTrackWidthInches = 25.75;
             kDriveWheelDiameterInches = 6;
@@ -278,6 +278,7 @@ public class Constants
             kDriveLeftVIntercept = 1.4756; // V TODO tune
             kDriveLeftKv = 0.2156; // V per rad/s TODO tune
             kDriveLeftKa = 0.0920; // V per rad/s^2 TODO tune
+            break;
         }
     }
 }
