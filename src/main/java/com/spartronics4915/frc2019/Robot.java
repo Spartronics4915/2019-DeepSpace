@@ -36,7 +36,6 @@ public class Robot extends TimedRobot
     private CargoChute mCargoChute = null;
     private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
-    private LED mLED = null;
     private RobotStateEstimator mRobotStateEstimator = null;
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
@@ -104,9 +103,9 @@ public class Robot extends TimedRobot
                 mCargoChute = CargoChute.getInstance();
                 mCargoIntake = CargoIntake.getInstance();
                 mClimber = Climber.getInstance();
-                mLED = LED.getInstance();
                 mSuperstructure = Superstructure.getInstance();
                 mRobotStateEstimator = RobotStateEstimator.getInstance();
+
 
                 mSubsystemManager = new SubsystemManager(
                         Arrays.asList(
@@ -116,7 +115,7 @@ public class Robot extends TimedRobot
                                 mCargoChute,
                                 mCargoIntake,
                                 mClimber,
-                                mLED,
+                                // mLED,
                                 mSuperstructure));
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
