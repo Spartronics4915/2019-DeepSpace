@@ -140,6 +140,7 @@ public class CargoChute extends Subsystem
                         }
                         if(mCargoTimer.hasPeriodPassed(Constants.kExtendTime) && !mRampSolenoidFullyExtended)
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            mRampSolenoidFullyExtended = true;
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                         {
                             newState = SystemState.HOLDING;
