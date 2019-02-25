@@ -105,7 +105,7 @@ public class Drive extends Subsystem
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(false);
+        talon.setSensorPhase(Constants.kIsTestChassis);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
@@ -143,7 +143,7 @@ public class Drive extends Subsystem
             mLeftMaster.configNeutralDeadband(Constants.kDriveLeftDeadband, 0);
             mRightMaster.configNeutralDeadband(Constants.kDriveRightDeadband, 0);
 
-            mPigeon = new PigeonIMU(Constants.kPidgeonId);
+            mPigeon = Constants.kIsTestChassis ? new PigeonIMU(mLeftSlave) : new PigeonIMU(Constants.kPidgeonId);
             mLeftSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
 
             setOpenLoop(DriveSignal.NEUTRAL);
@@ -649,9 +649,9 @@ public class Drive extends Subsystem
             // Talon-side PID.
             //
             // mLeftMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
-            //      mPeriodicIO.left_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
+            //      mPeriodicIO.leftFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
             // mRightMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
-            //      mPeriodicIO.right_feedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
+            //      mPeriodicIO.rightFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
         }
     }
 

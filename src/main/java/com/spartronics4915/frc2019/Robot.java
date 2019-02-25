@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,9 @@ public class Robot extends TimedRobot
     private RobotStateEstimator mRobotStateEstimator = null;
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
+    private Timer mCodeTimer = new Timer();
+    private PowerDistributionPanel mPDP = new PowerDistributionPanel();
+    private double mNextReportDue = 0.0; // see outputToSmartDashboard
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -299,7 +303,6 @@ public class Robot extends TimedRobot
         try
         {
             outputToSmartDashboard();
-
         }
         catch (Throwable t)
         {
@@ -330,11 +333,10 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic()
     {
-        SmartDashboard.putString("Robot/GamePhase", "TELEOP");
-        double timestamp = Timer.getFPGATimestamp();
-        double throttle = mControlBoard.getThrottle();
-        double turn = mControlBoard.getTurn();
-
+        double[] codeTimes = new double[20]; // for diagnosing loop time consumption
+        int nctr = 0;
+        mCodeTimer.reset();
+        mCodeTimer.start();
         try
         {
             if (mSuperstructure.isDriverControlled())
@@ -342,11 +344,15 @@ public class Robot extends TimedRobot
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
                         true /* TODO: Decide squared inputs or not */)/*.scale(48)*/;
 
+                codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
+
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
                 //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
                 // )); XXX Conversions on Kv are wrong
+
+                codeTimes[nctr++] = mCodeTimer.get(); // 1 after setOpenLoop
 
 
                 // Button Board ----------------------------------------------------------
@@ -356,6 +362,8 @@ public class Robot extends TimedRobot
                     mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
                 else if (mControlBoard.getManualExtendAllClimbPneumatics())
                     mClimber.setWantedState(Climber.WantedState.CLIMB);
+
+                codeTimes[nctr++] = mCodeTimer.get(); // 2 after climbing
 
                 // INTAKE
                 if (mControlBoard.getAssistedIntakeCargo())
@@ -367,8 +375,9 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getManualIntakeCargo())
                 {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO);
                 }
+                codeTimes[nctr++] = mCodeTimer.get(); // 3 after intake
 
                 // CARGO RAMP
                 if (mControlBoard.getManualRamp())
@@ -401,6 +410,8 @@ public class Robot extends TimedRobot
                 else if (mControlBoard.getManualChuteDown())
                     mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
 
+                codeTimes[nctr++] = mCodeTimer.get(); // 4 after cargochute
+
                 // PANEL HANDLER
                 if (mControlBoard.getAssistedIntakePanel())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
@@ -408,6 +419,8 @@ public class Robot extends TimedRobot
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
                 else if (mControlBoard.getManualEjectPanel())
                     mSuperstructure.setWantedState(Superstructure.WantedState.EJECT_PANEL);
+
+                codeTimes[nctr++] = mCodeTimer.get(); // 5 after panelhandler
 
                 // EVERYTHING
                 if (mControlBoard.getInsideFramePerimeter())
@@ -427,6 +440,7 @@ public class Robot extends TimedRobot
                 {
                     // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                 }
+                codeTimes[nctr++] = mCodeTimer.get(); // 6 after subsystems
 
 
                 //TEST BUTTONBOARD
@@ -458,7 +472,7 @@ public class Robot extends TimedRobot
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
                 }
-
+                codeTimes[nctr++] = mCodeTimer.get(); // 7 after testbuttonboard
 
 
                 //Driver Joystick-----------------------------------------------------------
@@ -467,6 +481,8 @@ public class Robot extends TimedRobot
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
+
+            codeTimes[nctr++] = mCodeTimer.get(); // 8 at end
         }
         catch (Throwable t)
         {
@@ -475,6 +491,20 @@ public class Robot extends TimedRobot
         }
 
         outputToSmartDashboard();
+        codeTimes[nctr++] = mCodeTimer.get(); // 9 after telemetry
+        double loopTime = codeTimes[nctr-1];
+        if(loopTime > .025)
+        {
+            String str = "looptime overrun, offenders:\n";
+            for(int i=0;i<nctr;i++)
+            {
+                str += "  " + i + " " + codeTimes[i] + "\n";
+            }
+            if(loopTime > .1)
+                Logger.notice("BIG " + str);
+            else
+                Logger.debug(str);
+        }
     }
 
     @Override
@@ -497,11 +527,28 @@ public class Robot extends TimedRobot
 
     public void outputToSmartDashboard()
     {
-        mSubsystemManager.outputToTelemetry();
-        mEnabledLooper.outputToSmartDashboard();
-        SmartDashboard.putNumber("Robot/BatteryVoltage",
-                RobotController.getBatteryVoltage());
-        SmartDashboard.putNumber("Robot/InputCurrent",
-                RobotController.getInputCurrent());
+        /* need to constrain the amount of network table traffic we
+         * produce each loop:
+         *   - outputTelemetry supports round-robin distribution of telemetry
+         *   - slowly varying data is "automatically filtered" by network tables
+         *   - but we impose an update rate max on less important data
+         *  NB: it's possible that slow/variable times is actually the result
+         *   of multithreaded synchronization locks.
+         */
+        mEnabledLooper.outputToSmartDashboard(); // outputs _dt
+        mSubsystemManager.outputToTelemetry(true/*round-robin*/);
+
+        double now = Timer.getFPGATimestamp();
+        if(now > this.mNextReportDue)
+        {
+            this.mNextReportDue = now + 1.0; // once per second
+            // nb: MatchTime is approximate
+            SmartDashboard.putNumber("DriverStation/MatchTime",
+                    DriverStation.getInstance().getMatchTime());
+            SmartDashboard.putNumber("Robot/BatteryVoltage",
+                    RobotController.getBatteryVoltage());
+            SmartDashboard.putNumber("Robot/BatteryCurrent",
+                    mPDP.getTotalCurrent());
+        }
     }
 }

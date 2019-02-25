@@ -78,9 +78,11 @@ public class DriveOffHAB implements Action {
     @Override
     public void start()
     {
+
         mDrive.setVelocity(new DriveSignal(mVelocity, mVelocity), new DriveSignal(mFeedforward, mFeedforward));
         mYawPitchRollInitial = mDrive.getAccumGyro().clone();
         mYawPitchRoll = mDrive.getAccumGyro();
+        SmartDashboard.putNumber("Actions/DriveOffHab/initialpitch", mYawPitchRollInitial[1]);
     }
 
 }

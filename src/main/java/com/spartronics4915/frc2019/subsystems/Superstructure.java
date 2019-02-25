@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.VisionUpdateManager;
-import com.spartronics4915.frc2019.VisionUpdateManager.VisionUpdate;
+import com.spartronics4915.frc2019.VisionUpdateManager.PNPVisionUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.geometry.Pose2d;
@@ -236,11 +236,14 @@ public class Superstructure extends Subsystem
                         if (mStateChanged || !mGotVisionUpdate)
                         {
                             // makeAndDrivePath(Pose2d.identity(), true);
-                            Optional<VisionUpdate> visionUpdate = VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate();
+                            Optional<PNPVisionUpdate> visionUpdate = VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
                             visionUpdate.ifPresent(
-                                    v -> makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true)); // TODO make not reversed
+                                    v -> {
+                                        makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
+                                        dashboardPutString("TargetPose", Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)).toString());
+                                    }); // TODO make not reversed
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
@@ -323,7 +326,11 @@ public class Superstructure extends Subsystem
                         }
 
                         if (mCargoChute.atTarget())
+                        {
                             mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
 
                         break;
                     default:
@@ -436,6 +443,7 @@ public class Superstructure extends Subsystem
                 if (mSystemState == SystemState.INTAKING_CARGO)
                     break;
                 newState = SystemState.INTAKING_CARGO;
+                break;
             default:
                 logError("Unhandled wanted state in default state transfer!");
                 newState = SystemState.DRIVER_CONTROLLING;

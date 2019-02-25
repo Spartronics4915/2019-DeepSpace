@@ -7,15 +7,14 @@ import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
+
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.spartronics4915.lib.drivers.A21IRSensor;
 
 public class CargoChute extends Subsystem
 {
@@ -33,12 +32,12 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY,
+        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY
     }
 
     private WantedState mWantedState = WantedState.LOWER;
@@ -54,7 +53,7 @@ public class CargoChute extends Subsystem
 
     private CargoChute()
     {
-        boolean success = true;
+        boolean success = false;
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -63,6 +62,7 @@ public class CargoChute extends Subsystem
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
+            success = true;
         }
         catch (Exception e)
         {
@@ -107,20 +107,9 @@ public class CargoChute extends Subsystem
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
                             newState = SystemState.RAMPING;
                         break;
-                    case EJECTING: // We stop the motors for 1 second, then reverse them (this lessens the jerk)
+                    case EJECTING:
                         if (mStateChanged)
-                        {
-                            /*
-                            mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
-                        }
-                        if (mCargoTimer.hasPeriodPassed(Constants.kTransitionTime)) // Does the period still pass if the timer is stopped?
-                        {
-                            mCargoTimer.stop();
-                            mCargoTimer.reset(); // I believe we need this reset here per above comment
-                            */
                             mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
-                        }
                         break;
                     case LOWERING:
                         if (mStateChanged)
@@ -190,7 +179,10 @@ public class CargoChute extends Subsystem
 
     public boolean isRampRunning()
     {
-        return mSystemState == SystemState.RAMPING || mSystemState == SystemState.EJECTING || mSystemState == SystemState.SHOOTING_BAY || mSystemState == SystemState.SHOOTING_ROCKET;
+        return mSystemState == SystemState.RAMPING
+            || mSystemState == SystemState.EJECTING
+            || mSystemState == SystemState.SHOOTING_BAY
+            || mSystemState == SystemState.SHOOTING_ROCKET;
     }
 
     private SystemState defaultStateTransfer()
@@ -244,7 +236,7 @@ public class CargoChute extends Subsystem
             case HOLD_MANUAL:
                 return mSystemState == SystemState.HOLDING;
             case EJECT_BACK:
-               return mSystemState == SystemState.EJECTING && !ballInPosition(); // TODO: i'm slightly unclear on how atTarget works but it seems like this should check the CargoIntake sensor
+               return mSystemState == SystemState.EJECTING && !ballInPosition(); // i'm slightly unclear on how atTarget works but it seems like this should check the CargoIntake sensor
             case BRING_BALL_TO_TOP:
                 return mSystemState == SystemState.HOLDING && ballInPosition();
             case LOWER:
@@ -332,7 +324,7 @@ public class CargoChute extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
-        dashboardPutBoolean("mRampSolenoid extended: ", !mRampSolenoid.get()); // Yes it is reverse
+        dashboardPutBoolean("mRampSolenoid extended: ", mRampSolenoid.get());
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
         dashboardPutBoolean("Ball in position: ", ballInPosition());
