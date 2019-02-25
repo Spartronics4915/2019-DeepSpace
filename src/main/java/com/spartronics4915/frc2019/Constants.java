@@ -189,6 +189,7 @@ public class Constants
     public static final double kRampSpeed = 1.0; // TODO: tune
     public static final double kShootSpeed = 1.0; // TODO: tune
     public static final double kShootTime = 4.0;
+    public static final double kExtendTime = 1.0; //Waits for the solenoids to extend TODO: tune
     public static final double kTransitionTime = 1.0;
     public static final double kMaxChuteBallDistanceThreshold = 1.0; // TODO: tune
     public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good

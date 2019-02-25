@@ -145,6 +145,8 @@ public class CargoChute extends Subsystem
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
+                            // Waits so that the solenoid can get up
+                            mCargoTimer.hasPeriodPassed(Constants.kExtendTime);
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
