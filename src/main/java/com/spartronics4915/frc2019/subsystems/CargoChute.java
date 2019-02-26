@@ -171,24 +171,6 @@ public class CargoChute extends Subsystem
         }
     };
 
-    private boolean isInManual()
-    {
-        return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
-    }
-
-    private boolean ballInPosition()
-    {
-        return mRampSensor.getVoltage() >= Constants.kMinBallInChuteVoltage;
-    }
-
-    public boolean isRampRunning()
-    {
-        return mSystemState == SystemState.RAMPING
-            || mSystemState == SystemState.EJECTING
-            || mSystemState == SystemState.SHOOTING_BAY
-            || mSystemState == SystemState.SHOOTING_ROCKET;
-    }
-
     private SystemState defaultStateTransfer()
     {
         SystemState newState = mSystemState;
@@ -342,5 +324,23 @@ public class CargoChute extends Subsystem
         mSystemState = SystemState.HOLDING;
         mRampMotor.set(ControlMode.PercentOutput, 0.0);
         mRampSolenoid.set(Constants.kRampSolenoidRetract);
+    }
+
+    private boolean ballInPosition()
+    {
+        return mRampSensor.getVoltage() >= Constants.kMinBallInChuteVoltage;
+    }
+
+    private boolean isInManual()
+    {
+        return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
+    }
+
+    public boolean isRampRunning()
+    {
+        return mSystemState == SystemState.RAMPING
+            || mSystemState == SystemState.EJECTING
+            || mSystemState == SystemState.SHOOTING_BAY
+            || mSystemState == SystemState.SHOOTING_ROCKET;
     }
 }
