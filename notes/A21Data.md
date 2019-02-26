@@ -9,4 +9,3 @@
 | 10  |  1.9 |
 | 10  |  2.0 |
 | 4 (ignore this row) |  2.9 |
-| 4 (ignore this row) |  2.9 |
