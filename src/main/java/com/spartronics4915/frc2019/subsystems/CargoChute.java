@@ -151,6 +151,8 @@ public class CargoChute extends Subsystem
                 }
                 if (newState != mSystemState)
                 {
+                    if (mSystemState == SystemState.SHOOTING_BAY) // If we transition early from shooting, this brings down the ramp
+                        mRampSolenoid.set(Constants.kRampSolenoidRetract);
                     mCargoTimer.stop();
                     mCargoTimer.reset();
                     mStateChanged = true;
