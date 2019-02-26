@@ -50,7 +50,7 @@ public class CargoChute extends Subsystem
     private Timer mCargoTimer = new Timer();
     private boolean mIsShootingBay;
 
-    private boolean mStateChanged = false;
+    private boolean mStateChanged;
 
     private CargoChute()
     {
@@ -143,9 +143,7 @@ public class CargoChute extends Subsystem
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                             mIsShootingBay = true;
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
-                        {
                             newState = SystemState.HOLDING;
-                        }
                         break;
                     default:
                         logError("Unhandled system state!");
