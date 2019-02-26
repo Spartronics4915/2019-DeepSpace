@@ -48,7 +48,7 @@ public class CargoChute extends Subsystem
     private A21IRSensor mRampSensor = null;
 
     private Timer mCargoTimer = new Timer();
-    private boolean mRampSolenoidFullyExtended;
+    private boolean mIsShootingBay;
 
     private boolean mStateChanged = false;
 
@@ -133,18 +133,18 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
+                            mIsShootingBay = false;
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
                             // Waits so that the solenoid can get up
                             
                         }
-                        if(mCargoTimer.hasPeriodPassed(Constants.kExtendTime) && !mRampSolenoidFullyExtended)
+                        if(mCargoTimer.hasPeriodPassed(Constants.kExtendTime) && !mIsShootingBay)
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
-                            mRampSolenoidFullyExtended = true;
+                            mIsShootingBay = true;
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                         {
                             newState = SystemState.HOLDING;
-                            mRampSolenoidFullyExtended = false;
                         }
                         break;
                     default:
