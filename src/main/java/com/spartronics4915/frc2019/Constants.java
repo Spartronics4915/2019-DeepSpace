@@ -40,7 +40,7 @@ public class Constants
         RIGHT_MIDDLE_CARGO_BAY(LEFT_MIDDLE_CARGO_BAY),
         LEFT_FAR_CARGO_BAY(7727.95, 708.025, 90.0),
         RIGHT_FAR_CARGO_BAY(LEFT_FAR_CARGO_BAY);
-  
+
         public final Pose2d fieldPose;
         public final Pose2d robotLengthCorrectedPose;
 
@@ -114,7 +114,7 @@ public class Constants
     public static final double kDriveDownShiftVelocity = 9.5 * 12.0; // inches per second
     public static final double kDriveDownShiftAngularVelocity = Math.PI / 2.0; // rad/sec
     public static final double kDriveUpShiftVelocity = 11.0 * 12.0; // inches per second
-    
+
     // Adaptive pure pursuit
     public static final double kPathKX = 10.0; // units/s per unit of error... This is essentially a P gain on longitudinal error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
@@ -195,12 +195,11 @@ public class Constants
     public static final int kRampMotorId = 5;
     public static final int kRampSolenoidId = 3;
     public static final int kRampSensorId = 0;
-    public static final double kRampSpeed = 1.0;
-    public static final double kShootSpeed = 1.0;
-    public static final double kShootTime = 4.0;
-    public static final double kExtendTime = 0.2; //Waits for the solenoids to extend TODO: tune
-    public static final double kTransitionTime = 1.0;
-    public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
+    public static final double kRampIntakeSpeed = 1.0;
+    public static final double kRampShootSpeed = 1.0;
+    public static final double kRampShootTime = 4.0;
+    public static final double kRampExtendTime = 0.2; // Waits for the solenoids to extend TODO: tune
+    public static final double kMinBallInChuteVoltage = 1.3;
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
 
