@@ -134,6 +134,7 @@ public class CargoChute extends Subsystem
                         if (mStateChanged) // Waits so that the solenoid can get up
                         {
                             mIsShootingBay = false;
+                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
                         }
