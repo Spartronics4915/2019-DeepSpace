@@ -28,18 +28,20 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        RETRACT, EJECT
+        RETRACT, EJECT, //INTAKE
     }
 
     private enum SystemState
     {
-        RETRACTING, EJECTING
+        RETRACTING, EJECTING, //INTAKING
     }
 
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
     private Solenoid mSolenoid = null;
+    //private Solenoid mSolenoidArm
+    //private Solenoid mSolenoidGrab
 
     //private DigitalInput mLimitSwitch = null;
 
@@ -74,6 +76,8 @@ public class PanelHandler extends Subsystem
             synchronized (PanelHandler.this)
             {
                 mSolenoid.set(Constants.kPanelSolenoidRetract);
+                //mSolenoidArm.set(constant)
+                //mSolenoidGrab.set(constant)
                 mStateChanged = true;
                 mWantedState = WantedState.RETRACT;
                 mSystemState = SystemState.RETRACTING;
@@ -94,7 +98,7 @@ public class PanelHandler extends Subsystem
                             mSolenoid.set(Constants.kPanelSolenoidRetract);
                         }
                         break;
-                    case EJECTING://BB6
+                    case EJECTING:
                         if (mStateChanged)
                         {
                             mSolenoid.set(Constants.kPanelSolenoidExtend);
@@ -103,6 +107,13 @@ public class PanelHandler extends Subsystem
                         else if (Timer.getFPGATimestamp() > mEjectTime + Constants.kPanelEjectTime && newState == mSystemState)
                             setWantedState(WantedState.RETRACT);
                         break;
+                    /*case INTAKING
+                        if (mStateChanged)
+                        {
+                            mSolenoidArm.set(Constants.kPanelSolenoidExtend);
+                            mIntakeTime = Timer.getFPGATimestamp
+                        }
+                    */
                     default:
                         logError("Unhandled system state!");
                 }
@@ -159,7 +170,7 @@ public class PanelHandler extends Subsystem
     }
 
     @Override
-    public boolean checkSystem(String variant)//DS6
+    public boolean checkSystem(String variant)
     {
         logNotice("Starting PanelHandler Solenoid Check");
         try

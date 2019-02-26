@@ -96,7 +96,7 @@ public class CargoIntake extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case HOLDING://DS5
+                    case HOLDING:
                         if (mStateChanged)
                         {
                             mMotorLeft.set(ControlMode.PercentOutput, 0.0);
@@ -119,7 +119,7 @@ public class CargoIntake extends Subsystem
                             mMotorRight.set(ControlMode.PercentOutput, 0.0);
                         }
                         break;
-                    case INTAKING://BB2
+                    case INTAKING:
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
@@ -127,7 +127,7 @@ public class CargoIntake extends Subsystem
                             mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
                         }
                         break;
-                    case EJECTING://BB3
+                    case EJECTING:
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
