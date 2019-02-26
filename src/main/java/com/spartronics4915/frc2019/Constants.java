@@ -195,10 +195,10 @@ public class Constants
     public static final int kRampMotorId = 5;
     public static final int kRampSolenoidId = 3;
     public static final int kRampSensorId = 0;
-    public static final double kRampIntakeSpeed = 1.0;
-    public static final double kRampShootSpeed = 1.0;
-    public static final double kRampShootTime = 4.0;
-    public static final double kRampExtendTime = 0.2; // Waits for the solenoids to extend TODO: tune
+    public static final double kRampIntakeSpeed = 1.0; // Seconds
+    public static final double kRampShootSpeed = 1.0; // Seconds
+    public static final double kRampShootTime = 4.0; // Seconds
+    public static final double kRampExtendTime = 0.2; // Seconds; Waits for the solenoids to extend TODO: tune
     public static final double kMinBallInChuteVoltage = 1.3;
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
