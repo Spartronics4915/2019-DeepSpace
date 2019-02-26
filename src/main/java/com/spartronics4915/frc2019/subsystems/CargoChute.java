@@ -140,8 +140,10 @@ public class CargoChute extends Subsystem
                             
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kExtendTime) && !mIsShootingBay)
+                        {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                             mIsShootingBay = true;
+                        }    
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
