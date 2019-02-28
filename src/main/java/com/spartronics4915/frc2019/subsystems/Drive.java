@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.VisionUpdateManager.HeadingUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
@@ -15,6 +16,7 @@ import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
+import com.spartronics4915.lib.physics.DifferentialDrive.DriveDynamics;
 import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
@@ -105,7 +107,7 @@ public class Drive extends Subsystem
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(true);
+        talon.setSensorPhase(Constants.kIsTestChassis);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
@@ -143,7 +145,7 @@ public class Drive extends Subsystem
             mLeftMaster.configNeutralDeadband(Constants.kDriveLeftDeadband, 0);
             mRightMaster.configNeutralDeadband(Constants.kDriveRightDeadband, 0);
 
-            mPigeon = new PigeonIMU(Constants.kPidgeonId);
+            mPigeon = Constants.kIsTestChassis ? new PigeonIMU(mLeftSlave) : new PigeonIMU(Constants.kPidgeonId);
             mLeftSlave.setStatusFramePeriod(StatusFrameEnhanced.Status_11_UartGadgeteer, 10, 10);
 
             setOpenLoop(DriveSignal.NEUTRAL);
@@ -282,6 +284,12 @@ public class Drive extends Subsystem
         mPeriodicIO.leftFeedforward = feedforwardVoltage.getLeft() / 12;
         mPeriodicIO.rightFeedforward = feedforwardVoltage.getRight() / 12;
         mPeriodicIO.leftAccel = mPeriodicIO.rightAccel = 0;
+    }
+
+    public void curveTowardsHeading(HeadingUpdate.TargetInfo targetInfo)
+    {
+        DriveDynamics w = mMotionPlanner.getModel().solveInverseDynamics(new ChassisState(targetInfo.heightError, targetInfo.headingError.getRadians()), new ChassisState());
+        setVelocity(new DriveSignal(w.wheel_velocity.left, w.wheel_velocity.right), new DriveSignal(w.voltage.left, w.voltage.right));
     }
 
     private void updateTalonsForVelocity()

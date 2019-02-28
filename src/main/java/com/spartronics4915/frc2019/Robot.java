@@ -42,6 +42,7 @@ public class Robot extends TimedRobot
     private AutoModeExecutor mAutoModeExecutor;
     private Timer mCodeTimer = new Timer();
     private PowerDistributionPanel mPDP = new PowerDistributionPanel();
+    private double mNextReportDue = 0.0; // see outputToSmartDashboard
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -302,7 +303,6 @@ public class Robot extends TimedRobot
         try
         {
             outputToSmartDashboard();
-
         }
         catch (Throwable t)
         {
@@ -527,11 +527,28 @@ public class Robot extends TimedRobot
 
     public void outputToSmartDashboard()
     {
+        /* need to constrain the amount of network table traffic we
+         * produce each loop:
+         *   - outputTelemetry supports round-robin distribution of telemetry
+         *   - slowly varying data is "automatically filtered" by network tables
+         *   - but we impose an update rate max on less important data
+         *  NB: it's possible that slow/variable times is actually the result
+         *   of multithreaded synchronization locks.
+         */
         mEnabledLooper.outputToSmartDashboard(); // outputs _dt
         mSubsystemManager.outputToTelemetry(true/*round-robin*/);
-        SmartDashboard.putNumber("Robot/BatteryVoltage",
-                RobotController.getBatteryVoltage());
-        SmartDashboard.putNumber("Robot/BatteryCurrent",
-                mPDP.getTotalCurrent());
+
+        double now = Timer.getFPGATimestamp();
+        if(now > this.mNextReportDue)
+        {
+            this.mNextReportDue = now + 1.0; // once per second
+            // nb: MatchTime is approximate
+            SmartDashboard.putNumber("DriverStation/MatchTime",
+                    DriverStation.getInstance().getMatchTime());
+            SmartDashboard.putNumber("Robot/BatteryVoltage",
+                    RobotController.getBatteryVoltage());
+            SmartDashboard.putNumber("Robot/BatteryCurrent",
+                    mPDP.getTotalCurrent());
+        }
     }
 }

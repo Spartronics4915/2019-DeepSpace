@@ -31,7 +31,7 @@ public class ZeroOdometryFromVision implements Action
     @Override
     public void update()
     {
-        VisionUpdateManager.reverseVisionManager.getLatestVisionUpdate().ifPresent(visionUpdate ->
+        VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate().ifPresent(visionUpdate ->
         {
             mVisionCaptureTime = visionUpdate.frameCapturedTime;
             if (mVisionCaptureTime > mStartTime)

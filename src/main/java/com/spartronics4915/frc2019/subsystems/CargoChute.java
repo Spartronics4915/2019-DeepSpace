@@ -32,12 +32,12 @@ public class CargoChute extends Subsystem
 
     public enum WantedState
     {
-        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY,
+        RAMP_MANUAL, HOLD_MANUAL, BRING_BALL_TO_TOP, EJECT_BACK, LOWER, RAISE, SHOOT_ROCKET, SHOOT_BAY
     }
 
     private enum SystemState
     {
-        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY,
+        RAMPING, HOLDING, EJECTING, LOWERING, RAISING, SHOOTING_ROCKET, SHOOTING_BAY
     }
 
     private WantedState mWantedState = WantedState.LOWER;
@@ -48,12 +48,13 @@ public class CargoChute extends Subsystem
     private A21IRSensor mRampSensor = null;
 
     private Timer mCargoTimer = new Timer();
+    private boolean mIsShootingBay;
 
     private boolean mStateChanged;
 
     private CargoChute()
     {
-        boolean success = true;
+        boolean success = false;
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -62,6 +63,7 @@ public class CargoChute extends Subsystem
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
+            success = true;
         }
         catch (Exception e)
         {
@@ -131,10 +133,17 @@ public class CargoChute extends Subsystem
                     case SHOOTING_BAY:
                         if (mStateChanged)
                         {
+                            mIsShootingBay = false;
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            // Waits so that the solenoid can get up
+                            
                         }
+                        if (mCargoTimer.hasPeriodPassed(Constants.kExtendTime) && !mIsShootingBay)
+                        {
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            mIsShootingBay = true;
+                        }    
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
