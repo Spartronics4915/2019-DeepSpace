@@ -19,8 +19,8 @@ public class VisionUpdateManager<U extends IVisionUpdate>
     private static final Pose2d kReverseCameraOffset = new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180));
     private static final RuntimeException kEmptyUpdateException = new RuntimeException("VisionUpdate targets is null or doesn't have specified index!");
 
-    public static VisionUpdateManager<PNPVisionUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPVisionUpdate::new, "Reverse", "solvePNP", kReverseCameraOffset);
-    public static VisionUpdateManager<HeadingVisionUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingVisionUpdate::new, "Reverse", "heading", kReverseCameraOffset);
+    public static VisionUpdateManager<PNPUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPUpdate::new, "Reverse", "solvePNP", kReverseCameraOffset);
+    public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", kReverseCameraOffset);
 
     private final String mNetworkTablesKey;
     private final Pose2d mCameraOffset;
@@ -59,14 +59,14 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         return mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty() ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
     }
 
-    public static class PNPVisionUpdate implements IVisionUpdate
+    public static class PNPUpdate implements IVisionUpdate
     {
         public  final double frameCapturedTime;
 
         private final Pose2d[] mTargets;
         private final Pose2d mCameraOffset;
 
-        public PNPVisionUpdate(double[] values, Pose2d cameraOffset)
+        public PNPUpdate(double[] values, Pose2d cameraOffset)
         {
             // a target is 3 numbers, we also expect one time, so
             // the valid lengths are 1, 4, 7  => 0, 1, 2 targets
@@ -152,12 +152,12 @@ public class VisionUpdateManager<U extends IVisionUpdate>
 
     }
 
-    public static class HeadingVisionUpdate implements IVisionUpdate
+    public static class HeadingUpdate implements IVisionUpdate
     {
         private final TargetInfo[] mTargets;
 
         // cameraOffset translation is unused
-        public HeadingVisionUpdate(double[] values, Pose2d cameraOffset)
+        public HeadingUpdate(double[] values, Pose2d cameraOffset)
         {
             if (values.length <= 0 && values.length % 2 == 0)
             {
@@ -193,13 +193,13 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         
         public class TargetInfo
         {
-            public final Rotation2d fieldHeading;
-            public final double height; // Inches
+            public final Rotation2d headingError;
+            public final double heightError; // Pixels in the source camera
 
-            public TargetInfo(Rotation2d heading, double height)
+            public TargetInfo(Rotation2d heading, double heightError)
             {
-                this.fieldHeading = heading;
-                this.height = height;
+                this.headingError = heading;
+                this.heightError = heightError;
             }
         }
 

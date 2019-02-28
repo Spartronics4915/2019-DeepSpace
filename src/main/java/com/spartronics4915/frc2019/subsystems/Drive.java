@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.VisionUpdateManager.HeadingUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
@@ -15,6 +16,7 @@ import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
+import com.spartronics4915.lib.physics.DifferentialDrive.DriveDynamics;
 import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
@@ -282,6 +284,12 @@ public class Drive extends Subsystem
         mPeriodicIO.leftFeedforward = feedforwardVoltage.getLeft() / 12;
         mPeriodicIO.rightFeedforward = feedforwardVoltage.getRight() / 12;
         mPeriodicIO.leftAccel = mPeriodicIO.rightAccel = 0;
+    }
+
+    public void curveTowardsHeading(HeadingUpdate.TargetInfo targetInfo)
+    {
+        DriveDynamics w = mMotionPlanner.getModel().solveInverseDynamics(new ChassisState(targetInfo.heightError, targetInfo.headingError.getRadians()), new ChassisState());
+        setVelocity(new DriveSignal(w.wheel_velocity.left, w.wheel_velocity.right), new DriveSignal(w.voltage.left, w.voltage.right));
     }
 
     private void updateTalonsForVelocity()
