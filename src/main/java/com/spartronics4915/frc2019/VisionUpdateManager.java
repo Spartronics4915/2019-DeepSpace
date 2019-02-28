@@ -170,7 +170,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
             // last field is timestamp
             TargetInfo[] targets = new TargetInfo[values.length];
             for (int i = 0, j = 0; i < values.length; i++, j += 2)
-                targets[i] = new TargetInfo(Rotation2d.fromDegrees(values[j]).rotateBy(cameraOffset.getRotation()), values[j + 1]);
+                targets[i] = new TargetInfo(Rotation2d.fromRadians(values[j]).rotateBy(cameraOffset.getRotation()), values[j + 1]);
 
             mTargets = targets;
         }

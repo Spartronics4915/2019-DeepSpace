@@ -286,9 +286,12 @@ public class Drive extends Subsystem
         mPeriodicIO.leftAccel = mPeriodicIO.rightAccel = 0;
     }
 
-    public void curveTowardsHeading(HeadingUpdate.TargetInfo targetInfo)
+    public void curveTowardsVisionTarget(HeadingUpdate.TargetInfo targetInfo)
     {
-        DriveDynamics w = mMotionPlanner.getModel().solveInverseDynamics(new ChassisState(targetInfo.heightError, targetInfo.headingError.getRadians()), new ChassisState());
+        DriveDynamics w = mMotionPlanner.getModel().solveInverseDynamics(
+            new ChassisState(targetInfo.heightError * Constants.kDriveVisionHeightKp,
+                targetInfo.headingError.getRadians() * Constants.kDriveVisionHeadingKp), new ChassisState()
+        );
         setVelocity(new DriveSignal(w.wheel_velocity.left, w.wheel_velocity.right), new DriveSignal(w.voltage.left, w.voltage.right));
     }
 

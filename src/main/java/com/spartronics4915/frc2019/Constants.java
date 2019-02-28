@@ -142,6 +142,9 @@ public class Constants
     public static final double kTurnVelTolerance = 0.2; // in/sec
     // (Note that if multiple talons are dedicated to a mechanism, any sensors
 
+    public static final double kDriveVisionHeadingKp = 1.0; // rad/s
+    public static final double kDriveVisionHeightKp = 40.0; // ft/s
+
     public static final double kDriveVoltageRampRate = 0.0;
 
     /* I/O */
