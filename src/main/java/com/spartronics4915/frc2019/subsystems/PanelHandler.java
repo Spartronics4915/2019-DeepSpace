@@ -28,19 +28,19 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        RETRACT, EJECT
+        ARM_DOWN, ARM_UP, EJECT_ROCKET
     }
 
     private enum SystemState
     {
-        RETRACTING, EJECTING
+        ARM_DOWNING, ARM_UPING, EJECTING_ROCKET
     }
 
-    private WantedState mWantedState = WantedState.RETRACT;
-    private SystemState mSystemState = SystemState.RETRACTING;
+    private WantedState mWantedState = WantedState.ARM_UP;
+    private SystemState mSystemState = SystemState.ARM_UPING;
 
     private Solenoid mSolenoid = null;
-
+    private Solenoid mSolenoidArm = null;
     //private DigitalInput mLimitSwitch = null;
 
     private boolean mStateChanged;
@@ -53,6 +53,7 @@ public class PanelHandler extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
+            mSolenoidArm = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid); // TODO: Change this
             success = true;
         }
         catch (Exception e)
@@ -67,7 +68,8 @@ public class PanelHandler extends Subsystem
     private final ILoop mLoop = new ILoop()
     {
         private double mEjectTime;
-        private double mIntakeTime;
+        private double mArmDownTime;
+        private double mRetractTime;
 
         @Override
         public void onStart(double timestamp)
@@ -75,9 +77,10 @@ public class PanelHandler extends Subsystem
             synchronized (PanelHandler.this)
             {
                 mSolenoid.set(Constants.kPanelSolenoidRetract);
+                mSolenoidArm.set(Constants.kPanelSolenoidRetract);
                 mStateChanged = true;
-                mWantedState = WantedState.RETRACT;
-                mSystemState = SystemState.RETRACTING;
+                mWantedState = WantedState.ARM_UP;
+                mSystemState = SystemState.ARM_UPING;
             }
         }
 
@@ -89,21 +92,33 @@ public class PanelHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case RETRACTING:
+                    case ARM_DOWNING:
                         if (mStateChanged)
                         {
-                            mSolenoid.set(Constants.kPanelSolenoidRetract);
+                            mSolenoidArm.set(Constants.kPanelSolenoidRetract);
                         }
-                        break;
-                    case EJECTING:
+                    case ARM_UPING:
                         if (mStateChanged)
                         {
+                            mSolenoidArm.set(Constants.kPanelSolenoidExtend);
+                        }
+                    case EJECTING_ROCKET:
+                        if (mStateChanged)
+                        {
+                            mSolenoidArm.set(Constants.kPanelSolenoidRetract);
+                            mArmDownTime = Timer.getFPGATimestamp();
+                        }
+                        else if (Timer.getFPGATimestamp() > mArmDownTime + Constants.kPanelArmDownTime && newState == mSystemState){
                             mSolenoid.set(Constants.kPanelSolenoidExtend);
                             mEjectTime = Timer.getFPGATimestamp();
+                        } 
+                        else if (Timer.getFPGATimestamp() > mEjectTime + Constants.kPanelEjectTime && newState == mSystemState){
+                            mSolenoid.set(Constants.kPanelSolenoidRetract);
+                            mRetractTime = Timer.getFPGATimestamp();
                         }
-                        else if (Timer.getFPGATimestamp() > mEjectTime + Constants.kPanelEjectTime && newState == mSystemState)
-                            setWantedState(WantedState.RETRACT);
-                        break;
+                        else if (Timer.getFPGATimestamp() > mRetractTime + Constants.kPanelRetractTime && newState == mSystemState){
+                            setWantedState(WantedState.ARM_UP);
+                        }
                     default:
                         logError("Unhandled system state!");
                 }
@@ -133,11 +148,14 @@ public class PanelHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case RETRACT:
-                newState = SystemState.RETRACTING;
+            case ARM_DOWN:
+                newState = SystemState.ARM_DOWNING;
                 break;
-            case EJECT:
-                newState = SystemState.EJECTING;
+            case ARM_UP:
+                newState = SystemState.ARM_UPING;
+                break;
+            case EJECT_ROCKET:
+                newState = SystemState.EJECTING_ROCKET;
                 break;
         }
         return newState;
@@ -150,7 +168,18 @@ public class PanelHandler extends Subsystem
 
     public synchronized boolean atTarget()
     {
-        return mSystemState == SystemState.RETRACTING && mWantedState == WantedState.RETRACT;
+        switch (mWantedState)
+        {
+            case ARM_DOWN:
+                return mSystemState == SystemState.ARM_DOWNING;
+            case ARM_UP:
+                return mSystemState == SystemState.ARM_UPING;
+            case EJECT_ROCKET:
+                return mSystemState == SystemState.EJECTING_ROCKET;
+            default:
+                logError("atTarget for unknown wanted state " + mWantedState);
+                return false;
+        }
     }
 
     @Override
@@ -186,7 +215,6 @@ public class PanelHandler extends Subsystem
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
         dashboardPutBoolean("mSolenoid1 Extended", mSolenoid.get());
-        //dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
     }
 
     @Override
