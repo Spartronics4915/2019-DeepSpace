@@ -28,20 +28,18 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        RETRACT, EJECT, //INTAKE
+        RETRACT, EJECT
     }
 
     private enum SystemState
     {
-        RETRACTING, EJECTING, //INTAKING
+        RETRACTING, EJECTING
     }
 
     private WantedState mWantedState = WantedState.RETRACT;
     private SystemState mSystemState = SystemState.RETRACTING;
 
     private Solenoid mSolenoid = null;
-    //private Solenoid mSolenoidArm
-    //private Solenoid mSolenoidGrab
 
     //private DigitalInput mLimitSwitch = null;
 
@@ -69,6 +67,7 @@ public class PanelHandler extends Subsystem
     private final ILoop mLoop = new ILoop()
     {
         private double mEjectTime;
+        private double mIntakeTime;
 
         @Override
         public void onStart(double timestamp)
@@ -76,8 +75,6 @@ public class PanelHandler extends Subsystem
             synchronized (PanelHandler.this)
             {
                 mSolenoid.set(Constants.kPanelSolenoidRetract);
-                //mSolenoidArm.set(constant)
-                //mSolenoidGrab.set(constant)
                 mStateChanged = true;
                 mWantedState = WantedState.RETRACT;
                 mSystemState = SystemState.RETRACTING;
@@ -107,13 +104,6 @@ public class PanelHandler extends Subsystem
                         else if (Timer.getFPGATimestamp() > mEjectTime + Constants.kPanelEjectTime && newState == mSystemState)
                             setWantedState(WantedState.RETRACT);
                         break;
-                    /*case INTAKING
-                        if (mStateChanged)
-                        {
-                            mSolenoidArm.set(Constants.kPanelSolenoidExtend);
-                            mIntakeTime = Timer.getFPGATimestamp
-                        }
-                    */
                     default:
                         logError("Unhandled system state!");
                 }
