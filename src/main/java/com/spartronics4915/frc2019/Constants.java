@@ -174,7 +174,8 @@ public class Constants
     public static final int kClimberPCMId = 1;
 
     // Panel Handler
-    public static final int kPanelHandlerSolenoid = 2;
+    public static final int kPanelHandlerSlideSolenoid = 2;
+    public static final int kPanelHandlerArmSolenoid = 25;
     public static final double kPanelEjectTime = 2.5; // Seconds
     public static final double kPanelArmDownTime = 1; // Seconds
     public static final double kPanelRetractTime = 1; // Seconds

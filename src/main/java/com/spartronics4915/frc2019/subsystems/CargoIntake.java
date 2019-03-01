@@ -46,8 +46,8 @@ public class CargoIntake extends Subsystem
 
     private Solenoid mSolenoid = null;
     private Solenoid mSolenoidClimb = null;
-    private TalonSRX mMotorLeft = null; // right and left are switched?
-    private TalonSRX mMotorRight = null;
+    private TalonSRX mMotorRight = null; // right and left are switched?
+    private TalonSRX mMotorLeft = null;
 
     private boolean mStateChanged;
 
@@ -59,8 +59,8 @@ public class CargoIntake extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
                 throw new RuntimeException("CargoIntake PCM isn't on the CAN bus!");
 
-            mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
-            mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
+            mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
+            mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoid);
             mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoidClimb);
             success = true;
@@ -96,50 +96,50 @@ public class CargoIntake extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case HOLDING:
+                    case HOLDING://DS5
                         if (mStateChanged)
                         {
-                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                             mMotorRight.set(ControlMode.PercentOutput, 0.0);
+                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                             setSolenoidsToUp();
                         }
                         break;
                     case MOTORS_STOPPING:
                         if (mStateChanged)
                         {
-                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                             mMotorRight.set(ControlMode.PercentOutput, 0.0);
+                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                         }
                         break;
                     case ARM_DOWNING:
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
-                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                             mMotorRight.set(ControlMode.PercentOutput, 0.0);
+                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
                         }
                         break;
-                    case INTAKING:
+                    case INTAKING://BB2
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
-                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
                             mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
                         }
                         break;
-                    case EJECTING:
+                    case EJECTING://BB3
                         if (mStateChanged)
                         {
                             setSolenoidsToDown();
-                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
                             mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
                         }
                         break;
                     case CLIMBING:
                         if (mStateChanged)
                         {
-                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
                             mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
                             mSolenoid.set(Constants.kCargoIntakeSolenoidExtend);
                             mSolenoidClimb.set(Constants.kCargoIntakeSolenoidExtend);
                         }
@@ -255,19 +255,19 @@ public class CargoIntake extends Subsystem
             Timer.delay(4);
             logNotice("CargoIntake Solenoid Check End");
             logNotice("Running motors at 50% for 2 seconds");
-            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
             mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
+            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
             Timer.delay(2);
             logNotice("Running motors at 0% for 2 seconds");
-            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
             mMotorRight.set(ControlMode.PercentOutput, 0.0);
+            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
             Timer.delay(2);
             logNotice("Running motors at -50% for 2 seconds");
-            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
             mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
+            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
             Timer.delay(2);
-            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
             mMotorRight.set(ControlMode.PercentOutput, 0.0);
+            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
             logNotice("CargoIntake Motor Check End");
         }
         catch (Exception e)
@@ -285,15 +285,15 @@ public class CargoIntake extends Subsystem
         dashboardPutWantedState(mWantedState.toString());
         dashboardPutBoolean("mSolenoid Extended", mSolenoid.get());
         dashboardPutBoolean("mSolenoidClimb Extended", mSolenoidClimb.get());
-        dashboardPutNumber("mMotor1 Speed", mMotorLeft.getMotorOutputPercent());
-        dashboardPutNumber("mMotor2 Speed", mMotorRight.getMotorOutputPercent());
+        dashboardPutNumber("mMotor1 Speed", mMotorRight.getMotorOutputPercent());
+        dashboardPutNumber("mMotor2 Speed", mMotorLeft.getMotorOutputPercent());
     }
 
     @Override
     public void stop()
     {
         setSolenoidsToUp();
-        mMotorLeft.set(ControlMode.PercentOutput, 0.0);
         mMotorRight.set(ControlMode.PercentOutput, 0.0);
+        mMotorLeft.set(ControlMode.PercentOutput, 0.0);
     }
 }
