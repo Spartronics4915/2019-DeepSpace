@@ -106,7 +106,7 @@ public class ControlBoard implements IControlBoard
     @Override
     public boolean getAssistedIntakeCargo()
     {
-        return mButtonControlBoard.getAssistedIntakeCargo();
+        return mDriveControlBoard.getAssistedIntakeCargo();
     }
 
     @Override
@@ -124,13 +124,13 @@ public class ControlBoard implements IControlBoard
     @Override
     public boolean getAssistedShootRocket()
     {
-        return mButtonControlBoard.getAssistedShootRocket();
+        return mDriveControlBoard.getAssistedShootRocket();
     }
 
     @Override
     public boolean getAssistedShootBay()
     {
-        return mButtonControlBoard.getAssistedShootBay();
+        return mDriveControlBoard.getAssistedShootBay();
     }
 
     @Override
@@ -172,13 +172,13 @@ public class ControlBoard implements IControlBoard
     @Override
     public boolean getAssistedIntakePanel()
     {
-        return mButtonControlBoard.getAssistedIntakePanel();
+        return mDriveControlBoard.getAssistedIntakePanel();
     }
 
     @Override
     public boolean getAssistedEjectPanel()
     {
-        return mButtonControlBoard.getAssistedEjectPanel();
+        return mDriveControlBoard.getAssistedEjectPanel();
     }
 
     @Override
