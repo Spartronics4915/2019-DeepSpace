@@ -94,13 +94,15 @@ public class PanelHandler extends Subsystem
                     case ARM_DOWNING:
                         if (mStateChanged)
                         {
-                            mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
+                            mArmSolenoid.set(Constants.kPanelArmSolenoidDown);
                         }
+                        break;
                     case ARM_UPING:
                         if (mStateChanged)
                         {
                             mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
                         }
+                        break;
                     case EJECTING_ROCKET:
                         if (mStateChanged)
                         {
@@ -118,6 +120,7 @@ public class PanelHandler extends Subsystem
                         {
                             setWantedState(WantedState.ARM_UP);
                         }
+                        break;
                     default:
                         logError("Unhandled system state!");
                 }
