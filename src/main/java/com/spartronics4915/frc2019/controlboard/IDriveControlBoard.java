@@ -20,4 +20,15 @@ public interface IDriveControlBoard
     boolean getTestButtonTwo();
 
     boolean getTestButtonThree();
+
+    //Vision Buttons
+    boolean getAssistedIntakeCargo();
+
+    boolean getAssistedShootRocket();
+
+    boolean getAssistedShootBay();
+
+    boolean getAssistedIntakePanel();
+
+    boolean getAssistedEjectPanel();
 }

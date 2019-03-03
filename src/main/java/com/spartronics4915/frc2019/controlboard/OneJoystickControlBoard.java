@@ -67,4 +67,35 @@ public class OneJoystickControlBoard implements IDriveControlBoard
     {
         return mJoystick.getRawButtonReleased(7);
     }
+
+    //Vision buttons
+    @Override
+    public boolean getAssistedIntakeCargo()
+    {
+        return mJoystick.getRawButtonPressed(8);
+    }
+
+    @Override
+    public boolean getAssistedShootRocket()
+    {
+        return mJoystick.getRawButtonReleased(7);
+    }
+
+    @Override
+    public boolean getAssistedShootBay()
+    {
+        return mJoystick.getRawButtonReleased(6);
+    }
+
+    @Override
+    public boolean getAssistedIntakePanel()
+    {
+        return mJoystick.getRawButtonReleased(11);
+    }
+
+    @Override
+    public boolean getAssistedEjectPanel()
+    {
+        return mJoystick.getRawButtonReleased(10);
+    }
 }

@@ -70,4 +70,35 @@ public class TwoJoystickSplitControlBoard implements IDriveControlBoard
     {
         return false;
     }
+
+    //Vision buttons
+    @Override
+    public boolean getAssistedIntakeCargo()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedShootRocket()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedShootBay()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedIntakePanel()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedEjectPanel()
+    {
+        return false;
+    }
 }
