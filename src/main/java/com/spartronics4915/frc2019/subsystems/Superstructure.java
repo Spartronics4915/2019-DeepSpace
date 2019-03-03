@@ -236,19 +236,19 @@ public class Superstructure extends Subsystem
                         mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                         if (mStateChanged || !mGotVisionUpdate)
                         {
-                            Optional<HeadingUpdate> visionUpdate = VisionUpdateManager.reverseHeadingVisionManager.getLatestVisionUpdate();
-
-                            mGotVisionUpdate = visionUpdate.isPresent();
-                            visionUpdate.ifPresent(v -> mDrive.curveTowardsVisionTarget(v.getTargetInfo()));
-
-                            // Optional<PNPUpdate> visionUpdate = VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate();
+                            // Optional<HeadingUpdate> visionUpdate = VisionUpdateManager.reverseHeadingVisionManager.getLatestVisionUpdate();
 
                             // mGotVisionUpdate = visionUpdate.isPresent();
-                            // visionUpdate.ifPresent(
-                            //         v -> {
-                            //             makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
-                            //             dashboardPutString("TargetPose", Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)).toString());
-                            //         });
+                            // visionUpdate.ifPresent(v -> mDrive.curveTowardsVisionTarget(v.getTargetInfo()));
+
+                            Optional<PNPUpdate> visionUpdate = VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate();
+
+                            mGotVisionUpdate = visionUpdate.isPresent();
+                            visionUpdate.ifPresent(
+                                    v -> {
+                                        makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
+                                        dashboardPutString("TargetPose", Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)).toString());
+                                    });
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)

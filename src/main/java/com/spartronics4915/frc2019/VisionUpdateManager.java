@@ -20,7 +20,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
     private static final RuntimeException kEmptyUpdateException = new RuntimeException("VisionUpdate targets is null or doesn't have specified index!");
 
     public static VisionUpdateManager<PNPUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPUpdate::new, "Reverse", "solvePNP", kReverseCameraOffset);
-    public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", kReverseCameraOffset);
+    // public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", kReverseCameraOffset);
 
     private final String mNetworkTablesKey;
     private final Pose2d mCameraOffset;

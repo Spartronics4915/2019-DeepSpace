@@ -43,6 +43,7 @@ public class Robot extends TimedRobot
     private Timer mCodeTimer = new Timer();
     private PowerDistributionPanel mPDP = new PowerDistributionPanel();
     private double mNextReportDue = 0.0; // see outputToSmartDashboard
+    private double mLastTeleopLoopTime; // Seconds
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -222,6 +223,8 @@ public class Robot extends TimedRobot
 
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
             mDrive.setOpenLoop(new DriveSignal(0.05, 0.05));
+
+            mLastTeleopLoopTime  = Timer.getFPGATimestamp();
         }
         catch (Throwable t)
         {
@@ -339,10 +342,12 @@ public class Robot extends TimedRobot
         mCodeTimer.start();
         try
         {
+            mLastTeleopLoopTime = Timer.getFPGATimestamp();
+
             if (mSuperstructure.isDriverControlled())
             {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
-                        true /* TODO: Decide squared inputs or not */)/*.scale(48)*/;
+                        true /* TODO: Decide squared inputs or not */).scale(48);
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
 
@@ -478,6 +483,9 @@ public class Robot extends TimedRobot
                 //Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
                      mSuperstructure.reverseDrivingDirection();
+
+                if (mControlBoard.getReturnToDriverControl())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
