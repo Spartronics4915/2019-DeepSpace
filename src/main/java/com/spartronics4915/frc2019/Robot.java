@@ -6,12 +6,15 @@ import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
 import com.spartronics4915.frc2019.subsystems.CargoChute.WantedState;
 import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.physics.DifferentialDrive;
+import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
+import com.spartronics4915.lib.physics.DifferentialDrive.DriveDynamics;
+import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
@@ -44,6 +47,7 @@ public class Robot extends TimedRobot
     private PowerDistributionPanel mPDP = new PowerDistributionPanel();
     private double mNextReportDue = 0.0; // see outputToSmartDashboard
     private double mLastTeleopLoopTime; // Seconds
+    private ChassisState mLastTeleopVelocity = new ChassisState(); // rad/s and rad/s^2
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -342,16 +346,29 @@ public class Robot extends TimedRobot
         mCodeTimer.start();
         try
         {
-            mLastTeleopLoopTime = Timer.getFPGATimestamp();
-
             if (mSuperstructure.isDriverControlled())
             {
-                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
-                        true /* TODO: Decide squared inputs or not */).scale(48);
+                // DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
+                //         true /* TODO: Decide squared inputs or not */).scale(Constants.kTeleopMaxWheelVel);
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
 
-                mDrive.setOpenLoop(command);
+                double throttle = mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                throttle = Math.copySign(Math.pow(Math.abs(throttle), 5.0/2.0), throttle) * Constants.kTeleopMaxChassisVel;
+
+                double turn = mControlBoard.getTurn() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                turn = Math.copySign(Math.pow(Math.abs(turn), 5.0/3.0), turn) * Constants.kTeleopMaxChassisVel;
+
+                double dt = Timer.getFPGATimestamp() - mLastTeleopLoopTime;
+                ChassisState vel = new ChassisState(throttle, turn);
+                ChassisState accel = new ChassisState((throttle - mLastTeleopVelocity.linear) / dt, (turn - mLastTeleopVelocity.angular) / dt);
+
+                mDrive.setVelocityForChassisState(vel, accel);
+
+                mLastTeleopLoopTime = Timer.getFPGATimestamp();
+                mLastTeleopVelocity = vel;
+                
+                // mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
                 //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())

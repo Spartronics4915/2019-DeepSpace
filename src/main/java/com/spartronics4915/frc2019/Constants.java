@@ -147,6 +147,8 @@ public class Constants
 
     public static final double kDriveVoltageRampRate = 0.0;
 
+    public static final double kTeleopMaxWheelVel = 20 * 2 * Math.PI; // rad/s
+
     /* I/O */
     // are attached to the master)
 

@@ -271,19 +271,34 @@ public class Drive extends Subsystem
      */
     public synchronized void setVelocity(DriveSignal inchesPerSecVelocity, DriveSignal feedforwardVoltage)
     {
-        if (mDriveControlState != DriveControlState.VELOCITY)
-        {
-            logDebug("Switching to closed loop velocity. Target: " +
-                    inchesPerSecVelocity.toString() +
-                    ", Arbitrary feedforward: " + feedforwardVoltage.toString());
-            updateTalonsForVelocity();
-            mDriveControlState = DriveControlState.VELOCITY;
-        }
+        updateStateForVelocity();
         mPeriodicIO.leftDemand = inchesPerSecondToTicksPer100ms(inchesPerSecVelocity.getLeft());
         mPeriodicIO.rightDemand = inchesPerSecondToTicksPer100ms(inchesPerSecVelocity.getRight());
         mPeriodicIO.leftFeedforward = feedforwardVoltage.getLeft() / 12;
         mPeriodicIO.rightFeedforward = feedforwardVoltage.getRight() / 12;
         mPeriodicIO.leftAccel = mPeriodicIO.rightAccel = 0;
+    }
+
+    public synchronized void setVelocityForChassisState(ChassisState vel, ChassisState accel)
+    {
+        updateStateForVelocity();
+        DriveDynamics d = mMotionPlanner.getModel().solveInverseDynamics(vel, accel);
+        mPeriodicIO.leftDemand = radiansPerSecondToTicksPer100ms(d.wheel_velocity.left);
+        mPeriodicIO.rightDemand = radiansPerSecondToTicksPer100ms(d.wheel_velocity.right);
+        mPeriodicIO.leftAccel = d.wheel_acceleration.left;
+        mPeriodicIO.rightAccel = d.wheel_acceleration.right;
+        mPeriodicIO.leftFeedforward = d.voltage.left / 12.0;
+        mPeriodicIO.rightFeedforward = d.voltage.right / 12.0;
+    }
+
+    private void updateStateForVelocity()
+    {
+        if (mDriveControlState != DriveControlState.VELOCITY)
+        {
+            logDebug("Switching to closed loop velocity.");
+            updateTalonsForVelocity();
+            mDriveControlState = DriveControlState.VELOCITY;
+        }
     }
 
     public void curveTowardsVisionTarget(HeadingUpdate.TargetInfo targetInfo)
