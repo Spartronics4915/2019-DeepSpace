@@ -8,6 +8,7 @@ import com.spartronics4915.lib.lidar.icp.Point;
 import com.spartronics4915.lib.lidar.icp.Segment;
 import com.spartronics4915.lib.lidar.icp.SegmentReferenceModel;
 import com.spartronics4915.lib.util.Units;
+import com.spartronics4915.lib.util.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -238,9 +239,11 @@ public class Constants
         {
             config = "default";
         }
+        Logger.notice("running on " + config + " constants");
         switch(config)
         {
         case "TestChassis":
+        case "TestChassis\n":
             kIsTestChassis = true;
             kDriveWheelTrackWidthInches = 23.75;
             kDriveWheelDiameterInches = 6;
