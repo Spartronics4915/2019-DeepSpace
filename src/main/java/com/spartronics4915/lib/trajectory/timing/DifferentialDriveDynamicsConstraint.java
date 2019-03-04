@@ -21,7 +21,7 @@ public class DifferentialDriveDynamicsConstraint<S extends IPose2d<S> & ICurvatu
     public double getMaxVelocity(S state)
     {
         return Units.meters_to_inches(drive_.getMaxAbsVelocity(
-                Units.meters_to_inches(state.getCurvature()), k
+                Units.meters_to_inches(state.getCurvature()),
                 // Curvature is in inverse inches
                 //      1/in * in/m => 1/m
                 // meters_to_inches === (m * inches_per_meter)

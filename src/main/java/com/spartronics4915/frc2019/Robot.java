@@ -6,12 +6,15 @@ import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
 import com.spartronics4915.frc2019.subsystems.CargoChute.WantedState;
 import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.physics.DifferentialDrive;
+import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
+import com.spartronics4915.lib.physics.DifferentialDrive.DriveDynamics;
+import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.util.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
@@ -43,6 +46,8 @@ public class Robot extends TimedRobot
     private Timer mCodeTimer = new Timer();
     private PowerDistributionPanel mPDP = new PowerDistributionPanel();
     private double mNextReportDue = 0.0; // see outputToSmartDashboard
+    private double mLastTeleopLoopTime; // Seconds
+    private ChassisState mLastTeleopVelocity = new ChassisState(); // rad/s and rad/s^2
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -222,6 +227,8 @@ public class Robot extends TimedRobot
 
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
             mDrive.setOpenLoop(new DriveSignal(0.05, 0.05));
+
+            mLastTeleopLoopTime  = Timer.getFPGATimestamp();
         }
         catch (Throwable t)
         {
@@ -342,10 +349,25 @@ public class Robot extends TimedRobot
             if (mSuperstructure.isDriverControlled())
             {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
-                        true /* TODO: Decide squared inputs or not */)/*.scale(48)*/;
+                        mControlBoard.getSlowMode());
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
 
+                // double throttle = mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                // throttle = Math.copySign(Math.pow(Math.abs(throttle), 5.0/2.0), throttle) * Constants.kTeleopMaxChassisVel;
+
+                // double turn = mControlBoard.getTurn() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                // turn = Math.copySign(Math.pow(Math.abs(turn), 5.0/3.0), turn) * Constants.kTeleopMaxChassisVel;
+
+                // double dt = Timer.getFPGATimestamp() - mLastTeleopLoopTime;
+                // ChassisState vel = new ChassisState(throttle, turn);
+                // ChassisState accel = new ChassisState((throttle - mLastTeleopVelocity.linear) / dt, (turn - mLastTeleopVelocity.angular) / dt);
+
+                // mDrive.setVelocityForChassisState(vel, accel);
+
+                // mLastTeleopLoopTime = Timer.getFPGATimestamp();
+                // mLastTeleopVelocity = new ChassisState(mDrive.getLinearVelocity(), mDrive.getLinearVelocity());
+                
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
                 //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
@@ -404,9 +426,7 @@ public class Robot extends TimedRobot
                 else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 else if (mControlBoard.getManualChuteUp())
-                {
-                    //TODO: add this functionality
-                }
+                    mCargoChute.setWantedState(CargoChute.WantedState.RAISE);
                 else if (mControlBoard.getManualChuteDown())
                     mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
 
@@ -478,6 +498,9 @@ public class Robot extends TimedRobot
                 //Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
                      mSuperstructure.reverseDrivingDirection();
+
+                if (mControlBoard.getReturnToDriverControl())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);

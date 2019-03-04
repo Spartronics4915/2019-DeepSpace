@@ -52,7 +52,7 @@ public class FeedRemoteCharacterization implements Action
         double rightVelocity = mDrive.getRightVelocityTicksPer100ms() / Constants.kDriveEncoderPPR * (2 * Math.PI) * 10;
 
         // Yes, I know we're mixing ft and rad/s, but it's because the position value
-        // isn't used except to display a sanity check on the remote script. Radians
+        // aren't used except to display a sanity check on the remote script. Radians
         // are hard to read, so we use ft to make our sanity check more... sane.
 
         // volts

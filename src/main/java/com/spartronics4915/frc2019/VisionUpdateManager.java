@@ -20,7 +20,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
     private static final RuntimeException kEmptyUpdateException = new RuntimeException("VisionUpdate targets is null or doesn't have specified index!");
 
     public static VisionUpdateManager<PNPUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPUpdate::new, "Reverse", "solvePNP", kReverseCameraOffset);
-    public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", kReverseCameraOffset);
+    // public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", kReverseCameraOffset);
 
     private final String mNetworkTablesKey;
     private final Pose2d mCameraOffset;
@@ -56,7 +56,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
      */
     public Optional<U> getLatestVisionUpdate()
     {
-        return mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty() ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
+        return (mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty()) ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
     }
 
     public static class PNPUpdate implements IVisionUpdate
@@ -147,7 +147,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         @Override
         public boolean isEmpty()
         {
-            return mTargets != null && mTargets.length > 0;
+            return mTargets == null && mTargets.length <= 0;
         }
 
     }
