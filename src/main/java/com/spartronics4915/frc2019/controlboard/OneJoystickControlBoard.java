@@ -27,9 +27,9 @@ public class OneJoystickControlBoard implements IDriveControlBoard
     }
 
     @Override
-    public boolean getQuickTurn()
+    public boolean getSlowMode()
     {
-        return mJoystick.getRawButtonPressed(1);
+        return mJoystick.getRawButton(1);
     }
 
     @Override

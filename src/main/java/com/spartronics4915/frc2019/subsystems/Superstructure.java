@@ -28,6 +28,7 @@ import com.spartronics4915.lib.util.ILoop;
 
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The superstructure subsystem is the overarching superclass containing all
@@ -163,6 +164,8 @@ public class Superstructure extends Subsystem
                 mStateChangedTimer.reset();
                 mStateChangedTimer.start();
                 mStateChanged = true;
+
+                updateCameraDirection();
             }
         }
 
@@ -244,6 +247,7 @@ public class Superstructure extends Subsystem
                             Optional<PNPUpdate> visionUpdate = VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
+                            logNotice("mGotVisionUpdate" + mGotVisionUpdate);
                             visionUpdate.ifPresent(
                                     v -> {
                                         makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
@@ -472,6 +476,8 @@ public class Superstructure extends Subsystem
     public synchronized void reverseDrivingDirection()
     {
         mIsReversed = !mIsReversed;
+        updateCameraDirection();
+        
     }
 
     public synchronized boolean isDrivingReversed()
@@ -482,6 +488,11 @@ public class Superstructure extends Subsystem
     public synchronized boolean isDriverControlled()
     {
         return mWantedState == WantedState.INTAKE_CARGO || mWantedState == WantedState.EJECT_PANEL || mWantedState == WantedState.DRIVER_CONTROL;
+    }
+
+    private void updateCameraDirection()
+    {
+        SmartDashboard.putString("Driver/VideoStream", mIsReversed ? "Back" : "Front");
     }
 
     @Override

@@ -78,7 +78,8 @@ public class Climber extends Subsystem
     private final ILoop mLoop = new ILoop()
     {
 
-        public boolean mStateChanged = true;
+        private boolean mStateChanged = true;
+        private Timer mStateChangedTimer = new Timer();
 
         @Override
         public void onStart(double timestamp)
@@ -88,6 +89,8 @@ public class Climber extends Subsystem
                 mStateChanged = true;
                 mWantedState = WantedState.DISABLE;
                 mSystemState = SystemState.DISABLING;
+                mStateChangedTimer.reset();
+                mStateChangedTimer.start();
             }
         }
 
@@ -116,8 +119,14 @@ public class Climber extends Subsystem
                         {
                             mRearLeftClimberSolenoid.set(Value.kForward);
                             mRearRightClimberSolenoid.set(Value.kForward);
+                        }
+                        if (mStateChangedTimer.hasPeriodPassed(Constants.kClimberFrontSolenoidDelay))
+                        {
                             mFrontLeftClimberSolenoid.set(Value.kForward);
                             mFrontRightClimberSolenoid.set(Value.kForward);
+
+                            mStateChangedTimer.stop();
+                            mStateChangedTimer.reset();
                         }
                         break;
 
@@ -145,7 +154,12 @@ public class Climber extends Subsystem
                         logError("Unhandled system state!");
                 }
                 if (newState != mSystemState)
+                {
                     mStateChanged = true;
+
+                    mStateChangedTimer.reset();
+                    mStateChangedTimer.start();
+                }
                 else
                     mStateChanged = false;
                 mSystemState = newState;

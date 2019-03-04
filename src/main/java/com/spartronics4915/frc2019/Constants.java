@@ -128,7 +128,7 @@ public class Constants
     public static final int kPositionPIDSlot = 0; // for compat with 2018
     public static final int kVelocityPIDSlot = 1; // for compat with 2018
 
-    public static final double kDriveVelocityKp = 5.0;
+    public static final double kDriveVelocityKp;
     public static final double kDriveVelocityKi = 0.0;
     public static final double kDriveVelocityKd = 50.0;
     // The below should always be zero, because feedforward is dynamically produced by DriveMotionPlanner
@@ -150,7 +150,7 @@ public class Constants
 
     public static final double kDriveVoltageRampRate = 0.0;
 
-    public static final double kTeleopMaxChassisVel = 20 * 2 * Math.PI; // rad/s
+    public static final double kTeleopMaxChassisVel = 3 * 2 * Math.PI; // rad/s
 
     /* I/O */
     // are attached to the master)
@@ -206,7 +206,7 @@ public class Constants
     public static final double kRampSpeed = 1.0;
     public static final double kShootSpeed = 1.0;
     public static final double kShootTime = 4.0;
-    public static final double kExtendTime = 0.2; //Waits for the solenoids to extend TODO: tune
+    public static final double kBayExtendTime = 0.8; //Waits for the solenoids to extend TODO: tune
     public static final double kTransitionTime = 1.0;
     public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
@@ -225,6 +225,7 @@ public class Constants
     public static final int kClimberRearIRSensorID = 3;
     public static final double kClimberSensorFrontMinVoltage = 2.5; // actual amount around 3
     public static final double kClimberSensorRearMinVoltage = 1.5; // actual amount around 2
+    public static final double kClimberFrontSolenoidDelay = 0.2; // Seconds
 
     static
     { 
@@ -265,6 +266,8 @@ public class Constants
             kDriveLeftVIntercept = 0.7939; // V TODO tune
             kDriveLeftKv = 0.1849; // V per rad/s TODO tune
             kDriveLeftKa = 0.0350; // V per rad/s^2 TODO tune
+
+            kDriveVelocityKp = 0.2;
             break;
 
         default:
@@ -287,6 +290,8 @@ public class Constants
             kDriveLeftVIntercept = 1.4756; // V TODO tune
             kDriveLeftKv = 0.2156; // V per rad/s TODO tune
             kDriveLeftKa = 0.0920; // V per rad/s^2 TODO tune
+
+            kDriveVelocityKp = 0.3;
             break;
         }
     }

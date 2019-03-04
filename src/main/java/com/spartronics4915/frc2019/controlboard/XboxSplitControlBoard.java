@@ -29,7 +29,7 @@ public class XboxSplitControlBoard implements IDriveControlBoard
     // TODO: Below methods are unimplemented
 
     @Override
-    public boolean getQuickTurn()
+    public boolean getSlowMode()
     {
         return false;
     }

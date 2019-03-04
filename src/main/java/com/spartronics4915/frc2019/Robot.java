@@ -348,27 +348,27 @@ public class Robot extends TimedRobot
         {
             if (mSuperstructure.isDriverControlled())
             {
-                // DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
-                //         true /* TODO: Decide squared inputs or not */).scale(Constants.kTeleopMaxWheelVel);
+                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
+                        mControlBoard.getSlowMode());
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
 
-                double throttle = mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
-                throttle = Math.copySign(Math.pow(Math.abs(throttle), 5.0/2.0), throttle) * Constants.kTeleopMaxChassisVel;
+                // double throttle = mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                // throttle = Math.copySign(Math.pow(Math.abs(throttle), 5.0/2.0), throttle) * Constants.kTeleopMaxChassisVel;
 
-                double turn = mControlBoard.getTurn() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
-                turn = Math.copySign(Math.pow(Math.abs(turn), 5.0/3.0), turn) * Constants.kTeleopMaxChassisVel;
+                // double turn = mControlBoard.getTurn() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                // turn = Math.copySign(Math.pow(Math.abs(turn), 5.0/3.0), turn) * Constants.kTeleopMaxChassisVel;
 
-                double dt = Timer.getFPGATimestamp() - mLastTeleopLoopTime;
-                ChassisState vel = new ChassisState(throttle, turn);
-                ChassisState accel = new ChassisState((throttle - mLastTeleopVelocity.linear) / dt, (turn - mLastTeleopVelocity.angular) / dt);
+                // double dt = Timer.getFPGATimestamp() - mLastTeleopLoopTime;
+                // ChassisState vel = new ChassisState(throttle, turn);
+                // ChassisState accel = new ChassisState((throttle - mLastTeleopVelocity.linear) / dt, (turn - mLastTeleopVelocity.angular) / dt);
 
-                mDrive.setVelocityForChassisState(vel, accel);
+                // mDrive.setVelocityForChassisState(vel, accel);
 
-                mLastTeleopLoopTime = Timer.getFPGATimestamp();
-                mLastTeleopVelocity = vel;
+                // mLastTeleopLoopTime = Timer.getFPGATimestamp();
+                // mLastTeleopVelocity = new ChassisState(mDrive.getLinearVelocity(), mDrive.getLinearVelocity());
                 
-                // mDrive.setOpenLoop(command);
+                mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
                 //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
                 //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())

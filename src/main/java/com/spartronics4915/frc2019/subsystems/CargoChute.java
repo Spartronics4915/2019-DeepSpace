@@ -114,11 +114,17 @@ public class CargoChute extends Subsystem
                         break;
                     case LOWERING:
                         if (mStateChanged)
+                        {
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                        }
                         break;
                     case RAISING:
                         if (mStateChanged)
+                        {
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
+                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                        }
                         break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
@@ -139,11 +145,11 @@ public class CargoChute extends Subsystem
                             // Waits so that the solenoid can get up
                             
                         }
-                        if (mCargoTimer.hasPeriodPassed(Constants.kExtendTime) && !mIsShootingBay)
+                        if (mCargoTimer.hasPeriodPassed(Constants.kBayExtendTime) && !mIsShootingBay)
                         {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                             mIsShootingBay = true;
-                        }    
+                        }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
@@ -230,6 +236,7 @@ public class CargoChute extends Subsystem
 
     public synchronized void setWantedState(WantedState wantedState)
     {
+        logNotice("WantedState to " + wantedState);
         mWantedState = wantedState;
     }
 

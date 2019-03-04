@@ -7,7 +7,7 @@ public interface IDriveControlBoard
 
     double getTurn();
 
-    boolean getQuickTurn();
+    boolean getSlowMode();
 
     boolean getReturnToDriverControl();
 

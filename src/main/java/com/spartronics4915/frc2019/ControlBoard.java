@@ -48,9 +48,9 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getQuickTurn()
+    public boolean getSlowMode()
     {
-        return mDriveControlBoard.getQuickTurn();
+        return mDriveControlBoard.getSlowMode();
     }
 
     @Override

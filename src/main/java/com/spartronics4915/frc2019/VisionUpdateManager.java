@@ -56,7 +56,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
      */
     public Optional<U> getLatestVisionUpdate()
     {
-        return mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty() ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
+        return (mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty()) ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
     }
 
     public static class PNPUpdate implements IVisionUpdate
@@ -147,7 +147,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         @Override
         public boolean isEmpty()
         {
-            return mTargets != null && mTargets.length > 0;
+            return mTargets == null && mTargets.length <= 0;
         }
 
     }
