@@ -46,7 +46,7 @@ public class DCMotorTransmission
         {
             return Math.max(0.0, voltage - friction_voltage()) * speed_per_volt();
         }
-        else if (voltage < Util.kEpsilon)
+        else if (voltage < -Util.kEpsilon)
         {
             return Math.min(0.0, voltage + friction_voltage()) * speed_per_volt();
         }
