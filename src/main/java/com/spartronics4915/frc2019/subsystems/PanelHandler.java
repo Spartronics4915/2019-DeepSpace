@@ -10,8 +10,10 @@ import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.DigitalInput;
 
 
-/** 2 pneumatics to eject panels
- * panels held on by velcro */
+/** 2 pneumatics are used for pushing the hatch out
+ * 1 pneumatic is used for controlling the arm which is
+ * used to hold the hatch in place, for a total of 3 pneumatics
+ */
 
 public class PanelHandler extends Subsystem
 {
