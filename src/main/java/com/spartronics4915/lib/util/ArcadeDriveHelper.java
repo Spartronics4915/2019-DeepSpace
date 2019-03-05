@@ -14,7 +14,7 @@ public class ArcadeDriveHelper
 
     private static final double kJoystickDeadband = 0.02;
 
-    public static DriveSignal arcadeDrive(double xSpeed, double zRotation, boolean curveInputs)
+    public static DriveSignal arcadeDrive(double xSpeed, double zRotation, boolean isSlowMode)
     {
         xSpeed = limit(xSpeed);
         xSpeed = applyDeadband(xSpeed);
@@ -24,10 +24,15 @@ public class ArcadeDriveHelper
 
         // Square the inputs (while preserving the sign) to increase fine control
         // while permitting full power.
-        if (curveInputs)
+        if (!isSlowMode)
         {
-            xSpeed = Math.copySign(Math.pow(Math.abs(xSpeed), 5.0/2.0), xSpeed);
-            zRotation = Math.copySign(Math.pow(Math.abs(zRotation), 5.0/3), zRotation);
+            xSpeed = Math.copySign(Math.pow(Math.abs(xSpeed), 5.0/3.0), xSpeed);
+            zRotation = Math.copySign(Math.pow(Math.abs(zRotation), 5.0/2.0), zRotation);
+        }
+        else
+        {
+            xSpeed *= 0.5;
+            zRotation *= 0.4;
         }
 
         double leftMotorOutput;
