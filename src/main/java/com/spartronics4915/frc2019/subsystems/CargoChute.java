@@ -100,13 +100,19 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                         if (ballInPosition() && !isInManual() && newState == mSystemState)
+                        {
                             newState = SystemState.HOLDING;
+                            logNotice("Got a ball");
+                        }
                         break;
                     case HOLDING:
                         if (mStateChanged)
                             mRampMotor.set(ControlMode.PercentOutput, 0.0);
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
+                        {
                             newState = SystemState.RAMPING;
+                            logNotice("No more ball");
+                        }
                         break;
                     case EJECTING:
                         if (mStateChanged)

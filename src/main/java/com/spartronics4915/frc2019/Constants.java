@@ -225,7 +225,7 @@ public class Constants
     public static final int kClimberRearIRSensorID = 3;
     public static final double kClimberSensorFrontMinVoltage = 2.5; // actual amount around 3
     public static final double kClimberSensorRearMinVoltage = 1.5; // actual amount around 2
-    public static final double kClimberFrontSolenoidDelay = 0.2; // Seconds
+    public static final double kClimberFrontSolenoidDelay = 0.0; // Seconds
 
     static
     { 
