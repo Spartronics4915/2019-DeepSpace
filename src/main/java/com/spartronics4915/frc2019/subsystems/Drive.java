@@ -107,7 +107,7 @@ public class Drive extends Subsystem
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(!Constants.kIsTestChassis);
+        talon.setSensorPhase(Constants.kIsTestChassis);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
@@ -271,7 +271,14 @@ public class Drive extends Subsystem
      */
     public synchronized void setVelocity(DriveSignal inchesPerSecVelocity, DriveSignal feedforwardVoltage)
     {
-        updateStateForVelocity();
+        if (mDriveControlState != DriveControlState.VELOCITY)
+        {
+            logDebug("Switching to closed loop velocity. Target: " +
+                    inchesPerSecVelocity.toString() +
+                    ", Arbitrary feedforward: " + feedforwardVoltage.toString());
+            updateTalonsForVelocity();
+            mDriveControlState = DriveControlState.VELOCITY;
+        }
         mPeriodicIO.leftDemand = inchesPerSecondToTicksPer100ms(inchesPerSecVelocity.getLeft());
         mPeriodicIO.rightDemand = inchesPerSecondToTicksPer100ms(inchesPerSecVelocity.getRight());
         mPeriodicIO.leftFeedforward = feedforwardVoltage.getLeft() / 12;
@@ -279,35 +286,14 @@ public class Drive extends Subsystem
         mPeriodicIO.leftAccel = mPeriodicIO.rightAccel = 0;
     }
 
-    public synchronized void setVelocityForChassisState(ChassisState vel, ChassisState accel)
-    {
-        updateStateForVelocity();
-        DriveDynamics d = mMotionPlanner.getModel().solveInverseDynamics(vel, accel);
-        mPeriodicIO.leftDemand = radiansPerSecondToTicksPer100ms(d.wheel_velocity.left);
-        mPeriodicIO.rightDemand = radiansPerSecondToTicksPer100ms(d.wheel_velocity.right);
-        mPeriodicIO.leftAccel = d.wheel_acceleration.left;
-        mPeriodicIO.rightAccel = d.wheel_acceleration.right;
-        mPeriodicIO.leftFeedforward = d.voltage.left / 12.0;
-        mPeriodicIO.rightFeedforward = d.voltage.right / 12.0;
-    }
-
-    private void updateStateForVelocity()
-    {
-        if (mDriveControlState != DriveControlState.VELOCITY)
-        {
-            logDebug("Switching to closed loop velocity.");
-            updateTalonsForVelocity();
-            mDriveControlState = DriveControlState.VELOCITY;
-        }
-    }
-
     public void curveTowardsVisionTarget(HeadingUpdate.TargetInfo targetInfo)
     {
         DriveDynamics w = mMotionPlanner.getModel().solveInverseDynamics(
-            new ChassisState(targetInfo.heightError * Constants.kDriveVisionHeightKp,
-                targetInfo.headingError.getRadians() * Constants.kDriveVisionHeadingKp), new ChassisState()
+            new ChassisState(getLinearVelocity(), getAngularVelocity()), new ChassisState(targetInfo.heightError * Constants.kDriveVisionHeightKp,
+            targetInfo.headingError.getRadians() * Constants.kDriveVisionHeadingKp)
         );
-        setVelocity(new DriveSignal(w.wheel_velocity.left, w.wheel_velocity.right), new DriveSignal(w.voltage.left, w.voltage.right));
+        setVelocity(new DriveSignal(w.wheel_velocity.left, w.wheel_velocity.right),
+            new DriveSignal(w.voltage.left, w.voltage.right));
     }
 
     private void updateTalonsForVelocity()
