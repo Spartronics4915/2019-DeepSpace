@@ -3,30 +3,23 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.RobotStateMap;
-import com.spartronics4915.lib.util.Units;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.VisionUpdateManager;
-import com.spartronics4915.frc2019.VisionUpdateManager.HeadingUpdate;
 import com.spartronics4915.frc2019.VisionUpdateManager.PNPUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
-import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.trajectory.TimedView;
-import com.spartronics4915.lib.trajectory.Trajectory;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
-import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstraint;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ILoop;
 
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -74,12 +67,15 @@ public class Superstructure extends Subsystem
         ALIGN_AND_SHOOT_CARGO_ROCKET,
         ALIGN_AND_SHOOT_CARGO_BAY,
         ALIGN_AND_EJECT_PANEL,
+        ALIGN_CLOSEST_REVERSE_TARGET,
         // Climb
         CLIMB,
         // Panel ejecting (no auto align)
         EJECT_PANEL,
         // Intaking
         INTAKE_CARGO,
+        // Shooting cargo into bay
+        SHOOT_CARGO_BAY,
     };
 
     // Internal state of the system
@@ -112,6 +108,9 @@ public class Superstructure extends Subsystem
 
         /* Intaking cargo */
         INTAKING_CARGO,
+
+        /* Ejecting cargo into the bay after backing up */
+        SHOOTING_CARGO_AND_BACKING,
     }
 
     // Superstructure doesn't own the drive, but needs to access it
@@ -264,6 +263,11 @@ public class Superstructure extends Subsystem
                             else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY
                                     || mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
                                 newState = SystemState.EJECTING_CARGO;
+                            else if (mWantedState == WantedState.ALIGN_CLOSEST_REVERSE_TARGET)
+                            {
+                                mWantedState = WantedState.DRIVER_CONTROL;
+                                newState = SystemState.DRIVER_CONTROLLING;
+                            }
                         }
                         break;
                     case INTAKING_PANEL:
@@ -341,6 +345,18 @@ public class Superstructure extends Subsystem
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
 
+                        break;
+
+                    /* Ejecting cargo into the bay after backing up */
+                    case SHOOTING_CARGO_AND_BACKING:
+                        makeAndDrivePath(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()).transformBy(-Constants.kShootIntoBayBackupDistance), true);
+
+                        if (mDrive.isDoneWithTrajectory() && mWantedState == WantedState.SHOOT_CARGO_BAY)
+                        {
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -434,6 +450,11 @@ public class Superstructure extends Subsystem
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
+            case ALIGN_CLOSEST_REVERSE_TARGET:
+                if (mSystemState == SystemState.ALIGNING_CLOSEST_REVERSE_TARGET)
+                    break;
+                newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
+                break;
             case CLIMB:
                 if (mSystemState == SystemState.LIFTING_TO_THREE ||
                         mSystemState == SystemState.RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT ||
@@ -452,6 +473,11 @@ public class Superstructure extends Subsystem
                 if (mSystemState == SystemState.INTAKING_CARGO)
                     break;
                 newState = SystemState.INTAKING_CARGO;
+                break;
+            case SHOOT_CARGO_BAY:
+                if (mSystemState == SystemState.SHOOTING_CARGO_AND_BACKING)
+                    break;
+                newState = SystemState.SHOOTING_CARGO_AND_BACKING;
                 break;
             default:
                 logError("Unhandled wanted state in default state transfer!");

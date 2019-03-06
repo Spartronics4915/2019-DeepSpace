@@ -65,10 +65,7 @@ public class Constants
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
     {
-        return new Pose2d(
-                oldpose.getRotation().cos() * Constants.kRobotCenterToForward + oldpose.getTranslation().x(),
-                oldpose.getRotation().sin() * Constants.kRobotCenterToForward + oldpose.getTranslation().y(),
-                oldpose.getRotation());
+        return oldpose.transformBy(Constants.kRobotCenterToForward);
     }
 
     /* ROBOT PHYSICAL CONSTANTS */
@@ -206,11 +203,12 @@ public class Constants
     public static final double kRampSpeed = 1.0;
     public static final double kShootSpeed = 1.0;
     public static final double kShootTime = 4.0;
-    public static final double kBayExtendTime = 0.8; //Waits for the solenoids to extend TODO: tune
+    public static final double kBayExtendTime = 0.2; //Waits for the solenoids to extend
     public static final double kTransitionTime = 1.0;
     public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
+    public static final double kShootIntoBayBackupDistance = 6; // Inches
 
     // Climber
     public static final int kFrontLeftSolenoidId1 = 0; // Extend

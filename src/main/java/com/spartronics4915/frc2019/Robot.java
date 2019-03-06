@@ -44,7 +44,7 @@ public class Robot extends TimedRobot
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
     private Timer mCodeTimer = new Timer();
-    private PowerDistributionPanel mPDP = new PowerDistributionPanel();
+    // private PowerDistributionPanel mPDP = new PowerDistributionPanel(); FIXME
     private double mNextReportDue = 0.0; // see outputToSmartDashboard
     private double mLastTeleopLoopTime; // Seconds
     private ChassisState mLastTeleopVelocity = new ChassisState(); // rad/s and rad/s^2
@@ -422,7 +422,8 @@ public class Robot extends TimedRobot
                     //TODO: add this functionality
                 }
                 else if (mControlBoard.getManualShootCargoBay())
-                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
+                    // mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                 else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 else if (mControlBoard.getManualChuteUp())
@@ -500,7 +501,7 @@ public class Robot extends TimedRobot
                      mSuperstructure.reverseDrivingDirection();
 
                 if (mControlBoard.getReturnToDriverControl())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
