@@ -62,6 +62,7 @@ public class Constants
     public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward,
          -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
 
+    public static final Pose2d kRobotMiddleLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
     {
