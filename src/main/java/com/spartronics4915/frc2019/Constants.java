@@ -277,8 +277,8 @@ public class Constants
             kDriveWheelDiameterInches = 6;
             kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
             kTrackScrubFactor = 1.037;
-            kRobotCenterToForward = 0.0; // inches TODO tune
-            kRobotCenterToSide = 0.0; // inches TODO tune
+            kRobotCenterToForward = 17.625; // inches TODO tune
+            kRobotCenterToSide = 18.75; // inches TODO tune
 
             kRobotLinearInertia = 67.81205; // kg (robot's mass)
             kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode)

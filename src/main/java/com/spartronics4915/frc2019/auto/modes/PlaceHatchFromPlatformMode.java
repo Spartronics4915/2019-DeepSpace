@@ -28,14 +28,14 @@ public class PlaceHatchFromPlatformMode extends AutoModeBase
     protected void routine() throws AutoModeEndedException
     {
         runAction(new DriveOffHAB(AutoConstants.kDriveOffHabVelocity, AutoConstants.kDriveOffHabFeedforward, HABLevel.PLATFORM));
-        if (mIsLeft)
-        {
-            runAction(new ZeroOdometryOffHAB(StartPosition.LEFT_PLATFORM));
-        }
-        else
-        {
-            runAction(new ZeroOdometryOffHAB(StartPosition.RIGHT_PLATFORM));
-        }
+        // if (mIsLeft)
+        // {
+        //     runAction(new ZeroOdometryOffHAB(StartPosition.LEFT_PLATFORM));
+        // }
+        // else
+        // {
+        //     runAction(new ZeroOdometryOffHAB(StartPosition.RIGHT_PLATFORM));
+        // }
 
         runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDriverStationParallelHatch.get(mIsLeft)));
         // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
