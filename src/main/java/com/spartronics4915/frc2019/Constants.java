@@ -62,6 +62,7 @@ public class Constants
     public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward,
          -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
 
+    public static final Pose2d kRobotMiddleLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
     {
@@ -274,8 +275,8 @@ public class Constants
             kDriveWheelDiameterInches = 6;
             kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
             kTrackScrubFactor = 1.037;
-            kRobotCenterToForward = 0.0; // inches TODO tune
-            kRobotCenterToSide = 0.0; // inches TODO tune
+            kRobotCenterToForward = 17.625; // inches TODO tune
+            kRobotCenterToSide = 18.75; // inches TODO tune
 
             kRobotLinearInertia = 67.81205; // kg (robot's mass)
             kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode)
