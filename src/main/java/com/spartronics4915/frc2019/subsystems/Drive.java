@@ -107,7 +107,7 @@ public class Drive extends Subsystem
             logError("Could not detect " + (left ? "left" : "right") + " encoder: " + sensorPresent);
         }
         talon.setInverted(!left);
-        talon.setSensorPhase(Constants.kIsTestChassis);
+        talon.setSensorPhase(!Constants.kIsTestChassis);
         talon.enableVoltageCompensation(true);
         talon.configVoltageCompSaturation(12.0, Constants.kLongCANTimeoutMs);
         talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_50Ms, Constants.kLongCANTimeoutMs);
