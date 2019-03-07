@@ -40,7 +40,10 @@ public class AutoModeSelector
             mDefaultMode,
             new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(true)),
             new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(false)),
+            new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Left Panel", ()-> new PlaceHatchFromMiddleMode(true)),
+            new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Right Panel", ()-> new PlaceHatchFromMiddleMode(false)),
 
+            
             new AutoModeCreator("Other: Drive Off HAB Test", () -> new DriveOffHABTestMode()),
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),
             new AutoModeCreator("Other: Curved Path Test", () -> new PathTestMode(true)),

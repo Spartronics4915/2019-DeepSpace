@@ -119,6 +119,7 @@ public class TrajectoryGenerator
         public final MirrorableTrajectory driveToDriverStationParallelHatch;
         public final MirrorableTrajectory driveToClosestCargoShipBay;
         public final MirrorableTrajectory driveToDepot;
+        public final MirrorableTrajectory driveFromMiddleOfHab;
 
         private TrajectorySet()
         {
@@ -127,6 +128,7 @@ public class TrajectoryGenerator
             driveToDriverStationParallelHatch = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
             driveToClosestCargoShipBay = new MirrorableTrajectory(getDriveToClosestCargoShipBay());
             driveToDepot = new MirrorableTrajectory(getDriveToDepot());
+            driveFromMiddleOfHab = new MirrorableTrajectory(getDriveFromMiddleOfHab());
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
@@ -168,6 +170,14 @@ public class TrajectoryGenerator
             waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
             waypoints.add(kRightCargoDepotIntakePose);
             return generateTrajectory(false, waypoints);
+        }
+
+        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveFromMiddleOfHab()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.kRobotMiddleLocationOffPlatform);
+            waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
+            return generateTrajectory(true, waypoints);
         }
     }
 }

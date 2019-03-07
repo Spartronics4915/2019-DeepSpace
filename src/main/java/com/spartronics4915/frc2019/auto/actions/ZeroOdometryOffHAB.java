@@ -10,13 +10,18 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class ZeroOdometryOffHAB implements Action
 {
-
+    private StartPosition mStartPosition;
     private RobotStateMap mStateMap;
-    private boolean mStartOnLeft;
-
-    public ZeroOdometryOffHAB(boolean left)
+    public enum StartPosition
     {
-        mStartOnLeft = left;
+        LEFT_PLATFORM,
+        MIDDLE_PLATFORM,
+        RIGHT_PLATFORM;
+    };
+
+    public ZeroOdometryOffHAB(StartPosition startPos)
+    {
+        mStartPosition = startPos;
         mStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
     }
 
@@ -41,18 +46,24 @@ public class ZeroOdometryOffHAB implements Action
     public void start()
     {
         Pose2d pose;
-        if (mStartOnLeft)
+        switch (mStartPosition)
         {
-            pose = Constants.kRightRobotLocationOffPlatform.mirror();
-            mStateMap.reset(Timer.getFPGATimestamp(),
-                    pose);
+            case RIGHT_PLATFORM:
+                pose = Constants.kRightRobotLocationOffPlatform.mirror();
+                break;
+            case LEFT_PLATFORM:
+                pose = Constants.kRightRobotLocationOffPlatform;
+                break;
+            case MIDDLE_PLATFORM:
+                pose = Constants.kRobotMiddleLocationOffPlatform;
+                break;
+            default:
+                pose = new Pose2d();
+                throw new RuntimeException("Invalid starting position " + mStartPosition);
         }
-        else
-        {
-            pose = Constants.kRightRobotLocationOffPlatform;
-            mStateMap.reset(Timer.getFPGATimestamp(),
-                    pose);
-        }
+
+        mStateMap.reset(Timer.getFPGATimestamp(),
+                     pose);
         Drive.getInstance().setHeading(pose.getRotation());
     }
 
