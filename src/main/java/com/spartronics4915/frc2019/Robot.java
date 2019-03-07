@@ -378,6 +378,7 @@ public class Robot extends TimedRobot
 
 
                 // Button Board ----------------------------------------------------------
+                mControlBoard.updatePOV();
 
                 // CLIMBING
                 if (mControlBoard.getClimb())
@@ -563,7 +564,7 @@ public class Robot extends TimedRobot
         mSubsystemManager.outputToTelemetry(true/*round-robin*/);
 
         double now = Timer.getFPGATimestamp();
-        if(now > this.mNextReportDue)
+        if (now > this.mNextReportDue)
         {
             this.mNextReportDue = now + 1.0; // once per second
             // nb: MatchTime is approximate

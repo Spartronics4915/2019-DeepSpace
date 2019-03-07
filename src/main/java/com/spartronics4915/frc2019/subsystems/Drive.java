@@ -289,11 +289,10 @@ public class Drive extends Subsystem
     public void curveTowardsVisionTarget(HeadingUpdate.TargetInfo targetInfo)
     {
         DriveDynamics w = mMotionPlanner.getModel().solveInverseDynamics(
-            new ChassisState(getLinearVelocity(), getAngularVelocity()), new ChassisState(targetInfo.heightError * Constants.kDriveVisionHeightKp,
-            targetInfo.headingError.getRadians() * Constants.kDriveVisionHeadingKp)
-        );
+                new ChassisState(getLinearVelocity(), getAngularVelocity()), new ChassisState(targetInfo.heightError * Constants.kDriveVisionHeightKp,
+                        targetInfo.headingError.getRadians() * Constants.kDriveVisionHeadingKp));
         setVelocity(new DriveSignal(w.wheel_velocity.left, w.wheel_velocity.right),
-            new DriveSignal(w.voltage.left, w.voltage.right));
+                new DriveSignal(w.voltage.left, w.voltage.right));
     }
 
     private void updateTalonsForVelocity()
@@ -571,37 +570,40 @@ public class Drive extends Subsystem
     }
 
     @Override
-    public synchronized void readPeriodicInputs()
+    public void readPeriodicInputs()
     {
-        double prevLeftTicks = mPeriodicIO.leftPositionTicks;
-        double prevRightTicks = mPeriodicIO.rightPositionTicks;
-        mPeriodicIO.leftPositionTicks = mLeftMaster.getSelectedSensorPosition(0);
-        mPeriodicIO.rightPositionTicks = mRightMaster.getSelectedSensorPosition(0);
-        mPeriodicIO.leftVelocityTicksPer100ms = mLeftMaster.getSelectedSensorVelocity(0);
-        mPeriodicIO.rightVelocityTicksPer100ms = mRightMaster.getSelectedSensorVelocity(0);
-        mPeriodicIO.gyroHeading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
-        mPigeon.getAccumGyro(mPeriodicIO.gyroYPRAccum);
-        mPeriodicIO.leftVoltage = mLeftMaster.getMotorOutputVoltage();
-        mPeriodicIO.rightVoltage = mRightMaster.getMotorOutputVoltage();
-        double deltaLeftTicks = ((mPeriodicIO.leftPositionTicks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
+        synchronized (mPeriodicIO)
+        {
+            double prevLeftTicks = mPeriodicIO.leftPositionTicks;
+            double prevRightTicks = mPeriodicIO.rightPositionTicks;
+            mPeriodicIO.leftPositionTicks = mLeftMaster.getSelectedSensorPosition(0);
+            mPeriodicIO.rightPositionTicks = mRightMaster.getSelectedSensorPosition(0);
+            mPeriodicIO.leftVelocityTicksPer100ms = mLeftMaster.getSelectedSensorVelocity(0);
+            mPeriodicIO.rightVelocityTicksPer100ms = mRightMaster.getSelectedSensorVelocity(0);
+            mPeriodicIO.gyroHeading = Rotation2d.fromDegrees(mPigeon.getFusedHeading()).rotateBy(mGyroOffset);
+            mPigeon.getAccumGyro(mPeriodicIO.gyroYPRAccum);
+            mPeriodicIO.leftVoltage = mLeftMaster.getMotorOutputVoltage();
+            mPeriodicIO.rightVoltage = mRightMaster.getMotorOutputVoltage();
+            double deltaLeftTicks = ((mPeriodicIO.leftPositionTicks - prevLeftTicks) / Constants.kDriveEncoderPPR) * Math.PI;
 
-        if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
-        {
-            mPeriodicIO.leftDistance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
-        }
-        else
-        {
-            mPeriodicIO.leftDistance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
-        }
+            if (deltaLeftTicks > 0.0) // XXX: Why do we have this if statement? (And the corresponding one for the right side)
+            {
+                mPeriodicIO.leftDistance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
+            }
+            else
+            {
+                mPeriodicIO.leftDistance += deltaLeftTicks * Constants.kDriveWheelDiameterInches;
+            }
 
-        double deltaRightTicks = ((mPeriodicIO.rightPositionTicks - prevRightTicks) / Constants.kDriveEncoderPPR) * Math.PI;
-        if (deltaRightTicks > 0.0)
-        {
-            mPeriodicIO.rightDistance += deltaRightTicks * Constants.kDriveWheelDiameterInches;
-        }
-        else
-        {
-            mPeriodicIO.rightDistance += deltaRightTicks * Constants.kDriveWheelDiameterInches;
+            double deltaRightTicks = ((mPeriodicIO.rightPositionTicks - prevRightTicks) / Constants.kDriveEncoderPPR) * Math.PI;
+            if (deltaRightTicks > 0.0)
+            {
+                mPeriodicIO.rightDistance += deltaRightTicks * Constants.kDriveWheelDiameterInches;
+            }
+            else
+            {
+                mPeriodicIO.rightDistance += deltaRightTicks * Constants.kDriveWheelDiameterInches;
+            }
         }
 
         if (mCSVWriter != null)
@@ -613,57 +615,60 @@ public class Drive extends Subsystem
     }
 
     @Override
-    public synchronized void writePeriodicOutputs()
+    public void writePeriodicOutputs()
     {
-        /*
-         * NB: this is where the rubber hits the road. ie: here are direct
-         * controls over the talon to power the drive train. The rest of
-         * this file orchestrates the periodic updateing of our inputs:
-         * mDriveControlState
-         * mPeriodicIO.left_demand, right_demand (pct or vel or pos)
-         * mPeriodicIO.left_accel, right_accel (used with *Kd* in velocity mode)
-         */
-        if (mDriveControlState == DriveControlState.OPEN_LOOP)
+        synchronized (mPeriodicIO)
         {
-            mLeftMaster.set(ControlMode.PercentOutput, mPeriodicIO.leftDemand, DemandType.ArbitraryFeedForward, 0.0);
-            mRightMaster.set(ControlMode.PercentOutput, mPeriodicIO.rightDemand, DemandType.ArbitraryFeedForward, 0.0);
-        }
+            /*
+             * NB: this is where the rubber hits the road. ie: here are direct
+             * controls over the talon to power the drive train. The rest of
+             * this file orchestrates the periodic updateing of our inputs:
+             * mDriveControlState
+             * mPeriodicIO.left_demand, right_demand (pct or vel or pos)
+             * mPeriodicIO.left_accel, right_accel (used with *Kd* in velocity mode)
+             */
+            if (mDriveControlState == DriveControlState.OPEN_LOOP)
+            {
+                mLeftMaster.set(ControlMode.PercentOutput, mPeriodicIO.leftDemand, DemandType.ArbitraryFeedForward, 0.0);
+                mRightMaster.set(ControlMode.PercentOutput, mPeriodicIO.rightDemand, DemandType.ArbitraryFeedForward, 0.0);
+            }
 
-        else if (mDriveControlState == DriveControlState.TURN)
-        {
-            mLeftMaster.set(ControlMode.Position, mPeriodicIO.leftDemand);
-            mRightMaster.set(ControlMode.Position, mPeriodicIO.rightDemand);
-        }
-        else
-        {
-            // In ControlMode.Velocity:
-            //      * demand is measured in ticksPer100ms
-            //      * feedforward is measured in pctVbus [0,1]
-            // Note: we employ a localized PD controller on the arbitrary
-            //  feedforward term. kDriveVelocityKd combines with accel since
-            //  accel is the derivative of velocity.
-            // Remember that there is path-following controller that sits
-            //  atop this call and that in that context the term feedfwd
-            //  controller refers to an open-loop path follower.
-            //  (fair warning).
-            mLeftMaster.set(ControlMode.Velocity,
-                    mPeriodicIO.leftDemand,
-                    DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.leftFeedforward +
-                            Constants.kDriveVelocityKd * mPeriodicIO.leftAccel / 1023.0);
-            mRightMaster.set(ControlMode.Velocity,
-                    mPeriodicIO.rightDemand,
-                    DemandType.ArbitraryFeedForward,
-                    mPeriodicIO.rightFeedforward +
-                            Constants.kDriveVelocityKd * mPeriodicIO.rightAccel / 1023.0);
-            //
-            // Following can be used to debug the feedback term without the
-            // Talon-side PID.
-            //
-            // mLeftMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
-            //      mPeriodicIO.leftFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
-            // mRightMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
-            //      mPeriodicIO.rightFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
+            else if (mDriveControlState == DriveControlState.TURN)
+            {
+                mLeftMaster.set(ControlMode.Position, mPeriodicIO.leftDemand);
+                mRightMaster.set(ControlMode.Position, mPeriodicIO.rightDemand);
+            }
+            else
+            {
+                // In ControlMode.Velocity:
+                //      * demand is measured in ticksPer100ms
+                //      * feedforward is measured in pctVbus [0,1]
+                // Note: we employ a localized PD controller on the arbitrary
+                //  feedforward term. kDriveVelocityKd combines with accel since
+                //  accel is the derivative of velocity.
+                // Remember that there is path-following controller that sits
+                //  atop this call and that in that context the term feedfwd
+                //  controller refers to an open-loop path follower.
+                //  (fair warning).
+                mLeftMaster.set(ControlMode.Velocity,
+                        mPeriodicIO.leftDemand,
+                        DemandType.ArbitraryFeedForward,
+                        mPeriodicIO.leftFeedforward +
+                                Constants.kDriveVelocityKd * mPeriodicIO.leftAccel / 1023.0);
+                mRightMaster.set(ControlMode.Velocity,
+                        mPeriodicIO.rightDemand,
+                        DemandType.ArbitraryFeedForward,
+                        mPeriodicIO.rightFeedforward +
+                                Constants.kDriveVelocityKd * mPeriodicIO.rightAccel / 1023.0);
+                //
+                // Following can be used to debug the feedback term without the
+                // Talon-side PID.
+                //
+                // mLeftMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
+                //      mPeriodicIO.leftFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.left_accel / 1023.0*/);
+                // mRightMaster.set(ControlMode.PercentOutput, 0, DemandType.ArbitraryFeedForward,
+                //      mPeriodicIO.rightFeedforward/* + Constants.kDriveVelocityKd * mPeriodicIO.right_accel / 1023.0*/);
+            }
         }
     }
 

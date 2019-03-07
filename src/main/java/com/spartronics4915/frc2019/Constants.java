@@ -205,7 +205,7 @@ public class Constants
     public static final double kShootTime = 4.0;
     public static final double kBayExtendTime = 0.2; //Waits for the solenoids to extend
     public static final double kTransitionTime = 1.0;
-    public static final double kMinBallInChuteVoltage = 1.3; // This SHOULD be good
+    public static final double kMinBallInChuteVoltage = 0.80; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
     public static final double kShootIntoBayBackupDistance = 6; // Inches
@@ -281,13 +281,13 @@ public class Constants
             kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode)
             kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
-            kDriveRightVIntercept = 1.5820; // V TODO tune
-            kDriveRightKv = 0.2437; // V per rad/s TODO tune
-            kDriveRightKa = 0.0763; // V per rad/s^2 TODO tune
+            kDriveRightVIntercept = 1.0808; // V TODO tune
+            kDriveRightKv = 0.2458; // V per rad/s TODO tune
+            kDriveRightKa = 0.0617; // V per rad/s^2 TODO tune
 
-            kDriveLeftVIntercept = 1.4756; // V TODO tune
-            kDriveLeftKv = 0.2156; // V per rad/s TODO tune
-            kDriveLeftKa = 0.0920; // V per rad/s^2 TODO tune
+            kDriveLeftVIntercept = 1.0685; // V TODO tune
+            kDriveLeftKv = 0.2411; // V per rad/s TODO tune
+            kDriveLeftKa = 0.0541; // V per rad/s^2 TODO tune
 
             kDriveVelocityKp = 0.3;
             break;

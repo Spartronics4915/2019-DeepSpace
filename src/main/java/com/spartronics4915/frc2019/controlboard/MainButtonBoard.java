@@ -1,6 +1,8 @@
 package com.spartronics4915.frc2019.controlboard;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.util.Logger;
+
 import edu.wpi.first.wpilibj.Joystick;
 
 public class MainButtonBoard implements IButtonControlBoard
@@ -8,10 +10,12 @@ public class MainButtonBoard implements IButtonControlBoard
     private final Joystick mButtonBoard;
     // private final Joystick mTestButtonBoard;
 
-    private double mPreviousAxis0;
-    private double mPreviousAxis1;
     private double mPreviousAxis2;
     private double mPreviousAxis3;
+    private int mPrevious0POV;
+    private int mPrevious180POV;
+    private double mPrevious270POV;
+    private int mCurrentPOV;
 
     private double current;
     private boolean result;
@@ -20,11 +24,13 @@ public class MainButtonBoard implements IButtonControlBoard
     {
         mButtonBoard = new Joystick(Constants.kMainButtonBoardPort);
         // mTestButtonBoard = new Joystick(3);
-
-        mPreviousAxis0 = 0.0;
-        mPreviousAxis1 = 0.0;
+        
         mPreviousAxis2 = 0.0;
         mPreviousAxis3 = 0.0;
+        mPrevious0POV = -1;
+        mPrevious180POV = -1;
+        mPrevious270POV = -1;
+        mCurrentPOV = -1;
 
         current = 0.0;
         result = false;
@@ -40,6 +46,12 @@ public class MainButtonBoard implements IButtonControlBoard
         // mPreviousAxis1 = current;
         // return result;
     // }
+
+    @Override
+    public void updatePOV()
+    {
+        mCurrentPOV = mButtonBoard.getPOV();
+    }
 
     @Override
     public boolean getClimb()
@@ -70,9 +82,8 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getGroundEjectCargo()
     {
-        current = mButtonBoard.getRawAxis(0);
-        result = (mPreviousAxis0 != current) && (current == -1.0);
-        mPreviousAxis0 = current;
+        result = (mPrevious270POV != mCurrentPOV) && (mCurrentPOV == 270);
+        mPrevious270POV = mCurrentPOV;
         return result;
     }
 
@@ -124,18 +135,16 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualChuteUp()
     {
-        current = mButtonBoard.getRawAxis(1);
-        result = (mPreviousAxis1 != current) && (current == -1.0);
-        mPreviousAxis1 = current;
+        result = (mPrevious0POV != mCurrentPOV) && (mCurrentPOV == 0);
+        mPrevious0POV = mCurrentPOV;
         return result;
     }
 
     @Override
     public boolean getManualChuteDown()
     {
-        current = mButtonBoard.getRawAxis(1);
-        result = (mPreviousAxis1 != current) && (current == 1.0);
-        mPreviousAxis1 = current;
+        result = (mPrevious180POV != mCurrentPOV) && (mCurrentPOV == 180);
+        mPrevious180POV = mCurrentPOV;
         return result;
     }
 

@@ -344,12 +344,12 @@ public class Superstructure extends Subsystem
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
-
                         break;
 
                     /* Ejecting cargo into the bay after backing up */
                     case SHOOTING_CARGO_AND_BACKING:
-                        makeAndDrivePath(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()).transformBy(-Constants.kShootIntoBayBackupDistance), true);
+                        if (mStateChanged)
+                            makeAndDrivePath(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()).transformBy(Constants.kShootIntoBayBackupDistance), false);
 
                         if (mDrive.isDoneWithTrajectory() && mWantedState == WantedState.SHOOT_CARGO_BAY)
                         {

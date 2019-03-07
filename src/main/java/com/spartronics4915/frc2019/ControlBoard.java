@@ -36,6 +36,12 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
+    public void updatePOV()
+    {
+        mButtonControlBoard.updatePOV();
+    }
+
+    @Override
     public double getThrottle()
     {
         return mDriveControlBoard.getThrottle();

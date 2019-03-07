@@ -167,6 +167,7 @@ public class CargoChute extends Subsystem
                     mCargoTimer.stop();
                     mCargoTimer.reset();
                     mStateChanged = true;
+                    logNotice("System state to " + mSystemState);
                 }
                 else
                     mStateChanged = false;
