@@ -209,7 +209,7 @@ public class PanelHandler extends Subsystem
             mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
             Timer.delay(2);
             logNotice("Retracting ArmSolenoid for 2 seconds");
-            mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
+            mArmSolenoid.set(Constants.kPanelArmSolenoidDown);
         }
         catch (Exception e)
         {
