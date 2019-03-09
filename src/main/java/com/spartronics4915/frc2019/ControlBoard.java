@@ -104,12 +104,6 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getManualExtendAllClimbPneumatics()
-    {
-        return mButtonControlBoard.getManualExtendAllClimbPneumatics();
-    }
-
-    @Override
     public boolean getAssistedIntakeCargo()
     {
         return mDriveControlBoard.getAssistedIntakeCargo();
@@ -248,5 +242,11 @@ public class ControlBoard implements IControlBoard
     public boolean getIntakeStopMotors()
     {
         return mButtonControlBoard.getIntakeStopMotors();
+    }
+
+    @Override
+    public boolean getChangeSelectedVisionIndex()
+    {
+        return mButtonControlBoard.getChangeSelectedVisionIndex();
     }
 }

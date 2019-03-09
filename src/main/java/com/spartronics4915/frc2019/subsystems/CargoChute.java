@@ -47,7 +47,6 @@ public class CargoChute extends Subsystem
     private TalonSRX mRampMotor = null;
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
-    private AnalogInput mPressureSensor = null;
 
     private Timer mCargoTimer = new Timer();
     private boolean mIsShootingBay;
@@ -65,7 +64,6 @@ public class CargoChute extends Subsystem
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
-            mPressureSensor = new AnalogInput(1);
             success = true;
         }
         catch (Exception e)
@@ -348,7 +346,6 @@ public class CargoChute extends Subsystem
         dashboardPutBoolean("mRampSolenoid extended: ", mRampSolenoid.get());
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
-        dashboardPutNumber("Pressure: ", 300 * mPressureSensor.getAverageVoltage() - 25);
         dashboardPutBoolean("Ball in position: ", ballInPosition());
     }
 

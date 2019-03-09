@@ -175,7 +175,7 @@ public class TrajectoryGenerator
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveFromMiddleOfHab()
         {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(Constants.kRobotMiddleLocationOffPlatform);
+            waypoints.add(Constants.kMiddleRobotLocationOffPlatform);
             waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
             return generateTrajectory(true, waypoints);
         }

@@ -61,13 +61,6 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
-    public boolean getManualExtendAllClimbPneumatics()
-    {
-        // return mButtonBoard.getRawButtonPressed(15);
-        return false;
-    }
-
-    @Override
     public boolean getAssistedIntakeCargo()
     {
         return false;
@@ -76,7 +69,10 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualIntakeCargo()
     {
-        return mButtonBoard.getRawButtonPressed(1);
+        current = mButtonBoard.getRawAxis(2);
+        result = (mPreviousAxis2 != current) && (current == 1.0);
+        mPreviousAxis2 = current;
+        return result;
     }
 
     @Override
@@ -120,15 +116,15 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualShootCargoBay()
     {
-        return mButtonBoard.getRawButtonPressed(5);
+        return mButtonBoard.getRawButtonPressed(6);
     }
 
     @Override
     public boolean getManualShootCargoRocket()
     {
-        current = mButtonBoard.getRawAxis(2);
-        result = (mPreviousAxis2 != current) && (current == 1.0);
-        mPreviousAxis2 = current;
+        current = mButtonBoard.getRawAxis(3);
+        result = (mPreviousAxis3 != current) && (current == 1.0);
+        mPreviousAxis3 = current;
         return result;
     }
 
@@ -169,7 +165,7 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualEjectPanel()
     {
-        return mButtonBoard.getRawButtonPressed(3);
+        return mButtonBoard.getRawButtonPressed(2);
     }
 
     @Override
@@ -181,22 +177,19 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getIntakeArmDown()
     {
-        current = mButtonBoard.getRawAxis(3);
-        result = (mPreviousAxis3 != current) && (current == 1.0);
-        mPreviousAxis3 = current;
-        return result;
+        return mButtonBoard.getRawButtonPressed(1);
     }
 
     @Override
     public boolean getIntakeHold()
     {
-        return mButtonBoard.getRawButtonPressed(6);
+        return mButtonBoard.getRawButtonPressed(3);
     }
 
     @Override
     public boolean getIntakeStopMotors()
     {
-        return mButtonBoard.getRawButtonPressed(2);
+        return mButtonBoard.getRawButtonPressed(5);
     }
 
     @Override
@@ -221,6 +214,12 @@ public class MainButtonBoard implements IButtonControlBoard
     public boolean getClimbRetractBackPneumatics()
     {
         return mButtonBoard.getRawButtonPressed(10);
+    }
+
+    @Override
+    public boolean getChangeSelectedVisionIndex()
+    {
+        return false;
     }
 
 }

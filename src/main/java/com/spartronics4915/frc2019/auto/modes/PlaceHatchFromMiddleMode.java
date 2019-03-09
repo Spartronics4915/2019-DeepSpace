@@ -14,6 +14,7 @@ public class PlaceHatchFromMiddleMode extends AutoModeBase
 {
 
     private final boolean mIsLeft;
+
     public PlaceHatchFromMiddleMode(boolean isLeft)
     {
         mIsLeft = isLeft;

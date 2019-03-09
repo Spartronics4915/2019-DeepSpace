@@ -7,7 +7,13 @@ public interface IButtonControlBoard
     // CLIMBING
     boolean getClimb();
 
-    boolean getManualExtendAllClimbPneumatics();
+    boolean getClimbExtendAllPneumatics();
+
+    boolean getClimbIntake();
+
+    boolean getClimbRetractFrontPneumatics();
+
+    boolean getClimbRetractBackPneumatics();
 
     // INTAKE
     boolean getAssistedIntakeCargo(); // vision assisted (?)
@@ -15,6 +21,12 @@ public interface IButtonControlBoard
     boolean getGroundEjectCargo();
 
     boolean getManualIntakeCargo();
+
+    boolean getIntakeArmDown();
+
+    boolean getIntakeHold();
+
+    boolean getIntakeStopMotors();
 
     // CARGO RAMP
     boolean getManualRamp(); // Toggles between MANUAL_RAMP and MANUAL_HOLD
@@ -45,23 +57,5 @@ public interface IButtonControlBoard
     // EVERYTHING
     boolean getInsideFramePerimeter();
 
-
-
-
-    //TEST
-    boolean getClimbExtendAllPneumatics();
-
-    boolean getClimbIntake();
-
-    boolean getClimbRetractFrontPneumatics();
-
-    boolean getClimbRetractBackPneumatics();
-
-
-    boolean getIntakeArmDown();
-
-    boolean getIntakeHold();
-
-    boolean getIntakeStopMotors();
-
+    boolean getChangeSelectedVisionIndex();
 }

@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionUpdateManager<U extends IVisionUpdate>
 {
@@ -99,25 +100,23 @@ public class VisionUpdateManager<U extends IVisionUpdate>
 
         public Pose2d getFieldPosition(RobotStateMap stateMap)
         {
-            // TODO: Look at NetworkTables to decide
-            int index = 0;
-            if (isEmpty() && mTargets.length <= index)
+            int index = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, 0);
+            if (isEmpty())
                 throw kEmptyUpdateException;
 
             return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(mCameraOffset)
-                    .transformBy(mTargets[index]);
+                    .transformBy(mTargets[Math.min(index, mTargets.length - 1)]);
         }
 
         public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
         {
-            // TODO: Look at NetworkTables to decide
-            int index = 0;
-            if (isEmpty() && mTargets.length <= index)
+            int index = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, 0);
+            if (isEmpty())
                 throw kEmptyUpdateException;
 
             Pose2d robotPoseRelativeToLastVisionUpdate =
                     stateMap.get(this.frameCapturedTime).pose.transformBy(mCameraOffset).inverse().transformBy(stateMap.get(timeToGetAt).pose);
-            return mTargets[index].inverse().transformBy(landmark.fieldPose)
+            return mTargets[Math.min(index, mTargets.length - 1)].inverse().transformBy(landmark.fieldPose)
                     .transformBy(robotPoseRelativeToLastVisionUpdate);
         }
 
@@ -140,7 +139,6 @@ public class VisionUpdateManager<U extends IVisionUpdate>
             if (closestTargetPose == null)
                 throw new RuntimeException("No vision targets are close! Is Constants.kVisionTargetLocations empty?");
 
-            // TODO: Use NetworkTables to decide
             return getCorrectedRobotPose(closestTargetPose, stateMap, timeToGetAt);
         }
 
@@ -177,12 +175,11 @@ public class VisionUpdateManager<U extends IVisionUpdate>
 
         public TargetInfo getTargetInfo()
         {
-            // TODO: Look at NetworkTables
-            int index = 0;
-            if (isEmpty() && mTargets.length <= index)
+            int index = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, 0);
+            if (isEmpty())
                 throw kEmptyUpdateException;
 
-            return mTargets[index];
+            return mTargets[Math.min(index, mTargets.length - 1)];
         }
 
         @Override

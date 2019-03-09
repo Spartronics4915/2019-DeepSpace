@@ -60,10 +60,8 @@ public class Constants
     }
 
     // Not technically a scorable landmark (this is in inches)
-    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward,
-            -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
-    public static final Pose2d kRobotMiddleLocationOffPlatform =
-            new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
+    public static final Pose2d kRightRobotLocationOffPlatform;
+    public static final Pose2d kMiddleRobotLocationOffPlatform;
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
     {
@@ -146,8 +144,9 @@ public class Constants
 
     public static final double kDriveVisionHeadingKp = 1.0; // rad/s
     public static final double kDriveVisionHeightKp = 40.0; // ft/s
-
     public static final double kVisionTargetMaxStaleTime = 0.5;
+    public static final String kVisionSelectedIndexKey = "Vision/selectedIdx";
+    public static final int kMaxVisionTargets = 2;
 
     public static final double kDriveVoltageRampRate = 0.0;
 
@@ -212,7 +211,7 @@ public class Constants
     public static final double kMinBallInChuteVoltage = 1.10; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
-    public static final double kShootIntoBayBackupDistance = 6; // Inches
+    public static final double kShootIntoBayBackupDistance = 4.0; // Inches
 
     // Climber
     public static final int kFrontLeftSolenoidId1 = 0; // Extend
@@ -296,5 +295,9 @@ public class Constants
                 kDriveVelocityKp = 0.3;
                 break;
         }
+
+        kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward,
+            -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
     }
 }

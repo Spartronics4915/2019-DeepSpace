@@ -11,6 +11,8 @@ import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
 import com.spartronics4915.lib.physics.DifferentialDrive.DriveDynamics;
 import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.util.*;
+
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
@@ -40,6 +42,7 @@ public class Robot extends TimedRobot
     private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
     private LED mLED = null;
+    private AnalogInput mPressureSensor = null;
     private RobotStateEstimator mRobotStateEstimator = null;
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
@@ -110,6 +113,7 @@ public class Robot extends TimedRobot
                 mCargoIntake = CargoIntake.getInstance();
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
+                mPressureSensor = new AnalogInput(1);
                 mSuperstructure = Superstructure.getInstance();
                 mRobotStateEstimator = RobotStateEstimator.getInstance();
 
@@ -383,8 +387,6 @@ public class Robot extends TimedRobot
                 // CLIMBING
                 if (mControlBoard.getClimb())
                     mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
-                else if (mControlBoard.getManualExtendAllClimbPneumatics())
-                    mClimber.setWantedState(Climber.WantedState.CLIMB);
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 2 after climbing
 
@@ -461,6 +463,13 @@ public class Robot extends TimedRobot
                 if (mControlBoard.getTestButtonThree()) // 2: 7
                 {
                     // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                }
+                if (mControlBoard.getChangeSelectedVisionIndex())
+                {
+                    int selectedIndex = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, -1);
+                    if (++selectedIndex >= Constants.kMaxVisionTargets)
+                        selectedIndex = 0;
+                    SmartDashboard.putNumber(Constants.kVisionSelectedIndexKey, selectedIndex);
                 }
                 codeTimes[nctr++] = mCodeTimer.get(); // 6 after subsystems
 
@@ -573,6 +582,7 @@ public class Robot extends TimedRobot
                     DriverStation.getInstance().getMatchTime());
             SmartDashboard.putNumber("Robot/BatteryVoltage",
                     RobotController.getBatteryVoltage());
+            SmartDashboard.putNumber("Robot/Pressure", 7.80757 * mPressureSensor.getAverageVoltage() - 25);
             // SmartDashboard.putNumber("Robot/BatteryCurrent",
             //         mPDP.getTotalCurrent()); XXX: Spews CAN errors
         }
