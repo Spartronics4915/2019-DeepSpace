@@ -246,7 +246,6 @@ public class Superstructure extends Subsystem
                             Optional<PNPUpdate> visionUpdate = VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
-                            logNotice("mGotVisionUpdate" + mGotVisionUpdate);
                             visionUpdate.ifPresent(
                                     v -> {
                                         makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
@@ -400,7 +399,7 @@ public class Superstructure extends Subsystem
             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
                     new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(reversed, waypoints)))));
             // TODO: Maybe plug in our current velocity as the start velocity of the path?
-            Logger.notice("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
+            logNotice("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
 
             mDrive.setTrajectory(t);
         }

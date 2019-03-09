@@ -203,33 +203,33 @@ public class ControlBoard implements IControlBoard
 
     //TEST BUTTON BOARD
     @Override
-    public boolean getTESTClimbExtendAllPneumatics()
+    public boolean getClimbExtendAllPneumatics()
     {
-        return mButtonControlBoard.getTESTClimbExtendAllPneumatics();
+        return mButtonControlBoard.getClimbExtendAllPneumatics();
     }
 
     @Override
-    public boolean getTESTClimbIntake()
+    public boolean getClimbIntake()
     {
-        return mButtonControlBoard.getTESTClimbIntake();
+        return mButtonControlBoard.getClimbIntake();
     }
 
     @Override
-    public boolean getTESTClimbRetractFrontPneumatics()
+    public boolean getClimbRetractFrontPneumatics()
     {
-        return mButtonControlBoard.getTESTClimbRetractFrontPneumatics();
+        return mButtonControlBoard.getClimbRetractFrontPneumatics();
     }
 
     @Override
-    public boolean getTESTClimbRetractBackPneumatics()
+    public boolean getClimbRetractBackPneumatics()
     {
-        return mButtonControlBoard.getTESTClimbRetractBackPneumatics();
+        return mButtonControlBoard.getClimbRetractBackPneumatics();
     }
 
     @Override
-    public boolean getTESTIntakeArm_Down()
+    public boolean getIntakeArmDown()
     {
-        return mButtonControlBoard.getTESTIntakeArm_Down();
+        return mButtonControlBoard.getIntakeArmDown();
     }
 
     @Override
@@ -239,14 +239,14 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getTESTIntakeHOLD()
+    public boolean getIntakeHold()
     {
-        return mButtonControlBoard.getTESTIntakeHOLD();
+        return mButtonControlBoard.getIntakeHold();
     }
 
     @Override
-    public boolean getTESTIntakeSTOPMOTORS()
+    public boolean getIntakeStopMotors()
     {
-        return mButtonControlBoard.getTESTIntakeSTOPMOTORS();
+        return mButtonControlBoard.getIntakeStopMotors();
     }
 }

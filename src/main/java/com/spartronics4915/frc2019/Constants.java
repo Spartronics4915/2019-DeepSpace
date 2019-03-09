@@ -20,6 +20,7 @@ import java.nio.file.FileSystems;
  */
 public class Constants
 {
+
     public static final double kLooperDt = 0.01;
 
     /**** Careful! Measurement units are in millimeters ****/
@@ -41,7 +42,7 @@ public class Constants
         RIGHT_MIDDLE_CARGO_BAY(LEFT_MIDDLE_CARGO_BAY),
         LEFT_FAR_CARGO_BAY(7727.95, 708.025, 90.0),
         RIGHT_FAR_CARGO_BAY(LEFT_FAR_CARGO_BAY);
-  
+
         public final Pose2d fieldPose;
         public final Pose2d robotLengthCorrectedPose;
 
@@ -59,10 +60,10 @@ public class Constants
     }
 
     // Not technically a scorable landmark (this is in inches)
-    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622+Constants.kRobotCenterToForward,
-         -64.0+Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
-
-    public static final Pose2d kRobotMiddleLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
+    public static final Pose2d kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward,
+            -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+    public static final Pose2d kRobotMiddleLocationOffPlatform =
+            new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
     {
@@ -115,7 +116,7 @@ public class Constants
     public static final double kDriveDownShiftVelocity = 9.5 * 12.0; // inches per second
     public static final double kDriveDownShiftAngularVelocity = Math.PI / 2.0; // rad/sec
     public static final double kDriveUpShiftVelocity = 11.0 * 12.0; // inches per second
-    
+
     // Adaptive pure pursuit
     public static final double kPathKX = 10.0; // units/s per unit of error... This is essentially a P gain on longitudinal error
     public static final double kPathLookaheadTime = 0.4; // seconds to look ahead along the path for steering
@@ -145,6 +146,8 @@ public class Constants
 
     public static final double kDriveVisionHeadingKp = 1.0; // rad/s
     public static final double kDriveVisionHeightKp = 40.0; // ft/s
+
+    public static final double kVisionTargetMaxStaleTime = 0.5;
 
     public static final double kDriveVoltageRampRate = 0.0;
 
@@ -193,7 +196,7 @@ public class Constants
     public static final int kCargoIntakeSensor = 7;
     public static final double kCargoIntakeSpeed = -0.5;
     public static final double kCargoEjectSpeed = 0.5;
-    public static final double kCargoIntakeClimbSpeed = -0.2;
+    public static final double kCargoIntakeClimbSpeed = -1.0;
     public static final boolean kCargoIntakeSolenoidExtend = true;
     public static final boolean kCargoIntakeSolenoidRetract = false;
 
@@ -206,7 +209,7 @@ public class Constants
     public static final double kShootTime = 4.0;
     public static final double kBayExtendTime = 0.2; //Waits for the solenoids to extend
     public static final double kTransitionTime = 1.0;
-    public static final double kMinBallInChuteVoltage = 0.80; // This SHOULD be good
+    public static final double kMinBallInChuteVoltage = 1.10; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
     public static final double kShootIntoBayBackupDistance = 6; // Inches
@@ -227,7 +230,7 @@ public class Constants
     public static final double kClimberFrontSolenoidDelay = 0.0; // Seconds
 
     static
-    { 
+    {
         // per-config-name constants
         String config = "";
         String home = System.getProperty("user.home");
@@ -235,63 +238,63 @@ public class Constants
         try
         {
             // file only exists to override defaults
-            config = new String(Files.readAllBytes(machineIdFile)); 
+            config = new String(Files.readAllBytes(machineIdFile));
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             config = "default";
         }
         Logger.notice("running on " + config + " constants");
-        switch(config)
+        switch (config)
         {
-        case "TestChassis":
-        case "TestChassis\n":
-            kIsTestChassis = true;
-            kDriveWheelTrackWidthInches = 23.75;
-            kDriveWheelDiameterInches = 6;
-            kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-            kTrackScrubFactor = 1.063;
-            kRobotCenterToForward = 16.125; // inches TODO tune
-            kRobotCenterToSide = 13.75; // inches TODO tune
+            case "TestChassis":
+            case "TestChassis\n":
+                kIsTestChassis = true;
+                kDriveWheelTrackWidthInches = 23.75;
+                kDriveWheelDiameterInches = 6;
+                kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
+                kTrackScrubFactor = 1.063;
+                kRobotCenterToForward = 16.125; // inches TODO tune
+                kRobotCenterToSide = 13.75; // inches TODO tune
 
-            kRobotLinearInertia = 27.93; // kg (robot's mass)
-            kRobotAngularInertia = 1.7419; // kg m^2 (use the moi auto mode)
-            kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
+                kRobotLinearInertia = 27.93; // kg (robot's mass)
+                kRobotAngularInertia = 1.7419; // kg m^2 (use the moi auto mode)
+                kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
-            kDriveRightVIntercept = 0.7714; // V TODO tune
-            kDriveRightKv = 0.1920; // V per rad/s TODO tune
-            kDriveRightKa = 0.0533; // V per rad/s^2 TODO tune
+                kDriveRightVIntercept = 0.7714; // V TODO tune
+                kDriveRightKv = 0.1920; // V per rad/s TODO tune
+                kDriveRightKa = 0.0533; // V per rad/s^2 TODO tune
 
-            kDriveLeftVIntercept = 0.7939; // V TODO tune
-            kDriveLeftKv = 0.1849; // V per rad/s TODO tune
-            kDriveLeftKa = 0.0350; // V per rad/s^2 TODO tune
+                kDriveLeftVIntercept = 0.7939; // V TODO tune
+                kDriveLeftKv = 0.1849; // V per rad/s TODO tune
+                kDriveLeftKa = 0.0350; // V per rad/s^2 TODO tune
 
-            kDriveVelocityKp = 0.2;
-            break;
+                kDriveVelocityKp = 0.2;
+                break;
 
-        default:
-            kIsTestChassis = false;
-            kDriveWheelTrackWidthInches = 25.75;
-            kDriveWheelDiameterInches = 6;
-            kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
-            kTrackScrubFactor = 1.037;
-            kRobotCenterToForward = 17.625; // inches TODO tune
-            kRobotCenterToSide = 18.75; // inches TODO tune
+            default:
+                kIsTestChassis = false;
+                kDriveWheelTrackWidthInches = 25.75;
+                kDriveWheelDiameterInches = 6;
+                kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
+                kTrackScrubFactor = 1.037;
+                kRobotCenterToForward = 17.625; // inches TODO tune
+                kRobotCenterToSide = 18.75; // inches TODO tune
 
-            kRobotLinearInertia = 67.81205; // kg (robot's mass)
-            kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode)
-            kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
+                kRobotLinearInertia = 67.81205; // kg (robot's mass)
+                kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode)
+                kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
 
-            kDriveRightVIntercept = 1.0808; // V TODO tune
-            kDriveRightKv = 0.2458; // V per rad/s TODO tune
-            kDriveRightKa = 0.0617; // V per rad/s^2 TODO tune
+                kDriveRightVIntercept = 1.0808; // V TODO tune
+                kDriveRightKv = 0.2458; // V per rad/s TODO tune
+                kDriveRightKa = 0.0617; // V per rad/s^2 TODO tune
 
-            kDriveLeftVIntercept = 1.0685; // V TODO tune
-            kDriveLeftKv = 0.2411; // V per rad/s TODO tune
-            kDriveLeftKa = 0.0541; // V per rad/s^2 TODO tune
+                kDriveLeftVIntercept = 1.0685; // V TODO tune
+                kDriveLeftKv = 0.2411; // V per rad/s TODO tune
+                kDriveLeftKa = 0.0541; // V per rad/s^2 TODO tune
 
-            kDriveVelocityKp = 0.3;
-            break;
+                kDriveVelocityKp = 0.3;
+                break;
         }
     }
 }

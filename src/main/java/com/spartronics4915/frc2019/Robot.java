@@ -466,31 +466,32 @@ public class Robot extends TimedRobot
 
 
                 //TEST BUTTONBOARD
-                if (mControlBoard.getTESTClimbExtendAllPneumatics())
+                if (mControlBoard.getClimbExtendAllPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.CLIMB);
                 }
-                else if (mControlBoard.getTESTClimbIntake())
+                else if (mControlBoard.getClimbIntake())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
                 }
-                else if (mControlBoard.getTESTClimbRetractFrontPneumatics())
+                else if (mControlBoard.getClimbRetractFrontPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
                 }
-                else if (mControlBoard.getTESTClimbRetractBackPneumatics())
+                else if (mControlBoard.getClimbRetractBackPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
                 }
-                else if (mControlBoard.getTESTIntakeArm_Down())
+                else if (mControlBoard.getIntakeArmDown())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
                 }
-                else if (mControlBoard.getTESTIntakeHOLD())
+                else if (mControlBoard.getIntakeHold())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                    mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
-                else if (mControlBoard.getTESTIntakeSTOPMOTORS())
+                else if (mControlBoard.getIntakeStopMotors())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
                 }

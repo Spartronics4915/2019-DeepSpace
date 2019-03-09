@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -46,6 +47,7 @@ public class CargoChute extends Subsystem
     private TalonSRX mRampMotor = null;
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
+    private AnalogInput mPressureSensor = null;
 
     private Timer mCargoTimer = new Timer();
     private boolean mIsShootingBay;
@@ -63,6 +65,7 @@ public class CargoChute extends Subsystem
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
+            mPressureSensor = new AnalogInput(1);
             success = true;
         }
         catch (Exception e)
@@ -149,7 +152,7 @@ public class CargoChute extends Subsystem
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
                             // Waits so that the solenoid can get up
-                            
+
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kBayExtendTime) && !mIsShootingBay)
                         {
@@ -167,7 +170,6 @@ public class CargoChute extends Subsystem
                     mCargoTimer.stop();
                     mCargoTimer.reset();
                     mStateChanged = true;
-                    logNotice("System state to " + mSystemState);
                 }
                 else
                     mStateChanged = false;
@@ -199,9 +201,9 @@ public class CargoChute extends Subsystem
     public boolean isRampRunning()
     {
         return mSystemState == SystemState.RAMPING
-            || mSystemState == SystemState.EJECTING
-            || mSystemState == SystemState.SHOOTING_BAY
-            || mSystemState == SystemState.SHOOTING_ROCKET;
+                || mSystemState == SystemState.EJECTING
+                || mSystemState == SystemState.SHOOTING_BAY
+                || mSystemState == SystemState.SHOOTING_ROCKET;
     }
 
     private SystemState defaultStateTransfer()
@@ -243,7 +245,6 @@ public class CargoChute extends Subsystem
 
     public synchronized void setWantedState(WantedState wantedState)
     {
-        logNotice("WantedState to " + wantedState);
         mWantedState = wantedState;
     }
 
@@ -256,7 +257,7 @@ public class CargoChute extends Subsystem
             case HOLD_MANUAL:
                 return mSystemState == SystemState.HOLDING;
             case EJECT_BACK:
-               return mSystemState == SystemState.EJECTING && !ballInPosition(); // i'm slightly unclear on how atTarget works but it seems like this should check the CargoIntake sensor
+                return mSystemState == SystemState.EJECTING && !ballInPosition(); // i'm slightly unclear on how atTarget works but it seems like this should check the CargoIntake sensor
             case BRING_BALL_TO_TOP:
                 return mSystemState == SystemState.HOLDING && ballInPosition();
             case LOWER:
@@ -347,6 +348,7 @@ public class CargoChute extends Subsystem
         dashboardPutBoolean("mRampSolenoid extended: ", mRampSolenoid.get());
         dashboardPutNumber("mRampMotor speed: ", mRampMotor.getMotorOutputPercent());
         dashboardPutNumber("mRampSensor voltage: ", mRampSensor.getVoltage());
+        dashboardPutNumber("Pressure: ", 300 * mPressureSensor.getAverageVoltage() - 25);
         dashboardPutBoolean("Ball in position: ", ballInPosition());
     }
 

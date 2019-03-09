@@ -179,7 +179,7 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
-    public boolean getTESTIntakeArm_Down()
+    public boolean getIntakeArmDown()
     {
         current = mButtonBoard.getRawAxis(3);
         result = (mPreviousAxis3 != current) && (current == 1.0);
@@ -188,37 +188,37 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
-    public boolean getTESTIntakeHOLD()
+    public boolean getIntakeHold()
     {
         return mButtonBoard.getRawButtonPressed(6);
     }
 
     @Override
-    public boolean getTESTIntakeSTOPMOTORS()
+    public boolean getIntakeStopMotors()
     {
         return mButtonBoard.getRawButtonPressed(2);
     }
 
     @Override
-    public boolean getTESTClimbExtendAllPneumatics()
+    public boolean getClimbExtendAllPneumatics()
     {
         return mButtonBoard.getRawButtonPressed(7);
     }
 
     @Override
-    public boolean getTESTClimbIntake()
+    public boolean getClimbIntake()
     {
         return mButtonBoard.getRawButtonPressed(8);
     }
 
     @Override
-    public boolean getTESTClimbRetractFrontPneumatics()
+    public boolean getClimbRetractFrontPneumatics()
     {
         return mButtonBoard.getRawButtonPressed(9);
     }
 
     @Override
-    public boolean getTESTClimbRetractBackPneumatics()
+    public boolean getClimbRetractBackPneumatics()
     {
         return mButtonBoard.getRawButtonPressed(10);
     }

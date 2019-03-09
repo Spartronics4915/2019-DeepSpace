@@ -147,7 +147,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         @Override
         public boolean isEmpty()
         {
-            return mTargets == null && mTargets.length <= 0;
+            return mTargets == null && mTargets.length <= 0 && Timer.getFPGATimestamp() - this.frameCapturedTime <= Constants.kVisionTargetMaxStaleTime;
         }
 
     }

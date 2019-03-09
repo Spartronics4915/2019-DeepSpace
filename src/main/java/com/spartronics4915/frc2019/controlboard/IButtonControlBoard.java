@@ -49,19 +49,19 @@ public interface IButtonControlBoard
 
 
     //TEST
-    boolean getTESTClimbExtendAllPneumatics();
+    boolean getClimbExtendAllPneumatics();
 
-    boolean getTESTClimbIntake();
+    boolean getClimbIntake();
 
-    boolean getTESTClimbRetractFrontPneumatics();
+    boolean getClimbRetractFrontPneumatics();
 
-    boolean getTESTClimbRetractBackPneumatics();
+    boolean getClimbRetractBackPneumatics();
 
 
-    boolean getTESTIntakeArm_Down();
+    boolean getIntakeArmDown();
 
-    boolean getTESTIntakeHOLD();
+    boolean getIntakeHold();
 
-    boolean getTESTIntakeSTOPMOTORS();
+    boolean getIntakeStopMotors();
 
 }
