@@ -61,7 +61,8 @@ public class Constants
 
     // Not technically a scorable landmark (this is in inches)
     public static final Pose2d kRightRobotLocationOffPlatform;
-    public static final Pose2d kMiddleRobotLocationOffPlatform;
+    public static final Pose2d kMiddleRobotLocationOffPlatformReverse;
+    public static final Pose2d kMiddleRobotLocationOffPlatformForward;
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
     {
@@ -206,7 +207,8 @@ public class Constants
     public static final double kRampSpeed = 1.0;
     public static final double kShootSpeed = 1.0;
     public static final double kShootTime = 4.0;
-    public static final double kBayExtendTime = 0.2; //Waits for the solenoids to extend
+    public static final double kChuteHighExtendTime = 0.2; //Waits for the solenoids to extend
+    public static final double kChuteLowRetractTime = 0.8;
     public static final double kTransitionTime = 1.0;
     public static final double kMinBallInChuteVoltage = 1.10; // This SHOULD be good
     public static final boolean kRampSolenoidExtend = true;
@@ -298,6 +300,7 @@ public class Constants
 
         kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward,
             -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
-        kMiddleRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOffPlatformReverse = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOffPlatformForward = new Pose2d(kMiddleRobotLocationOffPlatformReverse.getTranslation(), Rotation2d.fromDegrees(0));
     }
 }

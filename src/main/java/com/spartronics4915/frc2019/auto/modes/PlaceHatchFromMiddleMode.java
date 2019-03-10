@@ -9,6 +9,7 @@ import com.spartronics4915.frc2019.auto.actions.ZeroOdometryOffHAB;
 import com.spartronics4915.frc2019.auto.actions.DriveOffHAB.HABLevel;
 import com.spartronics4915.frc2019.auto.actions.ZeroOdometryOffHAB.StartPosition;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
+import com.spartronics4915.frc2019.paths.TrajectoryGenerator.TrajectorySet;
 
 public class PlaceHatchFromMiddleMode extends AutoModeBase 
 {
@@ -21,9 +22,10 @@ public class PlaceHatchFromMiddleMode extends AutoModeBase
     }
     @Override
     protected void routine() throws AutoModeEndedException {
-        runAction(new DriveOffHAB(AutoConstants.kDriveOffHabVelocity, AutoConstants.kDriveOffHabFeedforward, HABLevel.PLATFORM));
+        TrajectorySet tSet = TrajectoryGenerator.getInstance().getTrajectorySet();
+        runAction(new DriveTrajectory(tSet.driveOffHabReverse.get(mIsLeft)));
         runAction(new ZeroOdometryOffHAB(StartPosition.MIDDLE_PLATFORM));
-        runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveFromMiddleOfHab.get(mIsLeft)));
+        runAction(new DriveTrajectory(tSet.driveToParallelCargoBayFromMiddle.get(mIsLeft)));
      // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
      //  () -> Superstructure.getInstance().isDriverControlled()));
 

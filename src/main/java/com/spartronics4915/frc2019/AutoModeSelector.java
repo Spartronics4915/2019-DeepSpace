@@ -38,11 +38,12 @@ public class AutoModeSelector
             new AutoModeCreator("All: Do nothing", () -> new DoNothingMode());
     private static final AutoModeCreator[] mAllModes = {
             mDefaultMode,
-            new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(true)),
-            new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromPlatformMode(false)),
+            new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromSideMode(true)),
+            new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromSideMode(false)),
             new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Left Panel", ()-> new PlaceHatchFromMiddleMode(true)),
             new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Right Panel", ()-> new PlaceHatchFromMiddleMode(false)),
-
+            new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Left Close Bay", () -> new PlaceCargoFromMiddleMode(true)),
+            new AutoModeCreator("Middle: Drive Off Middle of Hab and Palce Right Close Bay", () -> new PlaceCargoFromMiddleMode(false)),
             
             new AutoModeCreator("Other: Drive Off HAB Test", () -> new DriveOffHABTestMode()),
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),

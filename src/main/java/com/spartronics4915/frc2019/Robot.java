@@ -477,7 +477,7 @@ public class Robot extends TimedRobot
                 //TEST BUTTONBOARD
                 if (mControlBoard.getClimbExtendAllPneumatics())
                 {
-                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWERING_CHUTE_AND_CLIMB);
                 }
                 else if (mControlBoard.getClimbIntake())
                 {
@@ -511,8 +511,8 @@ public class Robot extends TimedRobot
                 if (mControlBoard.getReverseDirection())
                      mSuperstructure.reverseDrivingDirection();
 
-                if (mControlBoard.getReturnToDriverControl())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
+                // if (mControlBoard.getReturnToDriverControl())
+                //     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);

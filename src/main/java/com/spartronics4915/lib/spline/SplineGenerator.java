@@ -2,6 +2,8 @@ package com.spartronics4915.lib.spline;
 
 import com.spartronics4915.lib.geometry.*;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 import java.util.ArrayList;
 import java.util.List;
 

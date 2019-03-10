@@ -55,7 +55,7 @@ public class ZeroOdometryOffHAB implements Action
                 pose = Constants.kRightRobotLocationOffPlatform;
                 break;
             case MIDDLE_PLATFORM:
-                pose = Constants.kMiddleRobotLocationOffPlatform;
+                pose = Constants.kMiddleRobotLocationOffPlatformReverse;
                 break;
             default:
                 pose = new Pose2d();

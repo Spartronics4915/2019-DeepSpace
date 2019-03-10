@@ -396,6 +396,7 @@ public class Drive extends Subsystem
         dashboardPutNumber("xError", mPeriodicIO.error.getTranslation().x());
         dashboardPutNumber("yError", mPeriodicIO.error.getTranslation().y());
         dashboardPutNumber("thetaError", mPeriodicIO.error.getRotation().getDegrees());
+        dashboardPutNumber("pitch", mPeriodicIO.gyroYPRAccum[2]);
         if (getHeading() != null)
         {
             dashboardPutNumber("imuHeading", getHeading().getDegrees());

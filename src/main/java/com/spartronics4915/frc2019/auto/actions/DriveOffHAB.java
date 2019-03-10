@@ -19,8 +19,8 @@ public class DriveOffHAB implements Action {
         }
     }
     
-    private static final double kBumpMinDegrees = 5; // Degrees
-    private static final double kOffBumpEpsilon = 3;
+    private static final double kBumpMinDegrees = 3; // Degrees
+    private static final double kOffBumpEpsilon = 2;
 
     private final Drive mDrive;
     private final double mVelocity;

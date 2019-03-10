@@ -152,7 +152,7 @@ public class CargoChute extends Subsystem
                             // Waits so that the solenoid can get up
 
                         }
-                        if (mCargoTimer.hasPeriodPassed(Constants.kBayExtendTime) && !mIsShootingBay)
+                        if (mCargoTimer.hasPeriodPassed(Constants.kChuteHighExtendTime) && !mIsShootingBay)
                         {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
                             mIsShootingBay = true;
