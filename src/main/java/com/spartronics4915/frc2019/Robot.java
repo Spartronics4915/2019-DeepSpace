@@ -477,7 +477,7 @@ public class Robot extends TimedRobot
                 //TEST BUTTONBOARD
                 if (mControlBoard.getClimbExtendAllPneumatics())
                 {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWERING_CHUTE_AND_CLIMB);
+                    mClimber.setWantedState(Climber.WantedState.CLIMB);
                 }
                 else if (mControlBoard.getClimbIntake())
                 {
