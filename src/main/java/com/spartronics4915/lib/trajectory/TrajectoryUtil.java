@@ -7,6 +7,8 @@ import com.spartronics4915.lib.spline.SplineGenerator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.Util;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,6 +123,22 @@ public class TrajectoryUtil
             }
         }
 
+        return new Trajectory<Pose2dWithCurvature>(samples);
+    }
+
+    public static Trajectory<Pose2dWithCurvature> 
+    trajectoryFromEndPoses(Pose2d start, Pose2d stop, double maxDx)
+    {
+        List<Pose2dWithCurvature> samples = new ArrayList<Pose2dWithCurvature>();
+        double dist = start.distance(stop);
+        double x = 0;
+        while(x <= dist)
+        {
+            double pct = x/dist;
+            // going straight, no curvature
+            samples.add(new Pose2dWithCurvature(start.interpolate(stop, pct),0));
+            x += maxDx;
+        }
         return new Trajectory<Pose2dWithCurvature>(samples);
     }
 
