@@ -7,8 +7,6 @@ import com.spartronics4915.lib.spline.SplineGenerator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.Util;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,23 +124,28 @@ public class TrajectoryUtil
         return new Trajectory<Pose2dWithCurvature>(samples);
     }
 
-    public static Trajectory<Pose2dWithCurvature> 
-    trajectoryFromEndPoses(Pose2d start, Pose2d stop, double maxDx)
+    public static Trajectory<Pose2dWithCurvature> trajectoryFromEndPoses(Pose2d start, 
+            Pose2d stop, double maxDx)
     {
         List<Pose2dWithCurvature> samples = new ArrayList<Pose2dWithCurvature>();
         double dist = start.distance(stop);
         double x = 0;
+        Pose2d lastPose = start;
         while(x <= dist)
         {
             double pct = x/dist;
-            // going straight, no curvature
-            samples.add(new Pose2dWithCurvature(start.interpolate(stop, pct),0));
+            Pose2d nextPose = start.interpolate(stop, pct);
+            double drad = nextPose.getRotation().distance(lastPose.getRotation());
+            samples.add(new Pose2dWithCurvature(nextPose, drad));
             x += maxDx;
+            lastPose = nextPose;
         }
+
         return new Trajectory<Pose2dWithCurvature>(samples);
     }
 
-    public static Trajectory<Pose2dWithCurvature> trajectoryFromSplineWaypoints(final List<Pose2d> waypoints, double maxDx, double maxDy,
+    public static Trajectory<Pose2dWithCurvature> trajectoryFromSplineWaypoints(
+            final List<Pose2d> waypoints, double maxDx, double maxDy,
             double maxDTheta)
     {
         List<QuinticHermiteSpline> splines = new ArrayList<>(waypoints.size() - 1);
@@ -160,6 +163,4 @@ public class TrajectoryUtil
         return new Trajectory<>(SplineGenerator.parameterizeSplines(splines, maxDx, maxDy,
                 maxDTheta));
     }
-
-    ;
 }

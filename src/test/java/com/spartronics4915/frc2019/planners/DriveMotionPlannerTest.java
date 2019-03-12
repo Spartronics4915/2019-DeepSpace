@@ -42,6 +42,60 @@ public class DriveMotionPlannerTest
     }
 
     @Test
+    public void testTwoPoseFwd() // drive straight 10 inches
+    {
+        DriveMotionPlanner motion_planner = new DriveMotionPlanner();
+        System.out.println("testTwoPoseFwd begin {");
+        motion_planner.setFollowerType(DriveMotionPlanner.FollowerType.FEEDFORWARD_ONLY);
+        motion_planner.setTrajectory(new TrajectoryIterator<>(new TimedView<>(
+            motion_planner.generateTrajectory(false,
+                Arrays.asList(
+                    new Pose2d(new Translation2d(0.0, 0.0), Rotation2d.identity()),
+                    new Pose2d(new Translation2d(10.0, 0.0), Rotation2d.identity())
+                    ),
+                null, // no constraints
+                120.0, 120.0, 10.0)))); // max vel, accel and volt
+        double t = 0.0;
+        Pose2d pose = motion_planner.setpoint().state().getPose();
+        while (!motion_planner.isDone())
+        {
+            motion_planner.update(t, pose);
+            pose = motion_planner.mSetpoint.state().getPose();//.transformBy(new Pose2d(new Translation2d(0.0, -1.0),
+            // Rotation2d.fromDegrees(-2.0)));
+            System.out.println(t + "," + motion_planner.toCSV());
+            t += 0.01;
+        }
+        System.out.println("testTwoPoseFwd end }");
+    }
+
+    @Test
+    public void testTwoPoseRev() // drive straight 10 inches
+    {
+        DriveMotionPlanner motion_planner = new DriveMotionPlanner();
+        System.out.println("testTwoPoseRev begin {");
+        motion_planner.setFollowerType(DriveMotionPlanner.FollowerType.FEEDFORWARD_ONLY);
+        motion_planner.setTrajectory(new TrajectoryIterator<>(new TimedView<>(
+            motion_planner.generateTrajectory(true,
+                Arrays.asList(
+                    new Pose2d(new Translation2d(0.0, 0.0), Rotation2d.identity()),
+                    new Pose2d(new Translation2d(10.0, 0.0), Rotation2d.identity())
+                    ),
+                null, // no constraints
+                120.0, 120.0, 10.0)))); // max vel, accel and volt
+        double t = 0.0;
+        Pose2d pose = motion_planner.setpoint().state().getPose();
+        while (!motion_planner.isDone())
+        {
+            motion_planner.update(t, pose);
+            pose = motion_planner.mSetpoint.state().getPose();//.transformBy(new Pose2d(new Translation2d(0.0, -1.0),
+            // Rotation2d.fromDegrees(-2.0)));
+            System.out.println(t + "," + motion_planner.toCSV());
+            t += 0.01;
+        }
+        System.out.println("testTwoPoseRev end }");
+    }
+
+    @Test
     public void testForwardSwerveLeft()
     {
         DriveMotionPlanner motion_planner = new DriveMotionPlanner();
