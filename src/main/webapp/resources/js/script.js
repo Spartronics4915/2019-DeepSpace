@@ -10,13 +10,13 @@ let animating = false;
 
 const fieldWidth = 886; // inches
 const fieldHeight = 360; // inches
-const xOffset = 120;
-const yOffset = 180;
-const width = 1604; //pixels
-const height = 651; //pixels
+const xOffset = 121.7454;
+const yOffset = 184.8209;
+const width = 1592; //pixels
+const height = 656; //pixels
 
-const robotWidth = 30.75; // inches
-const robotHeight = 35.25; // inches
+const robotWidth = 28; // inches
+const robotHeight = 33; // inches
 
 const waypointRadius = 7;
 const splineWidth = 2;
@@ -452,20 +452,23 @@ function update() {
             data += x + "," + y + "," + heading + ";";
         }
     });
+    data += " " + $('#isReversed').is(':checked');
+
+    console.log(data);
 
     draw(1);
 
     $.post({
         url: "/api/calculate_splines",
         data: data,
-        success: function (data) {
-            if (data === "no") {
+        success: function (newData) {
+            if (newData === "no") {
                 return;
             }
 
-            console.log(data);
+            console.log(newData);
 
-            let points = JSON.parse(data).points;
+            let points = JSON.parse(newData).points;
 
             splinePoints = [];
             for (let i in points) {
