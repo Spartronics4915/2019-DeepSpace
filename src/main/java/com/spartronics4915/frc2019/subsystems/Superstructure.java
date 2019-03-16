@@ -71,7 +71,7 @@ public class Superstructure extends Subsystem
         // Climb
         CLIMB,
         // Manual climb
-        LOWERING_CHUTE_AND_CLIMB,
+        LOWER_CHUTE_AND_CLIMB,
         // Panel ejecting (no auto align)
         EJECT_PANEL,
         // Intaking
@@ -224,8 +224,11 @@ public class Superstructure extends Subsystem
                     case LOWERING_CHUTE_AND_CLIMBING:
                         if (mStateChanged)
                             mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-                        if (mCargoChute.atTarget() && mStateChangedTimer.hasPeriodPassed(Constants.kChuteLowRetractTime))
+                        if (mCargoChute.atTarget() && mStateChangedTimer.hasPeriodPassed(Constants.kChuteLowRetractTime) && mWantedState == WantedState.LOWER_CHUTE_AND_CLIMB)
+                        {
                             mClimber.setWantedState(Climber.WantedState.CLIMB);
+                            mWantedState = WantedState.LOWER_CHUTE_AND_CLIMB;
+                        }
                         break;
 
                     /* Placing/intaking game pieces */
@@ -482,7 +485,7 @@ public class Superstructure extends Subsystem
                     break;
                 newState = SystemState.LIFTING_TO_THREE;
                 break;
-            case LOWERING_CHUTE_AND_CLIMB:
+            case LOWER_CHUTE_AND_CLIMB:
                 newState = SystemState.LOWERING_CHUTE_AND_CLIMBING;
                 break;
             case EJECT_PANEL:
@@ -535,7 +538,7 @@ public class Superstructure extends Subsystem
     public synchronized boolean isDriverControlled()
     {
         return mWantedState == WantedState.INTAKE_CARGO || mWantedState == WantedState.EJECT_PANEL || mWantedState == WantedState.DRIVER_CONTROL
-                || mWantedState == WantedState.LOWERING_CHUTE_AND_CLIMB;
+                || mWantedState == WantedState.LOWER_CHUTE_AND_CLIMB;
     }
 
     private void updateCameraDirection()
