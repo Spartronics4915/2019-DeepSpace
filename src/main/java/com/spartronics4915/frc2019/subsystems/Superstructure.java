@@ -224,7 +224,8 @@ public class Superstructure extends Subsystem
                     case LOWERING_CHUTE_AND_CLIMBING:
                         if (mStateChanged)
                             mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-                        if (mCargoChute.atTarget() && mStateChangedTimer.hasPeriodPassed(Constants.kChuteLowRetractTime) && mWantedState == WantedState.LOWER_CHUTE_AND_CLIMB)
+                        if (mCargoChute.atTarget() && mStateChangedTimer.hasPeriodPassed(Constants.kChuteLowRetractTime)
+                                && mWantedState == WantedState.LOWER_CHUTE_AND_CLIMB)
                         {
                             mClimber.setWantedState(Climber.WantedState.CLIMB);
                             mWantedState = WantedState.LOWER_CHUTE_AND_CLIMB;
@@ -368,9 +369,12 @@ public class Superstructure extends Subsystem
                     case SHOOTING_CARGO_AND_BACKING:
                         if (mStateChanged)
                         {
-                            mRobotStateMap.reset(Timer.getFPGATimestamp(), new Pose2d());
-                            mDrive.setHeading(Rotation2d.identity());
-                            mDrive.setTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveReverseToShootInBay);
+                            makeAndDrivePath(
+                                    mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()).transformBy(Constants.kShootIntoBayBackupDistance),
+                                    false);
+                            // mRobotStateMap.reset(Timer.getFPGATimestamp(), new Pose2d());
+                            // mDrive.setHeading(Rotation2d.identity());
+                            // mDrive.setTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveReverseToShootInBay);
                         }
                         else if (mDrive.isDoneWithTrajectory() && mWantedState == WantedState.SHOOT_CARGO_BAY)
                         {
