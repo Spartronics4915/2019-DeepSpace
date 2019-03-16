@@ -15,8 +15,8 @@ const yOffset = 184.8209;
 const width = 1592; //pixels
 const height = 656; //pixels
 
-const robotWidth = 28; // inches
-const robotHeight = 33; // inches
+const robotWidth = 35.25; // inches
+const robotHeight = 37.5; // inches
 
 const waypointRadius = 7;
 const splineWidth = 2;

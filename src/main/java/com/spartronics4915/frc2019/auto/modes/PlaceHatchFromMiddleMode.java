@@ -24,8 +24,17 @@ public class PlaceHatchFromMiddleMode extends AutoModeBase
     protected void routine() throws AutoModeEndedException {
         TrajectorySet tSet = TrajectoryGenerator.getInstance().getTrajectorySet();
         runAction(new DriveTrajectory(tSet.driveOffHabReverse.get(mIsLeft)));
-        runAction(new ZeroOdometryOffHAB(StartPosition.MIDDLE_PLATFORM));
-        runAction(new DriveTrajectory(tSet.driveToParallelCargoBayFromMiddle.get(mIsLeft)));
+
+        if (mIsLeft)
+        {
+            runAction(new ZeroOdometryOffHAB(StartPosition.LEFT_PLATFORM));
+        }
+        else
+        {
+            runAction(new ZeroOdometryOffHAB(StartPosition.RIGHT_PLATFORM));
+        }
+
+        // runAction(new DriveTrajectory(tSet.driveToClosestCargoShipBayFromSide.get(mIsLeft)));
      // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
      //  () -> Superstructure.getInstance().isDriverControlled()));
 

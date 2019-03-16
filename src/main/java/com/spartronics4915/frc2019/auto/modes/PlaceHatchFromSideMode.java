@@ -23,6 +23,7 @@ public class PlaceHatchFromSideMode extends AutoModeBase
     {
         TrajectorySet tSet = TrajectoryGenerator.getInstance().getTrajectorySet();
         runAction(new DriveTrajectory(tSet.driveOffHabReverse.get(mIsLeft)));
+
         if (mIsLeft)
         {
             runAction(new ZeroOdometryOffHAB(StartPosition.LEFT_PLATFORM));
