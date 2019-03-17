@@ -94,7 +94,6 @@ public class TrajectoryGenerator
     // +y is to the left.
     // ALL POSES DEFINED FOR THE CASE THAT ROBOT STARTS ON RIGHT! (mirrored about +x axis for LEFT)
     private static final Pose2d kRightCargoDepotIntakePose = new Pose2d(60.0, -90.0, Rotation2d.fromDegrees(160));
-    private static final double kDriveOffHabDistance = 26.5;
 
     public class TrajectorySet
     {
@@ -117,7 +116,8 @@ public class TrajectoryGenerator
             public final Trajectory<TimedState<Pose2dWithCurvature>> right;
         }
 
-        public final MirrorableTrajectory straightTest;
+        public final MirrorableTrajectory straightTestReverse;
+        public final MirrorableTrajectory straightTestForward;
         public final MirrorableTrajectory curvedTest;
         public final MirrorableTrajectory driveToParallelHatchFromSide;
         public final MirrorableTrajectory driveToClosestCargoShipBayFromDepot;
@@ -131,7 +131,8 @@ public class TrajectoryGenerator
 
         private TrajectorySet()
         {
-            straightTest = new MirrorableTrajectory(getStraightTest());
+            straightTestForward = new MirrorableTrajectory(getStraightTestForward());
+            straightTestReverse = new MirrorableTrajectory(getStraightTestReverse());
             curvedTest = new MirrorableTrajectory(getCurvedTest());
             driveToParallelHatchFromSide = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
             driveToClosestCargoShipBayFromDepot = new MirrorableTrajectory(getDriveToClosestCargoShipBayFromDepot());
@@ -144,7 +145,7 @@ public class TrajectoryGenerator
             driveReverseToShootInBay = new TrajectoryIterator<>(new TimedView<>(getDriveBackToShootBay()));
         }
 
-        private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTest()
+        private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTestForward()
         {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
@@ -152,12 +153,20 @@ public class TrajectoryGenerator
             return generateTrajectory(false, waypoints);
         }
 
+        private Trajectory<TimedState<Pose2dWithCurvature>> getStraightTestReverse()
+        {
+            List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(new Pose2d(0d, 0d, Rotation2d.fromDegrees(180)));
+            waypoints.add(new Pose2d(120d, 0d, Rotation2d.fromDegrees(180)));
+            return generateTrajectory(true, waypoints);
+        }
+
         private Trajectory<TimedState<Pose2dWithCurvature>> getCurvedTest()
         {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(new Pose2d(0d, 0d, Rotation2d.identity()));
+            waypoints.add(new Pose2d(0d, 0d, Rotation2d.fromDegrees(180)));
             waypoints.add(new Pose2d(78d, 78d, Rotation2d.fromDegrees(90)));
-            return generateTrajectory(false, waypoints);
+            return generateTrajectory(true, waypoints);
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDriverStationParallelHatch()
@@ -193,6 +202,7 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(Constants.kRightRobotLocationOnPlatform);
             waypoints.add(Constants.kRightRobotLocationOffPlatform);
+            waypoints.add(new Pose2d(190, -90, Rotation2d.fromDegrees(140)));
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
             return generateTrajectory(true, waypoints);
         }

@@ -169,7 +169,7 @@ public class Robot extends TimedRobot
             }
 
             Drive.getInstance().zeroSensors();
-            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps();
 
             // Reset all auto mode state.
             mAutoModeExecutor = new AutoModeExecutor();
@@ -195,7 +195,7 @@ public class Robot extends TimedRobot
 
             mDisabledLooper.stop();
 
-            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps();
             Drive.getInstance().zeroSensors();
 
             mAutoModeExecutor.setAutoMode(AutoModeSelector.getSelectedAutoMode());
@@ -426,7 +426,6 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getManualShootCargoBay())
                     mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
-                    // mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                 else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 else if (mControlBoard.getManualChuteUp())

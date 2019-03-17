@@ -69,7 +69,7 @@ public class ArcadeDriveHelper
             }
         }
 
-        return new DriveSignal(limit(leftMotorOutput), limit(rightMotorOutput));
+        return new DriveSignal(limit(leftMotorOutput), limit(rightMotorOutput), true);
     }
 
     /**

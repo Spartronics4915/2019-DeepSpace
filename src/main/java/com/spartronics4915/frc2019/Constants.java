@@ -251,6 +251,7 @@ public class Constants
             config = "default";
         }
         Logger.notice("running on " + config + " constants");
+
         switch (config)
         {
             case "TestChassis":
@@ -277,27 +278,55 @@ public class Constants
 
                 kDriveVelocityKp = 0.2;
                 break;
+            
+            case "SecondRobot":
+            case "SecondRobot\n":
+                kIsTestChassis = false;
+                kDriveWheelTrackWidthInches = 25.75;
+                kDriveWheelDiameterInches = 6;
+                kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
+                kRobotCenterToForward = 17.625; // inches
+                kRobotCenterToSide = 18.75; // inches
+
+                // TODO: Below
+                kTrackScrubFactor = 1.1982;
+
+                kRobotLinearInertia = 67.81205 + 5; // kg (robot's mass)
+                kRobotAngularInertia = 5.57937; // kg m^2 (use the moi auto mode)
+                kRobotAngularDrag = 12.0; // N*m / (rad/sec)
+
+                kDriveRightVIntercept = 0.9167; // V
+                kDriveRightKv = 0.2405; // V per rad/s
+                kDriveRightKa = 0.0651; // V per rad/s^2
+
+                kDriveLeftVIntercept = 0.9238; // V
+                kDriveLeftKv = 0.2448; // V per rad/s
+                kDriveLeftKa = 0.0643; // V per rad/s^2
+
+                kDriveVelocityKp = 0.3;
+                break;
 
             default:
                 kIsTestChassis = false;
                 kDriveWheelTrackWidthInches = 25.75;
                 kDriveWheelDiameterInches = 6;
                 kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
+                kRobotCenterToForward = 17.625; // inches
+                kRobotCenterToSide = 18.75; // inches
+
                 kTrackScrubFactor = 1.037;
-                kRobotCenterToForward = 17.625; // inches TODO tune
-                kRobotCenterToSide = 18.75; // inches TODO tune
 
                 kRobotLinearInertia = 67.81205; // kg (robot's mass)
                 kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode)
-                kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
+                kRobotAngularDrag = 12.0; // N*m / (rad/sec)
 
-                kDriveRightVIntercept = 1.0808; // V TODO tune
-                kDriveRightKv = 0.2458; // V per rad/s TODO tune
-                kDriveRightKa = 0.0617; // V per rad/s^2 TODO tune
+                kDriveRightVIntercept = 1.0808; // V
+                kDriveRightKv = 0.2458; // V per rad/s
+                kDriveRightKa = 0.0617; // V per rad/s^2
 
-                kDriveLeftVIntercept = 1.0685; // V TODO tune
-                kDriveLeftKv = 0.2411; // V per rad/s TODO tune
-                kDriveLeftKa = 0.0541; // V per rad/s^2 TODO tune
+                kDriveLeftVIntercept = 1.0685; // V
+                kDriveLeftKv = 0.2411; // V per rad/s
+                kDriveLeftKa = 0.0541; // V per rad/s^2
 
                 kDriveVelocityKp = 0.3;
                 break;

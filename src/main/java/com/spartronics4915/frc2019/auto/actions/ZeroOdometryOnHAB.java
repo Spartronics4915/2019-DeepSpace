@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class ZeroOdometryOnHAB implements Action
 {
     private StartPosition mStartPosition;
-    private RobotStateMap mStateMap;
+    private RobotStateEstimator mStateEstimator;
     public enum StartPosition
     {
         LEFT_PLATFORM,
@@ -22,7 +22,7 @@ public class ZeroOdometryOnHAB implements Action
     public ZeroOdometryOnHAB(StartPosition startPos)
     {
         mStartPosition = startPos;
-        mStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+        mStateEstimator = RobotStateEstimator.getInstance();
     }
 
     @Override
@@ -62,8 +62,7 @@ public class ZeroOdometryOnHAB implements Action
                 throw new RuntimeException("Invalid starting position " + mStartPosition);
         }
 
-        mStateMap.reset(Timer.getFPGATimestamp(), pose);
-        Drive.getInstance().setHeading(pose.getRotation());
+        mStateEstimator.resetRobotStateMaps(pose);
     }
 
 }
