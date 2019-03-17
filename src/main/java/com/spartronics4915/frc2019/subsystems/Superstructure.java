@@ -6,6 +6,7 @@ import com.spartronics4915.lib.util.RobotStateMap;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.VisionUpdateManager;
@@ -413,13 +414,11 @@ public class Superstructure extends Subsystem
     {
         try
         {
-            if (!reversed)
-                goalPose = new Pose2d(goalPose.getTranslation().x(), goalPose.getTranslation().y(),
-                        goalPose.getRotation().rotateBy(Rotation2d.fromDegrees(180)));
-
             ArrayList<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()));
             waypoints.add(goalPose);
+
+            // logNotice(waypoints.stream().map(Object::toString).collect(Collectors.joining(", ")));
 
             double startTime = Timer.getFPGATimestamp();
             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =

@@ -67,6 +67,16 @@ public class TrajectoryGenerator
     public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
             boolean reversed,
             final List<Pose2d> waypoints,
+            double start_vel)
+    {
+        return mMotionPlanner.generateTrajectory(reversed, waypoints,
+                Arrays.asList(new CentripetalAccelerationConstraint(kMaxCentripetalAccel)),
+                start_vel, 0, kMaxVelocity, kMaxAccel, kMaxVoltage);
+    }
+
+    public Trajectory<TimedState<Pose2dWithCurvature>> generateTrajectory(
+            boolean reversed,
+            final List<Pose2d> waypoints,
             final List<TimingConstraint<Pose2dWithCurvature>> constraints,
             double max_vel, // inches/s
             double max_accel, // inches/s^2

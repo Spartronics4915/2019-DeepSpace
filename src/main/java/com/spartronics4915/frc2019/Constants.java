@@ -105,6 +105,7 @@ public class Constants
 
     public static final double kDriveLeftDeadband = 0.04;
     public static final double kDriveRightDeadband = 0.04;
+    public static final boolean kDefaultBrakeMode = true; // on
 
     // LIDAR CONSTANTS ----------------
     public static final IReferenceModel kSegmentReferenceModel = new SegmentReferenceModel(
