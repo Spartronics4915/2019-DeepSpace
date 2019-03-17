@@ -119,27 +119,27 @@ public class TrajectoryGenerator
 
         public final MirrorableTrajectory straightTest;
         public final MirrorableTrajectory curvedTest;
-        public final MirrorableTrajectory driveToDriverStationParallelHatch;
+        public final MirrorableTrajectory driveToParallelHatchFromSide;
         public final MirrorableTrajectory driveToClosestCargoShipBayFromDepot;
         public final MirrorableTrajectory driveToClosestCargoShipBayFromSide;
         public final MirrorableTrajectory driveToDepot;
-        public final MirrorableTrajectory driveToParallelCargoBayFromMiddle;
+        public final MirrorableTrajectory driveToParallelHatchFromMiddle;
         public final MirrorableTrajectory driveToClosestCargoShipBayMiddle;
-        public final MirrorableTrajectory driveOffHabReverse;
-        public final MirrorableTrajectory driveOffHabForward;
+        // public final MirrorableTrajectory driveOffHabReverse;
+        // public final MirrorableTrajectory driveOffHabForward;
         public final TrajectoryIterator<TimedState<Pose2dWithCurvature>> driveReverseToShootInBay;
 
         private TrajectorySet()
         {
             straightTest = new MirrorableTrajectory(getStraightTest());
             curvedTest = new MirrorableTrajectory(getCurvedTest());
-            driveToDriverStationParallelHatch = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
+            driveToParallelHatchFromSide = new MirrorableTrajectory(getDriveToDriverStationParallelHatch());
             driveToClosestCargoShipBayFromDepot = new MirrorableTrajectory(getDriveToClosestCargoShipBayFromDepot());
             driveToClosestCargoShipBayMiddle = new MirrorableTrajectory(getDriveToClosestCargoShipBayFromMiddle());
             driveToDepot = new MirrorableTrajectory(getDriveToDepot());
-            driveToParallelCargoBayFromMiddle = new MirrorableTrajectory(getDriveToParallelCargoBayFromMiddle());
-            driveOffHabForward = new MirrorableTrajectory(getDriveOffHabForward());
-            driveOffHabReverse = new MirrorableTrajectory(getDriveOffHabReverse());
+            driveToParallelHatchFromMiddle = new MirrorableTrajectory(getDriveToParallelCargoBayFromMiddle());
+            // driveOffHabForward = new MirrorableTrajectory(getDriveOffHabForward());
+            // driveOffHabReverse = new MirrorableTrajectory(getDriveOffHabReverse());
             driveToClosestCargoShipBayFromSide = new MirrorableTrajectory(getDriveToClosestCargoShipBayFromSide());
             driveReverseToShootInBay = new TrajectoryIterator<>(new TimedView<>(getDriveBackToShootBay()));
         }
@@ -163,6 +163,7 @@ public class TrajectoryGenerator
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToDriverStationParallelHatch()
         {
             List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.kRightRobotLocationOnPlatform);
             waypoints.add(Constants.kRightRobotLocationOffPlatform);
             waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
 
@@ -180,37 +181,39 @@ public class TrajectoryGenerator
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToClosestCargoShipBayFromMiddle()
         {
             List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.kMiddleRobotLocationOnPlatformForward);
             waypoints.add(Constants.kMiddleRobotLocationOffPlatformForward);
             waypoints.add(new Pose2d(195, -95, Rotation2d.fromDegrees(-23))); // Middle of field
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
-            return generateTrajectory(false, waypoints);
+            return generateTrajectory(true, waypoints);
         }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToClosestCargoShipBayFromSide()
         {
             List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(Constants.kMiddleRobotLocationOffPlatformForward);
+            waypoints.add(Constants.kRightRobotLocationOnPlatform);
+            waypoints.add(Constants.kRightRobotLocationOffPlatform);
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
-            return generateTrajectory(false, waypoints);
-        }
-
-        // Rotation is 0 because we haven't reset the pose yet
-        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveOffHabReverse()
-        {
-            List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(new Pose2d(0, 0, Rotation2d.identity()));
-            waypoints.add(new Pose2d(-kDriveOffHabDistance, 0, Rotation2d.identity()));
             return generateTrajectory(true, waypoints);
         }
 
         // Rotation is 0 because we haven't reset the pose yet
-        private Trajectory<TimedState<Pose2dWithCurvature>> getDriveOffHabForward()
-        {
-            List<Pose2d> waypoints = new ArrayList<>();
-            waypoints.add(new Pose2d(0, 0, Rotation2d.identity()));
-            waypoints.add(new Pose2d(kDriveOffHabDistance, 0, Rotation2d.identity()));
-            return generateTrajectory(false, waypoints);
-        }
+        // private Trajectory<TimedState<Pose2dWithCurvature>> getDriveOffHabReverse()
+        // {
+        //     List<Pose2d> waypoints = new ArrayList<>();
+        //     waypoints.add(new Pose2d(0, 0, Rotation2d.identity()));
+        //     waypoints.add(new Pose2d(-kDriveOffHabDistance, 0, Rotation2d.identity()));
+        //     return generateTrajectory(true, waypoints);
+        // }
+
+        // Rotation is 0 because we haven't reset the pose yet
+        // private Trajectory<TimedState<Pose2dWithCurvature>> getDriveOffHabForward()
+        // {
+        //     List<Pose2d> waypoints = new ArrayList<>();
+        //     waypoints.add(new Pose2d(0, 0, Rotation2d.identity()));
+        //     waypoints.add(new Pose2d(kDriveOffHabDistance, 0, Rotation2d.identity()));
+        //     return generateTrajectory(false, waypoints);
+        // }
 
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveBackToShootBay()
         {
@@ -231,6 +234,7 @@ public class TrajectoryGenerator
         private Trajectory<TimedState<Pose2dWithCurvature>> getDriveToParallelCargoBayFromMiddle()
         {
             List<Pose2d> waypoints = new ArrayList<>();
+            waypoints.add(Constants.kMiddleRobotLocationOnPlatformReverse);
             waypoints.add(Constants.kMiddleRobotLocationOffPlatformReverse);
             waypoints.add(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
             return generateTrajectory(true, waypoints);

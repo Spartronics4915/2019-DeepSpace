@@ -60,9 +60,14 @@ public class Constants
     }
 
     // Not technically a scorable landmark (this is in inches)
+    public static final Pose2d kRightRobotLocationOnPlatform;
+    public static final Pose2d kMiddleRobotLocationOnPlatformReverse;
+    public static final Pose2d kMiddleRobotLocationOnPlatformForward;
+
     public static final Pose2d kRightRobotLocationOffPlatform;
     public static final Pose2d kMiddleRobotLocationOffPlatformReverse;
     public static final Pose2d kMiddleRobotLocationOffPlatformForward;
+
 
     public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
     {
@@ -298,6 +303,11 @@ public class Constants
                 break;
         }
 
+        kRightRobotLocationOnPlatform = new Pose2d(48.0 + Constants.kRobotCenterToForward,
+                -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOnPlatformReverse = new Pose2d(48.0 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOnPlatformForward = new Pose2d(48.0 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(0));
+        
         kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward,
             -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
         kMiddleRobotLocationOffPlatformReverse = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));

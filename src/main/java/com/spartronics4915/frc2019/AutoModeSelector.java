@@ -40,8 +40,8 @@ public class AutoModeSelector
             mDefaultMode,
             new AutoModeCreator("Left: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromSideMode(true)),
             new AutoModeCreator("Right: Drive Off Hab and Place Parallel Panel", () -> new PlaceHatchFromSideMode(false)),
-            new AutoModeCreator("Left: Drive Off Hab and Place Close Left Panel", () -> new PlaceCargoFromSideMode(true)),
-            new AutoModeCreator("Right: Drive Off Hab and Place Close Left Panel", () -> new PlaceCargoFromSideMode(false)),
+            new AutoModeCreator("Left: Drive Off Hab and Place Close Left Cargo", () -> new PlaceCargoFromSideMode(true)),
+            new AutoModeCreator("Right: Drive Off Hab and Place Close Left Cargo", () -> new PlaceCargoFromSideMode(false)),
 
             new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Left Panel", ()-> new PlaceHatchFromMiddleMode(true)),
             new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Right Panel", ()-> new PlaceHatchFromMiddleMode(false)),
