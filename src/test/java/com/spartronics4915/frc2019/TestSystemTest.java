@@ -17,8 +17,8 @@ public class TestSystemTest
         // field (i.e. +x). See the bottom of Constants.java for more
         System.out.println(Constants.kRightRobotLocationOnPlatform);
 
-        // The below will get the pose of LEFT_CLOSE_CARGO_BAY, corrected for half of the robot's length
-        // This will move the pose up (+y) because the angle of the original pose of LEFT_CLOSE_CARGO_BAY is 90
-        System.out.println(Constants.ScorableLandmark.LEFT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
+        // The below will get the pose of RIGHT_CLOSE_CARGO_BAY, corrected for half of the robot's length
+        // This will move the pose up (+y) because the angle of the original pose of RIGHT_CLOSE_CARGO_BAY is 90
+        System.out.println(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
     }
 }
