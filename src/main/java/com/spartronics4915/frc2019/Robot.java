@@ -169,7 +169,7 @@ public class Robot extends TimedRobot
             }
 
             Drive.getInstance().zeroSensors();
-            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps();
 
             // Reset all auto mode state.
             mAutoModeExecutor = new AutoModeExecutor();
@@ -195,7 +195,7 @@ public class Robot extends TimedRobot
 
             mDisabledLooper.stop();
 
-            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps();
             Drive.getInstance().zeroSensors();
 
             mAutoModeExecutor.setAutoMode(AutoModeSelector.getSelectedAutoMode());
@@ -314,6 +314,7 @@ public class Robot extends TimedRobot
         try
         {
             outputToSmartDashboard();
+            VisionUpdateManager.reversePNPVisionManager.clearVisionUpdate();
         }
         catch (Throwable t)
         {
@@ -426,7 +427,6 @@ public class Robot extends TimedRobot
                 }
                 else if (mControlBoard.getManualShootCargoBay())
                     mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
-                    // mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                 else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 else if (mControlBoard.getManualChuteUp())
@@ -477,7 +477,7 @@ public class Robot extends TimedRobot
                 //TEST BUTTONBOARD
                 if (mControlBoard.getClimbExtendAllPneumatics())
                 {
-                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
                 }
                 else if (mControlBoard.getClimbIntake())
                 {
@@ -511,8 +511,8 @@ public class Robot extends TimedRobot
                 if (mControlBoard.getReverseDirection())
                      mSuperstructure.reverseDrivingDirection();
 
-                // if (mControlBoard.getReturnToDriverControl())
-                //     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
+                if (mControlBoard.getReturnToDriverControl())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);

@@ -60,7 +60,8 @@ public class DriveMotionPlanner implements CSVWritable
     public DriveMotionPlanner()
     {
         final DCMotorTransmission transmissionLeft = makeTransmission(Constants.kDriveLeftVIntercept, Constants.kDriveLeftKv, Constants.kDriveLeftKa);
-        final DCMotorTransmission transmissionRight = makeTransmission(Constants.kDriveRightVIntercept, Constants.kDriveRightKv, Constants.kDriveRightKa);
+        final DCMotorTransmission transmissionRight =
+                makeTransmission(Constants.kDriveRightVIntercept, Constants.kDriveRightKv, Constants.kDriveRightKa);
         mModel = new DifferentialDrive(
                 Constants.kRobotLinearInertia,
                 Constants.kRobotAngularInertia,
@@ -69,14 +70,14 @@ public class DriveMotionPlanner implements CSVWritable
                 Units.inches_to_meters(Constants.kDriveWheelTrackWidthInches / 2.0 * Constants.kTrackScrubFactor),
                 transmissionLeft, transmissionRight);
     }
-    
+
     private DCMotorTransmission makeTransmission(double vIntercept, double kv, double ka)
     {
         return new DCMotorTransmission(
-            1.0 / kv,
-            Units.inches_to_meters(Constants.kDriveWheelRadiusInches) * Units.inches_to_meters(Constants.kDriveWheelRadiusInches)
-                    * Constants.kRobotLinearInertia / (2.0 * ka),
-            vIntercept);
+                1.0 / kv,
+                Units.inches_to_meters(Constants.kDriveWheelRadiusInches) * Units.inches_to_meters(Constants.kDriveWheelRadiusInches)
+                        * Constants.kRobotLinearInertia / (2.0 * ka),
+                vIntercept);
     }
 
     public DifferentialDrive getModel()
@@ -146,12 +147,12 @@ public class DriveMotionPlanner implements CSVWritable
 
         // Create a trajectory from splines.
         Trajectory<Pose2dWithCurvature> trajectory;
-        if(waypoints.size() == 2)
+        if (waypoints.size() == 2 && waypoints.get(1).isColinear(waypoints.get(0)))
         {
             trajectory = TrajectoryUtil.trajectoryFromEndPoses(
-                                waypoints_maybe_flipped.get(0), 
-                                waypoints_maybe_flipped.get(1),
-                                kMaxDx);
+                    waypoints_maybe_flipped.get(0),
+                    waypoints_maybe_flipped.get(1),
+                    kMaxDx);
         }
         else
         {

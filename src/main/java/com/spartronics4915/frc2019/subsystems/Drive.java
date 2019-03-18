@@ -61,7 +61,7 @@ public class Drive extends Subsystem
             synchronized (Drive.this)
             {
                 setOpenLoop(new DriveSignal(0.05, 0.05));
-                setBrakeMode(false);
+                setBrakeMode(Constants.kDefaultBrakeMode);
                 // startLogging();
             }
         }
@@ -151,8 +151,8 @@ public class Drive extends Subsystem
             setOpenLoop(DriveSignal.NEUTRAL);
 
             // Force a CAN message across.
-            mIsBrakeMode = true;
-            setBrakeMode(false);
+            mIsBrakeMode = false;
+            setBrakeMode(Constants.kDefaultBrakeMode);
         }
         catch (Exception e)
         {
@@ -228,11 +228,11 @@ public class Drive extends Subsystem
     {
         if (mDriveControlState != DriveControlState.OPEN_LOOP)
         {
-            setBrakeMode(false);
-
             logDebug("Switching to open loop: " + signal.toString());
             mDriveControlState = DriveControlState.OPEN_LOOP;
         }
+        setBrakeMode(signal.getBrakeMode());
+
         mPeriodicIO.leftDemand = signal.getLeft();
         mPeriodicIO.rightDemand = signal.getRight();
         mPeriodicIO.leftFeedforward = 0.0;

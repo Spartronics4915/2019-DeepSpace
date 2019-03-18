@@ -49,22 +49,27 @@ public class Constants
         private ScorableLandmark(double x, double y, double rotationDegrees)
         {
             this.fieldPose = new Pose2d(Units.millimeters_to_inches(x), Units.millimeters_to_inches(y), Rotation2d.fromDegrees(rotationDegrees));
-            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
+            this.robotLengthCorrectedPose = correctPoseForRobotLength(this.fieldPose);
         }
 
         private ScorableLandmark(ScorableLandmark other)
         {
             this.fieldPose = new Pose2d(other.fieldPose.mirror());
-            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
+            this.robotLengthCorrectedPose = correctPoseForRobotLength(this.fieldPose);
         }
     }
 
     // Not technically a scorable landmark (this is in inches)
+    public static final Pose2d kRightRobotLocationOnPlatform;
+    public static final Pose2d kMiddleRobotLocationOnPlatformReverse;
+    public static final Pose2d kMiddleRobotLocationOnPlatformForward;
+
     public static final Pose2d kRightRobotLocationOffPlatform;
     public static final Pose2d kMiddleRobotLocationOffPlatformReverse;
     public static final Pose2d kMiddleRobotLocationOffPlatformForward;
 
-    public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
+
+    public static Pose2d correctPoseForRobotLength(Pose2d oldpose)
     {
         return oldpose.transformBy(Constants.kRobotCenterToForward);
     }
@@ -100,6 +105,7 @@ public class Constants
 
     public static final double kDriveLeftDeadband = 0.04;
     public static final double kDriveRightDeadband = 0.04;
+    public static final boolean kDefaultBrakeMode = true; // on
 
     // LIDAR CONSTANTS ----------------
     public static final IReferenceModel kSegmentReferenceModel = new SegmentReferenceModel(
@@ -148,6 +154,7 @@ public class Constants
     public static final double kVisionTargetMaxStaleTime = 0.5;
     public static final String kVisionSelectedIndexKey = "Vision/selectedIdx";
     public static final int kMaxVisionTargets = 2;
+    public static final Pose2d kReverseVisionCameraOffset;
 
     public static final double kDriveVoltageRampRate = 0.0;
 
@@ -246,6 +253,7 @@ public class Constants
             config = "default";
         }
         Logger.notice("running on " + config + " constants");
+
         switch (config)
         {
             case "TestChassis":
@@ -257,6 +265,7 @@ public class Constants
                 kTrackScrubFactor = 1.063;
                 kRobotCenterToForward = 16.125; // inches TODO tune
                 kRobotCenterToSide = 13.75; // inches TODO tune
+                kReverseVisionCameraOffset = new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180));
 
                 kRobotLinearInertia = 27.93; // kg (robot's mass)
                 kRobotAngularInertia = 1.7419; // kg m^2 (use the moi auto mode)
@@ -272,32 +281,67 @@ public class Constants
 
                 kDriveVelocityKp = 0.2;
                 break;
+            
+            case "SecondRobot":
+            case "SecondRobot\n":
+                kIsTestChassis = false;
+                kDriveWheelTrackWidthInches = 25.75;
+                kDriveWheelDiameterInches = 6;
+                kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
+                kRobotCenterToForward = 17.625; // inches
+                kRobotCenterToSide = 18.75; // inches
+                kReverseVisionCameraOffset = new Pose2d(-1.0, 0.0, Rotation2d.fromDegrees(180));
+
+                // TODO: Below
+                kTrackScrubFactor = 1.1982;
+
+                kRobotLinearInertia = 67.81205 + 5; // kg (robot's mass)
+                kRobotAngularInertia = 5.57937; // kg m^2 (use the moi auto mode)
+                kRobotAngularDrag = 12.0; // N*m / (rad/sec)
+
+                kDriveRightVIntercept = 0.9167; // V
+                kDriveRightKv = 0.2405; // V per rad/s
+                kDriveRightKa = 0.0651; // V per rad/s^2
+
+                kDriveLeftVIntercept = 0.9238; // V
+                kDriveLeftKv = 0.2448; // V per rad/s
+                kDriveLeftKa = 0.0643; // V per rad/s^2
+
+                kDriveVelocityKp = 0.3;
+                break;
 
             default:
                 kIsTestChassis = false;
                 kDriveWheelTrackWidthInches = 25.75;
                 kDriveWheelDiameterInches = 6;
                 kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
+                kRobotCenterToForward = 17.625; // inches
+                kRobotCenterToSide = 18.75; // inches
+                kReverseVisionCameraOffset = new Pose2d(-1.0, 0.0, Rotation2d.fromDegrees(180));
+
                 kTrackScrubFactor = 1.037;
-                kRobotCenterToForward = 17.625; // inches TODO tune
-                kRobotCenterToSide = 18.75; // inches TODO tune
 
                 kRobotLinearInertia = 67.81205; // kg (robot's mass)
                 kRobotAngularInertia = 4.9698; // kg m^2 (use the moi auto mode)
-                kRobotAngularDrag = 12.0; // N*m / (rad/sec) TODO tune
+                kRobotAngularDrag = 12.0; // N*m / (rad/sec)
 
-                kDriveRightVIntercept = 1.0808; // V TODO tune
-                kDriveRightKv = 0.2458; // V per rad/s TODO tune
-                kDriveRightKa = 0.0617; // V per rad/s^2 TODO tune
+                kDriveRightVIntercept = 1.0808; // V
+                kDriveRightKv = 0.2458; // V per rad/s
+                kDriveRightKa = 0.0617; // V per rad/s^2
 
-                kDriveLeftVIntercept = 1.0685; // V TODO tune
-                kDriveLeftKv = 0.2411; // V per rad/s TODO tune
-                kDriveLeftKa = 0.0541; // V per rad/s^2 TODO tune
+                kDriveLeftVIntercept = 1.0685; // V
+                kDriveLeftKv = 0.2411; // V per rad/s
+                kDriveLeftKa = 0.0541; // V per rad/s^2
 
                 kDriveVelocityKp = 0.3;
                 break;
         }
 
+        kRightRobotLocationOnPlatform = new Pose2d(48.0 + Constants.kRobotCenterToForward,
+                -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOnPlatformReverse = new Pose2d(48.0 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOnPlatformForward = new Pose2d(48.0 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(0));
+        
         kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward,
             -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
         kMiddleRobotLocationOffPlatformReverse = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));

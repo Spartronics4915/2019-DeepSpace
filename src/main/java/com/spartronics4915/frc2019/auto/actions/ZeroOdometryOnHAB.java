@@ -8,10 +8,10 @@ import com.spartronics4915.lib.util.RobotStateMap;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class ZeroOdometryOffHAB implements Action
+public class ZeroOdometryOnHAB implements Action
 {
     private StartPosition mStartPosition;
-    private RobotStateMap mStateMap;
+    private RobotStateEstimator mStateEstimator;
     public enum StartPosition
     {
         LEFT_PLATFORM,
@@ -19,10 +19,10 @@ public class ZeroOdometryOffHAB implements Action
         RIGHT_PLATFORM;
     };
 
-    public ZeroOdometryOffHAB(StartPosition startPos)
+    public ZeroOdometryOnHAB(StartPosition startPos)
     {
         mStartPosition = startPos;
-        mStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+        mStateEstimator = RobotStateEstimator.getInstance();
     }
 
     @Override
@@ -49,22 +49,20 @@ public class ZeroOdometryOffHAB implements Action
         switch (mStartPosition)
         {
             case RIGHT_PLATFORM:
-                pose = Constants.kRightRobotLocationOffPlatform.mirror();
+                pose = Constants.kRightRobotLocationOnPlatform;
                 break;
             case LEFT_PLATFORM:
-                pose = Constants.kRightRobotLocationOffPlatform;
+                pose = Constants.kRightRobotLocationOnPlatform.mirror();
                 break;
             case MIDDLE_PLATFORM:
-                pose = Constants.kMiddleRobotLocationOffPlatformReverse;
+                pose = Constants.kMiddleRobotLocationOnPlatformReverse;
                 break;
             default:
                 pose = new Pose2d();
                 throw new RuntimeException("Invalid starting position " + mStartPosition);
         }
 
-        mStateMap.reset(Timer.getFPGATimestamp(),
-                     pose);
-        Drive.getInstance().setHeading(pose.getRotation());
+        mStateEstimator.resetRobotStateMaps(pose);
     }
 
 }

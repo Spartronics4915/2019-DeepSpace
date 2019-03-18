@@ -16,7 +16,7 @@ public class DriveTrajectory implements Action
 {
 
     private static final Drive mDrive = Drive.getInstance();
-    private static final RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+    private static final RobotStateEstimator mRobotStateEstimator = RobotStateEstimator.getInstance();
 
     private final TrajectoryIterator<TimedState<Pose2dWithCurvature>> mTrajectory;
     private final boolean mResetPose;
@@ -59,8 +59,7 @@ public class DriveTrajectory implements Action
         Logger.debug("Starting trajectory! (length=" + mTrajectory.getRemainingProgress() + ")");
         if (mResetPose)
         {
-            mRobotStateMap.reset(Timer.getFPGATimestamp(), 
-                mTrajectory.getState().state().getPose());
+            mRobotStateEstimator.resetRobotStateMaps(mTrajectory.getState().state().getPose());
         }
         mDrive.setTrajectory(mTrajectory);
     }

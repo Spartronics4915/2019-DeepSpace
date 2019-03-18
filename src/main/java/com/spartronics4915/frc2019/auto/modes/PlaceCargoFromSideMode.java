@@ -8,12 +8,11 @@ import com.spartronics4915.frc2019.auto.actions.DriveTrajectory;
 import com.spartronics4915.frc2019.auto.actions.ZeroOdometryOnHAB;
 import com.spartronics4915.frc2019.auto.actions.ZeroOdometryOnHAB.StartPosition;
 
-public class PlaceHatchFromSideMode extends AutoModeBase
+public class PlaceCargoFromSideMode extends AutoModeBase
 {
-
     private final boolean mIsLeft;
 
-    public PlaceHatchFromSideMode(boolean isLeft)
+    public PlaceCargoFromSideMode(boolean isLeft)
     {
         mIsLeft = isLeft;
     }
@@ -30,12 +29,7 @@ public class PlaceHatchFromSideMode extends AutoModeBase
         {
             runAction(new ZeroOdometryOnHAB(StartPosition.RIGHT_PLATFORM));
         }
-        runAction(new DriveTrajectory(tSet.driveToParallelHatchFromSide.get(mIsLeft)));
-        // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
-        //  () -> Superstructure.getInstance().isDriverControlled()));
-        // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDepot.get(mIsLeft)));
-        // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToClosestCargoShipBay.get(mIsLeft)));
-
+        runAction(new DriveTrajectory(tSet.driveToClosestCargoShipBayFromSide.get(mIsLeft)));
     }
 
 }

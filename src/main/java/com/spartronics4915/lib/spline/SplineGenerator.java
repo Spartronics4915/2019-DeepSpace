@@ -14,7 +14,10 @@ public class SplineGenerator
     private static final double kMaxDY = 0.05; //inches
     private static final double kMaxDTheta = 0.1; //radians!
     private static final int kMinSampleSize = 1;
+    private static final int kRecursionDepthLimit = 500;
 
+    private static int sRecursionDepth = 0;
+    
     /**
      * Converts a spline into a list of Twist2d's.
      *
@@ -25,6 +28,8 @@ public class SplineGenerator
      */
     public static List<Pose2dWithCurvature> parameterizeSpline(Spline s, double maxDx, double maxDy, double maxDTheta, double t0, double t1)
     {
+        sRecursionDepth = 0;
+
         List<Pose2dWithCurvature> rv = new ArrayList<>();
         rv.add(s.getPose2dWithCurvature(0.0));
         double dt = (t1 - t0);
@@ -79,8 +84,15 @@ public class SplineGenerator
         Rotation2d r1 = s.getHeading(t1);
         Pose2d transformation = new Pose2d(new Translation2d(p0, p1).rotateBy(r0.inverse()), r1.rotateBy(r0.inverse()));
         Twist2d twist = Pose2d.log(transformation);
+
         if (twist.dy > maxDy || twist.dx > maxDx || twist.dtheta > maxDTheta)
         {
+            if (sRecursionDepth++ > kRecursionDepthLimit)
+            {
+                DriverStation.reportError("Hit recursion depth limit!\ntwist: " + twist.toString() + ", p0: " + p0 + ", p1: " + p1 + ", r0: " + r0 + ", r1: " + r1 + ", transformation: " + transformation, false);
+                return;
+            }
+
             // subdivide
             getSegmentArc(s, rv, t0, (t0 + t1) / 2, maxDx, maxDy, maxDTheta);
             getSegmentArc(s, rv, (t0 + t1) / 2, t1, maxDx, maxDy, maxDTheta);

@@ -13,7 +13,12 @@ public class TestSystemTest
         // assert statements
         assertEquals(0, 0, "0 must be 0");
 
-        System.out.println(Constants.kMiddleRobotLocationOffPlatformReverse + " " + Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
+        // The below is corrected for the robot's length so that it is moved towards the center of the
+        // field (i.e. +x). See the bottom of Constants.java for more
+        System.out.println(Constants.kRightRobotLocationOnPlatform);
+
+        // The below will get the pose of RIGHT_CLOSE_CARGO_BAY, corrected for half of the robot's length
+        // This will move the pose up (+y) because the angle of the original pose of RIGHT_CLOSE_CARGO_BAY is 90
         System.out.println(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
     }
 }
