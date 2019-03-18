@@ -582,7 +582,7 @@ public class Robot extends TimedRobot
                     DriverStation.getInstance().getMatchTime());
             SmartDashboard.putNumber("Robot/BatteryVoltage",
                     RobotController.getBatteryVoltage());
-            SmartDashboard.putNumber("Robot/Pressure", 7.80757 * mPressureSensor.getAverageVoltage() - 25);
+            SmartDashboard.putNumber("Robot/Pressure", 250* mPressureSensor.getVoltage()/5.0 - 25);
             // SmartDashboard.putNumber("Robot/BatteryCurrent",
             //         mPDP.getTotalCurrent()); XXX: Spews CAN errors
         }
