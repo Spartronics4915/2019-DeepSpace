@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.VisionUpdateManager;
+import com.spartronics4915.frc2019.VisionUpdateManager.HeadingUpdate;
 import com.spartronics4915.frc2019.VisionUpdateManager.PNPUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.lib.geometry.Pose2d;
@@ -268,9 +269,11 @@ public class Superstructure extends Subsystem
                             visionUpdate.ifPresent(
                                     v ->
                                     {
-                                        makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
+                                        makeAndDrivePath(v.getFieldPosition(mRobotStateMap).transformBy(-Constants.kRobotCenterToForward), true);
+
                                         dashboardPutString("TargetPose",
-                                                Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)).toString());
+                                                v.getFieldPosition(mRobotStateMap).transformBy(-Constants.kRobotCenterToForward).toString());
+                                        dashboardPutNumber("CapTime", v.frameCapturedTime);
                                     });
                         }
 

@@ -49,13 +49,13 @@ public class Constants
         private ScorableLandmark(double x, double y, double rotationDegrees)
         {
             this.fieldPose = new Pose2d(Units.millimeters_to_inches(x), Units.millimeters_to_inches(y), Rotation2d.fromDegrees(rotationDegrees));
-            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
+            this.robotLengthCorrectedPose = correctPoseForRobotLength(this.fieldPose);
         }
 
         private ScorableLandmark(ScorableLandmark other)
         {
             this.fieldPose = new Pose2d(other.fieldPose.mirror());
-            this.robotLengthCorrectedPose = getRobotLengthCorrectedPose(this.fieldPose);
+            this.robotLengthCorrectedPose = correctPoseForRobotLength(this.fieldPose);
         }
     }
 
@@ -69,7 +69,7 @@ public class Constants
     public static final Pose2d kMiddleRobotLocationOffPlatformForward;
 
 
-    public static Pose2d getRobotLengthCorrectedPose(Pose2d oldpose)
+    public static Pose2d correctPoseForRobotLength(Pose2d oldpose)
     {
         return oldpose.transformBy(Constants.kRobotCenterToForward);
     }
@@ -154,6 +154,7 @@ public class Constants
     public static final double kVisionTargetMaxStaleTime = 0.5;
     public static final String kVisionSelectedIndexKey = "Vision/selectedIdx";
     public static final int kMaxVisionTargets = 2;
+    public static final Pose2d kReverseVisionCameraOffset;
 
     public static final double kDriveVoltageRampRate = 0.0;
 
@@ -264,6 +265,7 @@ public class Constants
                 kTrackScrubFactor = 1.063;
                 kRobotCenterToForward = 16.125; // inches TODO tune
                 kRobotCenterToSide = 13.75; // inches TODO tune
+                kReverseVisionCameraOffset = new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180));
 
                 kRobotLinearInertia = 27.93; // kg (robot's mass)
                 kRobotAngularInertia = 1.7419; // kg m^2 (use the moi auto mode)
@@ -288,6 +290,7 @@ public class Constants
                 kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
                 kRobotCenterToForward = 17.625; // inches
                 kRobotCenterToSide = 18.75; // inches
+                kReverseVisionCameraOffset = new Pose2d(-1.0, 0.0, Rotation2d.fromDegrees(180));
 
                 // TODO: Below
                 kTrackScrubFactor = 1.1982;
@@ -314,6 +317,7 @@ public class Constants
                 kDriveWheelRadiusInches = kDriveWheelDiameterInches / 2.0;
                 kRobotCenterToForward = 17.625; // inches
                 kRobotCenterToSide = 18.75; // inches
+                kReverseVisionCameraOffset = new Pose2d(-1.0, 0.0, Rotation2d.fromDegrees(180));
 
                 kTrackScrubFactor = 1.037;
 

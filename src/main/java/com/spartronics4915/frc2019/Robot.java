@@ -314,6 +314,7 @@ public class Robot extends TimedRobot
         try
         {
             outputToSmartDashboard();
+            VisionUpdateManager.reversePNPVisionManager.clearVisionUpdate();
         }
         catch (Throwable t)
         {
@@ -510,8 +511,8 @@ public class Robot extends TimedRobot
                 if (mControlBoard.getReverseDirection())
                      mSuperstructure.reverseDrivingDirection();
 
-                // if (mControlBoard.getReturnToDriverControl())
-                //     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
+                if (mControlBoard.getReturnToDriverControl())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);

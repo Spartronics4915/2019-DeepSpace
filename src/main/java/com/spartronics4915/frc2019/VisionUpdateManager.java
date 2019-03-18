@@ -17,11 +17,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionUpdateManager<U extends IVisionUpdate>
 {
-    private static final Pose2d kReverseCameraOffset = new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180));
     private static final RuntimeException kEmptyUpdateException = new RuntimeException("VisionUpdate targets is null or doesn't have specified index!");
 
-    public static VisionUpdateManager<PNPUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPUpdate::new, "Reverse", "solvePNP", kReverseCameraOffset);
-    // public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", kReverseCameraOffset);
+    public static VisionUpdateManager<PNPUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPUpdate::new, "Reverse", "solvePNP", Constants.kReverseVisionCameraOffset);
+    public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", Constants.kReverseVisionCameraOffset);
 
     private final String mNetworkTablesKey;
     private final Pose2d mCameraOffset;
@@ -50,6 +49,11 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         {
             Logger.exception(e);
         }
+    }
+
+    public void clearVisionUpdate()
+    {
+        this.mLatestVisionUpdate = null;
     }
 
     /**
@@ -93,7 +97,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
                 targets[i] = new Pose2d(values[j + 0], values[j + 1], Rotation2d.fromDegrees(values[j + 2] + 180));
             }
 
-            this.frameCapturedTime = frameCapTime;
+            this.frameCapturedTime = Timer.getFPGATimestamp() - frameCapTime;
             mTargets = targets;
             mCameraOffset = cameraOffset;
         }
@@ -145,7 +149,7 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         @Override
         public boolean isEmpty()
         {
-            return mTargets == null && mTargets.length <= 0 && Timer.getFPGATimestamp() - this.frameCapturedTime <= Constants.kVisionTargetMaxStaleTime;
+            return mTargets == null || mTargets.length <= 0 || Timer.getFPGATimestamp() - this.frameCapturedTime >= Constants.kVisionTargetMaxStaleTime;
         }
 
     }
