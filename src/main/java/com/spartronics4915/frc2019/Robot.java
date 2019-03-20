@@ -426,7 +426,7 @@ public class Robot extends TimedRobot
                     //TODO: add this functionality
                 }
                 else if (mControlBoard.getManualShootCargoBay())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
+                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                 else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 else if (mControlBoard.getManualChuteUp())
