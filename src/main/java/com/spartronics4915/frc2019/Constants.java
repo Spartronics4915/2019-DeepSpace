@@ -68,6 +68,7 @@ public class Constants
     public static final Pose2d kMiddleRobotLocationOffPlatformReverse;
     public static final Pose2d kMiddleRobotLocationOffPlatformForward;
 
+    public static final double kDriveOffHabXFudgeAmount = -33.0; // inches
 
     public static Pose2d correctPoseForRobotLength(Pose2d oldpose)
     {
@@ -282,7 +283,7 @@ public class Constants
 
                 kDriveVelocityKp = 0.2;
                 break;
-            
+
             case "SecondRobot":
             case "SecondRobot\n":
                 kIsTestChassis = false;
@@ -338,14 +339,14 @@ public class Constants
                 break;
         }
 
-        kRightRobotLocationOnPlatform = new Pose2d(48.0 + Constants.kRobotCenterToForward,
+        kRightRobotLocationOnPlatform = new Pose2d(48.0 + Constants.kRobotCenterToForward + kDriveOffHabXFudgeAmount,
                 -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
-        kMiddleRobotLocationOnPlatformReverse = new Pose2d(48.0 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
-        kMiddleRobotLocationOnPlatformForward = new Pose2d(48.0 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(0));
-        
-        kRightRobotLocationOffPlatform = new Pose2d(95.27523622 + Constants.kRobotCenterToForward,
-            -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
-        kMiddleRobotLocationOffPlatformReverse = new Pose2d(95.27523622 + Constants.kRobotCenterToForward, 0.0, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOnPlatformReverse = new Pose2d(kRightRobotLocationOnPlatform.getTranslation().x(), 0.0, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOnPlatformForward = new Pose2d(kMiddleRobotLocationOnPlatformReverse.getTranslation(), Rotation2d.fromDegrees(0));
+
+        kRightRobotLocationOffPlatform =
+                new Pose2d(95.27523622 + Constants.kRobotCenterToForward, -64.0 + Constants.kRobotCenterToSide, Rotation2d.fromDegrees(180));
+        kMiddleRobotLocationOffPlatformReverse = new Pose2d(kRightRobotLocationOffPlatform.getTranslation().x(), 0.0, Rotation2d.fromDegrees(180));
         kMiddleRobotLocationOffPlatformForward = new Pose2d(kMiddleRobotLocationOffPlatformReverse.getTranslation(), Rotation2d.fromDegrees(0));
     }
 }

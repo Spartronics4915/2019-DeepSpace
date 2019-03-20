@@ -29,7 +29,7 @@ public class PlaceCargoFromSideMode extends AutoModeBase
         {
             runAction(new ZeroOdometryOnHAB(StartPosition.RIGHT_PLATFORM));
         }
-        runAction(new DriveTrajectory(tSet.driveToClosestCargoShipBayFromSide.get(mIsLeft)));
+        runAction(new DriveTrajectory(tSet.driveToClosestCargoBayFromSide.get(mIsLeft)));
     }
 
 }

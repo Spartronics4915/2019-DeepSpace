@@ -130,7 +130,7 @@ public class Robot extends TimedRobot
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
                 SmartDashboard.putString(kRobotTestModeOptions,
-                   "None,CargoChute,CargoIntake,Climber,PanelHandler,Drive,All");
+                        "None,CargoChute,CargoIntake,Climber,PanelHandler,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
 
@@ -232,7 +232,7 @@ public class Robot extends TimedRobot
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
             mDrive.setOpenLoop(new DriveSignal(0.05, 0.05));
 
-            mLastTeleopLoopTime  = Timer.getFPGATimestamp();
+            mLastTeleopLoopTime = Timer.getFPGATimestamp();
         }
         catch (Throwable t)
         {
@@ -275,19 +275,19 @@ public class Robot extends TimedRobot
             {
                 success &= mDrive.checkSystem(testVariant);
             }
-            if(testMode.equals("CargoChute") || testMode.equals("All"))
+            if (testMode.equals("CargoChute") || testMode.equals("All"))
             {
                 success &= mCargoChute.checkSystem(testVariant);
             }
-            if(testMode.equals("CargoIntake") || testMode.equals("All"))
+            if (testMode.equals("CargoIntake") || testMode.equals("All"))
             {
                 success &= mCargoIntake.checkSystem(testVariant);
             }
-            if(testMode.equals("Climber") || testMode.equals("All"))
+            if (testMode.equals("Climber") || testMode.equals("All"))
             {
                 success &= mClimber.checkSystem(testVariant);
             }
-            if(testMode.equals("PanelHandler") || testMode.equals("All"))
+            if (testMode.equals("PanelHandler") || testMode.equals("All"))
             {
                 success &= mPanelHandler.checkSystem(testVariant);
             }
@@ -353,7 +353,8 @@ public class Robot extends TimedRobot
         {
             if (mSuperstructure.isDriverControlled())
             {
-                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
+                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1),
+                        mControlBoard.getTurn(),
                         mControlBoard.getSlowMode());
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
@@ -372,7 +373,7 @@ public class Robot extends TimedRobot
 
                 // mLastTeleopLoopTime = Timer.getFPGATimestamp();
                 // mLastTeleopVelocity = new ChassisState(mDrive.getLinearVelocity(), mDrive.getLinearVelocity());
-                
+
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
                 //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
@@ -380,7 +381,6 @@ public class Robot extends TimedRobot
                 // )); XXX Conversions on Kv are wrong
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 1 after setOpenLoop
-
 
                 // Button Board ----------------------------------------------------------
                 mControlBoard.updatePOV();
@@ -473,7 +473,6 @@ public class Robot extends TimedRobot
                 }
                 codeTimes[nctr++] = mCodeTimer.get(); // 6 after subsystems
 
-
                 //TEST BUTTONBOARD
                 if (mControlBoard.getClimbExtendAllPneumatics())
                 {
@@ -506,10 +505,9 @@ public class Robot extends TimedRobot
                 }
                 codeTimes[nctr++] = mCodeTimer.get(); // 7 after testbuttonboard
 
-
                 //Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
-                     mSuperstructure.reverseDrivingDirection();
+                    mSuperstructure.reverseDrivingDirection();
 
                 if (mControlBoard.getReturnToDriverControl())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
@@ -527,15 +525,15 @@ public class Robot extends TimedRobot
 
         outputToSmartDashboard();
         codeTimes[nctr++] = mCodeTimer.get(); // 9 after telemetry
-        double loopTime = codeTimes[nctr-1];
-        if(loopTime > .025)
+        double loopTime = codeTimes[nctr - 1];
+        if (loopTime > .025)
         {
             String str = "looptime overrun, offenders:\n";
-            for(int i=0;i<nctr;i++)
+            for (int i = 0; i < nctr; i++)
             {
                 str += "  " + i + " " + codeTimes[i] + "\n";
             }
-            if(loopTime > .1)
+            if (loopTime > .1)
                 Logger.notice("BIG " + str);
             else
                 Logger.debug(str);
@@ -562,16 +560,17 @@ public class Robot extends TimedRobot
 
     public void outputToSmartDashboard()
     {
-        /* need to constrain the amount of network table traffic we
+        /*
+         * need to constrain the amount of network table traffic we
          * produce each loop:
-         *   - outputTelemetry supports round-robin distribution of telemetry
-         *   - slowly varying data is "automatically filtered" by network tables
-         *   - but we impose an update rate max on less important data
-         *  NB: it's possible that slow/variable times is actually the result
-         *   of multithreaded synchronization locks.
+         * - outputTelemetry supports round-robin distribution of telemetry
+         * - slowly varying data is "automatically filtered" by network tables
+         * - but we impose an update rate max on less important data
+         * NB: it's possible that slow/variable times is actually the result
+         * of multithreaded synchronization locks.
          */
         mEnabledLooper.outputToSmartDashboard(); // outputs _dt
-        mSubsystemManager.outputToTelemetry(true/*round-robin*/);
+        mSubsystemManager.outputToTelemetry(true/* round-robin */);
 
         double now = Timer.getFPGATimestamp();
         if (now > this.mNextReportDue)
@@ -582,7 +581,7 @@ public class Robot extends TimedRobot
                     DriverStation.getInstance().getMatchTime());
             SmartDashboard.putNumber("Robot/BatteryVoltage",
                     RobotController.getBatteryVoltage());
-            SmartDashboard.putNumber("Robot/Pressure", 250* mPressureSensor.getVoltage()/5.0 - 25);
+            SmartDashboard.putNumber("Robot/Pressure", 250 * mPressureSensor.getVoltage() / 5.0 - 25);
             // SmartDashboard.putNumber("Robot/BatteryCurrent",
             //         mPDP.getTotalCurrent()); XXX: Spews CAN errors
         }

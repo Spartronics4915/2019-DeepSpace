@@ -30,7 +30,7 @@ public class PlaceHatchFromSideMode extends AutoModeBase
         {
             runAction(new ZeroOdometryOnHAB(StartPosition.RIGHT_PLATFORM));
         }
-        runAction(new DriveTrajectory(tSet.driveToParallelHatchFromSide.get(mIsLeft)));
+        runAction(new DriveTrajectory(tSet.driveToParallelCargoBayFromSide.get(mIsLeft)));
         // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
         //  () -> Superstructure.getInstance().isDriverControlled()));
         // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDepot.get(mIsLeft)));
