@@ -147,14 +147,14 @@ public class DriveMotionPlanner implements CSVWritable
 
         // Create a trajectory from splines.
         Trajectory<Pose2dWithCurvature> trajectory;
-        if (waypoints.size() == 2 && waypoints.get(1).isColinear(waypoints.get(0)))
-        {
-            trajectory = TrajectoryUtil.trajectoryFromEndPoses(
-                    waypoints_maybe_flipped.get(0),
-                    waypoints_maybe_flipped.get(1),
-                    kMaxDx);
-        }
-        else
+        // if (waypoints.size() == 2 && waypoints.get(1).isColinear(waypoints.get(0)))
+        // {
+        //     trajectory = TrajectoryUtil.trajectoryFromEndPoses(
+        //             waypoints_maybe_flipped.get(0),
+        //             waypoints_maybe_flipped.get(1),
+        //             kMaxDx);
+        // }
+        // else
         {
             trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(
                     waypoints_maybe_flipped, kMaxDx, kMaxDy, kMaxDTheta);

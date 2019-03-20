@@ -22,7 +22,7 @@ public class PlaceCargoFromMiddleMode extends AutoModeBase
     {
         TrajectorySet tSet = TrajectoryGenerator.getInstance().getTrajectorySet();
         runAction(new ZeroOdometryOnHAB(StartPosition.MIDDLE_PLATFORM));
-        runAction(new DriveTrajectory(tSet.driveToClosestCargoShipBayMiddle.get(mIsLeft)));
+        runAction(new DriveTrajectory(tSet.driveToClosestCargoBayFromMiddle.get(mIsLeft)));
 
     }
 

@@ -1,5 +1,6 @@
 package com.spartronics4915.frc2019.paths;
 
+import com.spartronics4915.frc2019.paths.TrajectoryGenerator.TrajectorySet;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Twist2d;
@@ -98,8 +99,26 @@ public class TrajectoryGeneratorTest
         @Test
         public void test()
         {
-                TrajectoryGenerator.getInstance().generateTrajectories();
+                // XXX: Some of the below paths fail because their curvature is very close to zero but should be "positive"...
+                // The assertion seems wrong, because they're still positive, they're just very close to zero.
+                // We should consider changing the tests (especially because there doesn't seem to be anything malformed
+                // about some of these).
 
-                verifyMirroredTrajectories(TrajectoryGenerator.getInstance().getTrajectorySet().straightTestReverse, false);
+                TrajectoryGenerator.getInstance().generateTrajectories();
+                TrajectorySet tSet = TrajectoryGenerator.getInstance().getTrajectorySet();
+
+                verifyMirroredTrajectories(tSet.straightTestForward, false);
+                verifyMirroredTrajectories(tSet.straightTestReverse, true);
+
+                verifyMirroredTrajectories(tSet.curvedTest, true);
+
+                verifyMirroredTrajectories(tSet.driveToParallelCargoBayFromSide, true);
+                verifyMirroredTrajectories(tSet.driveToParallelCargoBayFromMiddle, true); // fails due to line 79 of this file (path is verified by a human)
+
+                verifyMirroredTrajectories(tSet.driveToClosestCargoBayFromSide, true); // fails due to line 79 (path is verified by a human)
+                verifyMirroredTrajectories(tSet.driveToClosestCargoBayFromMiddle, true);
+
+                verifyMirroredTrajectories(tSet.driveToDepot, false); // fails on line 69
+                verifyMirroredTrajectories(tSet.driveToClosestCargoBayFromDepot, true); // fail on line 73
         }
 }
