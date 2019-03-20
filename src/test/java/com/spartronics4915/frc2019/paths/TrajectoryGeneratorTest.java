@@ -113,12 +113,12 @@ public class TrajectoryGeneratorTest
                 verifyMirroredTrajectories(tSet.curvedTest, true);
 
                 verifyMirroredTrajectories(tSet.driveToParallelCargoBayFromSide, true);
-                verifyMirroredTrajectories(tSet.driveToParallelCargoBayFromMiddle, true); // fails due to line 79 of this file (path is verified by a human)
+                verifyMirroredTrajectories(tSet.driveToParallelCargoBayFromMiddle, true);
 
-                verifyMirroredTrajectories(tSet.driveToClosestCargoBayFromSide, true); // fails due to line 79 (path is verified by a human)
+                verifyMirroredTrajectories(tSet.driveToClosestCargoBayFromSide, true);
                 verifyMirroredTrajectories(tSet.driveToClosestCargoBayFromMiddle, true);
 
-                verifyMirroredTrajectories(tSet.driveToDepot, false); // fails on line 69
-                verifyMirroredTrajectories(tSet.driveToClosestCargoBayFromDepot, true); // fail on line 73
+                verifyMirroredTrajectories(tSet.driveToDepotFromClosestCargoBay, false); // fails
+                verifyMirroredTrajectories(tSet.driveToMiddleCargoBayFromDepot, true); // fail?
         }
 }
