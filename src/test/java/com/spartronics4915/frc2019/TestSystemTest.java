@@ -19,7 +19,7 @@ public class TestSystemTest
         // assert statements
         assertEquals(0, 0, "0 must be 0");
 
-        System.out.println(Constants.ScorableLandmark.RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY.robotLengthCorrectedPose);
+        System.out.println(Constants.ScorableLandmark.RIGHT_MIDDLE_CARGO_BAY.robotLengthCorrectedPose);
         System.out.println(Constants.kMiddleRobotLocationOffPlatformReverse);
     }
 }
