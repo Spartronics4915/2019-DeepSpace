@@ -4,6 +4,7 @@ import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.geometry.Translation2d;
 import com.spartronics4915.lib.trajectory.TimedView;
 import com.spartronics4915.lib.trajectory.Trajectory;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
@@ -11,6 +12,7 @@ import com.spartronics4915.lib.trajectory.TrajectoryUtil;
 import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstraint;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.trajectory.timing.TimingConstraint;
+import com.spartronics4915.lib.trajectory.timing.VelocityLimitRegionConstraint;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.frc2019.Constants;
 
@@ -21,10 +23,13 @@ import java.util.List;
 public class TrajectoryGenerator
 {
 
-    private static final double kMaxVelocity = 240.0; // inches/s
-    private static final double kMaxAccel = 40.0; // inches/s
-    private static final double kMaxCentripetalAccel = 30.0; // inches/s
+    private static final double kMaxVelocity = 15.0; // inches/s     240
+    private static final double kMaxAccel = 5.0; // inches/s     15
+    private static final double kMaxCentripetalAccel = 15.0; // inches/s      30
     private static final double kMaxVoltage = 9.0; // volts
+    private static final List<TimingConstraint<Pose2dWithCurvature>> kHabMaxVelocityRegionConstraint =
+            new ArrayList<TimingConstraint<Pose2dWithCurvature>>(
+                    Arrays.asList(new VelocityLimitRegionConstraint<>(new Translation2d(0, 173), new Translation2d(140, -173), 80)));
 
     private static TrajectoryGenerator mInstance = new TrajectoryGenerator();
     private final DriveMotionPlanner mMotionPlanner;
@@ -212,9 +217,9 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(Constants.kRightRobotLocationOnPlatform);
             waypoints.add(Constants.kRightRobotLocationOffPlatform);
-            waypoints.add(new Pose2d(190, -90, Rotation2d.fromDegrees(140)));
+            // waypoints.add(new Pose2d(190, -90, Rotation2d.fromDegrees(140)));
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
-            return generateTrajectory(true, waypoints);
+            return generateTrajectory(true, waypoints, kHabMaxVelocityRegionConstraint, kMaxVelocity, kMaxAccel, kMaxVoltage);
         }
 
         // Rotation is 0 because we haven't reset the pose yet
