@@ -68,7 +68,7 @@ public class Constants
     public static final Pose2d kMiddleRobotLocationOffPlatformReverse;
     public static final Pose2d kMiddleRobotLocationOffPlatformForward;
 
-    public static final double kDriveOffHabXFudgeAmount = -33.0; // inches
+    public static final double kDriveOffHabXFudgeAmount = -10.0; // inches
 
     public static Pose2d correctPoseForRobotLength(Pose2d oldpose)
     {

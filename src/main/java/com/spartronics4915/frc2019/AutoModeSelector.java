@@ -48,6 +48,9 @@ public class AutoModeSelector
             new AutoModeCreator("Middle: Drive Off Middle of Hab and Place Left Close Bay", () -> new PlaceCargoFromMiddleMode(true)),
             new AutoModeCreator("Middle: Drive Off Middle of Hab and Palce Right Close Bay", () -> new PlaceCargoFromMiddleMode(false)),
             
+            
+            new AutoModeCreator("Other: Drive Back to Depot Test (Left)", () -> new DriveToDepotTestMode(true)),
+            new AutoModeCreator("Other: Drive Back to Depot Test (Right)", () -> new DriveToDepotTestMode(false)),
             new AutoModeCreator("Other: Drive Off HAB Test", () -> new DriveOffHABTestMode()),
             new AutoModeCreator("Other: Straight Path Test", () -> new PathTestMode(false)),
             new AutoModeCreator("Other: Curved Path Test", () -> new PathTestMode(true)),

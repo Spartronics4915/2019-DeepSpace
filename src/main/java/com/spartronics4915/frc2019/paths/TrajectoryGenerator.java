@@ -29,7 +29,7 @@ public class TrajectoryGenerator
     private static final double kMaxVoltage = 9.0; // volts
     private static final List<TimingConstraint<Pose2dWithCurvature>> kHabMaxVelocityRegionConstraint =
             new ArrayList<TimingConstraint<Pose2dWithCurvature>>(
-                    Arrays.asList(new VelocityLimitRegionConstraint<>(new Translation2d(0, 173), new Translation2d(140, -173), 40)));
+                    Arrays.asList(new VelocityLimitRegionConstraint<>(new Translation2d(0, -173), new Translation2d(120, 173), 15)));
 
     private static TrajectoryGenerator mInstance = new TrajectoryGenerator();
     private final DriveMotionPlanner mMotionPlanner;
@@ -218,7 +218,7 @@ public class TrajectoryGenerator
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(Constants.kRightRobotLocationOnPlatform);
             waypoints.add(Constants.kRightRobotLocationOffPlatform);
-            // waypoints.add(new Pose2d(190, -90, Rotation2d.fromDegrees(140)));
+            waypoints.add(new Pose2d(190, -90, Rotation2d.fromDegrees(140)));
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
             return generateTrajectory(true, waypoints, kHabMaxVelocityRegionConstraint, kMaxVelocity, kMaxAccel, kMaxVoltage);
         }
@@ -253,6 +253,7 @@ public class TrajectoryGenerator
         {
             List<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(Constants.ScorableLandmark.RIGHT_CLOSE_CARGO_BAY.robotLengthCorrectedPose);
+            waypoints.add(new Pose2d(170, -100, Rotation2d.fromDegrees(178)));
             waypoints.add(kRightCargoDepotIntakePose);
             return generateTrajectory(false, waypoints);
         }
