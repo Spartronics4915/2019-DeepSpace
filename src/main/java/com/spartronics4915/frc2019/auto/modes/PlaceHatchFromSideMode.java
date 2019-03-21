@@ -22,15 +22,7 @@ public class PlaceHatchFromSideMode extends AutoModeBase
     protected void routine() throws AutoModeEndedException
     {
         TrajectorySet tSet = TrajectoryGenerator.getInstance().getTrajectorySet();
-        if (mIsLeft)
-        {
-            runAction(new ZeroOdometryOnHAB(StartPosition.LEFT_PLATFORM));
-        }
-        else
-        {
-            runAction(new ZeroOdometryOnHAB(StartPosition.RIGHT_PLATFORM));
-        }
-        runAction(new DriveTrajectory(tSet.driveToParallelCargoBayFromSide.get(mIsLeft)));
+        runAction(new DriveTrajectory(tSet.driveToParallelCargoBayFromSide.get(mIsLeft), true));
         // runAction(new RunFunctionOnceUntilAction(() -> Superstructure.getInstance().setWantedState(Superstructure.WantedState.EJECT_PANEL),
         //  () -> Superstructure.getInstance().isDriverControlled()));
         // runAction(new DriveTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveToDepot.get(mIsLeft)));
