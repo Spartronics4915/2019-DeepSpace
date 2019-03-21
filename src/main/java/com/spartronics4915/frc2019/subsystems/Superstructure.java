@@ -230,7 +230,8 @@ public class Superstructure extends Subsystem
                                 && mWantedState == WantedState.LOWER_CHUTE_AND_CLIMB)
                         {
                             mClimber.setWantedState(Climber.WantedState.CLIMB);
-                            mWantedState = WantedState.LOWER_CHUTE_AND_CLIMB;
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
                         }
                         break;
 
@@ -358,6 +359,7 @@ public class Superstructure extends Subsystem
                         if (mStateChanged)
                         {
                             mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+                            mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                             mCargoChute.setWantedState(CargoChute.WantedState.BRING_BALL_TO_TOP);
                         }
 

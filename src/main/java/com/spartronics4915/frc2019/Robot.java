@@ -389,7 +389,7 @@ public class Robot extends TimedRobot
 
                 // CLIMBING
                 if (mControlBoard.getClimb())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 2 after climbing
 
@@ -428,7 +428,8 @@ public class Robot extends TimedRobot
                     //TODO: add this functionality
                 }
                 else if (mControlBoard.getManualShootCargoBay())
-                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
+                    // mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                 else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 else if (mControlBoard.getManualChuteUp())
