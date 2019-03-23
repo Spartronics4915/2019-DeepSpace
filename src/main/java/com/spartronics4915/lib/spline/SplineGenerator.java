@@ -87,8 +87,7 @@ public class SplineGenerator
         {
             if (depthCount.incrementAndGet() > kRecursionDepthLimit)
             {
-                DriverStation.reportError("Hit recursion depth limit!\ntwist: " + twist.toString() + ", p0: " + p0 + ", p1: " + p1 + ", r0: " + r0 + ", r1: " + r1 + ", transformation: " + transformation, false);
-                return;
+                throw new RuntimeException("Hit recursion depth limit!\ntwist: " + twist.toString() + ", p0: " + p0 + ", p1: " + p1 + ", r0: " + r0 + ", r1: " + r1 + ", transformation: " + transformation);
             }
 
             // subdivide
