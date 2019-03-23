@@ -10,6 +10,7 @@ import com.spartronics4915.lib.drivers.A21IRSensor;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -63,9 +64,14 @@ public class CargoChute extends Subsystem
                 throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
 
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
+            mRampMotorSlave = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorSlaveId);
             mRampMotorSlave = TalonSRXFactory.createPermanentSlaveTalon(Constants.kRampMotorSlaveId,
                     Constants.kRampMotorId);
             mRampMotorSlave.setInverted(false);
+
+            mRampMotor.setNeutralMode(NeutralMode.Brake);
+            mRampMotorSlave.setNeutralMode(NeutralMode.Brake);
+
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
             success = true;
@@ -103,7 +109,9 @@ public class CargoChute extends Subsystem
                 {
                     case RAMPING:
                         if (mStateChanged)
+                        {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                        }
                         if (ballInPosition() && !isInManual() && newState == mSystemState)
                         {
                             newState = SystemState.HOLDING;
@@ -112,7 +120,9 @@ public class CargoChute extends Subsystem
                         break;
                     case HOLDING:
                         if (mStateChanged)
+                        {
                             mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                        }
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
                         {
                             newState = SystemState.RAMPING;
@@ -121,7 +131,7 @@ public class CargoChute extends Subsystem
                         break;
                     case EJECTING:
                         if (mStateChanged)
-                            mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, -Constants.kEjectSpeed);
                         break;
                     case LOWERING:
                         if (mStateChanged)
@@ -142,7 +152,8 @@ public class CargoChute extends Subsystem
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
+                            // mRampMotorSlave.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
@@ -158,7 +169,7 @@ public class CargoChute extends Subsystem
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kChuteHighExtendTime) && !mIsShootingBay)
                         {
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
                             mIsShootingBay = true;
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
@@ -223,8 +234,8 @@ public class CargoChute extends Subsystem
                 newState = SystemState.EJECTING;
                 break;
             case BRING_BALL_TO_TOP:
-                if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING)
-                    newState = SystemState.HOLDING;
+                if (mSystemState != SystemState.RAMPING && mSystemState != SystemState.HOLDING)
+                    newState = SystemState.RAMPING;
                 break;
             case LOWER:
                 newState = SystemState.LOWERING;
@@ -291,7 +302,7 @@ public class CargoChute extends Subsystem
         try
         {
             logNotice("Running RampMotor at ramping speed for five seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+            mRampMotor.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
             Timer.delay(5);
             logNotice("Done.");
             logNotice("Running RampMotor at zero speed for three seconds: ");
@@ -299,7 +310,7 @@ public class CargoChute extends Subsystem
             Timer.delay(3);
             logNotice("Done.");
             logNotice("Running RampMotor at reverse ramping speed for five seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+            mRampMotor.set(ControlMode.PercentOutput, -Constants.kEjectSpeed);
             Timer.delay(5);
             logNotice("Done.");
             mRampMotor.set(ControlMode.PercentOutput, 0.0);

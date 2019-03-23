@@ -31,18 +31,18 @@ public class PlaceCargoFromSideMode extends AutoModeBase
         CargoChute cargoChute = CargoChute.getInstance();
 
         runAction(new DriveTrajectory(tSet.driveToClosestCargoBayFromSide.get(mIsLeft), true));
-        runAction(new RunFunctionOnceUntilAction(
-                () -> superstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY),
-                () -> superstructure.isDriverControlled()));
-        runAction(
-                new ParallelAction(Arrays.asList(
-                    new DriveTrajectory(tSet.driveToDepotFromClosestCargoBay.get(mIsLeft)),
-                    new RunFunctionOnceUntilAction(
-                        () -> superstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO), () -> {
-                            return cargoChute.atTarget() && Drive.getInstance().isDoneWithTrajectory();
-                        })
-            )));
-        runAction(new DriveTrajectory(tSet.driveToMiddleCargoBayFromDepot.get(mIsLeft)));
+        // runAction(new RunFunctionOnceUntilAction(
+        //         () -> superstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY),
+        //         () -> superstructure.isDriverControlled()));
+        // runAction(
+        //         new ParallelAction(Arrays.asList(
+        //             new DriveTrajectory(tSet.driveToDepotFromClosestCargoBay.get(mIsLeft)),
+        //             new RunFunctionOnceUntilAction(
+        //                 () -> superstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO), () -> {
+        //                     return cargoChute.atTarget() && Drive.getInstance().isDoneWithTrajectory();
+        //                 })
+        //     )));
+        // runAction(new DriveTrajectory(tSet.driveToMiddleCargoBayFromDepot.get(mIsLeft)));
     }
 
 }

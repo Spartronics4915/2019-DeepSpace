@@ -359,7 +359,7 @@ public class Superstructure extends Subsystem
                         if (mStateChanged)
                         {
                             mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
-                            mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+                            // mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                             mCargoChute.setWantedState(CargoChute.WantedState.BRING_BALL_TO_TOP);
                         }
 
