@@ -104,8 +104,8 @@ public class DriveMotionPlannerTest
         motion_planner.setTrajectory(new TrajectoryIterator<>(new TimedView<>(
                 motion_planner.generateTrajectory(true,
                         Arrays.asList(
-                                new Pose2d(new Translation2d(0.0, 0.0), Rotation2d.identity()),
-                                new Pose2d(new Translation2d(10.0, 0.0), Rotation2d.identity())),
+                                new Pose2d(new Translation2d(0.0, 0.0), Rotation2d.fromDegrees(180)),
+                                new Pose2d(new Translation2d(10.0, 0.0), Rotation2d.fromDegrees(180))),
                         null, // no constraints
                         120.0, 120.0, 10.0)))); // max vel, accel and volt
         double t = 0.0;

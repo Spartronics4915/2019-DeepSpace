@@ -11,7 +11,7 @@ public class RunFunctionOnceUntilAction implements Action
 
     public RunFunctionOnceUntilAction(Runnable onceFunc, Supplier<Boolean> isFinishedFunc)
     {
-     mOnceFunc = onceFunc;
+        mOnceFunc = onceFunc;
         mIsFinishedFunc = isFinishedFunc;
     }
 
