@@ -210,15 +210,16 @@ public class Constants
 
     // Cargo Chute
     public static final int kRampMotorId = 5;
+    public static final int kRampMotorSlaveId = 13;
     public static final int kRampSolenoidId = 3;
     public static final int kRampSensorId = 0;
     public static final double kRampSpeed = 1.0;
     public static final double kShootSpeed = 1.0;
     public static final double kShootTime = 4.0;
-    public static final double kChuteHighExtendTime = 0.2; //Waits for the solenoids to extend
+    public static final double kChuteHighExtendTime = 0.5; // Waits for the solenoids to extend
     public static final double kChuteLowRetractTime = 0.8;
     public static final double kTransitionTime = 1.0;
-    public static final double kMinBallInChuteVoltage = 1.10; // This SHOULD be good
+    public static final double kMinBallInChuteVoltage = 1.65; // 1.5 read
     public static final boolean kRampSolenoidExtend = true;
     public static final boolean kRampSolenoidRetract = false;
     public static final double kShootIntoBayBackupDistance = 4.0; // Inches

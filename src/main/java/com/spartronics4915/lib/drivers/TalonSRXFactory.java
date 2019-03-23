@@ -83,7 +83,7 @@ public class TalonSRXFactory
                 talon.set(ControlMode.PercentOutput, 0.0);
 
                 // This is pretty bad
-                if (talon.getBusVoltage() == 4.0) throw new RuntimeException("Talon " + id + " is likely not connected (reported invalid-looking bus voltage)!");
+                // if (talon.getBusVoltage() == 4.0) throw new RuntimeException("Talon " + id + " is likely not connected (reported invalid-looking bus voltage)!");
 
                 talon.changeMotionControlFramePeriod(config.MOTION_CONTROL_FRAME_PERIOD_MS);
                 talon.clearMotionProfileHasUnderrun(kTimeoutMs);
