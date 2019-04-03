@@ -31,12 +31,17 @@ public class PlaceCargoFromSideMode extends AutoModeBase
         CargoChute cargoChute = CargoChute.getInstance();
 
         runAction(new DriveTrajectory(tSet.driveToClosestCargoBayFromSide.get(mIsLeft), true));
-        // runAction(new RunFunctionOnceUntilAction(
-        //         () -> superstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY),
-        //         () -> superstructure.isDriverControlled()));
+        runAction(new RunFunctionOnceUntilAction(
+                () -> superstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY),
+                () -> {
+                    return false;
+                    // return superstructure.isDriverControlled() && !cargoChute.ballInPosition() && Drive.getInstance().isDoneWithTrajectory();
+                }));
+        // cargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
         // runAction(
         //         new ParallelAction(Arrays.asList(
         //             new DriveTrajectory(tSet.driveToDepotFromClosestCargoBay.get(mIsLeft)),
+        //             new RunFunctionOnceUntilAction(() -> cargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL), () -> true),
         //             new RunFunctionOnceUntilAction(
         //                 () -> superstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO), () -> {
         //                     return cargoChute.atTarget() && Drive.getInstance().isDoneWithTrajectory();

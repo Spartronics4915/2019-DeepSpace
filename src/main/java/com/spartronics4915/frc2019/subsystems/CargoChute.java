@@ -206,7 +206,7 @@ public class CargoChute extends Subsystem
         return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
     }
 
-    private boolean ballInPosition()
+    public boolean ballInPosition()
     {
         return mRampSensor.getVoltage() >= Constants.kMinBallInChuteVoltage;
     }

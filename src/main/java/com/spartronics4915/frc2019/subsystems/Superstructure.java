@@ -147,7 +147,7 @@ public class Superstructure extends Subsystem
     private WantedState mWantedState = WantedState.DRIVER_CONTROL;
     private SystemState mSystemState = SystemState.DRIVER_CONTROLLING;
     // We don't have a DRIVER_CONTROL_FORWARD and ..._REVERSE becase we need to persist driving direction across state changes
-    private boolean mIsReversed = false;
+    private boolean mIsReversed = true;
     private boolean mGotVisionUpdate = false;
 
     private Superstructure()

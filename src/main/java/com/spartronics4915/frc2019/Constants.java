@@ -68,7 +68,7 @@ public class Constants
     public static final Pose2d kMiddleRobotLocationOffPlatformReverse;
     public static final Pose2d kMiddleRobotLocationOffPlatformForward;
 
-    public static final double kDriveOffHabXFudgeAmount = -10.0; // inches
+    public static final double kDriveOffHabXFudgeAmount = 0.0; // inches
 
     public static Pose2d correctPoseForRobotLength(Pose2d oldpose)
     {
@@ -204,9 +204,11 @@ public class Constants
     public static final int kCargoIntakeSensor = 7;
     public static final double kCargoIntakeSpeed = -0.5;
     public static final double kCargoEjectSpeed = 0.5;
-    public static final double kCargoIntakeClimbSpeed = -1.0;
+    public static final double kCargoIntakeClimbSpeed = -0.8;
     public static final boolean kCargoIntakeSolenoidExtend = true;
     public static final boolean kCargoIntakeSolenoidRetract = false;
+    public static final double kCargoIntakeOnPulseDuration = 2;
+    public static final double kCargoIntakeOffPulseDuration = 1;
 
     // Cargo Chute
     public static final int kRampMotorId = 5;

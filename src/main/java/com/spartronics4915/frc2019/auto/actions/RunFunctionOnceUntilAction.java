@@ -8,6 +8,7 @@ public class RunFunctionOnceUntilAction implements Action
 
     private final Runnable mOnceFunc;
     private final Supplier<Boolean> mIsFinishedFunc;
+    private boolean mHasStarted = false;
 
     public RunFunctionOnceUntilAction(Runnable onceFunc, Supplier<Boolean> isFinishedFunc)
     {
@@ -16,23 +17,28 @@ public class RunFunctionOnceUntilAction implements Action
     }
 
     @Override
-    public boolean isFinished() {
-        return mIsFinishedFunc.get();
+    public boolean isFinished()
+    {
+        return mIsFinishedFunc.get() && mHasStarted;
     }
 
     @Override
-    public void update() {
+    public void update()
+    {
 
     }
 
     @Override
-    public void done() {
+    public void done()
+    {
 
     }
 
     @Override
-    public void start() {
-     mOnceFunc.run();
+    public void start()
+    {
+        mOnceFunc.run();
+        mHasStarted = true;
     }
 
 }

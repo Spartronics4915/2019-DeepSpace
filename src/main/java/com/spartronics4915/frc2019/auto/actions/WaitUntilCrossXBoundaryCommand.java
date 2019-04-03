@@ -1,7 +1,6 @@
 package com.spartronics4915.frc2019.auto.actions;
 
 import com.spartronics4915.frc2019.subsystems.RobotStateEstimator;
-import com.spartronics4915.lib.util.RobotStateMap;
 import edu.wpi.first.wpilibj.Timer;
 
 public class WaitUntilCrossXBoundaryCommand implements Action

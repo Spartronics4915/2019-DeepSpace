@@ -29,7 +29,7 @@ public class TrajectoryGenerator
     private static final double kMaxVoltage = 9.0; // volts
     private static final List<TimingConstraint<Pose2dWithCurvature>> kHabMaxVelocityRegionConstraint =
             new ArrayList<TimingConstraint<Pose2dWithCurvature>>(
-                    Arrays.asList(new VelocityLimitRegionConstraint<>(new Translation2d(0, -173), new Translation2d(120, 173), 15)));
+                    Arrays.asList(new VelocityLimitRegionConstraint<>(new Translation2d(0, -173), new Translation2d(100, 173), 15)));
 
     private static TrajectoryGenerator mInstance = new TrajectoryGenerator();
     private final DriveMotionPlanner mMotionPlanner;
