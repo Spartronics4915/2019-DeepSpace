@@ -9,11 +9,9 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.DigitalInput;
 
-/**
- * BACK
- * OPEN
- * CLOSE
- */
+
+/** 2 pneumatics to eject panels
+ * panels held on by velcro */
 
 public class PanelHandler extends Subsystem
 {
@@ -30,20 +28,20 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        INSIDE_FRAME, OPEN, CLOSE
+        RETRACT, EJECT
     }
 
     private enum SystemState
     {
-        INSIDE_FRAMING, OPENING, CLOSING
+        RETRACTING, EJECTING
     }
 
-    private WantedState mWantedState = WantedState.INSIDE_FRAME;
-    private SystemState mSystemState = SystemState.INSIDE_FRAMING;
+    private WantedState mWantedState = WantedState.RETRACT;
+    private SystemState mSystemState = SystemState.RETRACTING;
 
-    private Solenoid mArmSolenoid = null;
-    private Solenoid mSlideSolenoid = null;
-    private Timer mPanelTimer = new Timer();
+    private Solenoid mSolenoid = null;
+
+    //private DigitalInput mLimitSwitch = null;
 
     private boolean mStateChanged;
 
@@ -54,8 +52,7 @@ public class PanelHandler extends Subsystem
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
-            mArmSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid); // panel pneumatic goes to hatch arm
-            mSlideSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId); // chute pneumatic goes to arm
+            mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
             success = true;
         }
         catch (Exception e)
@@ -76,11 +73,10 @@ public class PanelHandler extends Subsystem
         {
             synchronized (PanelHandler.this)
             {
-                mArmSolenoid.set(Constants.kPanelSolenoidRetract);
-                mSlideSolenoid.set(Constants.kPanelSolenoidRetract);
+                mSolenoid.set(Constants.kPanelSolenoidRetract);
                 mStateChanged = true;
-                mWantedState = WantedState.INSIDE_FRAME;
-                mSystemState = SystemState.INSIDE_FRAMING;
+                mWantedState = WantedState.RETRACT;
+                mSystemState = SystemState.RETRACTING;
             }
         }
 
@@ -92,27 +88,20 @@ public class PanelHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case INSIDE_FRAMING:
+                    case RETRACTING:
                         if (mStateChanged)
                         {
-                            mArmSolenoid.set(Constants.kPanelSolenoidRetract);
-                            mSlideSolenoid.set(Constants.kPanelSolenoidRetract);
+                            mSolenoid.set(Constants.kPanelSolenoidRetract);
                         }
                         break;
-                    case OPENING://BB6
+                    case EJECTING://BB6
                         if (mStateChanged)
                         {
-                            mArmSolenoid.set(Constants.kPanelSolenoidExtend);
-                            mSlideSolenoid.set(Constants.kPanelSolenoidExtend);
+                            mSolenoid.set(Constants.kPanelSolenoidExtend);
+                            mEjectTime = Timer.getFPGATimestamp();
                         }
-                        break;
-                    case CLOSING:
-                        if (mStateChanged)
-                        {
-                            mArmSolenoid.set(Constants.kPanelSolenoidRetract);
-                            mPanelTimer.delay(1);
-                            mSlideSolenoid.set(Constants.kPanelSolenoidRetract);
-                        }
+                        else if (Timer.getFPGATimestamp() > mEjectTime + Constants.kPanelEjectTime && newState == mSystemState)
+                            setWantedState(WantedState.RETRACT);
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -143,14 +132,11 @@ public class PanelHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case INSIDE_FRAME:
-                newState = SystemState.INSIDE_FRAMING;
+            case RETRACT:
+                newState = SystemState.RETRACTING;
                 break;
-            case OPEN:
-                newState = SystemState.OPENING;
-                break;
-            case CLOSE:
-                newState = SystemState.CLOSING;
+            case EJECT:
+                newState = SystemState.EJECTING;
                 break;
         }
         return newState;
@@ -163,7 +149,7 @@ public class PanelHandler extends Subsystem
 
     public synchronized boolean atTarget()
     {
-        return mSystemState == SystemState.INSIDE_FRAMING && mWantedState == WantedState.INSIDE_FRAME;
+        return mSystemState == SystemState.RETRACTING && mWantedState == WantedState.RETRACT;
     }
 
     @Override
@@ -178,17 +164,11 @@ public class PanelHandler extends Subsystem
         logNotice("Starting PanelHandler Solenoid Check");
         try
         {
-            logNotice("Extending ArmSolenoid for 2 seconds");
-            mArmSolenoid.set(Constants.kPanelSolenoidExtend);
+            logNotice("Extending solenoid for 2 seconds");
+            mSolenoid.set(Constants.kPanelSolenoidExtend);
             Timer.delay(2);
-            logNotice("Retracting ArmSolenoid for 2 seconds");
-            mArmSolenoid.set(Constants.kPanelSolenoidRetract);
-
-            logNotice("Extending SlideSolenoid for 2 seconds");
-            mSlideSolenoid.set(Constants.kPanelSolenoidExtend);
-            Timer.delay(2);
-            logNotice("Retracting SlideSolenoid for 2 seconds");
-            mSlideSolenoid.set(Constants.kPanelSolenoidRetract);
+            logNotice("Retracting solenoid for 2 seconds");
+            mSolenoid.set(Constants.kPanelSolenoidRetract);
         }
         catch (Exception e)
         {
@@ -204,14 +184,13 @@ public class PanelHandler extends Subsystem
     {
         dashboardPutState(mSystemState.toString());
         dashboardPutWantedState(mWantedState.toString());
-        dashboardPutBoolean("mArmSolenoid Extended", mArmSolenoid.get());
-        dashboardPutBoolean("mSlideSolenoid Extended", mSlideSolenoid.get());
+        dashboardPutBoolean("mSolenoid1 Extended", mSolenoid.get());
+        //dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
     }
 
     @Override
     public void stop()
     {
-        mArmSolenoid.set(Constants.kPanelSolenoidExtend);
-        mSlideSolenoid.set(Constants.kPanelSolenoidExtend);
+        mSolenoid.set(Constants.kPanelSolenoidRetract);
     }
 }
