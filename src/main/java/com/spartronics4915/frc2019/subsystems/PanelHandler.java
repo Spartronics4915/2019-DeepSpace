@@ -76,7 +76,7 @@ public class PanelHandler extends Subsystem
             synchronized (PanelHandler.this)
             {
                 mSlideSolenoid.set(Constants.kPanelSlideSolenoidRetract);
-                mArmSolenoid.set(Constants.kPanelSlideSolenoidRetract);
+                mArmSolenoid.set(Constants.kPanelArmSolenoidDown);
                 mStateChangedTimer.reset();
                 mStateChangedTimer.start();
                 mStateChanged = true;
@@ -95,33 +95,19 @@ public class PanelHandler extends Subsystem
                 {
                     case ARM_DOWNING:
                         if (mStateChanged)
-                        {
                             mArmSolenoid.set(Constants.kPanelArmSolenoidDown);
-                        }
                         break;
                     case ARM_UPING:
                         if (mStateChanged)
-                        {
                             mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
-                        }
                         break;
                     case EJECTING_ROCKET:
                         if (mStateChanged)
-                        {
-                            mArmSolenoid.set(Constants.kPanelArmSolenoidDown);
-                        }
-                        else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelArmMovementTime))
-                        {
-                            mSlideSolenoid.set(Constants.kPanelSlideSolenoidExtend);
-                        } 
+                            mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
                         else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelSlideExtendTime))
-                        {
                             mSlideSolenoid.set(Constants.kPanelSlideSolenoidRetract);
-                        }
-                        else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelSlideRetractTime) && mWantedState == WantedState.EJECT_ROCKET)
-                        {
-                            setWantedState(WantedState.ARM_UP);
-                        }
+                        else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelArmMovementTime))
+                            mSlideSolenoid.set(Constants.kPanelSlideSolenoidExtend);
                         break;
                     default:
                         logError("Unhandled system state!");
