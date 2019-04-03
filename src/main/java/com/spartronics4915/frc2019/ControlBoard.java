@@ -36,6 +36,12 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
+    public void updatePOV()
+    {
+        mButtonControlBoard.updatePOV();
+    }
+
+    @Override
     public double getThrottle()
     {
         return mDriveControlBoard.getThrottle();
@@ -48,9 +54,9 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getQuickTurn()
+    public boolean getSlowMode()
     {
-        return mDriveControlBoard.getQuickTurn();
+        return mDriveControlBoard.getSlowMode();
     }
 
     @Override
@@ -98,15 +104,9 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getManualExtendAllClimbPneumatics()
-    {
-        return mButtonControlBoard.getManualExtendAllClimbPneumatics();
-    }
-
-    @Override
     public boolean getAssistedIntakeCargo()
     {
-        return mButtonControlBoard.getAssistedIntakeCargo();
+        return mDriveControlBoard.getAssistedIntakeCargo();
     }
 
     @Override
@@ -124,13 +124,13 @@ public class ControlBoard implements IControlBoard
     @Override
     public boolean getAssistedShootRocket()
     {
-        return mButtonControlBoard.getAssistedShootRocket();
+        return mDriveControlBoard.getAssistedShootRocket();
     }
 
     @Override
     public boolean getAssistedShootBay()
     {
-        return mButtonControlBoard.getAssistedShootBay();
+        return mDriveControlBoard.getAssistedShootBay();
     }
 
     @Override
@@ -172,13 +172,13 @@ public class ControlBoard implements IControlBoard
     @Override
     public boolean getAssistedIntakePanel()
     {
-        return mButtonControlBoard.getAssistedIntakePanel();
+        return mDriveControlBoard.getAssistedIntakePanel();
     }
 
     @Override
     public boolean getAssistedEjectPanel()
     {
-        return mButtonControlBoard.getAssistedEjectPanel();
+        return mDriveControlBoard.getAssistedEjectPanel();
     }
 
     @Override
@@ -197,33 +197,33 @@ public class ControlBoard implements IControlBoard
 
     //TEST BUTTON BOARD
     @Override
-    public boolean getTESTClimbExtendAllPneumatics()
+    public boolean getClimbExtendAllPneumatics()
     {
-        return mButtonControlBoard.getTESTClimbExtendAllPneumatics();
+        return mButtonControlBoard.getClimbExtendAllPneumatics();
     }
 
     @Override
-    public boolean getTESTClimbIntake()
+    public boolean getClimbIntake()
     {
-        return mButtonControlBoard.getTESTClimbIntake();
+        return mButtonControlBoard.getClimbIntake();
     }
 
     @Override
-    public boolean getTESTClimbRetractFrontPneumatics()
+    public boolean getClimbRetractFrontPneumatics()
     {
-        return mButtonControlBoard.getTESTClimbRetractFrontPneumatics();
+        return mButtonControlBoard.getClimbRetractFrontPneumatics();
     }
 
     @Override
-    public boolean getTESTClimbRetractBackPneumatics()
+    public boolean getClimbRetractBackPneumatics()
     {
-        return mButtonControlBoard.getTESTClimbRetractBackPneumatics();
+        return mButtonControlBoard.getClimbRetractBackPneumatics();
     }
 
     @Override
-    public boolean getTESTIntakeArm_Down()
+    public boolean getIntakeArmDown()
     {
-        return mButtonControlBoard.getTESTIntakeArm_Down();
+        return mButtonControlBoard.getIntakeArmDown();
     }
 
     @Override
@@ -233,14 +233,20 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getTESTIntakeHOLD()
+    public boolean getIntakeHold()
     {
-        return mButtonControlBoard.getTESTIntakeHOLD();
+        return mButtonControlBoard.getIntakeHold();
     }
 
     @Override
-    public boolean getTESTIntakeSTOPMOTORS()
+    public boolean getIntakeStopMotors()
     {
-        return mButtonControlBoard.getTESTIntakeSTOPMOTORS();
+        return mButtonControlBoard.getIntakeStopMotors();
+    }
+
+    @Override
+    public boolean getChangeSelectedVisionIndex()
+    {
+        return mButtonControlBoard.getChangeSelectedVisionIndex();
     }
 }

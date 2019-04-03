@@ -29,7 +29,7 @@ public class XboxSplitControlBoard implements IDriveControlBoard
     // TODO: Below methods are unimplemented
 
     @Override
-    public boolean getQuickTurn()
+    public boolean getSlowMode()
     {
         return false;
     }
@@ -66,6 +66,37 @@ public class XboxSplitControlBoard implements IDriveControlBoard
 
     @Override
     public boolean getTestButtonThree()
+    {
+        return false;
+    }
+
+    //Vision buttons
+    @Override
+    public boolean getAssistedIntakeCargo()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedShootRocket()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedShootBay()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedIntakePanel()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean getAssistedEjectPanel()
     {
         return false;
     }

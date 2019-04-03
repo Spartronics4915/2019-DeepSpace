@@ -1,17 +1,21 @@
 package com.spartronics4915.frc2019.controlboard;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.lib.util.Logger;
+
 import edu.wpi.first.wpilibj.Joystick;
 
 public class MainButtonBoard implements IButtonControlBoard
 {
     private final Joystick mButtonBoard;
-    private final Joystick mTestButtonBoard;
+    // private final Joystick mTestButtonBoard;
 
-    private double mPreviousAxis0;
-    private double mPreviousAxis1;
     private double mPreviousAxis2;
     private double mPreviousAxis3;
+    private int mPrevious0POV;
+    private int mPrevious180POV;
+    private double mPrevious270POV;
+    private int mCurrentPOV;
 
     private double current;
     private boolean result;
@@ -19,12 +23,14 @@ public class MainButtonBoard implements IButtonControlBoard
     public MainButtonBoard()
     {
         mButtonBoard = new Joystick(Constants.kMainButtonBoardPort);
-        mTestButtonBoard = new Joystick(3);
-
-        mPreviousAxis0 = 0.0;
-        mPreviousAxis1 = 0.0;
+        // mTestButtonBoard = new Joystick(3);
+        
         mPreviousAxis2 = 0.0;
         mPreviousAxis3 = 0.0;
+        mPrevious0POV = -1;
+        mPrevious180POV = -1;
+        mPrevious270POV = -1;
+        mCurrentPOV = -1;
 
         current = 0.0;
         result = false;
@@ -42,16 +48,15 @@ public class MainButtonBoard implements IButtonControlBoard
     // }
 
     @Override
-    public boolean getClimb()
+    public void updatePOV()
     {
-        // return mButtonBoard.getRawButtonPressed(1);
-        return false;
+        mCurrentPOV = mButtonBoard.getPOV();
     }
 
     @Override
-    public boolean getManualExtendAllClimbPneumatics()
+    public boolean getClimb()
     {
-        // return mButtonBoard.getRawButtonPressed(15);
+        // return mButtonBoard.getRawButtonPressed(1);
         return false;
     }
 
@@ -73,13 +78,15 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getGroundEjectCargo()
     {
-        return mButtonBoard.getRawButtonPressed(3);
+        result = (mPrevious270POV != mCurrentPOV) && (mCurrentPOV == 270);
+        mPrevious270POV = mCurrentPOV;
+        return result;
     }
 
     @Override
     public boolean getManualRamp()
     {
-        return mButtonBoard.getRawButtonPressed(6);
+        return mButtonBoard.getRawButtonPressed(4);
     }
 
     @Override
@@ -97,39 +104,43 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getSelectLeftVisionTarget()
     {
-        return mButtonBoard.getRawButtonPressed(7);
+        return false;
     }
 
     @Override
     public boolean getSelectRightVisionTarget()
     {
-        return mButtonBoard.getRawButtonPressed(8);
+        return false;
     }
 
     @Override
     public boolean getManualShootCargoBay()
     {
-        return mButtonBoard.getRawButtonPressed(9);
+        return mButtonBoard.getRawButtonPressed(6);
     }
 
     @Override
     public boolean getManualShootCargoRocket()
     {
-        return mButtonBoard.getRawButtonPressed(10);
+        current = mButtonBoard.getRawAxis(3);
+        result = (mPreviousAxis3 != current) && (current == 1.0);
+        mPreviousAxis3 = current;
+        return result;
     }
 
     @Override
     public boolean getManualChuteUp()
     {
-        return false;
+        result = (mPrevious0POV != mCurrentPOV) && (mCurrentPOV == 0);
+        mPrevious0POV = mCurrentPOV;
+        return result;
     }
 
     @Override
     public boolean getManualChuteDown()
     {
-        current = mButtonBoard.getRawAxis(3);
-        result = (mPreviousAxis3 != current) && (current == 1.0);
-        mPreviousAxis3 = current;
+        result = (mPrevious180POV != mCurrentPOV) && (mCurrentPOV == 180);
+        mPrevious180POV = mCurrentPOV;
         return result;
     }
 
@@ -154,66 +165,61 @@ public class MainButtonBoard implements IButtonControlBoard
     @Override
     public boolean getManualEjectPanel()
     {
-        current = mButtonBoard.getRawAxis(1);
-        result = (mPreviousAxis1 != current) && (current == 1.0);
-        mPreviousAxis1 = current;
-        return result;
+        return mButtonBoard.getRawButtonPressed(2);
     }
 
     @Override
     public boolean getInsideFramePerimeter()
     {
-        current = mButtonBoard.getRawAxis(1);
-        result = (mPreviousAxis1 != current) && (current == -1.0);
-        mPreviousAxis1 = current;
-        return result;
-    }
-
-
-
-    //TEST BUTTON BOARD
-    @Override
-    public boolean getTESTClimbExtendAllPneumatics()
-    {
-        return mTestButtonBoard.getRawButtonPressed(5);
+        return false;
     }
 
     @Override
-    public boolean getTESTClimbIntake()
-    {
-        return mTestButtonBoard.getRawButtonPressed(3);
-    }
-
-    @Override
-    public boolean getTESTClimbRetractFrontPneumatics()
-    {
-        return mTestButtonBoard.getRawButtonPressed(4);
-    }
-
-    @Override
-    public boolean getTESTClimbRetractBackPneumatics()
-    {
-        return mTestButtonBoard.getRawButtonPressed(6);
-    }
-
-    @Override
-    public boolean getTESTIntakeArm_Down()
-    {
-        return mButtonBoard.getRawButtonPressed(5);
-    }
-
-    @Override
-    public boolean getTESTIntakeHOLD()
+    public boolean getIntakeArmDown()
     {
         return mButtonBoard.getRawButtonPressed(1);
     }
 
     @Override
-    public boolean getTESTIntakeSTOPMOTORS()
+    public boolean getIntakeHold()
     {
-        return mButtonBoard.getRawButtonPressed(2);
+        return mButtonBoard.getRawButtonPressed(3);
     }
 
+    @Override
+    public boolean getIntakeStopMotors()
+    {
+        return mButtonBoard.getRawButtonPressed(5);
+    }
 
+    @Override
+    public boolean getClimbExtendAllPneumatics()
+    {
+        return mButtonBoard.getRawButtonPressed(7);
+    }
+
+    @Override
+    public boolean getClimbIntake()
+    {
+        return mButtonBoard.getRawButtonPressed(8);
+    }
+
+    @Override
+    public boolean getClimbRetractFrontPneumatics()
+    {
+        return mButtonBoard.getRawButtonPressed(9);
+    }
+
+    @Override
+    public boolean getClimbRetractBackPneumatics()
+    {
+        return mButtonBoard.getRawButtonPressed(10);
+    }
+
+    @Override
+    public boolean getChangeSelectedVisionIndex()
+    {
+        return false;
+    }
 
 }

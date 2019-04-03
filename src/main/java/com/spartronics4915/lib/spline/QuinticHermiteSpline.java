@@ -157,27 +157,43 @@ public class QuinticHermiteSpline extends Spline
     @Override
     public double getCurvature(double t)
     {
-        return (dx(t)*ddy(t) - ddx(t)*dy(t)) /
-            ((dx(t)*dx(t) + dy(t)*dy(t)) * Math.sqrt((dx(t)*dx(t) + dy(t)*dy(t))));
+        final double _dx = dx(t);
+        final double _dy = dy(t);
+        final double _ddx = ddx(t);
+        final double _ddy = ddy(t);
+        final double lensq = (_dx*_dx + _dy*_dy);
+        return (_dx*_ddy - _ddx*_dy) / (lensq * Math.sqrt(lensq));
     }
 
     /* this is a magnitude of the derivative of getCurvature.. */
     @Override
     public double getDCurvature(double t)
     {
-        double dx2dy2 = (dx(t) * dx(t) + dy(t) * dy(t));
-        double num = (dx(t)*dddy(t) - dddx(t)*dy(t))*dx2dy2 -
-            3 * (dx(t)*ddy(t) - ddx(t)*dy(t)) * (dx(t)*ddx(t) + dy(t)*ddy(t));
-        return num / (dx2dy2 * dx2dy2 * Math.sqrt(dx2dy2));
+        final double _dx = dx(t);
+        final double _dy = dy(t);
+        final double _ddx = ddx(t);
+        final double _ddy = ddy(t);
+        final double _dddx = dddx(t);
+        final double _dddy = dddy(t);
+        final double lensq = (_dx*_dx + _dy*_dy);
+        double num = (_dx*_dddy - _dddx*_dy)*lensq -
+                        3*(_dx*_ddy - _ddx*_dy)*(_dx*_ddx + _dy*_ddy);
+        return num / (lensq * lensq * Math.sqrt(lensq));
     }
 
     /* this is just square(getDCurvature) */
     private double dCurvatureSq(double t)
     {
-        double dx2dy2 = (dx(t) * dx(t) + dy(t) * dy(t));
-        double num = (dx(t)*dddy(t) - dddx(t)*dy(t)) * dx2dy2 -
-            3 * (dx(t)*ddy(t) - ddx(t)*dy(t)) * (dx(t)*ddx(t) + dy(t)*ddy(t));
-        return num * num / (dx2dy2 * dx2dy2 * dx2dy2 * dx2dy2 * dx2dy2);
+        final double _dx = dx(t);
+        final double _dy = dy(t);
+        final double _ddx = ddx(t);
+        final double _ddy = ddy(t);
+        final double _dddx = dddx(t);
+        final double _dddy = dddy(t);
+        final double lensq = (_dx*_dx + _dy*_dy);
+        double num = (_dx*_dddy - _dddx*_dy) * lensq -
+            3*(_dx*_ddy - _ddx*_dy) * (_dx*_ddx + _dy*_ddy);
+        return num * num / (lensq * lensq * lensq * lensq * lensq);
     }
 
     @Override

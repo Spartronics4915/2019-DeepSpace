@@ -10,9 +10,11 @@ import com.spartronics4915.lib.drivers.A21IRSensor;
 
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -44,6 +46,7 @@ public class CargoChute extends Subsystem
     private SystemState mSystemState = SystemState.LOWERING;
 
     private TalonSRX mRampMotor = null;
+    private TalonSRX mRampMotorSlave = null;
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
 
@@ -61,6 +64,14 @@ public class CargoChute extends Subsystem
                 throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
 
             mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
+            mRampMotorSlave = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorSlaveId);
+            mRampMotorSlave = TalonSRXFactory.createPermanentSlaveTalon(Constants.kRampMotorSlaveId,
+                    Constants.kRampMotorId);
+            mRampMotorSlave.setInverted(false);
+
+            mRampMotor.setNeutralMode(NeutralMode.Brake);
+            mRampMotorSlave.setNeutralMode(NeutralMode.Brake);
+
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
             success = true;
@@ -98,34 +109,51 @@ public class CargoChute extends Subsystem
                 {
                     case RAMPING:
                         if (mStateChanged)
+                        {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                        }
                         if (ballInPosition() && !isInManual() && newState == mSystemState)
+                        {
                             newState = SystemState.HOLDING;
+                            logNotice("Got a ball");
+                        }
                         break;
                     case HOLDING:
                         if (mStateChanged)
+                        {
                             mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                        }
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
+                        {
                             newState = SystemState.RAMPING;
+                            logNotice("No more ball");
+                        }
                         break;
                     case EJECTING:
                         if (mStateChanged)
-                            mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, -Constants.kEjectSpeed);
                         break;
                     case LOWERING:
                         if (mStateChanged)
+                        {
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                        }
                         break;
                     case RAISING:
                         if (mStateChanged)
+                        {
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
+                            mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                        }
                         break;
                     case SHOOTING_ROCKET:
                         if (mStateChanged)
                         {
                             mRampSolenoid.set(Constants.kRampSolenoidRetract);
                             mCargoTimer.start();
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
+                            // mRampMotorSlave.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
                         }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
@@ -137,13 +165,13 @@ public class CargoChute extends Subsystem
                             mRampSolenoid.set(Constants.kRampSolenoidExtend);
                             mCargoTimer.start();
                             // Waits so that the solenoid can get up
-                            
+
                         }
-                        if (mCargoTimer.hasPeriodPassed(Constants.kExtendTime) && !mIsShootingBay)
+                        if (mCargoTimer.hasPeriodPassed(Constants.kChuteHighExtendTime) && !mIsShootingBay)
                         {
-                            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            mRampMotor.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
                             mIsShootingBay = true;
-                        }    
+                        }
                         if (mCargoTimer.hasPeriodPassed(Constants.kShootTime) && newState == mSystemState)
                             newState = SystemState.HOLDING;
                         break;
@@ -178,7 +206,7 @@ public class CargoChute extends Subsystem
         return mWantedState == WantedState.RAMP_MANUAL || mWantedState == WantedState.HOLD_MANUAL;
     }
 
-    private boolean ballInPosition()
+    public boolean ballInPosition()
     {
         return mRampSensor.getVoltage() >= Constants.kMinBallInChuteVoltage;
     }
@@ -186,9 +214,9 @@ public class CargoChute extends Subsystem
     public boolean isRampRunning()
     {
         return mSystemState == SystemState.RAMPING
-            || mSystemState == SystemState.EJECTING
-            || mSystemState == SystemState.SHOOTING_BAY
-            || mSystemState == SystemState.SHOOTING_ROCKET;
+                || mSystemState == SystemState.EJECTING
+                || mSystemState == SystemState.SHOOTING_BAY
+                || mSystemState == SystemState.SHOOTING_ROCKET;
     }
 
     private SystemState defaultStateTransfer()
@@ -206,8 +234,8 @@ public class CargoChute extends Subsystem
                 newState = SystemState.EJECTING;
                 break;
             case BRING_BALL_TO_TOP:
-                if (mSystemState != SystemState.RAMPING || mSystemState != SystemState.HOLDING)
-                    newState = SystemState.HOLDING;
+                if (mSystemState != SystemState.RAMPING && mSystemState != SystemState.HOLDING)
+                    newState = SystemState.RAMPING;
                 break;
             case LOWER:
                 newState = SystemState.LOWERING;
@@ -242,7 +270,7 @@ public class CargoChute extends Subsystem
             case HOLD_MANUAL:
                 return mSystemState == SystemState.HOLDING;
             case EJECT_BACK:
-               return mSystemState == SystemState.EJECTING && !ballInPosition(); // i'm slightly unclear on how atTarget works but it seems like this should check the CargoIntake sensor
+                return mSystemState == SystemState.EJECTING && !ballInPosition(); // i'm slightly unclear on how atTarget works but it seems like this should check the CargoIntake sensor
             case BRING_BALL_TO_TOP:
                 return mSystemState == SystemState.HOLDING && ballInPosition();
             case LOWER:
@@ -274,7 +302,7 @@ public class CargoChute extends Subsystem
         try
         {
             logNotice("Running RampMotor at ramping speed for five seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+            mRampMotor.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
             Timer.delay(5);
             logNotice("Done.");
             logNotice("Running RampMotor at zero speed for three seconds: ");
@@ -282,7 +310,7 @@ public class CargoChute extends Subsystem
             Timer.delay(3);
             logNotice("Done.");
             logNotice("Running RampMotor at reverse ramping speed for five seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, -Constants.kRampSpeed);
+            mRampMotor.set(ControlMode.PercentOutput, -Constants.kEjectSpeed);
             Timer.delay(5);
             logNotice("Done.");
             mRampMotor.set(ControlMode.PercentOutput, 0.0);

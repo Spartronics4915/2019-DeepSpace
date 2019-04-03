@@ -56,7 +56,7 @@ public class CharacterizeDriveMode extends AutoModeBase
         }
     }
 
-    private final static boolean kReverse = false;
+    private final static boolean kReverse = true;
     private final SideToCharacterize mSide;
 
     public CharacterizeDriveMode(SideToCharacterize side)

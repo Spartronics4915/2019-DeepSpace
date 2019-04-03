@@ -13,14 +13,14 @@ import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class VisionUpdateManager<U extends IVisionUpdate>
 {
-    private static final Pose2d kReverseCameraOffset = new Pose2d(-7.5, 0, Rotation2d.fromDegrees(180));
     private static final RuntimeException kEmptyUpdateException = new RuntimeException("VisionUpdate targets is null or doesn't have specified index!");
 
-    public static VisionUpdateManager<PNPUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPUpdate::new, "Reverse", "solvePNP", kReverseCameraOffset);
-    public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", kReverseCameraOffset);
+    public static VisionUpdateManager<PNPUpdate> reversePNPVisionManager = new VisionUpdateManager<>(PNPUpdate::new, "Reverse", "solvePNP", Constants.kReverseVisionCameraOffset);
+    public static VisionUpdateManager<HeadingUpdate> reverseHeadingVisionManager = new VisionUpdateManager<>(HeadingUpdate::new, "Reverse", "heading", Constants.kReverseVisionCameraOffset);
 
     private final String mNetworkTablesKey;
     private final Pose2d mCameraOffset;
@@ -51,12 +51,17 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         }
     }
 
+    public void clearVisionUpdate()
+    {
+        this.mLatestVisionUpdate = null;
+    }
+
     /**
      * @return either empty or contains the latest vision update
      */
     public Optional<U> getLatestVisionUpdate()
     {
-        return mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty() ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
+        return (mLatestVisionUpdate == null || mLatestVisionUpdate.isEmpty()) ? Optional.empty() : Optional.ofNullable(mLatestVisionUpdate);
     }
 
     public static class PNPUpdate implements IVisionUpdate
@@ -92,32 +97,30 @@ public class VisionUpdateManager<U extends IVisionUpdate>
                 targets[i] = new Pose2d(values[j + 0], values[j + 1], Rotation2d.fromDegrees(values[j + 2] + 180));
             }
 
-            this.frameCapturedTime = frameCapTime;
+            this.frameCapturedTime = Timer.getFPGATimestamp() - frameCapTime;
             mTargets = targets;
             mCameraOffset = cameraOffset;
         }
 
         public Pose2d getFieldPosition(RobotStateMap stateMap)
         {
-            // TODO: Look at NetworkTables to decide
-            int index = 0;
-            if (isEmpty() && mTargets.length <= index)
+            int index = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, 0);
+            if (isEmpty())
                 throw kEmptyUpdateException;
 
             return stateMap.getFieldToVehicle(this.frameCapturedTime).transformBy(mCameraOffset)
-                    .transformBy(mTargets[index]);
+                    .transformBy(mTargets[Math.min(index, mTargets.length - 1)]);
         }
 
         public Pose2d getCorrectedRobotPose(ScorableLandmark landmark, RobotStateMap stateMap, double timeToGetAt)
         {
-            // TODO: Look at NetworkTables to decide
-            int index = 0;
-            if (isEmpty() && mTargets.length <= index)
+            int index = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, 0);
+            if (isEmpty())
                 throw kEmptyUpdateException;
 
             Pose2d robotPoseRelativeToLastVisionUpdate =
                     stateMap.get(this.frameCapturedTime).pose.transformBy(mCameraOffset).inverse().transformBy(stateMap.get(timeToGetAt).pose);
-            return mTargets[index].inverse().transformBy(landmark.fieldPose)
+            return mTargets[Math.min(index, mTargets.length - 1)].inverse().transformBy(landmark.fieldPose)
                     .transformBy(robotPoseRelativeToLastVisionUpdate);
         }
 
@@ -140,14 +143,13 @@ public class VisionUpdateManager<U extends IVisionUpdate>
             if (closestTargetPose == null)
                 throw new RuntimeException("No vision targets are close! Is Constants.kVisionTargetLocations empty?");
 
-            // TODO: Use NetworkTables to decide
             return getCorrectedRobotPose(closestTargetPose, stateMap, timeToGetAt);
         }
 
         @Override
         public boolean isEmpty()
         {
-            return mTargets != null && mTargets.length > 0;
+            return mTargets == null || mTargets.length <= 0 || Timer.getFPGATimestamp() - this.frameCapturedTime >= Constants.kVisionTargetMaxStaleTime;
         }
 
     }
@@ -159,9 +161,9 @@ public class VisionUpdateManager<U extends IVisionUpdate>
         // cameraOffset translation is unused
         public HeadingUpdate(double[] values, Pose2d cameraOffset)
         {
-            if (values.length <= 0 && values.length % 2 == 0)
+            if (values.length <= 0 && values.length % 2 != 0)
             {
-                Logger.warning("A heading vision update must have an even, positive number of doubles");
+                Logger.warning("A heading vision update must have an even and positive number of doubles");
 
                 mTargets = null;
                 return;
@@ -169,26 +171,25 @@ public class VisionUpdateManager<U extends IVisionUpdate>
 
             // last field is timestamp
             TargetInfo[] targets = new TargetInfo[values.length];
-            for (int i = 0, j = 0; i < values.length; i++, j += 2)
-                targets[i] = new TargetInfo(Rotation2d.fromDegrees(values[j]).rotateBy(cameraOffset.getRotation()), values[j + 1]);
+            for (int i = 0, j = 0; j < values.length; i++, j += 2)
+                targets[i] = new TargetInfo(Rotation2d.fromRadians(values[j]).rotateBy(cameraOffset.getRotation()), values[j + 1]);
 
             mTargets = targets;
         }
 
         public TargetInfo getTargetInfo()
         {
-            // TODO: Look at NetworkTables
-            int index = 0;
-            if (isEmpty() && mTargets.length <= index)
+            int index = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, 0);
+            if (isEmpty())
                 throw kEmptyUpdateException;
 
-            return mTargets[index];
+            return mTargets[Math.min(index, mTargets.length - 1)];
         }
 
         @Override
         public boolean isEmpty()
         {
-            return mTargets != null && mTargets.length > 0;
+            return mTargets != null && mTargets.length <= 0;
         }
         
         public class TargetInfo

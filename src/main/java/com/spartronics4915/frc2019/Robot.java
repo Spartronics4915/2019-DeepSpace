@@ -5,13 +5,20 @@ import com.spartronics4915.frc2019.loops.Looper;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
 import com.spartronics4915.frc2019.subsystems.*;
 import com.spartronics4915.frc2019.subsystems.CargoChute.WantedState;
+import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.geometry.Twist2d;
+import com.spartronics4915.lib.physics.DifferentialDrive;
+import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
+import com.spartronics4915.lib.physics.DifferentialDrive.DriveDynamics;
+import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.util.*;
+
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
@@ -37,12 +44,15 @@ public class Robot extends TimedRobot
     private CargoIntake mCargoIntake = null;
     private Climber mClimber = null;
     private LED mLED = null;
+    private AnalogInput mPressureSensor = null;
     private RobotStateEstimator mRobotStateEstimator = null;
     private Superstructure mSuperstructure = null;
     private AutoModeExecutor mAutoModeExecutor;
     private Timer mCodeTimer = new Timer();
-    private PowerDistributionPanel mPDP = new PowerDistributionPanel();
+    // private PowerDistributionPanel mPDP = new PowerDistributionPanel(); FIXME
     private double mNextReportDue = 0.0; // see outputToSmartDashboard
+    private double mLastTeleopLoopTime; // Seconds
+    private ChassisState mLastTeleopVelocity = new ChassisState(); // rad/s and rad/s^2
 
     // smartdashboard keys
     private static final String kRobotLogVerbosity = "Robot/Verbosity";
@@ -105,6 +115,7 @@ public class Robot extends TimedRobot
                 mCargoIntake = CargoIntake.getInstance();
                 mClimber = Climber.getInstance();
                 mLED = LED.getInstance();
+                mPressureSensor = new AnalogInput(1);
                 mSuperstructure = Superstructure.getInstance();
                 mRobotStateEstimator = RobotStateEstimator.getInstance();
 
@@ -121,7 +132,7 @@ public class Robot extends TimedRobot
                 mSubsystemManager.registerEnabledLoops(mEnabledLooper);
                 mSubsystemManager.registerDisabledLoops(mDisabledLooper);
                 SmartDashboard.putString(kRobotTestModeOptions,
-                   "None,CargoChute,CargoIntake,Climber,PanelHandler,Drive,All");
+                        "None,CargoChute,CargoIntake,Climber,PanelHandler,Drive,All");
                 SmartDashboard.putString(kRobotTestMode, "None");
                 SmartDashboard.putString(kRobotTestVariant, "");
 
@@ -160,7 +171,7 @@ public class Robot extends TimedRobot
             }
 
             Drive.getInstance().zeroSensors();
-            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps();
 
             // Reset all auto mode state.
             mAutoModeExecutor = new AutoModeExecutor();
@@ -186,7 +197,7 @@ public class Robot extends TimedRobot
 
             mDisabledLooper.stop();
 
-            mRobotStateEstimator.resetRobotStateMaps(Timer.getFPGATimestamp());
+            mRobotStateEstimator.resetRobotStateMaps();
             Drive.getInstance().zeroSensors();
 
             mAutoModeExecutor.setAutoMode(AutoModeSelector.getSelectedAutoMode());
@@ -222,6 +233,8 @@ public class Robot extends TimedRobot
 
             mDrive.setVelocity(DriveSignal.NEUTRAL, DriveSignal.NEUTRAL); // Reset velocity setpoints
             mDrive.setOpenLoop(new DriveSignal(0.05, 0.05));
+
+            mLastTeleopLoopTime = Timer.getFPGATimestamp();
         }
         catch (Throwable t)
         {
@@ -264,19 +277,19 @@ public class Robot extends TimedRobot
             {
                 success &= mDrive.checkSystem(testVariant);
             }
-            if(testMode.equals("CargoChute") || testMode.equals("All"))
+            if (testMode.equals("CargoChute") || testMode.equals("All"))
             {
                 success &= mCargoChute.checkSystem(testVariant);
             }
-            if(testMode.equals("CargoIntake") || testMode.equals("All"))
+            if (testMode.equals("CargoIntake") || testMode.equals("All"))
             {
                 success &= mCargoIntake.checkSystem(testVariant);
             }
-            if(testMode.equals("Climber") || testMode.equals("All"))
+            if (testMode.equals("Climber") || testMode.equals("All"))
             {
                 success &= mClimber.checkSystem(testVariant);
             }
-            if(testMode.equals("PanelHandler") || testMode.equals("All"))
+            if (testMode.equals("PanelHandler") || testMode.equals("All"))
             {
                 success &= mPanelHandler.checkSystem(testVariant);
             }
@@ -303,6 +316,7 @@ public class Robot extends TimedRobot
         try
         {
             outputToSmartDashboard();
+            VisionUpdateManager.reversePNPVisionManager.clearVisionUpdate();
         }
         catch (Throwable t)
         {
@@ -341,10 +355,26 @@ public class Robot extends TimedRobot
         {
             if (mSuperstructure.isDriverControlled())
             {
-                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1), mControlBoard.getTurn(),
-                        true /* TODO: Decide squared inputs or not */)/*.scale(48)*/;
+                DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1),
+                        mControlBoard.getTurn(),
+                        mControlBoard.getSlowMode());
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
+
+                // double throttle = mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                // throttle = Math.copySign(Math.pow(Math.abs(throttle), 5.0/2.0), throttle) * Constants.kTeleopMaxChassisVel;
+
+                // double turn = mControlBoard.getTurn() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
+                // turn = Math.copySign(Math.pow(Math.abs(turn), 5.0/3.0), turn) * Constants.kTeleopMaxChassisVel;
+
+                // double dt = Timer.getFPGATimestamp() - mLastTeleopLoopTime;
+                // ChassisState vel = new ChassisState(throttle, turn);
+                // ChassisState accel = new ChassisState((throttle - mLastTeleopVelocity.linear) / dt, (turn - mLastTeleopVelocity.angular) / dt);
+
+                // mDrive.setVelocityForChassisState(vel, accel);
+
+                // mLastTeleopLoopTime = Timer.getFPGATimestamp();
+                // mLastTeleopVelocity = new ChassisState(mDrive.getLinearVelocity(), mDrive.getLinearVelocity());
 
                 mDrive.setOpenLoop(command);
                 // mDrive.setVelocity(command, new DriveSignal(
@@ -354,14 +384,12 @@ public class Robot extends TimedRobot
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 1 after setOpenLoop
 
-
                 // Button Board ----------------------------------------------------------
+                mControlBoard.updatePOV();
 
                 // CLIMBING
                 if (mControlBoard.getClimb())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.CLIMB);
-                else if (mControlBoard.getManualExtendAllClimbPneumatics())
-                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 2 after climbing
 
@@ -400,13 +428,12 @@ public class Robot extends TimedRobot
                     //TODO: add this functionality
                 }
                 else if (mControlBoard.getManualShootCargoBay())
-                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
+                    // mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                 else if (mControlBoard.getManualShootCargoRocket())
                     mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
                 else if (mControlBoard.getManualChuteUp())
-                {
-                    //TODO: add this functionality
-                }
+                    mCargoChute.setWantedState(CargoChute.WantedState.RAISE);
                 else if (mControlBoard.getManualChuteDown())
                     mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
 
@@ -440,44 +467,53 @@ public class Robot extends TimedRobot
                 {
                     // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
                 }
+                if (mControlBoard.getChangeSelectedVisionIndex())
+                {
+                    int selectedIndex = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, -1);
+                    if (++selectedIndex >= Constants.kMaxVisionTargets)
+                        selectedIndex = 0;
+                    SmartDashboard.putNumber(Constants.kVisionSelectedIndexKey, selectedIndex);
+                }
                 codeTimes[nctr++] = mCodeTimer.get(); // 6 after subsystems
 
-
                 //TEST BUTTONBOARD
-                if (mControlBoard.getTESTClimbExtendAllPneumatics())
+                if (mControlBoard.getClimbExtendAllPneumatics())
                 {
-                    mClimber.setWantedState(Climber.WantedState.CLIMB);
+                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
                 }
-                else if (mControlBoard.getTESTClimbIntake())
+                else if (mControlBoard.getClimbIntake())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
                 }
-                else if (mControlBoard.getTESTClimbRetractFrontPneumatics())
+                else if (mControlBoard.getClimbRetractFrontPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
                 }
-                else if (mControlBoard.getTESTClimbRetractBackPneumatics())
+                else if (mControlBoard.getClimbRetractBackPneumatics())
                 {
                     mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
                 }
-                else if (mControlBoard.getTESTIntakeArm_Down())
+                else if (mControlBoard.getIntakeArmDown())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
                 }
-                else if (mControlBoard.getTESTIntakeHOLD())
+                else if (mControlBoard.getIntakeHold())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                    mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
                 }
-                else if (mControlBoard.getTESTIntakeSTOPMOTORS())
+                else if (mControlBoard.getIntakeStopMotors())
                 {
                     mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
                 }
                 codeTimes[nctr++] = mCodeTimer.get(); // 7 after testbuttonboard
 
-
                 //Driver Joystick-----------------------------------------------------------
                 if (mControlBoard.getReverseDirection())
-                     mSuperstructure.reverseDrivingDirection();
+                    mSuperstructure.reverseDrivingDirection();
+
+                if (mControlBoard.getReturnToDriverControl())
+                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
             }
             else if (mControlBoard.getReturnToDriverControl())
                 mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
@@ -492,15 +528,15 @@ public class Robot extends TimedRobot
 
         outputToSmartDashboard();
         codeTimes[nctr++] = mCodeTimer.get(); // 9 after telemetry
-        double loopTime = codeTimes[nctr-1];
-        if(loopTime > .025)
+        double loopTime = codeTimes[nctr - 1];
+        if (loopTime > .025)
         {
             String str = "looptime overrun, offenders:\n";
-            for(int i=0;i<nctr;i++)
+            for (int i = 0; i < nctr; i++)
             {
                 str += "  " + i + " " + codeTimes[i] + "\n";
             }
-            if(loopTime > .1)
+            if (loopTime > .1)
                 Logger.notice("BIG " + str);
             else
                 Logger.debug(str);
@@ -527,19 +563,20 @@ public class Robot extends TimedRobot
 
     public void outputToSmartDashboard()
     {
-        /* need to constrain the amount of network table traffic we
+        /*
+         * need to constrain the amount of network table traffic we
          * produce each loop:
-         *   - outputTelemetry supports round-robin distribution of telemetry
-         *   - slowly varying data is "automatically filtered" by network tables
-         *   - but we impose an update rate max on less important data
-         *  NB: it's possible that slow/variable times is actually the result
-         *   of multithreaded synchronization locks.
+         * - outputTelemetry supports round-robin distribution of telemetry
+         * - slowly varying data is "automatically filtered" by network tables
+         * - but we impose an update rate max on less important data
+         * NB: it's possible that slow/variable times is actually the result
+         * of multithreaded synchronization locks.
          */
         mEnabledLooper.outputToSmartDashboard(); // outputs _dt
-        mSubsystemManager.outputToTelemetry(true/*round-robin*/);
+        mSubsystemManager.outputToTelemetry(true/* round-robin */);
 
         double now = Timer.getFPGATimestamp();
-        if(now > this.mNextReportDue)
+        if (now > this.mNextReportDue)
         {
             this.mNextReportDue = now + 1.0; // once per second
             // nb: MatchTime is approximate
@@ -547,8 +584,9 @@ public class Robot extends TimedRobot
                     DriverStation.getInstance().getMatchTime());
             SmartDashboard.putNumber("Robot/BatteryVoltage",
                     RobotController.getBatteryVoltage());
-            SmartDashboard.putNumber("Robot/BatteryCurrent",
-                    mPDP.getTotalCurrent());
+            SmartDashboard.putNumber("Robot/Pressure", 250 * mPressureSensor.getVoltage() / 5.0 - 25);
+            // SmartDashboard.putNumber("Robot/BatteryCurrent",
+            //         mPDP.getTotalCurrent()); XXX: Spews CAN errors
         }
     }
 }

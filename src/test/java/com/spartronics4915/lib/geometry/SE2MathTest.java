@@ -224,6 +224,21 @@ public class SE2MathTest
         assertEquals(5, pose3.getTranslation().y(), kTestEpsilon);
         assertEquals(0, pose3.getRotation().getDegrees(), kTestEpsilon);
 
+        pose1 = new Pose2d(0, 0, Rotation2d.identity()).transformBy(4);
+        assertEquals(4, pose1.getTranslation().x(), kTestEpsilon);
+        assertEquals(0, pose1.getTranslation().y(), kTestEpsilon);
+        assertEquals(0, pose1.getRotation().getDegrees(), kTestEpsilon);
+
+        pose1 = new Pose2d(0, 4, Rotation2d.identity()).transformBy(4);
+        assertEquals(4, pose1.getTranslation().x(), kTestEpsilon);
+        assertEquals(4, pose1.getTranslation().y(), kTestEpsilon);
+        assertEquals(0, pose1.getRotation().getDegrees(), kTestEpsilon);
+
+        pose1 = new Pose2d(0, 0, Rotation2d.fromDegrees(90)).transformBy(4);
+        assertEquals(0, pose1.getTranslation().x(), kTestEpsilon);
+        assertEquals(4, pose1.getTranslation().y(), kTestEpsilon);
+        assertEquals(90, pose1.getRotation().getDegrees(), kTestEpsilon);
+
         // A pose times its inverse should be the identity
         Pose2d identity = new Pose2d();
         pose1 = new Pose2d(new Translation2d(3.51512152, 4.23), Rotation2d.fromDegrees(91.6));

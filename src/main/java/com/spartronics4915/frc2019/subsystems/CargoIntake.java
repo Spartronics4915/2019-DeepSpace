@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 public class CargoIntake extends Subsystem
@@ -61,6 +62,10 @@ public class CargoIntake extends Subsystem
 
             mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
             mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
+
+            mMotorRight.setNeutralMode(NeutralMode.Brake);
+            mMotorLeft.setNeutralMode(NeutralMode.Brake);
+
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoid);
             mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoidClimb);
             success = true;
@@ -76,6 +81,9 @@ public class CargoIntake extends Subsystem
 
     private final ILoop mLoop = new ILoop()
     {
+
+        Timer mClimbingPulseTimer = new Timer();
+        boolean mIsPulsingOn = true;
 
         @Override
         public void onStart(double timestamp)
@@ -138,10 +146,35 @@ public class CargoIntake extends Subsystem
                     case CLIMBING:
                         if (mStateChanged)
                         {
-                            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
-                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
+                            mClimbingPulseTimer.reset();
+                            mClimbingPulseTimer.start();
+
                             mSolenoid.set(Constants.kCargoIntakeSolenoidExtend);
                             mSolenoidClimb.set(Constants.kCargoIntakeSolenoidExtend);
+                            mIsPulsingOn = true;
+                        }
+
+                        if (mIsPulsingOn && mClimbingPulseTimer.hasPeriodPassed(Constants.kCargoIntakeOnPulseDuration))
+                        {
+                            mClimbingPulseTimer.reset();
+                            mClimbingPulseTimer.start();
+                            
+                            mMotorRight.set(ControlMode.PercentOutput, 0.0);
+                            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
+
+                            mIsPulsingOn = false;
+                            logNotice("off");
+                        }
+                        else if (!mIsPulsingOn && mClimbingPulseTimer.hasPeriodPassed(Constants.kCargoIntakeOffPulseDuration))
+                        {
+                            mClimbingPulseTimer.reset();
+                            mClimbingPulseTimer.start();
+
+                            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
+                            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeClimbSpeed);
+                            
+                            mIsPulsingOn = true;
+                            logNotice("on");
                         }
                         break;
                     default:

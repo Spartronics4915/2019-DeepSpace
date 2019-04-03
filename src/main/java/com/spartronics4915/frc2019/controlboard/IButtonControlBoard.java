@@ -2,10 +2,18 @@ package com.spartronics4915.frc2019.controlboard;
 
 public interface IButtonControlBoard
 {
+    void updatePOV();
+    
     // CLIMBING
     boolean getClimb();
 
-    boolean getManualExtendAllClimbPneumatics();
+    boolean getClimbExtendAllPneumatics();
+
+    boolean getClimbIntake();
+
+    boolean getClimbRetractFrontPneumatics();
+
+    boolean getClimbRetractBackPneumatics();
 
     // INTAKE
     boolean getAssistedIntakeCargo(); // vision assisted (?)
@@ -13,6 +21,12 @@ public interface IButtonControlBoard
     boolean getGroundEjectCargo();
 
     boolean getManualIntakeCargo();
+
+    boolean getIntakeArmDown();
+
+    boolean getIntakeHold();
+
+    boolean getIntakeStopMotors();
 
     // CARGO RAMP
     boolean getManualRamp(); // Toggles between MANUAL_RAMP and MANUAL_HOLD
@@ -43,23 +57,5 @@ public interface IButtonControlBoard
     // EVERYTHING
     boolean getInsideFramePerimeter();
 
-
-
-
-    //TEST
-    boolean getTESTClimbExtendAllPneumatics();
-
-    boolean getTESTClimbIntake();
-
-    boolean getTESTClimbRetractFrontPneumatics();
-
-    boolean getTESTClimbRetractBackPneumatics();
-
-
-    boolean getTESTIntakeArm_Down();
-
-    boolean getTESTIntakeHOLD();
-
-    boolean getTESTIntakeSTOPMOTORS();
-
+    boolean getChangeSelectedVisionIndex();
 }

@@ -2,8 +2,11 @@ package com.spartronics4915.lib.spline;
 
 import com.spartronics4915.lib.geometry.*;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SplineGenerator
 {
@@ -12,7 +15,8 @@ public class SplineGenerator
     private static final double kMaxDY = 0.05; //inches
     private static final double kMaxDTheta = 0.1; //radians!
     private static final int kMinSampleSize = 1;
-
+    private static final int kRecursionDepthLimit = 500;
+    
     /**
      * Converts a spline into a list of Twist2d's.
      *
@@ -28,7 +32,7 @@ public class SplineGenerator
         double dt = (t1 - t0);
         for (double t = 0; t < t1; t += dt / kMinSampleSize)
         {
-            getSegmentArc(s, rv, t, t + dt / kMinSampleSize, maxDx, maxDy, maxDTheta);
+            getSegmentArc(s, new AtomicInteger(0), rv, t, t + dt / kMinSampleSize, maxDx, maxDy, maxDTheta);
         }
         return rv;
     }
@@ -67,7 +71,8 @@ public class SplineGenerator
         return rv;
     }
 
-    private static void getSegmentArc(Spline s, List<Pose2dWithCurvature> rv, double t0, double t1, double maxDx,
+    // We have to use AtomicInteger because int and Integar are pass-by-value
+    private static void getSegmentArc(Spline s, AtomicInteger depthCount, List<Pose2dWithCurvature> rv, double t0, double t1, double maxDx,
             double maxDy,
             double maxDTheta)
     {
@@ -77,11 +82,17 @@ public class SplineGenerator
         Rotation2d r1 = s.getHeading(t1);
         Pose2d transformation = new Pose2d(new Translation2d(p0, p1).rotateBy(r0.inverse()), r1.rotateBy(r0.inverse()));
         Twist2d twist = Pose2d.log(transformation);
-        if (twist.dy > maxDy || twist.dx > maxDx || twist.dtheta > maxDTheta)
+
+        if (Math.abs(twist.dy) > maxDy || Math.abs(twist.dx) > maxDx || Math.abs(twist.dtheta) > maxDTheta)
         {
+            if (depthCount.incrementAndGet() > kRecursionDepthLimit)
+            {
+                throw new RuntimeException("Hit recursion depth limit!\ntwist: " + twist.toString() + ", p0: " + p0 + ", p1: " + p1 + ", r0: " + r0 + ", r1: " + r1 + ", transformation: " + transformation);
+            }
+
             // subdivide
-            getSegmentArc(s, rv, t0, (t0 + t1) / 2, maxDx, maxDy, maxDTheta);
-            getSegmentArc(s, rv, (t0 + t1) / 2, t1, maxDx, maxDy, maxDTheta);
+            getSegmentArc(s, depthCount, rv, t0, (t0 + t1) / 2, maxDx, maxDy, maxDTheta);
+            getSegmentArc(s, depthCount, rv, (t0 + t1) / 2, t1, maxDx, maxDy, maxDTheta);
         }
         else
         {

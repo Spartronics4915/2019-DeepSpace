@@ -3,31 +3,27 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.util.RobotStateMap;
-import com.spartronics4915.lib.util.Units;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.VisionUpdateManager;
 import com.spartronics4915.frc2019.VisionUpdateManager.HeadingUpdate;
 import com.spartronics4915.frc2019.VisionUpdateManager.PNPUpdate;
 import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
-import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.trajectory.TimedView;
-import com.spartronics4915.lib.trajectory.Trajectory;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
-import com.spartronics4915.lib.trajectory.timing.CentripetalAccelerationConstraint;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ILoop;
 
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The superstructure subsystem is the overarching superclass containing all
@@ -73,12 +69,17 @@ public class Superstructure extends Subsystem
         ALIGN_AND_SHOOT_CARGO_ROCKET,
         ALIGN_AND_SHOOT_CARGO_BAY,
         ALIGN_AND_EJECT_PANEL,
+        ALIGN_CLOSEST_REVERSE_TARGET,
         // Climb
         CLIMB,
+        // Manual climb
+        LOWER_CHUTE_AND_CLIMB,
         // Panel ejecting (no auto align)
         EJECT_PANEL,
         // Intaking
         INTAKE_CARGO,
+        // Shooting cargo into bay
+        SHOOT_CARGO_BAY,
     };
 
     // Internal state of the system
@@ -94,6 +95,10 @@ public class Superstructure extends Subsystem
         RETRACTING_FORWARD_STRUTS,
         DRIVING_UNTIL_PLATFORM_FULL_SUPPORT,
         RETRACTING_REAR_STRUTS,
+
+        /* Manual climb */
+        LOWERING_CHUTE_AND_CLIMBING,
+        // Then goes to LIFTING_TO_THREE
 
         /* Placing/intaking game pieces */
         // Alignment using vision+odometry (step 1)
@@ -111,6 +116,9 @@ public class Superstructure extends Subsystem
 
         /* Intaking cargo */
         INTAKING_CARGO,
+
+        /* Ejecting cargo into the bay after backing up */
+        SHOOTING_CARGO_AND_BACKING,
     }
 
     // Superstructure doesn't own the drive, but needs to access it
@@ -139,7 +147,7 @@ public class Superstructure extends Subsystem
     private WantedState mWantedState = WantedState.DRIVER_CONTROL;
     private SystemState mSystemState = SystemState.DRIVER_CONTROLLING;
     // We don't have a DRIVER_CONTROL_FORWARD and ..._REVERSE becase we need to persist driving direction across state changes
-    private boolean mIsReversed = false;
+    private boolean mIsReversed = true;
     private boolean mGotVisionUpdate = false;
 
     private Superstructure()
@@ -163,6 +171,8 @@ public class Superstructure extends Subsystem
                 mStateChangedTimer.reset();
                 mStateChangedTimer.start();
                 mStateChanged = true;
+
+                updateCameraDirection();
             }
         }
 
@@ -212,6 +222,19 @@ public class Superstructure extends Subsystem
                         }
                         break;
 
+                    /* Manual climbing */
+                    case LOWERING_CHUTE_AND_CLIMBING:
+                        if (mStateChanged)
+                            mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+                        if (mCargoChute.atTarget() && mStateChangedTimer.hasPeriodPassed(Constants.kChuteLowRetractTime)
+                                && mWantedState == WantedState.LOWER_CHUTE_AND_CLIMB)
+                        {
+                            mClimber.setWantedState(Climber.WantedState.CLIMB);
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
+                        break;
+
                     /* Placing/intaking game pieces */
                     case INTAKING_AND_ALIGNING_CLOSEST_FORWARD_TARGET:
                         mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
@@ -236,15 +259,23 @@ public class Superstructure extends Subsystem
                         mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                         if (mStateChanged || !mGotVisionUpdate)
                         {
-                            // makeAndDrivePath(Pose2d.identity(), true);
+                            // Optional<HeadingUpdate> visionUpdate = VisionUpdateManager.reverseHeadingVisionManager.getLatestVisionUpdate();
+
+                            // mGotVisionUpdate = visionUpdate.isPresent();
+                            // visionUpdate.ifPresent(v -> mDrive.curveTowardsVisionTarget(v.getTargetInfo()));
+
                             Optional<PNPUpdate> visionUpdate = VisionUpdateManager.reversePNPVisionManager.getLatestVisionUpdate();
 
                             mGotVisionUpdate = visionUpdate.isPresent();
                             visionUpdate.ifPresent(
-                                    v -> {
-                                        makeAndDrivePath(Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)), true);
-                                        dashboardPutString("TargetPose", Constants.getRobotLengthCorrectedPose(v.getFieldPosition(mRobotStateMap)).toString());
-                                    }); // TODO make not reversed
+                                    v ->
+                                    {
+                                        makeAndDrivePath(v.getFieldPosition(mRobotStateMap).transformBy(-Constants.kRobotCenterToForward), true);
+
+                                        dashboardPutString("TargetPose",
+                                                v.getFieldPosition(mRobotStateMap).transformBy(-Constants.kRobotCenterToForward).toString());
+                                        dashboardPutNumber("CapTime", v.frameCapturedTime);
+                                    });
                         }
 
                         if (mDrive.isDoneWithTrajectory() && newState == mSystemState)
@@ -256,6 +287,11 @@ public class Superstructure extends Subsystem
                             else if (mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_BAY
                                     || mWantedState == WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET)
                                 newState = SystemState.EJECTING_CARGO;
+                            else if (mWantedState == WantedState.ALIGN_CLOSEST_REVERSE_TARGET)
+                            {
+                                mWantedState = WantedState.DRIVER_CONTROL;
+                                newState = SystemState.DRIVER_CONTROLLING;
+                            }
                         }
                         break;
                     case INTAKING_PANEL:
@@ -323,6 +359,7 @@ public class Superstructure extends Subsystem
                         if (mStateChanged)
                         {
                             mCargoIntake.setWantedState(CargoIntake.WantedState.INTAKE);
+                            // mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
                             mCargoChute.setWantedState(CargoChute.WantedState.BRING_BALL_TO_TOP);
                         }
 
@@ -332,7 +369,25 @@ public class Superstructure extends Subsystem
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;
                         }
+                        break;
 
+                    /* Ejecting cargo into the bay after backing up */
+                    case SHOOTING_CARGO_AND_BACKING:
+                        if (mStateChanged)
+                        {
+                            makeAndDrivePath(
+                                    mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()).transformBy(Constants.kShootIntoBayBackupDistance),
+                                    false);
+                            // mRobotStateMap.reset(Timer.getFPGATimestamp(), new Pose2d());
+                            // mDrive.setHeading(Rotation2d.identity());
+                            // mDrive.setTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveReverseToShootInBay);
+                        }
+                        else if (mDrive.isDoneWithTrajectory() && mWantedState == WantedState.SHOOT_CARGO_BAY)
+                        {
+                            mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+                            mWantedState = WantedState.DRIVER_CONTROL;
+                            newState = SystemState.DRIVER_CONTROLLING;
+                        }
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -364,19 +419,17 @@ public class Superstructure extends Subsystem
     {
         try
         {
-            if (!reversed)
-                goalPose = new Pose2d(goalPose.getTranslation().x(), goalPose.getTranslation().y(),
-                        goalPose.getRotation().rotateBy(Rotation2d.fromDegrees(180)));
-
             ArrayList<Pose2d> waypoints = new ArrayList<>();
             waypoints.add(mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()));
             waypoints.add(goalPose);
 
+            // logNotice(waypoints.stream().map(Object::toString).collect(Collectors.joining(", ")));
+
             double startTime = Timer.getFPGATimestamp();
             TrajectoryIterator<TimedState<Pose2dWithCurvature>> t =
-                    new TrajectoryIterator<>((new TimedView<>((mTrajectoryGenerator.generateTrajectory(reversed, waypoints)))));
+                    new TrajectoryIterator<>(new TimedView<>((mTrajectoryGenerator.generateTrajectory(reversed, waypoints))));
             // TODO: Maybe plug in our current velocity as the start velocity of the path?
-            Logger.notice("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
+            logNotice("Path generated; took " + (Timer.getFPGATimestamp() - startTime) + " seconds.");
 
             mDrive.setTrajectory(t);
         }
@@ -426,6 +479,11 @@ public class Superstructure extends Subsystem
                     break;
                 newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
                 break;
+            case ALIGN_CLOSEST_REVERSE_TARGET:
+                if (mSystemState == SystemState.ALIGNING_CLOSEST_REVERSE_TARGET)
+                    break;
+                newState = SystemState.ALIGNING_CLOSEST_REVERSE_TARGET;
+                break;
             case CLIMB:
                 if (mSystemState == SystemState.LIFTING_TO_THREE ||
                         mSystemState == SystemState.RUNNING_INTAKE_UNTIL_PLATFORM_CONTACT ||
@@ -434,6 +492,9 @@ public class Superstructure extends Subsystem
                         mSystemState == SystemState.RETRACTING_REAR_STRUTS)
                     break;
                 newState = SystemState.LIFTING_TO_THREE;
+                break;
+            case LOWER_CHUTE_AND_CLIMB:
+                newState = SystemState.LOWERING_CHUTE_AND_CLIMBING;
                 break;
             case EJECT_PANEL:
                 if (mSystemState == SystemState.MOVING_CHUTE_TO_EJECT_PANEL || mSystemState == SystemState.EJECTING_PANEL)
@@ -444,6 +505,11 @@ public class Superstructure extends Subsystem
                 if (mSystemState == SystemState.INTAKING_CARGO)
                     break;
                 newState = SystemState.INTAKING_CARGO;
+                break;
+            case SHOOT_CARGO_BAY:
+                if (mSystemState == SystemState.SHOOTING_CARGO_AND_BACKING)
+                    break;
+                newState = SystemState.SHOOTING_CARGO_AND_BACKING;
                 break;
             default:
                 logError("Unhandled wanted state in default state transfer!");
@@ -468,6 +534,8 @@ public class Superstructure extends Subsystem
     public synchronized void reverseDrivingDirection()
     {
         mIsReversed = !mIsReversed;
+        updateCameraDirection();
+
     }
 
     public synchronized boolean isDrivingReversed()
@@ -477,7 +545,13 @@ public class Superstructure extends Subsystem
 
     public synchronized boolean isDriverControlled()
     {
-        return mWantedState == WantedState.INTAKE_CARGO || mWantedState == WantedState.EJECT_PANEL || mWantedState == WantedState.DRIVER_CONTROL;
+        return mWantedState == WantedState.INTAKE_CARGO || mWantedState == WantedState.EJECT_PANEL || mWantedState == WantedState.DRIVER_CONTROL
+                || mWantedState == WantedState.LOWER_CHUTE_AND_CLIMB;
+    }
+
+    private void updateCameraDirection()
+    {
+        SmartDashboard.putString("Driver/VideoStream", mIsReversed ? "Back" : "Front");
     }
 
     @Override

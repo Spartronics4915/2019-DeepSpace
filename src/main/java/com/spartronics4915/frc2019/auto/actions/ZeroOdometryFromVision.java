@@ -14,12 +14,12 @@ public class ZeroOdometryFromVision implements Action
     private boolean mZeroed = false;
     private double mStartTime;
     private double mVisionCaptureTime;
-    private RobotStateMap mStateMap;
+    private RobotStateEstimator mStateEstimator;
 
     public ZeroOdometryFromVision(ScorableLandmark landmark)
     {
         kTargetLandmark = landmark;
-        mStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+        mStateEstimator = RobotStateEstimator.getInstance();
     }
 
     @Override
@@ -36,8 +36,8 @@ public class ZeroOdometryFromVision implements Action
             mVisionCaptureTime = visionUpdate.frameCapturedTime;
             if (mVisionCaptureTime > mStartTime)
             {
-                double now = Timer.getFPGATimestamp();
-                mStateMap.reset(now, visionUpdate.getCorrectedRobotPose(kTargetLandmark, mStateMap, now));
+                mStateEstimator.resetRobotStateMaps(
+                        visionUpdate.getCorrectedRobotPose(kTargetLandmark, mStateEstimator.getEncoderRobotStateMap(), Timer.getFPGATimestamp()));
 
                 mZeroed = true;
             }

@@ -136,6 +136,22 @@ public class Pose2d implements IPose2d<Pose2d>
     }
 
     /**
+     * This transforms the pose directionally. E.g.:
+     * if we're at 0, 0, 0 and we transform by 3,
+     * we would be at 3, 0, 0.
+     * 
+     * @param scalar A scalar to transform this directionally by
+     * @return This translated by the scalar in the direction of the rotation
+     */
+    public Pose2d transformBy(final double scalar)
+    {
+        return new Pose2d(
+                this.getRotation().cos() * scalar + this.getTranslation().x(),
+                this.getRotation().sin() * scalar + this.getTranslation().y(),
+                this.getRotation());
+    }
+
+    /**
      * The inverse of this Pose2d "undoes" the effect of applying our transform.
      *
      * For p = new Pose2d(10, 10, -30deg)

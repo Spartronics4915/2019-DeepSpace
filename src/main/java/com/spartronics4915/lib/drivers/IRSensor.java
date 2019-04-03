@@ -9,7 +9,7 @@ public abstract class IRSensor
     public IRSensor(int port)
     {
         mAnalogInput = new AnalogInput(port);
-        mAnalogInput.setAverageBits(6);
+        mAnalogInput.setAverageBits(12);
     }
 
     public double getVoltage()

@@ -3,7 +3,7 @@ import java.io.ByteArrayOutputStream;
 
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2019.3.2"
+    id "edu.wpi.first.GradleRIO" version "2019.4.1"
     id "war"
     id "com.bmuschko.tomcat" version "2.5"
 }
@@ -70,9 +70,7 @@ dependencies {
     def tomcatVersion = '7.0.57'
     tomcat ("org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}")
     tomcat ("org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}")
-    tomcat ("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
-        exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
-    }
+    tomcat ("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}")
     compile ("org.springframework:spring-webmvc:4.3.0.RELEASE")
     compile ("javax.servlet:javax.servlet-api:3.0.1")
     compile ("javax.servlet:jstl:1.2")
