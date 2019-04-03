@@ -274,7 +274,7 @@ public class Superstructure extends Subsystem
                         if (mStateChanged)
                         {
                             mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-                            mPanelHandler.setWantedState(PanelHandler.WantedState.ARM_DOWN);
+                            mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT);
                         }
 
                         if ((mWantedState == WantedState.ALIGN_AND_EJECT_PANEL || mWantedState == WantedState.EJECT_PANEL)

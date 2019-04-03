@@ -138,7 +138,7 @@ public class MainButtonBoard implements IButtonControlBoard
     {
         // current = mButtonBoard.getRawAxis(0);
         // result = (mPreviousAxis0 != current) && (current == 1.0);
-       // mPreviousAxis0 = current;
+        // mPreviousAxis0 = current;
         return false;
     }
 
