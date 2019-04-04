@@ -52,7 +52,11 @@ public interface IButtonControlBoard
 
     boolean getAssistedEjectPanel(); // vision assisted
 
-    boolean getManualEjectPanel();
+    boolean getManualEjectPanelRocket();
+
+    boolean getManualEjectPanelBay();
+
+    boolean getGrabPanel();
 
     // EVERYTHING
     boolean getInsideFramePerimeter();

@@ -444,8 +444,12 @@ public class Robot extends TimedRobot
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
                 else if (mControlBoard.getAssistedEjectPanel())
                     mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
-                else if (mControlBoard.getManualEjectPanel())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.EJECT_PANEL);
+                else if (mControlBoard.getManualEjectPanelRocket())
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECT_ROCKET);
+                else if (mControlBoard.getManualEjectPanelBay())
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.EJECTING_BAY);
+                else if (mControlBoard.getGrabPanel())
+                    mPanelHandler.setWantedState(PanelHandler.WantedState.GRAB);
 
                 codeTimes[nctr++] = mCodeTimer.get(); // 5 after panelhandler
 

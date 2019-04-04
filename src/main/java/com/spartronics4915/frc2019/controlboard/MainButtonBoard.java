@@ -13,8 +13,9 @@ public class MainButtonBoard implements IButtonControlBoard
     private double mPreviousAxis2;
     private double mPreviousAxis3;
     private int mPrevious0POV;
+    private int mPrevious90POV;
     private int mPrevious180POV;
-    private double mPrevious270POV;
+    private int mPrevious270POV;
     private int mCurrentPOV;
 
     private double current;
@@ -28,6 +29,7 @@ public class MainButtonBoard implements IButtonControlBoard
         mPreviousAxis2 = 0.0;
         mPreviousAxis3 = 0.0;
         mPrevious0POV = -1;
+        mPrevious90POV = -1;
         mPrevious180POV = -1;
         mPrevious270POV = -1;
         mCurrentPOV = -1;
@@ -163,9 +165,23 @@ public class MainButtonBoard implements IButtonControlBoard
     }
 
     @Override
-    public boolean getManualEjectPanel()
+    public boolean getManualEjectPanelRocket()
     {
         return mButtonBoard.getRawButtonPressed(2);
+    }
+
+    @Override
+    public boolean getManualEjectPanelBay()
+    {
+        return this.getGroundEjectCargo();
+    }
+
+    @Override
+    public boolean getGrabPanel()
+    {
+        result = (mPrevious90POV != mCurrentPOV) && (mCurrentPOV == 90);
+        mPrevious90POV = mCurrentPOV;
+        return result;
     }
 
     @Override

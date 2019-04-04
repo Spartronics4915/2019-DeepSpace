@@ -112,7 +112,8 @@ public class ControlBoard implements IControlBoard
     @Override
     public boolean getGroundEjectCargo()
     {
-        return mButtonControlBoard.getGroundEjectCargo();
+        return false;
+        // return mButtonControlBoard.getGroundEjectCargo(); FIXME
     }
 
     @Override
@@ -182,9 +183,21 @@ public class ControlBoard implements IControlBoard
     }
 
     @Override
-    public boolean getManualEjectPanel()
+    public boolean getManualEjectPanelRocket()
     {
-        return mButtonControlBoard.getManualEjectPanel();
+        return mButtonControlBoard.getManualEjectPanelRocket();
+    }
+
+    @Override
+    public boolean getManualEjectPanelBay()
+    {
+        return mButtonControlBoard.getManualEjectPanelBay();
+    }
+
+    @Override
+    public boolean getGrabPanel()
+    {
+        return mButtonControlBoard.getGrabPanel();
     }
 
     @Override

@@ -30,16 +30,16 @@ public class PanelHandler extends Subsystem
 
     public enum WantedState
     {
-        ARM_DOWN, ARM_UP, EJECT_ROCKET
+        EJECTING_BAY, GRAB, EJECT_ROCKET
     }
 
     private enum SystemState
     {
-        ARM_DOWNING, ARM_UPING, EJECTING_ROCKET
+        EJECTING_BAY, GRABBING, EJECTING_ROCKET
     }
 
-    private WantedState mWantedState = WantedState.ARM_UP;
-    private SystemState mSystemState = SystemState.ARM_UPING;
+    private WantedState mWantedState = WantedState.GRAB;
+    private SystemState mSystemState = SystemState.GRABBING;
 
     private Solenoid mSlideSolenoid = null;
     private Solenoid mArmSolenoid = null;
@@ -80,8 +80,8 @@ public class PanelHandler extends Subsystem
                 mStateChangedTimer.reset();
                 mStateChangedTimer.start();
                 mStateChanged = true;
-                mWantedState = WantedState.ARM_UP;
-                mSystemState = SystemState.ARM_UPING;
+                mWantedState = WantedState.GRAB;
+                mSystemState = SystemState.GRABBING;
             }
         }
 
@@ -93,21 +93,37 @@ public class PanelHandler extends Subsystem
                 SystemState newState = defaultStateTransfer();
                 switch (mSystemState)
                 {
-                    case ARM_DOWNING:
+                    case EJECTING_BAY:
                         if (mStateChanged)
+                        {
+                            mSlideSolenoid.set(Constants.kPanelSlideSolenoidRetract);
                             mArmSolenoid.set(Constants.kPanelArmSolenoidDown);
+                        }
                         break;
-                    case ARM_UPING:
+                    case GRABBING:
                         if (mStateChanged)
+                        {
+                            mSlideSolenoid.set(Constants.kPanelSlideSolenoidRetract);
                             mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
+                        }
                         break;
                     case EJECTING_ROCKET:
                         if (mStateChanged)
+                        {
                             mArmSolenoid.set(Constants.kPanelArmSolenoidUp);
-                        else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelSlideExtendTime))
+                        }
+                        else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelSlideRetractTime))
+                        {
                             mSlideSolenoid.set(Constants.kPanelSlideSolenoidRetract);
+                        }
                         else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelArmMovementTime))
+                        {
+                            mArmSolenoid.set(Constants.kPanelArmSolenoidDown);
+                        }
+                        else if (mStateChangedTimer.hasPeriodPassed(Constants.kPanelSlideExtendTime))
+                        {
                             mSlideSolenoid.set(Constants.kPanelSlideSolenoidExtend);
+                        }
                         break;
                     default:
                         logError("Unhandled system state!");
@@ -116,6 +132,7 @@ public class PanelHandler extends Subsystem
                 {
                     mStateChanged = true;
                     mStateChangedTimer.reset();
+                    mStateChangedTimer.start();
                     logNotice("System state to " + newState);
                 }
                 else
@@ -139,11 +156,11 @@ public class PanelHandler extends Subsystem
         SystemState newState = mSystemState;
         switch (mWantedState)
         {
-            case ARM_DOWN:
-                newState = SystemState.ARM_DOWNING;
+            case EJECTING_BAY:
+                newState = SystemState.EJECTING_BAY;
                 break;
-            case ARM_UP:
-                newState = SystemState.ARM_UPING;
+            case GRAB:
+                newState = SystemState.GRABBING;
                 break;
             case EJECT_ROCKET:
                 newState = SystemState.EJECTING_ROCKET;
@@ -161,10 +178,10 @@ public class PanelHandler extends Subsystem
     {
         switch (mWantedState)
         {
-            case ARM_DOWN:
-                return mSystemState == SystemState.ARM_DOWNING && mStateChangedTimer.hasPeriodPassed(Constants.kPanelArmMovementTime);
-            case ARM_UP:
-                return mSystemState == SystemState.ARM_UPING && mStateChangedTimer.hasPeriodPassed(Constants.kPanelArmMovementTime);
+            case EJECTING_BAY:
+                return mSystemState == SystemState.EJECTING_BAY && mStateChangedTimer.hasPeriodPassed(Constants.kPanelArmMovementTime);
+            case GRAB:
+                return mSystemState == SystemState.GRABBING && mStateChangedTimer.hasPeriodPassed(Constants.kPanelArmMovementTime);
             case EJECT_ROCKET:
                 return false;
             default:

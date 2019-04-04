@@ -191,15 +191,15 @@ public class Constants
     public static final int kClimberPCMId = 1;
 
     // Panel Handler
-    public static final int kPanelHandlerSlideSolenoidId = 3;
-    public static final int kPanelHandlerArmSolenoidId = 2;
-    public static final double kPanelArmMovementTime = 1; // Seconds
-    public static final double kPanelSlideExtendTime = 2; // Seconds
+    public static final int kPanelHandlerSlideSolenoidId = 2;
+    public static final int kPanelHandlerArmSolenoidId = 3;
+    public static final double kPanelSlideExtendTime = 1; // Seconds
+    public static final double kPanelArmMovementTime = 2; // Seconds
     public static final double kPanelSlideRetractTime = 3; // Seconds
     public static final boolean kPanelSlideSolenoidExtend = true;
     public static final boolean kPanelSlideSolenoidRetract = false;
-    public static final boolean kPanelArmSolenoidUp = true;
-    public static final boolean kPanelArmSolenoidDown = false;
+    public static final boolean kPanelArmSolenoidUp = false;
+    public static final boolean kPanelArmSolenoidDown = true;
     
     // Cargo Intake
     public static final int kCargoIntakeSolenoid = 0;
