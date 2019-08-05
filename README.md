@@ -54,6 +54,14 @@ CHAOS, 2019's robot, can be broken down into various **subsystems** and **comman
 - AssistedIntakePanel
 - ChangeSelectedVisionIndex
 
+## Construction :construction:
+
+My todo list.
+
+- Reimplement our own Subsystem commands in Subsystem.java\
+    - Uncomment and change subsystems to rely on Subsystem.java again
+
+
 ## Setup Instructions
 
 ### General
