@@ -99,21 +99,21 @@ public class CargoChute extends Subsystem
         try
         {
             //  logNotice("Running RampMotor at ramping speed for five seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, Constants.kEjectSpeed);
+            intake();
             Timer.delay(5);
             //  logNotice("Done.");
 
             //  logNotice("Running RampMotor at zero speed for three seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, 0.0);
+            stop();
             Timer.delay(3);
             //  logNotice("Done.");
 
             //  logNotice("Running RampMotor at reverse ramping speed for five seconds: ");
-            mRampMotor.set(ControlMode.PercentOutput, -Constants.kEjectSpeed);
+            eject();
             Timer.delay(5);
             //  logNotice("Done.");
 
-            mRampMotor.set(ControlMode.PercentOutput, 0.0);
+            stop();
         }
         catch (Exception e)
         {
@@ -126,22 +126,22 @@ public class CargoChute extends Subsystem
         try
         {
             //  logNotice("Sending ramp pneumatics up for three seconds: ");
-            mRampSolenoid.set(Constants.kRampSolenoidExtend);
+            raise();
             Timer.delay(3);
             //  logNotice("Done.");
 
             //  logNotice("Sending ramp pneumatics down for three seconds: ");
-            mRampSolenoid.set(Constants.kRampSolenoidRetract);
+            lower();
             Timer.delay(3);
             //  logNotice("Done.");
 
             //  logNotice("Sending ramp pneumatics up for three seconds: ");
-            mRampSolenoid.set(Constants.kRampSolenoidExtend);
+            raise();
             Timer.delay(3);
             //  logNotice("Done.");
 
             //  logNotice("Sending ramp pneumatics down for three seconds: ");
-            mRampSolenoid.set(Constants.kRampSolenoidRetract);
+            lower();
             Timer.delay(3);
             //  logNotice("Done.");
         }

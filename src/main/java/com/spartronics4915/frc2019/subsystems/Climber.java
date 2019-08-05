@@ -107,15 +107,11 @@ public class Climber extends Subsystem
         //  logNotice("Lifting for 5 Seconds");
         try
         {
-            mFrontLeftClimberSolenoid.set(Value.kForward);
-            mFrontRightClimberSolenoid.set(Value.kForward);
-            mRearLeftClimberSolenoid.set(Value.kForward);
-            mRearRightClimberSolenoid.set(Value.kForward);
+            extendFrontPneumatics();
+            extendBackPneumatics();
             Timer.delay(5);
-            mFrontLeftClimberSolenoid.set(Value.kReverse);
-            mFrontRightClimberSolenoid.set(Value.kReverse);
-            mRearLeftClimberSolenoid.set(Value.kReverse);
-            mRearRightClimberSolenoid.set(Value.kReverse);
+            retractFrontPneumatics();
+            retractBackPneumatics();
         }
         catch (Exception e)
         {
