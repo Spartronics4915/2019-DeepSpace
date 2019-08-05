@@ -4,7 +4,6 @@
 
 package com.spartronics4915.frc2019.subsystems;
 
-//  import com.spartronics4915.frc2019.subsystems.Subsystem;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
