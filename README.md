@@ -1,4 +1,4 @@
-Spartronics 2019 Destination: Deep Space robot code :fire:
+Spartronics 2019 Destination: Deep Space robot code
 =======
 
 Team 4915's code for DeepSpace. Derived from Team254's 2018 codebase.
@@ -8,6 +8,51 @@ aspect of the robot function. This README explains setup instructions, the
 function of each package, and some of the variable naming conventions used.
 Additional information about each specific class can be found in that class'
 Java file.
+
+## Commands and Subsystems
+
+CHAOS, 2019's robot, can be broken down into various **subsystems** and **commands**.
+
+### Subsystems
+
+- Drive
+- PanelHandler
+- CargoChute
+- CargoIntake
+- Climber
+
+### Commands
+
+- Climb
+- ClimbExtendAllPneumatics
+- ClimbIntake
+- ClimbRetractFrontPneumatics
+- ClimbRetractBackPneumatics
+
+- GroundEjectCargo
+- ManualIntakeCargo
+- IntakeArmDown
+- IntakeHold
+- IntakeStopMotors
+
+- ManualRamp
+- ManualShootCargoBay
+- ManualShootCargoRocket
+- ManualChuteUp
+- ManualChuteDown
+
+- ManualEjectPanel
+
+- InsideFramePerimeter
+
+- AssistedIntakeCargo
+- AssistedShootRocket
+- AssistedShootBay
+- SelectLeftVisionTarget
+- SelectRightVisionTarget
+- AssistedEjectPanel
+- AssistedIntakePanel
+- ChangeSelectedVisionIndex
 
 ## Setup Instructions
 
