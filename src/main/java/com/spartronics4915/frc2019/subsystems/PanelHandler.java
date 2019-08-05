@@ -2,48 +2,21 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.CANProbe;
-import com.spartronics4915.lib.util.ILoop;
-import com.spartronics4915.lib.util.ILooper;
 
+import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
-//import edu.wpi.first.wpilibj.DigitalInput;
+//  import edu.wpi.first.wpilibj.DigitalInput;
 
-
-/** 2 pneumatics to eject panels
- * panels held on by velcro */
+/**
+ * 2 pneumatics to eject panels
+ * panels held on by velcro
+ */
 
 public class PanelHandler extends Subsystem
 {
-    private static PanelHandler mInstance = null;
-
-    public static PanelHandler getInstance()
-    {
-        if (mInstance == null)
-        {
-            mInstance = new PanelHandler();
-        }
-        return mInstance;
-    }
-
-    public enum WantedState
-    {
-        RETRACT, EJECT
-    }
-
-    private enum SystemState
-    {
-        RETRACTING, EJECTING
-    }
-
-    private WantedState mWantedState = WantedState.RETRACT;
-    private SystemState mSystemState = SystemState.RETRACTING;
-
     private Solenoid mSolenoid = null;
-
-    //private DigitalInput mLimitSwitch = null;
-
-    private boolean mStateChanged;
+    //  private DigitalInput mLimitSwitch = null;
 
     private PanelHandler()
     {
@@ -53,144 +26,68 @@ public class PanelHandler extends Subsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
+            // mLimitSwitch
             success = true;
         }
         catch (Exception e)
         {
             success = false;
-            logException("Couldn't instantiate hardware", e);
+            //  logException("Couldn't instantiate hardware", e);
         }
 
-        logInitialized(success);
+        //  logInitialized(success);
     }
 
-    private final ILoop mLoop = new ILoop()
+    public void extend()
     {
-        private double mEjectTime;
+        mSolenoid.set(Constants.kPanelSolenoidExtend);
 
-        @Override
-        public void onStart(double timestamp)
-        {
-            synchronized (PanelHandler.this)
-            {
-                mSolenoid.set(Constants.kPanelSolenoidRetract);
-                mStateChanged = true;
-                mWantedState = WantedState.RETRACT;
-                mSystemState = SystemState.RETRACTING;
-            }
-        }
-
-        @Override
-        public void onLoop(double timestamp)
-        {
-            synchronized (PanelHandler.this)
-            {
-                SystemState newState = defaultStateTransfer();
-                switch (mSystemState)
-                {
-                    case RETRACTING:
-                        if (mStateChanged)
-                        {
-                            mSolenoid.set(Constants.kPanelSolenoidRetract);
-                        }
-                        break;
-                    case EJECTING://BB6
-                        if (mStateChanged)
-                        {
-                            mSolenoid.set(Constants.kPanelSolenoidExtend);
-                            mEjectTime = Timer.getFPGATimestamp();
-                        }
-                        else if (Timer.getFPGATimestamp() > mEjectTime + Constants.kPanelEjectTime && newState == mSystemState)
-                            setWantedState(WantedState.RETRACT);
-                        break;
-                    default:
-                        logError("Unhandled system state!");
-                }
-                if (newState != mSystemState)
-                {
-                    mStateChanged = true;
-                    logNotice("System state to " + newState);
-                }
-                else
-                    mStateChanged = false;
-                mSystemState = newState;
-            }
-        }
-
-        @Override
-        public void onStop(double timestamp)
-        {
-            synchronized (PanelHandler.this)
-            {
-                stop();
-            }
-        }
-    };
-
-    private SystemState defaultStateTransfer() //Eject -timer-> Retract
-    {
-        SystemState newState = mSystemState;
-        switch (mWantedState)
-        {
-            case RETRACT:
-                newState = SystemState.RETRACTING;
-                break;
-            case EJECT:
-                newState = SystemState.EJECTING;
-                break;
-        }
-        return newState;
     }
 
-    public synchronized void setWantedState(WantedState wantedState)
+    public void retract()
     {
-        mWantedState = wantedState;
-    }
-
-    public synchronized boolean atTarget()
-    {
-        return mSystemState == SystemState.RETRACTING && mWantedState == WantedState.RETRACT;
+        mSolenoid.set(Constants.kPanelSolenoidRetract);
     }
 
     @Override
-    public void registerEnabledLoops(ILooper enabledLooper)
+    public void initDefaultCommand()
     {
-        enabledLooper.register(mLoop);
+        //  TODO: add default command (retract)
     }
 
-    @Override
+    //  @Override
     public boolean checkSystem(String variant)//DS6
     {
-        logNotice("Starting PanelHandler Solenoid Check");
+        //  logNotice("Starting PanelHandler Solenoid Check");
         try
         {
-            logNotice("Extending solenoid for 2 seconds");
-            mSolenoid.set(Constants.kPanelSolenoidExtend);
+            //  logNotice("Extending solenoid for 2 seconds");
+            extend();
             Timer.delay(2);
-            logNotice("Retracting solenoid for 2 seconds");
-            mSolenoid.set(Constants.kPanelSolenoidRetract);
+            //  logNotice("Retracting solenoid for 2 seconds");
+            retract();
+            Timer.delay(2);
+            //  logNotice("Extending solenoid for 2 seconds");
+            extend();
+            Timer.delay(2);
+            //  logNotice("Retracting solenoid for 2 seconds");
+            retract();
         }
         catch (Exception e)
         {
-            logException("Trouble instantiating hardware ", e);
+            //  logException("Trouble instantiating hardware ", e);
             return false;
         }
-        logNotice("PanelHandler Solenoid Check End");
+        //  logNotice("PanelHandler Solenoid Check End");
         return true;
     }
 
-    @Override
+    //  @Override
     public void outputTelemetry()
     {
-        dashboardPutState(mSystemState.toString());
-        dashboardPutWantedState(mWantedState.toString());
-        dashboardPutBoolean("mSolenoid1 Extended", mSolenoid.get());
-        //dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
-    }
-
-    @Override
-    public void stop()
-    {
-        mSolenoid.set(Constants.kPanelSolenoidRetract);
+        /*
+        dashboardPutBoolean("mSolenoid1 Extended: ", mSolenoid.get());
+        dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
+        */
     }
 }
