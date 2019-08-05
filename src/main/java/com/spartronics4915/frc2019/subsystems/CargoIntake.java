@@ -109,18 +109,15 @@ public class CargoIntake extends Subsystem
 
             //  logNotice("CargoIntake Solenoid Check End");
             //  logNotice("Running motors at 50% for 2 seconds");
-            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
-            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoIntakeSpeed);
+            intake();
             Timer.delay(2);
 
             //  logNotice("Running motors at 0% for 2 seconds");
-            mMotorRight.set(ControlMode.PercentOutput, 0.0);
-            mMotorLeft.set(ControlMode.PercentOutput, 0.0);
+            stop();
             Timer.delay(2);
 
             //  logNotice("Running motors at -50% for 2 seconds");
-            mMotorRight.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
-            mMotorLeft.set(ControlMode.PercentOutput, Constants.kCargoEjectSpeed);
+            eject();
             Timer.delay(2);
 
             stop();
