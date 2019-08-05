@@ -58,9 +58,18 @@ CHAOS, 2019's robot, can be broken down into various **subsystems** and **comman
 
 My todo list.
 
-- Reimplement our own Subsystem commands in Subsystem.java\
-    - Uncomment and change subsystems to rely on Subsystem.java again
+Subsystems not done:
+- Drive.java
+- LED.java
 
+Commands not done:
+- All. Waiting on Robot.java
+
+Large issues:
+- Subsystem.java
+  - Uncomment other subsystems to rely on this again
+- Robot.java
+- Superstructure.java
 
 ## Setup Instructions
 
