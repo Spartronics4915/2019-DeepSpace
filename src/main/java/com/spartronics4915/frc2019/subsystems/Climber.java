@@ -1,17 +1,11 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.ControlBoard;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
-import com.spartronics4915.lib.util.CANProbe;
-import com.spartronics4915.lib.util.ILoop;
-import com.spartronics4915.lib.util.ILooper;
 
-import edu.wpi.first.hal.sim.mockdata.PCMDataJNI;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Climber extends Subsystem
 {
