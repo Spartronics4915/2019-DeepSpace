@@ -146,9 +146,11 @@ public class Climber extends Subsystem
     //  @Override
     public void outputTelemetry()
     {
-        //  dashboardPutNumber("Forward sensor voltage: ", mClimberFrontIRSensor.getVoltage());
-        //  dashboardPutBoolean("Forward sensor in range: ", frontSensorsInRange());
-        //  dashboardPutNumber("Rear sensor voltage: ", mClimberRearIRSensor.getVoltage());
-        //  dashboardPutBoolean("Rear sensor in range: ", rearSensorsInRange());
+        /*
+        dashboardPutNumber("Forward sensor voltage: ", mClimberFrontIRSensor.getVoltage());
+        dashboardPutBoolean("Forward sensor in range: ", frontSensorsInRange());
+        dashboardPutNumber("Rear sensor voltage: ", mClimberRearIRSensor.getVoltage());
+        dashboardPutBoolean("Rear sensor in range: ", rearSensorsInRange());
+        */
     }
 }
