@@ -58,19 +58,14 @@ CHAOS, 2019's robot, can be broken down into various **subsystems** and **comman
 
 My todo list.
 
-Small issues:
-- I don't know how isFinished methods work, especially with pneumatics.
-- Our climb system has several delays and conditions.
-
 Subsystems not done:
 - Drive.java
 
 Commands not done:
-- All. Waiting on Robot.java
+- most of them
 
 Large issues:
-- Subsystem.java
-  - Uncomment other subsystems to rely on this again
+- All subsystems are using wpilibj's command Subsystem, but that means we don't have loggers
 - Robot.java
   - ???
 - Superstructure.java

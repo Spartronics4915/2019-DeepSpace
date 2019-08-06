@@ -1,7 +1,9 @@
 package com.spartronics4915.frc2019.commands;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.Climber;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 
 public class ClimbExtendAllPneumatics extends Command
@@ -22,8 +24,9 @@ public class ClimbExtendAllPneumatics extends Command
         setInterruptible(false);
         setTimeout(1.0);
 
-        mClimber.extendFrontPneumatics();
         mClimber.extendBackPneumatics();
+        Timer.delay(Constants.kClimberFrontSolenoidDelay);
+        mClimber.extendFrontPneumatics();
 
     }
 
