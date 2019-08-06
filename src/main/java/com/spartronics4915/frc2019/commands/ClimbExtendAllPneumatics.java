@@ -20,7 +20,7 @@ public class ClimbExtendAllPneumatics extends Command
     protected void initialize()
     {
         setInterruptible(false);
-        setTimeout(1.5);
+        setTimeout(1.0);
 
         mClimber.extendFrontPneumatics();
         mClimber.extendBackPneumatics();
@@ -31,7 +31,7 @@ public class ClimbExtendAllPneumatics extends Command
     @Override
     protected void execute()
     {
-        //  Activating pneumatics is instantenous
+        //  Intentionally left blank
     }
 
     //  Make this return true when this Command no longer needs to run execute()
@@ -40,7 +40,6 @@ public class ClimbExtendAllPneumatics extends Command
     {
         if (isTimedOut())
             return true;
-
         return false;
     }
 

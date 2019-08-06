@@ -1,36 +1,44 @@
 package com.spartronics4915.frc2019.commands;
 
-import com.spartronics4915.frc2019.Robot;
+import com.spartronics4915.frc2019.subsystems.Climber;
 
 import edu.wpi.first.wpilibj.command.Command;
 
 public class ClimbRetractBackPneumatics extends Command
 {
+    private Climber mClimber;
+
     public ClimbRetractBackPneumatics()
     {
+        mClimber = Climber.getInstance();
         //  Use requires() here to declare subsystem dependencies
-        requires(Robot.mClimber);
+        requires(mClimber);
     }
 
     //  Called just before this Command runs the first time
     @Override
     protected void initialize()
     {
+        setInterruptible(false);
+        setTimeout(1.0);
+
+        mClimber.retractBackPneumatics();
     }
 
     //  Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute()
     {
-        Robot.mClimber.retractBackPneumatics();
+        //  Intentionally left blank
     }
 
     //  Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished()
     {
-        //  XXX: Only needs to run execute() once?
-        return true;
+        if (isTimedOut())
+            return true;
+        return false;
     }
 
     //  Called once after isFinished returns true
