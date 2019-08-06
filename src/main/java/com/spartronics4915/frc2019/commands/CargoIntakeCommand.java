@@ -5,12 +5,12 @@ import com.spartronics4915.frc2019.subsystems.CargoIntake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class CargoIntake extends Command
+public class CargoIntakeCommand extends Command
 {
     private CargoChute mCargoChute;
     private CargoIntake mCargoIntake;
 
-    public CargoIntake()
+    public CargoIntakeCommand()
     {
         mCargoChute = CargoChute.getInstance();
         mCargoIntake = CargoIntake.getInstance();
