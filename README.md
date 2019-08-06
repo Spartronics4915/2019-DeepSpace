@@ -23,11 +23,7 @@ CHAOS, 2019's robot, can be broken down into various **subsystems** and **comman
 
 ### Commands
 
-- GroundEjectCargo
-
 - ManualRamp
-- ManualShootCargoBay
-- ManualShootCargoRocket
 - ManualChuteUp
 - ManualChuteDown
 
