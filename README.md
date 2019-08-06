@@ -58,9 +58,12 @@ CHAOS, 2019's robot, can be broken down into various **subsystems** and **comman
 
 My todo list.
 
+Small issues:
+- I don't know how isFinished methods work, especially with pneumatics.
+- Our climb system has several delays and conditions.
+
 Subsystems not done:
 - Drive.java
-- LED.java
 
 Commands not done:
 - All. Waiting on Robot.java
@@ -69,6 +72,7 @@ Large issues:
 - Subsystem.java
   - Uncomment other subsystems to rely on this again
 - Robot.java
+  - ???
 - Superstructure.java
 
 ## Setup Instructions
