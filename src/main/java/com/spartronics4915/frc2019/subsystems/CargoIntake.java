@@ -19,6 +19,17 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 public class CargoIntake extends Subsystem
 {
+    private static CargoIntake mInstance = null;
+
+    public static CargoIntake getInstance()
+    {
+        if (mInstance == null)
+        {
+            mInstance = new CargoIntake();
+        }
+        return mInstance;
+    }
+
     private Solenoid mSolenoid = null;
     private Solenoid mSolenoidClimb = null;
     private TalonSRX mMotorRight = null;    //  right and left are switched?
@@ -26,7 +37,7 @@ public class CargoIntake extends Subsystem
 
     private CargoIntake()
     {
-        boolean success = false;    //  IR sensor anolog port 6 to detect cargo going into chute. Used by chute as well.
+        boolean success = false;    //  IR sensor analog port 6 to detect cargo going into chute. Used by chute as well.
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))

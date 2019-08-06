@@ -15,6 +15,17 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class PanelHandler extends Subsystem
 {
+    private static PanelHandler mInstance = null;
+
+    public static PanelHandler getInstance()
+    {
+        if (mInstance == null)
+        {
+            mInstance = new PanelHandler();
+        }
+        return mInstance;
+    }
+
     private Solenoid mSolenoid = null;
     //  private DigitalInput mLimitSwitch = null;
 

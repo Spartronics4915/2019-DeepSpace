@@ -16,6 +16,17 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Climber extends Subsystem
 {
+    private static Climber mInstance = null;
+
+    public static Climber getInstance()
+    {
+        if (mInstance == null)
+        {
+            mInstance = new Climber();
+        }
+        return mInstance;
+    }
+
     private DoubleSolenoid mFrontLeftClimberSolenoid = null;
     private DoubleSolenoid mFrontRightClimberSolenoid = null;
     private DoubleSolenoid mRearLeftClimberSolenoid = null;
@@ -23,8 +34,7 @@ public class Climber extends Subsystem
     public IRSensor mClimberFrontIRSensor = null;
     public IRSensor mClimberRearIRSensor = null;
 
-    //  XXX: Is this correct?
-    public Climber()
+    private Climber()
     {
         boolean success = false;
 

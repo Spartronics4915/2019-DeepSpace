@@ -19,12 +19,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CargoChute extends Subsystem
 {
+    private static CargoChute mInstance = null;
+
+    public static CargoChute getInstance()
+    {
+        if (mInstance == null)
+        {
+            mInstance = new CargoChute();
+        }
+        return mInstance;
+    }
+
     private TalonSRX mRampMotor = null;
     private TalonSRX mRampMotorSlave = null;
     private Solenoid mRampSolenoid = null;
     private A21IRSensor mRampSensor = null;
 
-    public CargoChute()
+    private CargoChute()
     {
         boolean success = false;
         try
