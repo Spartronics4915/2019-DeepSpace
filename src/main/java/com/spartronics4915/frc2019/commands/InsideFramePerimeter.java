@@ -8,6 +8,6 @@ public class InsideFramePerimeter extends CommandGroup
     {
         addParallel(new ManualCargoHold());
         //  XXX: Does the chute need to be up to be in the frame perimeter?
-        addParallel(new ManualChuteUp());
+        addParallel(new ManualChuteRaise());
     }
 }
