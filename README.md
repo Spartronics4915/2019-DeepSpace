@@ -9,33 +9,6 @@ function of each package, and some of the variable naming conventions used.
 Additional information about each specific class can be found in that class'
 Java file.
 
-## Commands and Subsystems
-
-CHAOS, 2019's robot, can be broken down into various **subsystems** and **commands**.
-
-### Subsystems
-
-- Drive
-- PanelHandler
-- CargoChute
-- CargoIntake
-- Climber
-
-### Commands
-
-- ManualRamp
-- ManualChuteUp
-- ManualChuteDown
-
-- AssistedIntakeCargo
-- AssistedShootRocket
-- AssistedShootBay
-- SelectLeftVisionTarget
-- SelectRightVisionTarget
-- AssistedEjectPanel
-- AssistedIntakePanel
-- ChangeSelectedVisionIndex
-
 ## Construction :construction:
 
 My todo list.
@@ -44,7 +17,14 @@ Subsystems not done:
 - Drive.java
 
 Commands not done:
-- most of them
+- AssistedIntakeCargo
+- AssistedShootRocket
+- AssistedShootBay
+- SelectLeftVisionTarget
+- SelectRightVisionTarget
+- AssistedEjectPanel
+- AssistedIntakePanel
+- ChangeSelectedVisionIndex
 
 Large issues:
 - All subsystems are using wpilibj's command Subsystem, but that means we don't have loggers

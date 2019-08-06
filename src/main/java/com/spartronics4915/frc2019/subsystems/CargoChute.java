@@ -75,6 +75,11 @@ public class CargoChute extends Subsystem
         mRampMotor.set(ControlMode.PercentOutput, -Constants.kEjectSpeed);
     }
 
+    public void shoot()
+    {
+        mRampMotor.set(ControlMode.PercentOutput, Constants.kShootSpeed);
+    }
+
     public void stop()
     {
         mRampMotor.set(ControlMode.PercentOutput, 0.0);
@@ -93,6 +98,12 @@ public class CargoChute extends Subsystem
     public boolean ballInPosition()
     {
         return mRampSensor.getVoltage() >= Constants.kMinBallInChuteVoltage;
+    }
+
+    public boolean isChuteDown()
+    {
+        //  Futureproof
+        return (mRampSolenoid.get() == Constants.kRampSolenoidRetract)
     }
 
     @Override
