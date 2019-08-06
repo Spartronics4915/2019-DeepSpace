@@ -37,7 +37,7 @@ public class CargoIntake extends Subsystem
 
     private CargoIntake()
     {
-        boolean success = false;    //  IR sensor analog port 6 to detect cargo going into chute. Used by chute as well.
+        //  boolean success = false;    //  IR sensor analog port 6 to detect cargo going into chute. Used by chute as well.
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -51,11 +51,11 @@ public class CargoIntake extends Subsystem
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoid);
             mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoidClimb);
-            success = true;
+           //   success = true;
         }
         catch (Exception e)
         {
-            success = false;
+            //  success = false;
             //  logException("Couldn't instantiate hardware: ", e);
         }
 

@@ -2,20 +2,16 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.lib.util.CANProbe;
-import com.spartronics4915.lib.util.Logger;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CargoChute extends Subsystem
 {
@@ -37,7 +33,7 @@ public class CargoChute extends Subsystem
 
     private CargoChute()
     {
-        boolean success = false;
+        //  boolean success = false;
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -54,11 +50,11 @@ public class CargoChute extends Subsystem
 
             mRampSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kRampSolenoidId);
             mRampSensor = new A21IRSensor(Constants.kRampSensorId);
-            success = true;
+            //  success = true;
         }
         catch (Exception e)
         {
-            success = false;
+            //  success = false;
             //  logException("Couldn't instantiate hardware", e);
         }
 
@@ -103,7 +99,7 @@ public class CargoChute extends Subsystem
     public boolean isChuteDown()
     {
         //  Futureproof
-        return (mRampSolenoid.get() == Constants.kRampSolenoidRetract)
+        return (mRampSolenoid.get() == Constants.kRampSolenoidRetract);
     }
 
     @Override

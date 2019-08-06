@@ -31,19 +31,19 @@ public class PanelHandler extends Subsystem
 
     private PanelHandler()
     {
-        boolean success = false;
+        //  boolean success = false;
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
-            // mLimitSwitch
-            success = true;
+            //  mLimitSwitch
+            //  success = true;
         }
         catch (Exception e)
         {
-            success = false;
-            //  logException("Couldn't instantiate hardware", e);
+            //  success = false;
+            //  logException("Couldn't instantiate hardware: ", e);
         }
 
         //  logInitialized(success);
@@ -67,7 +67,7 @@ public class PanelHandler extends Subsystem
     }
 
     //  @Override
-    public boolean checkSystem(String variant)//DS6
+    public boolean checkSystem(String variant)
     {
         //  logNotice("Starting PanelHandler Solenoid Check");
         try

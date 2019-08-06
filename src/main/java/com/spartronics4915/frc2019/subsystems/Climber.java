@@ -36,7 +36,7 @@ public class Climber extends Subsystem
 
     private Climber()
     {
-        boolean success = false;
+        //  boolean success = false;
 
         try
         {
@@ -50,11 +50,11 @@ public class Climber extends Subsystem
             mClimberFrontIRSensor = new A21IRSensor(Constants.kClimberFrontIRSensorID);
             mClimberRearIRSensor = new A21IRSensor(Constants.kClimberRearIRSensorID);
 
-            success = true;
+            //  success = true;
         }
         catch (Exception e)
         {
-            success = false;
+            //  success = false;
             //  logException("Couldn't instantiate hardware: ", e);
         }
 

@@ -18,14 +18,15 @@ public class LED extends Subsystem
 
     private LED()
     {
-        boolean success = true;
+        //  boolean success = true;
         try
         {
             //  Instantiate your hardware here
+            //  success = true;
         }
         catch (Exception e)
         {
-            success = false;
+            //  success = false;
             //  logException("Couldn't instantiate hardware", e);
         }
 
