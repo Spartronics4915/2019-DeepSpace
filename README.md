@@ -23,27 +23,13 @@ CHAOS, 2019's robot, can be broken down into various **subsystems** and **comman
 
 ### Commands
 
-- Climb
-- ClimbExtendAllPneumatics
-- ClimbIntake
-- ClimbRetractFrontPneumatics
-- ClimbRetractBackPneumatics
-
 - GroundEjectCargo
-- ManualIntakeCargo
-- IntakeArmDown
-- IntakeHold
-- IntakeStopMotors
 
 - ManualRamp
 - ManualShootCargoBay
 - ManualShootCargoRocket
 - ManualChuteUp
 - ManualChuteDown
-
-- ManualEjectPanel
-
-- InsideFramePerimeter
 
 - AssistedIntakeCargo
 - AssistedShootRocket
