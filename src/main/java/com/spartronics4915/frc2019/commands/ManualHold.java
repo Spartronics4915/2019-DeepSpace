@@ -1,17 +1,21 @@
 package com.spartronics4915.frc2019.commands;
 
+import com.spartronics4915.frc2019.subsystems.CargoChute;
 import com.spartronics4915.frc2019.subsystems.CargoIntake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class IntakeHold extends Command
+public class ManualHold extends Command
 {
+    private CargoChute mCargoChute;
     private CargoIntake mCargoIntake;
 
-    public IntakeHold()
+    public ManualHold()
     {
+        mCargoChute = CargoChute.getInstance();
         mCargoIntake = CargoIntake.getInstance();
         //  Use requires() here to declare subsystem dependencies
+        requires(mCargoChute);
         requires(mCargoIntake);
     }
 
@@ -21,9 +25,13 @@ public class IntakeHold extends Command
     {
         setInterruptible(false);
 
-        if (mCargoIntake.isArmDown())
-            mCargoIntake.armUp();
-        mCargoIntake.stop();
+        if (!mCargoIntake.isArmClimb())
+        {
+            mCargoIntake.stop();
+            if (mCargoIntake.isArmDown())
+                mCargoIntake.armUp();
+            mCargoChute.stop();
+        }
     }
 
     //  Called repeatedly when this Command is scheduled to run

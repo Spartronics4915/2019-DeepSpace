@@ -6,7 +6,7 @@ public class InsideFramePerimeter extends CommandGroup
 {
     public InsideFramePerimeter()
     {
-        addParallel(new IntakeHold());
+        addParallel(new ManualHold());
         //  XXX: Does the chute need to be up to be in the frame perimeter?
         addParallel(new ChuteUp());
     }
