@@ -98,6 +98,17 @@ public class CargoIntake extends Subsystem
         mSolenoidClimb.set(Constants.kCargoIntakeSolenoidExtend);
     }
 
+    public boolean isArmDown()
+    {
+        //  Futureproof
+        return (mSolenoid.get() == Constants.kCargoIntakeSolenoidRetract);
+    }
+
+    public boolean isArmClimb()
+    {
+        return (mSolenoidClimb.get() == Constants.kCargoIntakeSolenoidExtend);
+    }
+
     @Override
     public void initDefaultCommand()
     {
