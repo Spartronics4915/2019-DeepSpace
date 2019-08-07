@@ -6,6 +6,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.commands.CargoManualHold;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.util.CANProbe;
 
@@ -112,7 +113,7 @@ public class CargoIntake extends Subsystem
     @Override
     public void initDefaultCommand()
     {
-        //  TODO: add default command (armUp + stop)
+        setDefaultCommand(new CargoManualHold());
     }
 
     //  @Override

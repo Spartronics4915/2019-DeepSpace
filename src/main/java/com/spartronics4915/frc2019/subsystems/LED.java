@@ -36,7 +36,6 @@ public class LED extends Subsystem
     @Override
     public void initDefaultCommand()
     {
-        //  TODO: add default command (both retracted)
     }
 
     //  @Override

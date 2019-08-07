@@ -1,6 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.commands.PanelRetract;
 import com.spartronics4915.lib.util.CANProbe;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -63,7 +64,7 @@ public class PanelHandler extends Subsystem
     @Override
     public void initDefaultCommand()
     {
-        //  TODO: add default command (retract)
+        setDefaultCommand(new PanelRetract());
     }
 
     //  @Override

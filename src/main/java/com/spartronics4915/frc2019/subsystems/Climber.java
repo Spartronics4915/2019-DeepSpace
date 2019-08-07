@@ -5,6 +5,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.commands.ClimbRetractAllPneumatics;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
 import com.spartronics4915.lib.util.CANProbe;
@@ -108,7 +109,7 @@ public class Climber extends Subsystem
     @Override
     public void initDefaultCommand()
     {
-        //  TODO: add default command (both retracted)
+        setDefaultCommand(new ClimbRetractAllPneumatics());
     }
 
     //  @Override

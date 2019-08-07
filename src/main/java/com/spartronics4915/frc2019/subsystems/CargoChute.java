@@ -1,6 +1,7 @@
 package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
+import com.spartronics4915.frc2019.commands.CargoManualHold;
 import com.spartronics4915.lib.util.CANProbe;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.drivers.A21IRSensor;
@@ -105,7 +106,7 @@ public class CargoChute extends Subsystem
     @Override
     public void initDefaultCommand()
     {
-        //  TODO: add default command (lowered + stopped)
+        setDefaultCommand(new CargoManualHold());
     }
 
     //  @Override
