@@ -8,14 +8,14 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.commands.ClimbRetractAllPneumatics;
 import com.spartronics4915.lib.drivers.A21IRSensor;
 import com.spartronics4915.lib.drivers.IRSensor;
+import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
 import com.spartronics4915.lib.util.CANProbe;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
-public class Climber extends Subsystem
+public class Climber extends SpartronicsSubsystem
 {
     private static Climber mInstance = null;
 
@@ -37,7 +37,7 @@ public class Climber extends Subsystem
 
     private Climber()
     {
-        //  boolean success = false;
+        boolean success = false;
 
         try
         {
@@ -51,15 +51,15 @@ public class Climber extends Subsystem
             mClimberFrontIRSensor = new A21IRSensor(Constants.kClimberFrontIRSensorID);
             mClimberRearIRSensor = new A21IRSensor(Constants.kClimberRearIRSensorID);
 
-            //  success = true;
+            success = true;
         }
         catch (Exception e)
         {
-            //  success = false;
-            //  logException("Couldn't instantiate hardware: ", e);
+            success = false;
+            logException("Couldn't instantiate hardware: ", e);
         }
 
-        //  logInitialized(success);
+        logInitialized(success);
     }
 
 
@@ -112,10 +112,9 @@ public class Climber extends Subsystem
         setDefaultCommand(new ClimbRetractAllPneumatics());
     }
 
-    //  @Override
     public boolean checkSystem(String variant)
     {
-        //  logNotice("Lifting for 5 Seconds");
+        logNotice("Lifting for 5 Seconds");
         try
         {
             extendFrontPneumatics();
@@ -126,38 +125,36 @@ public class Climber extends Subsystem
         }
         catch (Exception e)
         {
-            //  logException("Did not pass lifting check: ", e);
+            logException("Did not pass lifting check: ", e);
             return false;
         }
 
-        //  logNotice("Testing IR Sensors");
+        logNotice("Testing IR Sensors");
         try
         {
             Timer.delay(2);
             mClimberFrontIRSensor.getVoltage();
-            //  logNotice("Downward Front IR Sensor Voltage is " + mClimberFrontIRSensor.getVoltage());
+            logNotice("Downward Front IR Sensor Voltage is " + mClimberFrontIRSensor.getVoltage());
             Timer.delay(2);
             mClimberRearIRSensor.getVoltage();
-            //  logNotice("Downward Rear IR Sensor Voltage is " + mClimberRearIRSensor.getVoltage());
+            logNotice("Downward Rear IR Sensor Voltage is " + mClimberRearIRSensor.getVoltage());
             Timer.delay(2);
         }
         catch (Exception e)
         {
-            //  logException("Did not pass IR sensor check: ", e);
+            logException("Did not pass IR sensor check: ", e);
             return false;
         }
 
         return true;
     }
 
-    //  @Override
+    @Override
     public void outputTelemetry()
     {
-        /*
         dashboardPutNumber("Forward sensor voltage: ", mClimberFrontIRSensor.getVoltage());
         dashboardPutBoolean("Forward sensor in range: ", frontSensorsInRange());
         dashboardPutNumber("Rear sensor voltage: ", mClimberRearIRSensor.getVoltage());
         dashboardPutBoolean("Rear sensor in range: ", rearSensorsInRange());
-        */
     }
 }

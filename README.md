@@ -12,22 +12,22 @@ Java file.
 ## Construction :construction:
 
 Commands not done:
-- AssistedIntakeCargo
-- AssistedShootRocket
-- AssistedShootBay
-- SelectLeftVisionTarget
-- SelectRightVisionTarget
-- AssistedEjectPanel
-- AssistedIntakePanel
-- ChangeSelectedVisionIndex
+- [ ] AssistedIntakeCargo
+- [ ] AssistedShootRocket
+- [ ] AssistedShootBay
+- [ ] SelectLeftVisionTarget
+- [ ] SelectRightVisionTarget
+- [ ] AssistedEjectPanel
+- [ ] AssistedIntakePanel
+- [ ] ChangeSelectedVisionIndex
 
 Issues:
-- All subsystems are using wpilibj's command Subsystem, but that means we don't have loggers
-- Robot.java
-- Drive.java
-- Superstructure.java
-- Autonomous
-- Remove lib???
+- [ ] All subsystems are using wpilibj's command Subsystem, but that means we don't have loggers
+- [ ] Robot.java
+- [ ] Drive.java
+- [ ] Superstructure.java
+- [ ] Autonomous
+- [ ] Remove lib???
 
 ## Setup Instructions
 

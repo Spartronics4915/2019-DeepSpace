@@ -1,10 +1,9 @@
 package com.spartronics4915.frc2019.subsystems;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
+import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
 
-public class LED extends Subsystem
+public class LED extends SpartronicsSubsystem
 {
-
     private static LED mInstance = null;
 
     public static LED getInstance()
@@ -18,19 +17,19 @@ public class LED extends Subsystem
 
     private LED()
     {
-        //  boolean success = true;
+        boolean success = true;
         try
         {
             //  Instantiate your hardware here
-            //  success = true;
+            success = true;
         }
         catch (Exception e)
         {
-            //  success = false;
-            //  logException("Couldn't instantiate hardware", e);
+            success = false;
+            logException("Couldn't instantiate hardware", e);
         }
 
-        //  logInitialized(success);
+        logInitialized(success);
     }
 
     @Override
@@ -38,13 +37,12 @@ public class LED extends Subsystem
     {
     }
 
-    //  @Override
     public boolean checkSystem(String variant)
     {
         return false;
     }
 
-    //  @Override
+    @Override
     public void outputTelemetry()
     {
 

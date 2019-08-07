@@ -8,9 +8,9 @@ package com.spartronics4915.frc2019.subsystems;
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.commands.CargoManualHold;
 import com.spartronics4915.lib.drivers.TalonSRXFactory;
+import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
 import com.spartronics4915.lib.util.CANProbe;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -18,7 +18,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-public class CargoIntake extends Subsystem
+public class CargoIntake extends SpartronicsSubsystem
 {
     private static CargoIntake mInstance = null;
 
@@ -38,7 +38,7 @@ public class CargoIntake extends Subsystem
 
     private CargoIntake()
     {
-        //  boolean success = false;    //  IR sensor analog port 6 to detect cargo going into chute. Used by chute as well.
+        boolean success = false;    //  IR sensor analog port 6 to detect cargo going into chute. Used by chute as well.
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
@@ -52,15 +52,15 @@ public class CargoIntake extends Subsystem
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoid);
             mSolenoidClimb = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kCargoIntakeSolenoidClimb);
-           //   success = true;
+           success = true;
         }
         catch (Exception e)
         {
-            //  success = false;
-            //  logException("Couldn't instantiate hardware: ", e);
+            success = false;
+            logException("Couldn't instantiate hardware: ", e);
         }
 
-        //  logInitialized(success);
+        logInitialized(success);
     }
 
     public void intake()
@@ -116,52 +116,49 @@ public class CargoIntake extends Subsystem
         setDefaultCommand(new CargoManualHold());
     }
 
-    //  @Override
     public boolean checkSystem(String variant)
     {
-        //  logNotice("Starting CargoIntake Solenoid Check");
+        logNotice("Starting CargoIntake Solenoid Check");
         try
         {
-            //  logNotice("Extending solenoids for 4 seconds");
+            logNotice("Extending solenoids for 4 seconds");
             armDown();
             Timer.delay(4);
 
-            //  logNotice("Retracting solenoids for 4 seconds");
+            logNotice("Retracting solenoids for 4 seconds");
             armUp();
             Timer.delay(4);
 
-            //  logNotice("CargoIntake Solenoid Check End");
-            //  logNotice("Running motors at 50% for 2 seconds");
+            logNotice("CargoIntake Solenoid Check End");
+            logNotice("Running motors at 50% for 2 seconds");
             intake();
             Timer.delay(2);
 
-            //  logNotice("Running motors at 0% for 2 seconds");
+            logNotice("Running motors at 0% for 2 seconds");
             stop();
             Timer.delay(2);
 
-            //  logNotice("Running motors at -50% for 2 seconds");
+            logNotice("Running motors at -50% for 2 seconds");
             eject();
             Timer.delay(2);
 
             stop();
-            //  logNotice("CargoIntake Motor Check End");
+            logNotice("CargoIntake Motor Check End");
         }
         catch (Exception e)
         {
-            //  logException("Trouble instantiating hardware: ", e);
+            logException("Trouble instantiating hardware: ", e);
             return false;
         }
         return true;
     }
 
-    //  @Override
+    @Override
     public void outputTelemetry()
     {
-        /*
         dashboardPutBoolean("mSolenoid Extended", mSolenoid.get());
         dashboardPutBoolean("mSolenoidClimb Extended", mSolenoidClimb.get());
         dashboardPutNumber("mMotor1 Speed", mMotorRight.getMotorOutputPercent());
         dashboardPutNumber("mMotor2 Speed", mMotorLeft.getMotorOutputPercent());
-        */
     }
 }

@@ -2,9 +2,9 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.commands.PanelRetract;
+import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
 import com.spartronics4915.lib.util.CANProbe;
 
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 //  import edu.wpi.first.wpilibj.DigitalInput;
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
  * panels held on by velcro
  */
 
-public class PanelHandler extends Subsystem
+public class PanelHandler extends SpartronicsSubsystem
 {
     private static PanelHandler mInstance = null;
 
@@ -32,22 +32,22 @@ public class PanelHandler extends Subsystem
 
     private PanelHandler()
     {
-        //  boolean success = false;
+        boolean success = false;
         try
         {
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId)) throw new RuntimeException("PanelHandler PCM isn't on the CAN bus!");
 
             mSolenoid = new Solenoid(Constants.kCargoHatchArmPCMId, Constants.kPanelHandlerSolenoid);
             //  mLimitSwitch
-            //  success = true;
+            success = true;
         }
         catch (Exception e)
         {
-            //  success = false;
-            //  logException("Couldn't instantiate hardware: ", e);
+            success = false;
+            logException("Couldn't instantiate hardware: ", e);
         }
 
-        //  logInitialized(success);
+        logInitialized(success);
     }
 
     public void extend()
@@ -67,39 +67,36 @@ public class PanelHandler extends Subsystem
         setDefaultCommand(new PanelRetract());
     }
 
-    //  @Override
     public boolean checkSystem(String variant)
     {
-        //  logNotice("Starting PanelHandler Solenoid Check");
+        logNotice("Starting PanelHandler Solenoid Check");
         try
         {
-            //  logNotice("Extending solenoid for 2 seconds");
+            logNotice("Extending solenoid for 2 seconds");
             extend();
             Timer.delay(2);
-            //  logNotice("Retracting solenoid for 2 seconds");
+            logNotice("Retracting solenoid for 2 seconds");
             retract();
             Timer.delay(2);
-            //  logNotice("Extending solenoid for 2 seconds");
+            logNotice("Extending solenoid for 2 seconds");
             extend();
             Timer.delay(2);
-            //  logNotice("Retracting solenoid for 2 seconds");
+            logNotice("Retracting solenoid for 2 seconds");
             retract();
         }
         catch (Exception e)
         {
-            //  logException("Trouble instantiating hardware ", e);
+            logException("Trouble instantiating hardware ", e);
             return false;
         }
-        //  logNotice("PanelHandler Solenoid Check End");
+        logNotice("PanelHandler Solenoid Check End");
         return true;
     }
 
-    //  @Override
+    @Override
     public void outputTelemetry()
     {
-        /*
         dashboardPutBoolean("mSolenoid1 Extended: ", mSolenoid.get());
-        dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
-        */
+        //  dashboardPutBoolean("Is a Panel aquired?", mLimitSwitch.get());
     }
 }
