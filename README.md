@@ -11,8 +11,6 @@ Java file.
 
 ## Construction :construction:
 
-My todo list.
-
 Commands not done:
 - AssistedIntakeCargo
 - AssistedShootRocket
@@ -23,12 +21,13 @@ Commands not done:
 - AssistedIntakePanel
 - ChangeSelectedVisionIndex
 
-Large issues:
+Issues:
 - All subsystems are using wpilibj's command Subsystem, but that means we don't have loggers
 - Robot.java
-  - ???
 - Drive.java
 - Superstructure.java
+- Autonomous
+- Remove lib???
 
 ## Setup Instructions
 
