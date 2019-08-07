@@ -5,12 +5,12 @@ import com.spartronics4915.frc2019.subsystems.CargoIntake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ManualCargoHold extends Command
+public class CargoManualIntake extends Command
 {
     private CargoChute mCargoChute;
     private CargoIntake mCargoIntake;
 
-    public ManualCargoHold()
+    public CargoManualIntake()
     {
         mCargoChute = CargoChute.getInstance();
         mCargoIntake = CargoIntake.getInstance();
@@ -23,29 +23,31 @@ public class ManualCargoHold extends Command
     @Override
     protected void initialize()
     {
-        setInterruptible(false);
+        setInterruptible(true);
 
-        if (!mCargoIntake.isArmClimb())
-        {
-            mCargoIntake.stop();
-            if (mCargoIntake.isArmDown())
-                mCargoIntake.armUp();
-            mCargoChute.stop();
-        }
+        //  XXX: Does this cancel the command?
+        if (mCargoIntake.isArmClimb())
+            return;
+
+        //  Put the arm down if not already down
+        if (!mCargoIntake.isArmDown())
+            mCargoIntake.armDown();
     }
 
     //  Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute()
     {
-        //  Intentionally left blank
+        mCargoIntake.intake();
+        mCargoChute.intake();
     }
 
     //  Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished()
     {
-        return true;
+        //  This command executes until interrupted.
+        return false;
     }
 
     //  Called once after isFinished returns true
@@ -59,5 +61,8 @@ public class ManualCargoHold extends Command
     @Override
     protected void interrupted()
     {
+        mCargoIntake.stop();
+        mCargoIntake.armUp();
+        mCargoChute.stop();
     }
 }

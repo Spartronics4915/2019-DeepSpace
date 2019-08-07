@@ -14,23 +14,10 @@ public class OI
 
     public OI()
     {
-        /**
-         *  Nomenclature is different between Commands and JoystickButtons.
-         *  Commands highlight if it is a manual override, what element of the robot it uses (i.e. climb),
-         *  then a description of its action.
-         *  JoystickButtons highlight the element of robot and then a description.
-         *
-         *  Several "manual" buttons have not had the classification carry over.
-         *  This is because the vision-capable versions of them would completely replace
-         *  the manuals, once implemented.
-         *  Distinctions are still made for manual overrides of IR sensors and ilk.
-         */
-
         //  NOTE: The button assignments are slightly different
 
         //  Arcade Stick buttons
-
-        JoystickButton cargoIntakeArcadeStick = new JoystickButton(sArcadeStick, 1);
+        JoystickButton cargoIRIntakeArcadeStick = new JoystickButton(sArcadeStick, 1);
 
         JoystickButton panelEjectArcadeStick = new JoystickButton(sArcadeStick, 2);
 
@@ -69,20 +56,20 @@ public class OI
 
 
         //  Arcade Stick commands
-        cargoIntakeArcadeStick.whenPressed(new CargoIntakeCommand());
+        cargoIRIntakeArcadeStick.whenPressed(new CargoIRIntake());
 
-        panelEjectArcadeStick.whenPressed(new ManualPanelEject());
+        panelEjectArcadeStick.whenPressed(new PanelEject());
 
-        cargoManualHoldArcadeStick.whenPressed(new ManualCargoHold());
+        cargoManualHoldArcadeStick.whenPressed(new CargoManualHold());
         cargoEjectArcadeStick.whenPressed(new CargoEject());
 
-        cargoShootRocketArcadeStick.whenPressed(new ManualCargoShootRocket());
-        cargoShootBayArcadeStick.whenPressed(new ManualCargoShootBay());
+        cargoShootRocketArcadeStick.whenPressed(new CargoShootRocket());
+        cargoShootBayArcadeStick.whenPressed(new CargoShootBay());
 
-        cargoManualIntakeArcadeStick.whenPressed(new ManualCargoIntake());
+        cargoManualIntakeArcadeStick.whenPressed(new CargoManualIntake());
 
-        chuteRaiseArcadeStick.whenPressed(new ManualChuteRaise());
-        chuteLowerArcadeStick.whenPressed(new ManualChuteLower());
+        chuteRaiseArcadeStick.whenPressed(new ChuteRaise());
+        chuteLowerArcadeStick.whenPressed(new ChuteLower());
 
         climbExtendAllPneumaticsArcadeStick.whenPressed(new ClimbExtendAllPneumatics());
         climbIntakeDownArcadeStick.whenPressed(new ClimbIntake());
@@ -92,6 +79,5 @@ public class OI
         //  Drive Stick commands
         insideFramePerimeterDriveStick.whenPressed(new InsideFramePerimeter());
         insideFramePerimeterTwoDriveStick.whenPressed(new InsideFramePerimeter());
-
     }
 }

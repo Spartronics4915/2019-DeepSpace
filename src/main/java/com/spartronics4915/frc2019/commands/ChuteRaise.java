@@ -1,52 +1,47 @@
 package com.spartronics4915.frc2019.commands;
 
+import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.CargoChute;
-import com.spartronics4915.frc2019.subsystems.CargoIntake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ManualCargoIntake extends Command
+public class ChuteRaise extends Command
 {
     private CargoChute mCargoChute;
-    private CargoIntake mCargoIntake;
 
-    public ManualCargoIntake()
+    public ChuteRaise()
     {
         mCargoChute = CargoChute.getInstance();
-        mCargoIntake = CargoIntake.getInstance();
         //  Use requires() here to declare subsystem dependencies
         requires(mCargoChute);
-        requires(mCargoIntake);
     }
 
     //  Called just before this Command runs the first time
     @Override
     protected void initialize()
     {
-        setInterruptible(true);
+        setInterruptible(false);
+        setTimeout(Constants.kChuteHighExtendTime);
 
         //  XXX: Does this cancel the command?
-        if (mCargoIntake.isArmClimb())
+        if (!mCargoChute.isChuteDown())
             return;
-
-        //  Put the arm down if not already down
-        if (!mCargoIntake.isArmDown())
-            mCargoIntake.armDown();
+        mCargoChute.raise();
     }
 
     //  Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute()
     {
-        mCargoIntake.intake();
-        mCargoChute.intake();
+        //  Intentionally left blank
     }
 
     //  Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished()
     {
-        //  This command executes until interrupted.
+        if (isTimedOut())
+            return true;
         return false;
     }
 
@@ -61,8 +56,5 @@ public class ManualCargoIntake extends Command
     @Override
     protected void interrupted()
     {
-        mCargoIntake.stop();
-        mCargoIntake.armUp();
-        mCargoChute.stop();
     }
 }

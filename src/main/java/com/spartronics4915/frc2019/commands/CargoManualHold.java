@@ -1,19 +1,22 @@
 package com.spartronics4915.frc2019.commands;
 
-import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.subsystems.PanelHandler;
+import com.spartronics4915.frc2019.subsystems.CargoChute;
+import com.spartronics4915.frc2019.subsystems.CargoIntake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ManualPanelEject extends Command
+public class CargoManualHold extends Command
 {
-    private PanelHandler mPanelHandler;
+    private CargoChute mCargoChute;
+    private CargoIntake mCargoIntake;
 
-    public ManualPanelEject()
+    public CargoManualHold()
     {
-        mPanelHandler = PanelHandler.getInstance();
+        mCargoChute = CargoChute.getInstance();
+        mCargoIntake = CargoIntake.getInstance();
         //  Use requires() here to declare subsystem dependencies
-        requires(mPanelHandler);
+        requires(mCargoChute);
+        requires(mCargoIntake);
     }
 
     //  Called just before this Command runs the first time
@@ -21,9 +24,14 @@ public class ManualPanelEject extends Command
     protected void initialize()
     {
         setInterruptible(false);
-        setTimeout(Constants.kPanelEjectTime);
 
-        mPanelHandler.extend();
+        if (!mCargoIntake.isArmClimb())
+        {
+            mCargoIntake.stop();
+            if (mCargoIntake.isArmDown())
+                mCargoIntake.armUp();
+            mCargoChute.stop();
+        }
     }
 
     //  Called repeatedly when this Command is scheduled to run
@@ -37,16 +45,13 @@ public class ManualPanelEject extends Command
     @Override
     protected boolean isFinished()
     {
-        if (isTimedOut())
-            return true;
-        return false;
+        return true;
     }
 
     //  Called once after isFinished returns true
     @Override
     protected void end()
     {
-        mPanelHandler.retract();
     }
 
     //  Called when another command which requires one or more of the same

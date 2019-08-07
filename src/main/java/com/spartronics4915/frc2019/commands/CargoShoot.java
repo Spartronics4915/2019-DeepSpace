@@ -5,11 +5,11 @@ import com.spartronics4915.frc2019.subsystems.CargoChute;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ManualChuteRaise extends Command
+public class CargoShoot extends Command
 {
     private CargoChute mCargoChute;
 
-    public ManualChuteRaise()
+    public CargoShoot()
     {
         mCargoChute = CargoChute.getInstance();
         //  Use requires() here to declare subsystem dependencies
@@ -20,20 +20,15 @@ public class ManualChuteRaise extends Command
     @Override
     protected void initialize()
     {
-        setInterruptible(false);
-        setTimeout(Constants.kChuteHighExtendTime);
-
-        //  XXX: Does this cancel the command?
-        if (!mCargoChute.isChuteDown())
-            return;
-        mCargoChute.raise();
+        setInterruptible(true);
+        setTimeout(Constants.kShootTime);
     }
 
     //  Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute()
     {
-        //  Intentionally left blank
+        mCargoChute.shoot();
     }
 
     //  Make this return true when this Command no longer needs to run execute()
@@ -49,6 +44,7 @@ public class ManualChuteRaise extends Command
     @Override
     protected void end()
     {
+        mCargoChute.stop();
     }
 
     //  Called when another command which requires one or more of the same
@@ -56,5 +52,6 @@ public class ManualChuteRaise extends Command
     @Override
     protected void interrupted()
     {
+        mCargoChute.stop();
     }
 }

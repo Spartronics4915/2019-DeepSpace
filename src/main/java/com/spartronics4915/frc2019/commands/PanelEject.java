@@ -1,34 +1,36 @@
 package com.spartronics4915.frc2019.commands;
 
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.subsystems.CargoChute;
+import com.spartronics4915.frc2019.subsystems.PanelHandler;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ManualCargoShoot extends Command
+public class PanelEject extends Command
 {
-    private CargoChute mCargoChute;
+    private PanelHandler mPanelHandler;
 
-    public ManualCargoShoot()
+    public PanelEject()
     {
-        mCargoChute = CargoChute.getInstance();
+        mPanelHandler = PanelHandler.getInstance();
         //  Use requires() here to declare subsystem dependencies
-        requires(mCargoChute);
+        requires(mPanelHandler);
     }
 
     //  Called just before this Command runs the first time
     @Override
     protected void initialize()
     {
-        setInterruptible(true);
-        setTimeout(Constants.kShootTime);
+        setInterruptible(false);
+        setTimeout(Constants.kPanelEjectTime);
+
+        mPanelHandler.extend();
     }
 
     //  Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute()
     {
-        mCargoChute.shoot();
+        //  Intentionally left blank
     }
 
     //  Make this return true when this Command no longer needs to run execute()
@@ -44,7 +46,7 @@ public class ManualCargoShoot extends Command
     @Override
     protected void end()
     {
-        mCargoChute.stop();
+        mPanelHandler.retract();
     }
 
     //  Called when another command which requires one or more of the same
@@ -52,6 +54,5 @@ public class ManualCargoShoot extends Command
     @Override
     protected void interrupted()
     {
-        mCargoChute.stop();
     }
 }

@@ -1,46 +1,51 @@
 package com.spartronics4915.frc2019.commands;
 
-import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.subsystems.CargoChute;
+import com.spartronics4915.frc2019.subsystems.CargoIntake;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-public class ManualChuteLower extends Command
+public class CargoIRIntake extends Command
 {
     private CargoChute mCargoChute;
+    private CargoIntake mCargoIntake;
 
-    public ManualChuteLower()
+    public CargoIRIntake()
     {
         mCargoChute = CargoChute.getInstance();
+        mCargoIntake = CargoIntake.getInstance();
         //  Use requires() here to declare subsystem dependencies
         requires(mCargoChute);
+        requires(mCargoIntake);
     }
 
     //  Called just before this Command runs the first time
     @Override
     protected void initialize()
     {
-        setInterruptible(false);
-        setTimeout(Constants.kChuteLowRetractTime);
+        setInterruptible(true);
 
         //  XXX: Does this cancel the command?
-        if (mCargoChute.isChuteDown())
+        if (mCargoIntake.isArmClimb())
             return;
-        mCargoChute.lower();
+
+        //  Put the arm down if not already down
+        if (!mCargoIntake.isArmDown())
+            mCargoIntake.armDown();
     }
 
     //  Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute()
     {
-        //  Intentionally left blank
+        mCargoIntake.intake();
     }
 
     //  Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished()
     {
-        if (isTimedOut())
+        if (mCargoChute.ballInPosition())
             return true;
         return false;
     }
@@ -49,6 +54,9 @@ public class ManualChuteLower extends Command
     @Override
     protected void end()
     {
+        mCargoIntake.stop();
+        mCargoIntake.armUp();
+        mCargoChute.stop();
     }
 
     //  Called when another command which requires one or more of the same
@@ -56,5 +64,8 @@ public class ManualChuteLower extends Command
     @Override
     protected void interrupted()
     {
+        mCargoIntake.stop();
+        mCargoIntake.armUp();
+        mCargoChute.stop();
     }
 }
