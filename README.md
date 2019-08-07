@@ -13,9 +13,6 @@ Java file.
 
 My todo list.
 
-Subsystems not done:
-- Drive.java
-
 Commands not done:
 - AssistedIntakeCargo
 - AssistedShootRocket
@@ -30,6 +27,7 @@ Large issues:
 - All subsystems are using wpilibj's command Subsystem, but that means we don't have loggers
 - Robot.java
   - ???
+- Drive.java
 - Superstructure.java
 
 ## Setup Instructions

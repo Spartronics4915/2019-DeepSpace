@@ -11,7 +11,7 @@ public class Climb extends CommandGroup
         addSequential(new ClimbExtendAllPneumatics());
         addSequential(new ClimbIntake());
         //  A potential issue here is that the intake needs to keep running after it's time for the back legs to come up.
-        addSequential(new ClimbRetractBackPneumatics());
         addSequential(new ClimbRetractFrontPneumatics());
+        addSequential(new ClimbRetractBackPneumatics());
     }
 }
