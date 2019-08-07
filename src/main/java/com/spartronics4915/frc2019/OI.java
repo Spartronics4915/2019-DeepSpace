@@ -6,6 +6,11 @@ import com.spartronics4915.frc2019.Constants;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
+/**
+ * This class is the glue that binds the controls on the physical operator
+ * interface to the commands and command groups that allow control of the robot.
+ */
+
 public class OI
 {
     //  NOTE: I'm not defining ints.
@@ -41,19 +46,18 @@ public class OI
         JoystickButton driveSlowModeDriveStick = new JoystickButton(sDriveStick, 1);
         JoystickButton driveReturnToDriverControlDriveStick = new JoystickButton(sDriveStick, 2);
         JoystickButton driveReverseDirectionDriveStick = new JoystickButton(sDriveStick, 3);
-
         JoystickButton driveToSelectedTargetDriveStick = new JoystickButton(sDriveStick, 4);
-        JoystickButton visionSelectTargetDriveStick = new JoystickButton(sDriveStick, 5);
+        JoystickButton driveChangeSelectedTargetDriveStick = new JoystickButton(sDriveStick, 5);   //  Cycles through vision targets - not enough buttons for left/right
 
-        JoystickButton assistedShootBayDriveStick = new JoystickButton(sDriveStick, 6);
-        JoystickButton assistedShootRocketDriveStick = new JoystickButton(sDriveStick, 7);
+        JoystickButton cargoAssistedShootBayDriveStick = new JoystickButton(sDriveStick, 6);
+        JoystickButton cargoAssistedShootRocketDriveStick = new JoystickButton(sDriveStick, 7);
+        JoystickButton panelAssistedEjectDriveStick = new JoystickButton(sDriveStick, 10);
+        JoystickButton panelAssistedIntakeDriveStick = new JoystickButton(sDriveStick, 11);
 
         JoystickButton insideFramePerimeterDriveStick = new JoystickButton(sDriveStick, 8);
         JoystickButton insideFramePerimeterTwoDriveStick = new JoystickButton(sDriveStick, 9);
 
-        JoystickButton panelAssistedEjectDriveStick = new JoystickButton(sDriveStick, 10);
-        JoystickButton panelAssistedIntakeDriveStick = new JoystickButton(sDriveStick, 11);
-
+        //  TODO: Actual drive stick???
 
         //  Arcade Stick commands
         cargoIRIntakeArcadeStick.whenPressed(new CargoIRIntake());
@@ -77,7 +81,21 @@ public class OI
         climbRetractBackPneumaticsArcadeStick.whenPressed(new ClimbRetractBackPneumatics());
 
         //  Drive Stick commands
+        /*
+        driveSlowModeDriveStick.whileHeld();
+        driveReturnToDriverControlDriveStick.whenPressed();
+        driveReverseDirectionDriveStick.whenPressed();
+        driveToSelectedTargetDriveStick.whenPressed();
+        driveChangeSelectedTargetDriveStick.whenPressed();
+
+        cargoAssistedShootBayDriveStick.whenPressed();
+        cargoAssistedShootRocketDriveStick.whenPressed();
+        panelAssistedEjectDriveStick.whenPressed();
+        panelAssistedIntakeDriveStick.whenPressed();
+        */
+
         insideFramePerimeterDriveStick.whenPressed(new InsideFramePerimeter());
         insideFramePerimeterTwoDriveStick.whenPressed(new InsideFramePerimeter());
+
     }
 }
