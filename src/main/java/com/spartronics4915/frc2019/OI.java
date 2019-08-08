@@ -72,10 +72,12 @@ public class OI
         cargoShootRocketArcadeStick.whenPressed(new CargoShootRocket());
         cargoShootBayArcadeStick.whenPressed(new CargoShootBay());
 
+        /*
         cargoManualIntakeArcadeStick.whenPressed(new CargoManualIntake());
 
         chuteRaiseArcadeStick.whenPressed(new ChuteRaise());
         chuteLowerArcadeStick.whenPressed(new ChuteLower());
+        */
 
         climbExtendAllPneumaticsArcadeStick.whenPressed(new ClimbExtendAllPneumatics());
         climbIntakeDownArcadeStick.whenPressed(new ClimbIntake());
