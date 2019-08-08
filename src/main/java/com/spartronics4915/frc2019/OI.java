@@ -32,10 +32,12 @@ public class OI
         JoystickButton cargoShootRocketArcadeStick = new JoystickButton(sArcadeStick, 5);
         JoystickButton cargoShootBayArcadeStick = new JoystickButton(sArcadeStick, 6);
 
+        /*
         JoystickButton cargoManualIntakeArcadeStick = new JoystickButton(sArcadeStick, );   //  Left on the d-stick
         //  TODO: Add d-stick inputs
         JoystickButton chuteRaiseArcadeStick = new JoystickButton(sArcadeStick, );  //  Up on the d-stick
         JoystickButton chuteLowerArcadeStick = new JoystickButton(sArcadeStick, );  //  Down on the d-stick
+        */
 
         JoystickButton climbExtendAllPneumaticsArcadeStick = new JoystickButton(sArcadeStick, 7);
         JoystickButton climbIntakeDownArcadeStick = new JoystickButton(sArcadeStick, 8);
