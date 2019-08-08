@@ -9,7 +9,7 @@ import com.spartronics4915.frc2019.commands.ClimbRetractAllPneumatics;
 import com.spartronics4915.lib.hardware.sensors.IRSensor;
 import com.spartronics4915.lib.hardware.sensors.A21IRSensor;
 import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
-import com.spartronics4915.lib.util.CANProbe;
+import com.spartronics4915.lib.hardware.motors.CANProbe;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;

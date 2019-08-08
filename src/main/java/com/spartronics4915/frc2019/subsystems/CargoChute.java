@@ -5,7 +5,7 @@ import com.spartronics4915.frc2019.commands.CargoManualHold;
 import com.spartronics4915.lib.hardware.motors.SpartronicsSRXFactory;
 import com.spartronics4915.lib.hardware.sensors.A21IRSensor;
 import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
-import com.spartronics4915.lib.util.CANProbe;
+import com.spartronics4915.lib.hardware.motors.CANProbe;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
