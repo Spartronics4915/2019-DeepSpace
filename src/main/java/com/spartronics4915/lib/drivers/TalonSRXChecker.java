@@ -2,7 +2,7 @@ package com.spartronics4915.lib.drivers;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.spartronics4915.frc2019.subsystems.Subsystem;
+import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
 import com.spartronics4915.lib.util.Util;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -47,7 +47,7 @@ public class TalonSRXChecker
         public double mSetValue;
     }
 
-    public static boolean CheckTalons(Subsystem subsystem,
+    public static boolean CheckTalons(SpartronicsSubsystem subsystem,
             ArrayList<TalonSRXConfig> talonsToCheck,
             CheckerConfig checkerConfig)
     {
