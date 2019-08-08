@@ -22,9 +22,12 @@ Commands not done:
 - [ ] ChangeSelectedVisionIndex
 
 Issues:
+- [ ] All subsystems are using wpilibj's command Subsystem, but that means we don't have loggers
+- [ ] Robot.java
 - [ ] Drive.java
-- [ ] Autonomous commands
-- [ ] Vision
+- [ ] Superstructure.java
+- [ ] Autonomous
+- [ ] Remove lib???
 
 ## Setup Instructions
 
