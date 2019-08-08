@@ -1,18 +1,15 @@
 package com.spartronics4915.lib.drivers;
 
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.ParamEnum;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.spartronics4915.frc2019.Robot;
-import com.spartronics4915.lib.util.Logger;
 
 /**
  * Creates CANTalon objects and configures all the parameters we care about to
  * factory defaults. Closed-loop and sensor
  * parameters are not set, as these are expected to be set by the application.
  */
-public class TalonSRXFactory
+public class SpartronicsSRXFactory
 {
 
         private final static int kTimeoutMs = 100;

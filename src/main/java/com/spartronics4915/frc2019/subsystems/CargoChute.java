@@ -2,8 +2,8 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.commands.CargoManualHold;
-import com.spartronics4915.lib.drivers.TalonSRXFactory;
-import com.spartronics4915.lib.drivers.A21IRSensor;
+import com.spartronics4915.lib.hardware.motors.SpartronicsSRXFactory;
+import com.spartronics4915.lib.hardware.sensors.A21IRSensor;
 import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
 import com.spartronics4915.lib.util.CANProbe;
 
@@ -40,9 +40,9 @@ public class CargoChute extends SpartronicsSubsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
                 throw new RuntimeException("CargoChute PCM isn't on the CAN bus!");
 
-            mRampMotor = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorId);
-            mRampMotorSlave = TalonSRXFactory.createDefaultTalon(Constants.kRampMotorSlaveId);
-            mRampMotorSlave = TalonSRXFactory.createPermanentSlaveTalon(Constants.kRampMotorSlaveId,
+            mRampMotor = SpartronicsSRXFactory.createDefaultTalon(Constants.kRampMotorId);
+            mRampMotorSlave = SpartronicsSRXFactory.createDefaultTalon(Constants.kRampMotorSlaveId);
+            mRampMotorSlave = SpartronicsSRXFactory.createPermanentSlaveTalon(Constants.kRampMotorSlaveId,
                     Constants.kRampMotorId);
             mRampMotorSlave.setInverted(false);
 

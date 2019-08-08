@@ -7,7 +7,7 @@ package com.spartronics4915.frc2019.subsystems;
 
 import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.commands.CargoManualHold;
-import com.spartronics4915.lib.drivers.TalonSRXFactory;
+import com.spartronics4915.lib.hardware.motors.SpartronicsSRXFactory;
 import com.spartronics4915.lib.subsystems.SpartronicsSubsystem;
 import com.spartronics4915.lib.util.CANProbe;
 
@@ -44,8 +44,8 @@ public class CargoIntake extends SpartronicsSubsystem
             if (!CANProbe.getInstance().validatePCMId(Constants.kCargoHatchArmPCMId))
                 throw new RuntimeException("CargoIntake PCM isn't on the CAN bus!");
 
-            mMotorRight = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
-            mMotorLeft = TalonSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
+            mMotorRight = SpartronicsSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorRight);
+            mMotorLeft = SpartronicsSRXFactory.createDefaultTalon(Constants.kCargoIntakeMotorLeft);
 
             mMotorRight.setNeutralMode(NeutralMode.Brake);
             mMotorLeft.setNeutralMode(NeutralMode.Brake);
