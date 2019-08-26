@@ -11,7 +11,25 @@ Java file.
 
 ## Construction :construction:
 
-Commands not done:
+#### Commands
+- [x] CargoEject
+- [x] CargoIRIntake
+- [x] CargoManualHold
+- [x] CargoManualIntake
+- [x] CargoShoot
+- [x] CargoShootBay
+- [x] CargoShootRocket
+- [x] ChuteRaise
+- [x] ChuteLower
+- [ ] Climb
+- [x] ClimbIntake
+- [x] ClimbExtendAllPneumatics
+- [x] ClimbRetractAllPneumatics
+- [x] ClimbRetractFrontPneumatics
+- [x] ClimbRetractBackPneumatics
+- [x] PanelEject
+- [x] PanelRetract
+- [x] InsideFramePerimeter
 - [ ] AssistedIntakeCargo
 - [ ] AssistedShootRocket
 - [ ] AssistedShootBay
@@ -21,10 +39,21 @@ Commands not done:
 - [ ] AssistedIntakePanel
 - [ ] ChangeSelectedVisionIndex
 
-Issues:
-- [ ] Clean up Constants.java
-- [ ] Robot.java
-- [ ] Drive.java
+#### Auto
+- [ ]
+
+#### Subsystems
+- [x] CargoChute
+- [x] CargoIntake
+- [x] Climber
+- [x] PanelHandler
+- [x] LED
+- [x] Drive
+
+#### Issues
+- [x] OI
+- [x] Robot
+- [x] Clean up Constants
 - [ ] Autonomous commands
 - [ ] Vision
 
