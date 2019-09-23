@@ -5,8 +5,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.spartronics4915.frc2019.Constants;
-import com.spartronics4915.frc2019.VisionUpdateManager.HeadingUpdate;
-import com.spartronics4915.frc2019.paths.TrajectoryGenerator;
+import com.spartronics4915.frc2019.Kinematics;
 import com.spartronics4915.lib.util.ILooper;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.frc2019.planners.DriveMotionPlanner;
@@ -15,18 +14,19 @@ import com.spartronics4915.lib.drivers.TalonSRXFactory;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.geometry.Pose2dWithCurvature;
 import com.spartronics4915.lib.geometry.Rotation2d;
+import com.spartronics4915.lib.geometry.Twist2d;
 import com.spartronics4915.lib.physics.DifferentialDrive.ChassisState;
-import com.spartronics4915.lib.physics.DifferentialDrive.DriveDynamics;
 import com.spartronics4915.lib.physics.DifferentialDrive.WheelState;
 import com.spartronics4915.lib.trajectory.TrajectoryIterator;
 import com.spartronics4915.lib.trajectory.timing.TimedState;
+import com.spartronics4915.lib.util.ArcadeDriveHelper;
 import com.spartronics4915.lib.util.DriveSignal;
 import com.spartronics4915.lib.util.ReflectingCSVWriter;
 import com.spartronics4915.lib.util.Units;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -60,9 +60,7 @@ public class Drive extends Subsystem
         {
             synchronized (Drive.this)
             {
-                setOpenLoop(new DriveSignal(0.05, 0.05));
                 setBrakeMode(Constants.kDefaultBrakeMode);
-                // startLogging();
             }
         }
 
@@ -151,7 +149,7 @@ public class Drive extends Subsystem
             setOpenLoop(DriveSignal.NEUTRAL);
 
             // Force a CAN message across.
-            mIsBrakeMode = false;
+            mIsBrakeMode = !Constants.kDefaultBrakeMode;
             setBrakeMode(Constants.kDefaultBrakeMode);
         }
         catch (Exception e)
@@ -286,13 +284,31 @@ public class Drive extends Subsystem
         mPeriodicIO.leftAccel = mPeriodicIO.rightAccel = 0;
     }
 
-    public void curveTowardsVisionTarget(HeadingUpdate.TargetInfo targetInfo)
+    public void updateVisionAlign()
     {
-        DriveDynamics w = mMotionPlanner.getModel().solveInverseDynamics(
-                new ChassisState(getLinearVelocity(), getAngularVelocity()), new ChassisState(targetInfo.heightError * Constants.kDriveVisionHeightKp,
-                        targetInfo.headingError.getRadians() * Constants.kDriveVisionHeadingKp));
-        setVelocity(new DriveSignal(w.wheel_velocity.left, w.wheel_velocity.right),
-                new DriveSignal(w.voltage.left, w.voltage.right));
+        System.out.println("here");
+        updateVisionAlign(Double.NaN);
+    }
+
+    public synchronized void updateVisionAlign(double throttle)
+    {
+        double xError = 0.0, thetaError = 0.0;
+
+        String status = SmartDashboard.getString("Vision/State", "Searching");
+        if (status.equals("Aquired"))
+        { // Darwin made a spelling mistake
+            double[] data = SmartDashboard.getNumberArray("Vision/Reverse/heading", new double[] {0, 0, 0});
+            xError = 1.3 - data[1];
+            thetaError = data[0];
+        }
+
+        double linear = throttle;
+        double curvature = thetaError * Constants.kAlignPTheta;
+        curvature *= throttle;
+        System.out.println(xError + " " + thetaError + " " + linear + " " + curvature);
+        // var signal = Kinematics.inverseKinematics(new Twist2d(linear, 0.0, curvature));
+        // signal = new DriveSignal(signal.getLeft(), signal.getRight(), true);
+        setOpenLoop(ArcadeDriveHelper.arcadeDrive(linear, curvature, false));
     }
 
     private void updateTalonsForVelocity()
@@ -380,7 +396,7 @@ public class Drive extends Subsystem
     @Override
     public synchronized void stop()
     {
-        setOpenLoop(DriveSignal.NEUTRAL);
+        setOpenLoop(DriveSignal.NEUTRAL, Constants.kDefaultBrakeMode);
     }
 
     @Override

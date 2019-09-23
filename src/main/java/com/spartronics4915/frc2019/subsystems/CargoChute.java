@@ -111,6 +111,10 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                         {
                             mRampMotor.set(ControlMode.PercentOutput, Constants.kRampSpeed);
+                            if (mWantedState == WantedState.BRING_BALL_TO_TOP)
+                            {
+                                mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                            }
                         }
                         if (ballInPosition() && !isInManual() && newState == mSystemState)
                         {
@@ -122,6 +126,10 @@ public class CargoChute extends Subsystem
                         if (mStateChanged)
                         {
                             mRampMotor.set(ControlMode.PercentOutput, 0.0);
+                            if (mWantedState == WantedState.BRING_BALL_TO_TOP)
+                            {
+                                mRampSolenoid.set(Constants.kRampSolenoidRetract);
+                            }
                         }
                         if (!ballInPosition() && !isInManual() && newState == mSystemState)
                         {

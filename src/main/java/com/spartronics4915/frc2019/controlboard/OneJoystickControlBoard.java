@@ -35,7 +35,7 @@ public class OneJoystickControlBoard implements IDriveControlBoard
     @Override
     public boolean getReturnToDriverControl()
     {
-        return mJoystick.getRawButtonReleased(2);
+        return mJoystick.getRawButton(2);
     }
 
     @Override

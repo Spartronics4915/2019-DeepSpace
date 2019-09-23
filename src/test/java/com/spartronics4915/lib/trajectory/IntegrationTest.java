@@ -58,7 +58,8 @@ public class IntegrationTest
                                 new Pose2d(36.0, 0.0, Rotation2d.fromDegrees(0.0)),
                                 new Pose2d(60.0, 100, Rotation2d.fromDegrees(0.0)),
                                 new Pose2d(160.0, 100.0, Rotation2d.fromDegrees(0.0)),
-                                new Pose2d(200.0, 70, Rotation2d.fromDegrees(45.0)));
+                                new Pose2d(200.0, 70, Rotation2d.fromDegrees(45.0))
+                );
 
                 // Create a trajectory from splines.
                 Trajectory<Pose2dWithCurvature> trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(waypoints, 2.0,
@@ -96,6 +97,7 @@ public class IntegrationTest
                         assertEquals(next.state().velocity(), prev.state().velocity() + prev.state().acceleration() * dt, 1E-9);
                         assertEquals(next.state().distance(prev.state()), prev.state().velocity() * dt + 0.5 * prev.state()
                                         .acceleration() * dt * dt, 1E-9);
+                        // System.out.println(next.state().distance(prev.state()) + ", " + (0.5 * prev.state().acceleration() * dt * dt));
                 }
 
                 // "Follow" the trajectory.
@@ -116,13 +118,13 @@ public class IntegrationTest
                         }
                         final TimedState<Pose2dWithCurvature> state = sample.state();
 
-                        final DifferentialDrive.DriveDynamics dynamics = drive.solveInverseDynamics(
-                                        new DifferentialDrive.ChassisState(Units.inches_to_meters(state.velocity()), state.velocity() *
-                                                        state.state().getCurvature()),
-                                        new DifferentialDrive.ChassisState(Units.inches_to_meters(state.acceleration()), state
-                                                        .acceleration() * state.state().getCurvature()));
+                        // final DifferentialDrive.DriveDynamics dynamics = drive.solveInverseDynamics(
+                        //                 new DifferentialDrive.ChassisState(Units.inches_to_meters(state.velocity()), state.velocity() *
+                        //                                 state.state().getCurvature()),
+                        //                 new DifferentialDrive.ChassisState(Units.inches_to_meters(state.acceleration()), state
+                        //                                 .acceleration() * state.state().getCurvature()));
 
-                        System.out.println(state.toCSV() + ", " + dynamics.toCSV());
+                        System.out.println(state.toString());
                 }
         }
 

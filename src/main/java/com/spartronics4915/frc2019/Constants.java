@@ -79,6 +79,9 @@ public class Constants
 
     public static boolean kIsTestChassis; // todo: eliminate dependencies
 
+    public static final double kAlignPX = 0.8;
+    public static final double kAlignPTheta = 0.1;
+
     // Wheels
     public static final double kDriveWheelTrackWidthInches;
     public static final double kDriveWheelDiameterInches;
@@ -106,7 +109,7 @@ public class Constants
 
     public static final double kDriveLeftDeadband = 0.04;
     public static final double kDriveRightDeadband = 0.04;
-    public static final boolean kDefaultBrakeMode = true; // on
+    public static final boolean kDefaultBrakeMode = false; // on
 
     // LIDAR CONSTANTS ----------------
     public static final IReferenceModel kSegmentReferenceModel = new SegmentReferenceModel(

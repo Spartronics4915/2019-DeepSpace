@@ -347,178 +347,138 @@ public class Robot extends TimedRobot
     @Override
     public void teleopPeriodic()
     {
-        double[] codeTimes = new double[20]; // for diagnosing loop time consumption
-        int nctr = 0;
         mCodeTimer.reset();
         mCodeTimer.start();
         try
         {
-            if (mSuperstructure.isDriverControlled())
-            {
+            if (!mControlBoard.getReturnToDriverControl()) {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1),
                         mControlBoard.getTurn(),
                         mControlBoard.getSlowMode());
-
-                codeTimes[nctr++] = mCodeTimer.get(); // 0 after arcadeDrive
-
-                // double throttle = mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
-                // throttle = Math.copySign(Math.pow(Math.abs(throttle), 5.0/2.0), throttle) * Constants.kTeleopMaxChassisVel;
-
-                // double turn = mControlBoard.getTurn() * (mSuperstructure.isDrivingReversed() ? -1 : 1);
-                // turn = Math.copySign(Math.pow(Math.abs(turn), 5.0/3.0), turn) * Constants.kTeleopMaxChassisVel;
-
-                // double dt = Timer.getFPGATimestamp() - mLastTeleopLoopTime;
-                // ChassisState vel = new ChassisState(throttle, turn);
-                // ChassisState accel = new ChassisState((throttle - mLastTeleopVelocity.linear) / dt, (turn - mLastTeleopVelocity.angular) / dt);
-
-                // mDrive.setVelocityForChassisState(vel, accel);
-
-                // mLastTeleopLoopTime = Timer.getFPGATimestamp();
-                // mLastTeleopVelocity = new ChassisState(mDrive.getLinearVelocity(), mDrive.getLinearVelocity());
-
                 mDrive.setOpenLoop(command);
-                // mDrive.setVelocity(command, new DriveSignal(
-                //     command.scale(Constants.kDriveLeftKv * (Constants.kDriveWheelDiameterInches / 2)).getLeft() + Math.copySign(Constants.kDriveLeftVIntercept, command.getLeft()),
-                //     command.scale(Constants.kDriveRightKv * (Constants.kDriveWheelDiameterInches / 2)).getRight() + Math.copySign(Constants.kDriveRightVIntercept, command.getRight())
-                // )); XXX Conversions on Kv are wrong
-
-                codeTimes[nctr++] = mCodeTimer.get(); // 1 after setOpenLoop
-
-                // Button Board ----------------------------------------------------------
-                mControlBoard.updatePOV();
-
-                // CLIMBING
-                if (mControlBoard.getClimb())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
-
-                codeTimes[nctr++] = mCodeTimer.get(); // 2 after climbing
-
-                // INTAKE
-                if (mControlBoard.getAssistedIntakeCargo())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
-                else if (mControlBoard.getGroundEjectCargo())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-                    mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
-                }
-                else if (mControlBoard.getManualIntakeCargo())
-                {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO);
-                }
-                codeTimes[nctr++] = mCodeTimer.get(); // 3 after intake
-
-                // CARGO RAMP
-                if (mControlBoard.getManualRamp())
-                {
-                    if (!mCargoChute.isRampRunning())
-                        mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
-                    else
-                        mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
-                }
-                else if (mControlBoard.getAssistedShootRocket())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET);
-                else if (mControlBoard.getAssistedShootBay())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_BAY);
-                else if (mControlBoard.getSelectLeftVisionTarget())
-                {
-                    //TODO: add this functionality
-                }
-                else if (mControlBoard.getSelectRightVisionTarget())
-                {
-                    //TODO: add this functionality
-                }
-                else if (mControlBoard.getManualShootCargoBay())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
-                    // mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
-                else if (mControlBoard.getManualShootCargoRocket())
-                    mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
-                else if (mControlBoard.getManualChuteUp())
-                    mCargoChute.setWantedState(CargoChute.WantedState.RAISE);
-                else if (mControlBoard.getManualChuteDown())
-                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-
-                codeTimes[nctr++] = mCodeTimer.get(); // 4 after cargochute
-
-                // PANEL HANDLER
-                if (mControlBoard.getAssistedIntakePanel())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
-                else if (mControlBoard.getAssistedEjectPanel())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
-                else if (mControlBoard.getManualEjectPanel())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.EJECT_PANEL);
-
-                codeTimes[nctr++] = mCodeTimer.get(); // 5 after panelhandler
-
-                // EVERYTHING
-                if (mControlBoard.getInsideFramePerimeter())
-                {
-                    mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-                }
-                if (mControlBoard.getTestButtonOne()) // 2: 5
-                {
-                    // mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-                }
-                if (mControlBoard.getTestButtonTwo())
-                {
-                    // mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
-                }
-                if (mControlBoard.getTestButtonThree()) // 2: 7
-                {
-                    // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
-                }
-                if (mControlBoard.getChangeSelectedVisionIndex())
-                {
-                    int selectedIndex = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, -1);
-                    if (++selectedIndex >= Constants.kMaxVisionTargets)
-                        selectedIndex = 0;
-                    SmartDashboard.putNumber(Constants.kVisionSelectedIndexKey, selectedIndex);
-                }
-                codeTimes[nctr++] = mCodeTimer.get(); // 6 after subsystems
-
-                //TEST BUTTONBOARD
-                if (mControlBoard.getClimbExtendAllPneumatics())
-                {
-                    mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
-                }
-                else if (mControlBoard.getClimbIntake())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
-                }
-                else if (mControlBoard.getClimbRetractFrontPneumatics())
-                {
-                    mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
-                }
-                else if (mControlBoard.getClimbRetractBackPneumatics())
-                {
-                    mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
-                }
-                else if (mControlBoard.getIntakeArmDown())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
-                }
-                else if (mControlBoard.getIntakeHold())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
-                    mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
-                }
-                else if (mControlBoard.getIntakeStopMotors())
-                {
-                    mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
-                }
-                codeTimes[nctr++] = mCodeTimer.get(); // 7 after testbuttonboard
-
-                //Driver Joystick-----------------------------------------------------------
-                if (mControlBoard.getReverseDirection())
-                    mSuperstructure.reverseDrivingDirection();
-
-                if (mControlBoard.getReturnToDriverControl())
-                    mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_CLOSEST_REVERSE_TARGET);
+            } else {
+                // System.out.println("Aligning");
+                mDrive.updateVisionAlign(mControlBoard.getThrottle());
             }
-            else if (mControlBoard.getReturnToDriverControl())
-                mSuperstructure.setWantedState(Superstructure.WantedState.DRIVER_CONTROL);
 
-            codeTimes[nctr++] = mCodeTimer.get(); // 8 at end
+            // Button Board ----------------------------------------------------------
+            mControlBoard.updatePOV();
+
+            // CLIMBING
+            if (mControlBoard.getClimb())
+                mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
+
+            // INTAKE
+            if (mControlBoard.getAssistedIntakeCargo())
+                mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_CARGO);
+            else if (mControlBoard.getGroundEjectCargo())
+            {
+                mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+                mCargoChute.setWantedState(CargoChute.WantedState.EJECT_BACK);
+            }
+            else if (mControlBoard.getManualIntakeCargo())
+            {
+                mSuperstructure.setWantedState(Superstructure.WantedState.INTAKE_CARGO);
+            }
+
+            // CARGO RAMP
+            if (mControlBoard.getManualRamp())
+            {
+                if (!mCargoChute.isRampRunning())
+                    mCargoChute.setWantedState(CargoChute.WantedState.RAMP_MANUAL);
+                else
+                    mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
+            }
+            else if (mControlBoard.getAssistedShootRocket())
+                mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_ROCKET);
+            else if (mControlBoard.getAssistedShootBay())
+                mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_SHOOT_CARGO_BAY);
+            else if (mControlBoard.getSelectLeftVisionTarget())
+            {
+                //TODO: add this functionality
+            }
+            else if (mControlBoard.getSelectRightVisionTarget())
+            {
+                //TODO: add this functionality
+            }
+            else if (mControlBoard.getManualShootCargoBay())
+                mSuperstructure.setWantedState(Superstructure.WantedState.SHOOT_CARGO_BAY);
+            // mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
+            else if (mControlBoard.getManualShootCargoRocket())
+                mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_ROCKET);
+            else if (mControlBoard.getManualChuteUp())
+                mCargoChute.setWantedState(CargoChute.WantedState.RAISE);
+            else if (mControlBoard.getManualChuteDown())
+                mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+
+            // PANEL HANDLER
+            if (mControlBoard.getAssistedIntakePanel())
+                mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_INTAKE_PANEL);
+            else if (mControlBoard.getAssistedEjectPanel())
+                mSuperstructure.setWantedState(Superstructure.WantedState.ALIGN_AND_EJECT_PANEL);
+            else if (mControlBoard.getManualEjectPanel())
+                mSuperstructure.setWantedState(Superstructure.WantedState.EJECT_PANEL);
+
+            // EVERYTHING
+            if (mControlBoard.getInsideFramePerimeter())
+            {
+                mCargoChute.setWantedState(CargoChute.WantedState.LOWER);
+                mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+            }
+            if (mControlBoard.getTestButtonOne()) // 2: 5
+            {
+                // mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+            }
+            if (mControlBoard.getTestButtonTwo())
+            {
+                // mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+            }
+            if (mControlBoard.getTestButtonThree()) // 2: 7
+            {
+                // mCargoIntake.setWantedState(CargoIntake.WantedState.EJECT);
+            }
+            if (mControlBoard.getChangeSelectedVisionIndex())
+            {
+                int selectedIndex = (int) SmartDashboard.getNumber(Constants.kVisionSelectedIndexKey, -1);
+                if (++selectedIndex >= Constants.kMaxVisionTargets)
+                    selectedIndex = 0;
+                SmartDashboard.putNumber(Constants.kVisionSelectedIndexKey, selectedIndex);
+            }
+
+            //TEST BUTTONBOARD
+            if (mControlBoard.getClimbExtendAllPneumatics())
+            {
+                mSuperstructure.setWantedState(Superstructure.WantedState.LOWER_CHUTE_AND_CLIMB);
+            }
+            else if (mControlBoard.getClimbIntake())
+            {
+                mCargoIntake.setWantedState(CargoIntake.WantedState.CLIMB);
+            }
+            else if (mControlBoard.getClimbRetractFrontPneumatics())
+            {
+                mClimber.setWantedState(Climber.WantedState.RETRACT_FRONT_STRUTS);
+            }
+            else if (mControlBoard.getClimbRetractBackPneumatics())
+            {
+                mClimber.setWantedState(Climber.WantedState.RETRACT_REAR_STRUTS);
+            }
+            else if (mControlBoard.getIntakeArmDown())
+            {
+                mCargoIntake.setWantedState(CargoIntake.WantedState.ARM_DOWN);
+            }
+            else if (mControlBoard.getIntakeHold())
+            {
+                mCargoIntake.setWantedState(CargoIntake.WantedState.HOLD);
+                mCargoChute.setWantedState(CargoChute.WantedState.HOLD_MANUAL);
+            }
+            else if (mControlBoard.getIntakeStopMotors())
+            {
+                mCargoIntake.setWantedState(CargoIntake.WantedState.MOTORS_STOP);
+            }
+
+            //Driver Joystick-----------------------------------------------------------
+            if (mControlBoard.getReverseDirection())
+                mSuperstructure.reverseDrivingDirection();
         }
         catch (Throwable t)
         {
@@ -527,20 +487,6 @@ public class Robot extends TimedRobot
         }
 
         outputToSmartDashboard();
-        codeTimes[nctr++] = mCodeTimer.get(); // 9 after telemetry
-        double loopTime = codeTimes[nctr - 1];
-        if (loopTime > .025)
-        {
-            String str = "looptime overrun, offenders:\n";
-            for (int i = 0; i < nctr; i++)
-            {
-                str += "  " + i + " " + codeTimes[i] + "\n";
-            }
-            if (loopTime > .1)
-                Logger.notice("BIG " + str);
-            else
-                Logger.debug(str);
-        }
     }
 
     @Override

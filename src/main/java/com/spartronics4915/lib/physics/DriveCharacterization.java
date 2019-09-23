@@ -74,7 +74,7 @@ public class DriveCharacterization
      * for I (also known as J) in rma=Iα. Jared Russell has posted a similar
      * equation that you can use to solve for J, but we're not using it.
      * 
-     * @param linearAccelerationData  in rad/s^2
+     * @param linearAccelerationData  in meters/s^2
      * @param angularAccelerationData in rad/s^2
      * @param wheelRadius             in m
      * @param robotMass               in kg

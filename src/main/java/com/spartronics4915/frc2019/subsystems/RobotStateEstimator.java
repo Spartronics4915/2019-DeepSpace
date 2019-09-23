@@ -4,6 +4,7 @@ import com.spartronics4915.frc2019.Constants;
 import com.spartronics4915.frc2019.Kinematics;
 import com.spartronics4915.lib.geometry.Pose2d;
 import com.spartronics4915.lib.util.RobotStateMap;
+import com.spartronics4915.lib.util.Units;
 import com.spartronics4915.lib.util.ILooper;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -12,6 +13,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.spartronics4915.lib.util.ILoop;
 import com.spartronics4915.lib.geometry.Rotation2d;
 import com.spartronics4915.lib.geometry.Twist2d;
+import com.spartronics4915.lib.hardware.sensors.T265Camera;
+import com.spartronics4915.lib.hardware.sensors.T265Camera.CameraUpdate;
 import com.spartronics4915.lib.lidar.LidarProcessor;
 
 public class RobotStateEstimator extends Subsystem
@@ -31,8 +34,12 @@ public class RobotStateEstimator extends Subsystem
      */
     private RobotStateMap mEncoderRobotState = new RobotStateMap();
     private RobotStateMap mLidarRobotState = new RobotStateMap();
+    private RobotStateMap mCameraRobotState = new RobotStateMap();
+    
     private Drive mDrive;
+    private T265Camera mSLAMCamera;
     private LidarProcessor mLidarProcessor = null;
+
     private double mLeftPrevDist = 0.0;
     private double mRightPrevDist = 0.0;
 
@@ -41,6 +48,7 @@ public class RobotStateEstimator extends Subsystem
     RobotStateEstimator()
     {
         mDrive = Drive.getInstance();
+        mSLAMCamera = new T265Camera(new com.spartronics4915.lib.math.twodim.geometry.Pose2d(), 0.000001);
         /*
          * Warning: This starts the LIDAR server on robot boot.
          * This may need to be deferred until autonomousInit or
@@ -83,6 +91,7 @@ public class RobotStateEstimator extends Subsystem
         double time = Timer.getFPGATimestamp();
         mEncoderRobotState.reset(time, pose);
         mLidarRobotState.reset(time, pose);
+        mSLAMCamera.setPose(new com.spartronics4915.lib.math.twodim.geometry.Pose2d());
         mDrive.setHeading(pose.getRotation());
     }
 
@@ -95,7 +104,7 @@ public class RobotStateEstimator extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        final RobotStateMap.State estate = mEncoderRobotState.getLatestState();
+        final RobotStateMap.State estate = mCameraRobotState.getLatestState();
         Pose2d epose = estate.pose;
         SmartDashboard.putString("RobotState/pose",
                 epose.getTranslation().x() +
@@ -135,6 +144,16 @@ public class RobotStateEstimator extends Subsystem
         {
             mLeftPrevDist = mDrive.getLeftEncoderDistance();
             mRightPrevDist = mDrive.getRightEncoderDistance();
+
+            // Callback is called from a different thread... We avoid data races because RobotSteteMap is thread-safe
+            mSLAMCamera.stop();
+            mSLAMCamera.start((CameraUpdate update) ->
+            {
+                var pose = new Pose2d(update.pose.getTranslation().x(), update.pose.getTranslation().y(), Rotation2d.fromDegrees(update.pose.getRotation().getDegrees()));
+                var velocity = new Twist2d(update.velocity.dx, update.velocity.dy, update.velocity.dtheta.getRadians());
+                mCameraRobotState.addObservations(Timer.getFPGATimestamp(), pose, velocity, new Twist2d());
+                SmartDashboard.putString("RobotState/cameraConfidence", update.confidence.toString());
+            });
         }
 
         @Override
@@ -191,6 +210,9 @@ public class RobotStateEstimator extends Subsystem
 
             /* record the new state estimate */
             mEncoderRobotState.addObservations(timestamp, nextP, iVal, pVal);
+
+            mSLAMCamera.sendOdometry(new com.spartronics4915.lib.math.twodim.geometry.Twist2d(Units.inches_to_meters(pVal.dx), 
+                    Units.inches_to_meters(pVal.dy), com.spartronics4915.lib.math.twodim.geometry.Rotation2d.fromRadians(pVal.dtheta)));
         }
 
         @Override
