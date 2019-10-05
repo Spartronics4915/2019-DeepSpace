@@ -1,5 +1,9 @@
 package com.spartronics4915.frc2019;
 
+import com.spartronics4915.lib.math.twodim.geometry.Pose2d;
+import com.spartronics4915.lib.math.twodim.geometry.Rotation2d;
+import com.spartronics4915.lib.util.Units;
+
 /**
  * A list of constants used by the rest of the robot code. This include physics
  * constants as well as constants determined through calibrations.
@@ -7,7 +11,7 @@ package com.spartronics4915.frc2019;
 public class Constants
 {
     //  ********************
-    //          I/O
+    //       Subsystems
     //  ********************
 
     //  Drive
@@ -75,7 +79,84 @@ public class Constants
     public static final int kRearRightSolenoidId2 = 7;  // Retract
     public static final int kClimberFrontIRSensorID = 2;
     public static final int kClimberRearIRSensorID = 3;
-    public static final double kClimberSensorFrontMinVoltage = 2.5; // actual amount around 3
-    public static final double kClimberSensorRearMinVoltage = 1.5;  // actual amount around 2
+    public static final double kClimberSensorFrontMinVoltage = 2.5; // Actual amount around 3
+    public static final double kClimberSensorRearMinVoltage = 1.5;  // Actual amount around 2
     public static final double kClimberFrontSolenoidDelay = 0.0;    // Seconds
+
+    //  ********************
+    //        Physical
+    //  ********************
+
+    //  ********************
+    //          Auto
+    //  ********************
+
+    /**** Careful! Measurement units are in millimeters ****/
+    public enum ScorableLandmark
+    {
+        LEFT_LOADING_STATION(0.0, 3436.239, 0.0),
+        RIGHT_LOADING_STATION(LEFT_LOADING_STATION),
+        LEFT_ROCKET_CLOSE_FACE(5448.066, 3629.264, 28.75),
+        RIGHT_ROCKET_CLOSE_FACE(LEFT_ROCKET_CLOSE_FACE),
+        LEFT_ROCKET_MIDDLE_FACE(5819.775, 3392.382, 90),
+        RIGHT_ROCKET_MIDDLE_FACE(LEFT_ROCKET_MIDDLE_FACE),
+        LEFT_ROCKET_FAR_FACE(6191.484, 3629.264, 118.75),
+        RIGHT_ROCKET_FAR_FACE(LEFT_ROCKET_FAR_FACE),
+        LEFT_DRIVERSTATION_PARALLEL_CARGO_BAY(5598.319, 276.225, 180),
+        RIGHT_DRIVERSTATION_PARALLEL_CARGO_BAY(LEFT_DRIVERSTATION_PARALLEL_CARGO_BAY),
+        LEFT_CLOSE_CARGO_BAY(6623.05, 708.25, 90.0),
+        RIGHT_CLOSE_CARGO_BAY(LEFT_CLOSE_CARGO_BAY),
+        LEFT_MIDDLE_CARGO_BAY(7175.50, 708.025, 90.0),
+        RIGHT_MIDDLE_CARGO_BAY(LEFT_MIDDLE_CARGO_BAY),
+        LEFT_FAR_CARGO_BAY(7727.95, 708.025, 90.0),
+        RIGHT_FAR_CARGO_BAY(LEFT_FAR_CARGO_BAY);
+
+        public final Pose2d fieldPose;
+        public final Pose2d robotLengthCorrectedPose;
+
+        private ScorableLandmark(double x, double y, double rotationDegrees)
+        {
+            this.fieldPose = new Pose2d(Units.millimetersToInches(x), Units.millimetersToInches(y), Rotation2d.fromDegrees(rotationDegrees));
+            this.robotLengthCorrectedPose = correctPoseForRobotLength(this.fieldPose);
+        }
+
+        private ScorableLandmark(ScorableLandmark other)
+        {
+            this.fieldPose = new Pose2d(other.fieldPose.mirror());
+            this.robotLengthCorrectedPose = correctPoseForRobotLength(this.fieldPose);
+        }
+    }
+
+    // Not technically a scorable landmark (this is in inches)
+    public static final Pose2d kRightRobotLocationOnPlatform;
+    public static final Pose2d kMiddleRobotLocationOnPlatformReverse;
+    public static final Pose2d kMiddleRobotLocationOnPlatformForward;
+
+    public static final Pose2d kRightRobotLocationOffPlatform;
+    public static final Pose2d kMiddleRobotLocationOffPlatformReverse;
+    public static final Pose2d kMiddleRobotLocationOffPlatformForward;
+
+    public static final double kDriveOffHabXFudgeAmount = 0.0; // inches
+
+    public static Pose2d correctPoseForRobotLength(Pose2d oldpose)
+    {
+        return oldpose.transformBy(Constants.kRobotCenterToForward);
+    }
+
+
+
+    //  LIDAR ----------
+
+    //public static final IReferenceModel kSegmentReferenceModel = new SegmentReferenceModel(Segment.makeInRectangle(new Point(2, 2), new Point(0, 0)));
+
+    // Pose of the LIDAR frame w.r.t. the robot frame
+    public static final double kLidarXOffset = -11;
+    public static final double kLidarYOffset = -6;
+    public static final double kLidarYawAngleDegrees = -90;
+
+
+    //  ********************
+    //         Vision
+    //  ********************
+
 }
