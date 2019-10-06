@@ -396,7 +396,7 @@ public class Drive extends Subsystem
     @Override
     public synchronized void stop()
     {
-        setOpenLoop(DriveSignal.NEUTRAL, Constants.kDefaultBrakeMode);
+        setOpenLoop(DriveSignal.NEUTRAL);
     }
 
     @Override

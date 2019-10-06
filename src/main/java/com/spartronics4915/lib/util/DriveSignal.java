@@ -23,7 +23,7 @@ public class DriveSignal
         mBrakeMode = brakeMode;
     }
 
-    public static DriveSignal NEUTRAL = new DriveSignal(0, 0);
+    public static DriveSignal NEUTRAL = new DriveSignal(0, 0, false);
     public static DriveSignal BRAKE = new DriveSignal(0, 0, true);
 
     public double getLeft()
