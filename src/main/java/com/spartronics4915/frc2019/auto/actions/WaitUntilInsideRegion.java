@@ -7,7 +7,7 @@ import com.spartronics4915.lib.geometry.Translation2d;
 public class WaitUntilInsideRegion implements Action
 {
 
-    private final static RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+    private final static RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getBestRobotStateMap();
 
     private final Translation2d mBottomLeft;
     private final Translation2d mTopRight;

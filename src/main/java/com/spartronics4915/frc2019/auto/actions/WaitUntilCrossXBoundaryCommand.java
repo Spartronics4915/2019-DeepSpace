@@ -17,7 +17,7 @@ public class WaitUntilCrossXBoundaryCommand implements Action
     public boolean isFinished()
     {
         return RobotStateEstimator.getInstance().
-            getEncoderRobotStateMap().getFieldToVehicle(Timer.getFPGATimestamp()).getTranslation().x() > mXBoundary;
+            getBestRobotStateMap().getFieldToVehicle(Timer.getFPGATimestamp()).getTranslation().x() > mXBoundary;
     }
 
     @Override

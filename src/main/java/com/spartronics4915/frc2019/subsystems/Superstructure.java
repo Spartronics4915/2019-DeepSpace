@@ -129,7 +129,7 @@ public class Superstructure extends Subsystem
     private final PanelHandler mPanelHandler = PanelHandler.getInstance();
 
     private TrajectoryGenerator mTrajectoryGenerator = TrajectoryGenerator.getInstance();
-    private RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+    private RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getBestRobotStateMap();
 
     private static final double kPanelHandlingDuration = 0.3; // Seconds TODO: Tune me (also is this our responsibility?)
 

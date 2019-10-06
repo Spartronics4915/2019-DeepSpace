@@ -523,7 +523,7 @@ public class Drive extends Subsystem
             final double now = Timer.getFPGATimestamp();
 
             DriveMotionPlanner.Output output =
-                    mMotionPlanner.update(now, RobotStateEstimator.getInstance().getEncoderRobotStateMap().getFieldToVehicle(now));
+                    mMotionPlanner.update(now, RobotStateEstimator.getInstance().getBestRobotStateMap().getFieldToVehicle(now));
 
             // DriveSignal signal = new DriveSignal(demand.left_feedforward_voltage / 12.0, demand.right_feedforward_voltage / 12.0);
 

@@ -48,7 +48,12 @@ public class RobotStateEstimator extends Subsystem
     RobotStateEstimator()
     {
         mDrive = Drive.getInstance();
-        mSLAMCamera = new T265Camera(new com.spartronics4915.lib.math.twodim.geometry.Pose2d(), 0.000001);
+        try {
+            mSLAMCamera = new T265Camera(new com.spartronics4915.lib.math.twodim.geometry.Pose2d(), 0.000001);
+        } catch (Exception e) {
+            logException("Couldn't instantiate T265 camera", e);
+            mSLAMCamera = null;
+        }
         /*
          * Warning: This starts the LIDAR server on robot boot.
          * This may need to be deferred until autonomousInit or
@@ -71,14 +76,12 @@ public class RobotStateEstimator extends Subsystem
         logInitialized(true);
     }
 
-    public RobotStateMap getEncoderRobotStateMap()
-    {
-        return mEncoderRobotState;
-    }
-
-    public RobotStateMap getLidarRobotStateMap()
-    {
-        return mLidarRobotState;
+    public RobotStateMap getBestRobotStateMap() {
+        if (mSLAMCamera != null) {
+            return mCameraRobotState;
+        } else {
+            return mEncoderRobotState;
+        }
     }
 
     public void resetRobotStateMaps()
@@ -91,7 +94,11 @@ public class RobotStateEstimator extends Subsystem
         double time = Timer.getFPGATimestamp();
         mEncoderRobotState.reset(time, pose);
         mLidarRobotState.reset(time, pose);
-        mSLAMCamera.setPose(new com.spartronics4915.lib.math.twodim.geometry.Pose2d());
+        mCameraRobotState.reset(time, pose);
+
+        if (mSLAMCamera != null) {
+            mSLAMCamera.setPose(new com.spartronics4915.lib.math.twodim.geometry.Pose2d());
+        }
         mDrive.setHeading(pose.getRotation());
     }
 
@@ -104,7 +111,7 @@ public class RobotStateEstimator extends Subsystem
     @Override
     public void outputTelemetry()
     {
-        final RobotStateMap.State estate = mCameraRobotState.getLatestState();
+        final RobotStateMap.State estate = getBestRobotStateMap().getLatestState();
         Pose2d epose = estate.pose;
         SmartDashboard.putString("RobotState/pose",
                 epose.getTranslation().x() +
@@ -112,14 +119,6 @@ public class RobotStateEstimator extends Subsystem
                         " " + epose.getRotation().getDegrees());
         Twist2d pVel = estate.predictedVelocity;
         SmartDashboard.putNumber("RobotState/velocity", pVel.dx);
-        // SmartDashboard.putNumber("RobotState/field_degrees", epose.getRotation().getDegrees());
-
-        // final RobotStateMap.State lstate = mLidarRobotState.getLatestState();
-        // Pose2d lpose = lstate.pose;
-        // SmartDashboard.putString("Lidar/pose",
-        //         lpose.getTranslation().x() +
-        //                 " " + lpose.getTranslation().y() +
-        //                 " " + lpose.getRotation().getDegrees());
     }
 
     @Override
@@ -145,15 +144,17 @@ public class RobotStateEstimator extends Subsystem
             mLeftPrevDist = mDrive.getLeftEncoderDistance();
             mRightPrevDist = mDrive.getRightEncoderDistance();
 
-            // Callback is called from a different thread... We avoid data races because RobotSteteMap is thread-safe
-            mSLAMCamera.stop();
-            mSLAMCamera.start((CameraUpdate update) ->
-            {
-                var pose = new Pose2d(update.pose.getTranslation().x(), update.pose.getTranslation().y(), Rotation2d.fromDegrees(update.pose.getRotation().getDegrees()));
-                var velocity = new Twist2d(update.velocity.dx, update.velocity.dy, update.velocity.dtheta.getRadians());
-                mCameraRobotState.addObservations(Timer.getFPGATimestamp(), pose, velocity, new Twist2d());
-                SmartDashboard.putString("RobotState/cameraConfidence", update.confidence.toString());
-            });
+            if (mSLAMCamera != null) {
+                // Callback is called from a different thread... We avoid data races because RobotSteteMap is thread-safe
+                mSLAMCamera.stop();
+                mSLAMCamera.start((CameraUpdate update) ->
+                {
+                    var pose = new Pose2d(update.pose.getTranslation().x(), update.pose.getTranslation().y(), Rotation2d.fromDegrees(update.pose.getRotation().getDegrees()));
+                    var velocity = new Twist2d(update.velocity.dx, update.velocity.dy, update.velocity.dtheta.getRadians());
+                    mCameraRobotState.addObservations(Timer.getFPGATimestamp(), pose, velocity, new Twist2d());
+                    SmartDashboard.putString("RobotState/cameraConfidence", update.confidence.toString());
+                });
+            }
         }
 
         @Override
@@ -211,8 +212,10 @@ public class RobotStateEstimator extends Subsystem
             /* record the new state estimate */
             mEncoderRobotState.addObservations(timestamp, nextP, iVal, pVal);
 
-            mSLAMCamera.sendOdometry(new com.spartronics4915.lib.math.twodim.geometry.Twist2d(Units.inches_to_meters(pVal.dx), 
-                    Units.inches_to_meters(pVal.dy), com.spartronics4915.lib.math.twodim.geometry.Rotation2d.fromRadians(pVal.dtheta)));
+            if (mSLAMCamera != null) {  
+                mSLAMCamera.sendOdometry(new com.spartronics4915.lib.math.twodim.geometry.Twist2d(Units.inches_to_meters(pVal.dx), 
+                       Units.inches_to_meters(pVal.dy), com.spartronics4915.lib.math.twodim.geometry.Rotation2d.fromRadians(pVal.dtheta)));
+            }
         }
 
         @Override
