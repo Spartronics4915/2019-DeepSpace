@@ -19,7 +19,7 @@ public class CollectCurvatureData implements Action
     private static final double kStartTime = 0.25;
     private static final double kRampRate = 0.02;
     private static final Drive mDrive = Drive.getInstance();
-    private static final RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getEncoderRobotStateMap();
+    private static final RobotStateMap mRobotStateMap = RobotStateEstimator.getInstance().getBestRobotStateMap();
 
     private final ReflectingCSVWriter<DriveCharacterization.CurvatureDataPoint> mCSVWriter;
     private final List<DriveCharacterization.CurvatureDataPoint> mCurvatureData;

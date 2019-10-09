@@ -339,6 +339,7 @@ public class Drive extends Subsystem
 
     public boolean isDoneWithTrajectory()
     {
+        System.out.println(mDriveControlState + " " + mMotionPlanner.isDone());
         if (mMotionPlanner == null || mDriveControlState != DriveControlState.PATH_FOLLOWING)
         {
             return false;

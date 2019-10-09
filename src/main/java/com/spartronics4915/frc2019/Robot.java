@@ -351,12 +351,12 @@ public class Robot extends TimedRobot
         mCodeTimer.start();
         try
         {
-            if (!mControlBoard.getReturnToDriverControl()) {
+            if (!mControlBoard.getReturnToDriverControl() && mSuperstructure.isDriverControlled()) {
                 DriveSignal command = ArcadeDriveHelper.arcadeDrive(mControlBoard.getThrottle() * (mSuperstructure.isDrivingReversed() ? -1 : 1),
                         mControlBoard.getTurn(),
                         mControlBoard.getSlowMode());
                 mDrive.setOpenLoop(command);
-            } else {
+            } else if (mControlBoard.getReturnToDriverControl()) {
                 // System.out.println("Aligning");
                 mDrive.updateVisionAlign(mControlBoard.getThrottle());
             }

@@ -375,15 +375,18 @@ public class Superstructure extends Subsystem
                     case SHOOTING_CARGO_AND_BACKING:
                         if (mStateChanged)
                         {
+                            System.out.println("Making and driving path");
                             makeAndDrivePath(
                                     mRobotStateMap.getFieldToVehicle(Timer.getFPGATimestamp()).transformBy(Constants.kShootIntoBayBackupDistance),
-                                    false);
-                            // mRobotStateMap.reset(Timer.getFPGATimestamp(), new Pose2d());
-                            // mDrive.setHeading(Rotation2d.identity());
-                            // mDrive.setTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveReverseToShootInBay);
+                                    false
+                            );
+                            mRobotStateMap.reset(Timer.getFPGATimestamp(), new Pose2d());
+                            mDrive.setHeading(Rotation2d.identity());
+                            mDrive.setTrajectory(TrajectoryGenerator.getInstance().getTrajectorySet().driveReverseToShootInBay);
                         }
                         else if (mDrive.isDoneWithTrajectory() && mWantedState == WantedState.SHOOT_CARGO_BAY)
                         {
+                            System.out.println("here");
                             mCargoChute.setWantedState(CargoChute.WantedState.SHOOT_BAY);
                             mWantedState = WantedState.DRIVER_CONTROL;
                             newState = SystemState.DRIVER_CONTROLLING;

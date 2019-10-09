@@ -49,7 +49,7 @@ public class RobotStateEstimator extends Subsystem
     {
         mDrive = Drive.getInstance();
         try {
-            mSLAMCamera = new T265Camera(new com.spartronics4915.lib.math.twodim.geometry.Pose2d(), 0.000001);
+            mSLAMCamera = new T265Camera(new com.spartronics4915.lib.math.twodim.geometry.Pose2d(Units.inches_to_meters(-4.4375), Units.inches_to_meters(-12.0), com.spartronics4915.lib.math.twodim.geometry.Rotation2d.fromDegrees(-90)), 0.000001);
         } catch (Exception e) {
             logException("Couldn't instantiate T265 camera", e);
             mSLAMCamera = null;
@@ -149,8 +149,8 @@ public class RobotStateEstimator extends Subsystem
                 mSLAMCamera.stop();
                 mSLAMCamera.start((CameraUpdate update) ->
                 {
-                    var pose = new Pose2d(update.pose.getTranslation().x(), update.pose.getTranslation().y(), Rotation2d.fromDegrees(update.pose.getRotation().getDegrees()));
-                    var velocity = new Twist2d(update.velocity.dx, update.velocity.dy, update.velocity.dtheta.getRadians());
+                    var pose = new Pose2d(Units.meters_to_inches(update.pose.getTranslation().x()), Units.meters_to_inches(update.pose.getTranslation().y()), Rotation2d.fromDegrees(update.pose.getRotation().getDegrees()));
+                    var velocity = new Twist2d(Units.meters_to_inches(update.velocity.dx), Units.meters_to_inches(update.velocity.dy), update.velocity.dtheta.getRadians());
                     mCameraRobotState.addObservations(Timer.getFPGATimestamp(), pose, velocity, new Twist2d());
                     SmartDashboard.putString("RobotState/cameraConfidence", update.confidence.toString());
                 });
@@ -213,8 +213,8 @@ public class RobotStateEstimator extends Subsystem
             mEncoderRobotState.addObservations(timestamp, nextP, iVal, pVal);
 
             if (mSLAMCamera != null) {  
-                mSLAMCamera.sendOdometry(new com.spartronics4915.lib.math.twodim.geometry.Twist2d(Units.inches_to_meters(pVal.dx), 
-                       Units.inches_to_meters(pVal.dy), com.spartronics4915.lib.math.twodim.geometry.Rotation2d.fromRadians(pVal.dtheta)));
+                // mSLAMCamera.sendOdometry(new com.spartronics4915.lib.math.twodim.geometry.Twist2d(Units.inches_to_meters(pVal.dx), 
+                //        Units.inches_to_meters(pVal.dy), com.spartronics4915.lib.math.twodim.geometry.Rotation2d.fromRadians(pVal.dtheta)));
             }
         }
 
